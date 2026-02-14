@@ -17,6 +17,34 @@
 
 ---
 
+## Phase 1.5: Test Infrastructure (DONE)
+
+構造バリデーションテストを作成。全Phaseの前提基盤。
+
+### 完了事項
+
+- `tests/test-plugin-structure.sh` - plugin.json, agents/, skills/, rules/, hooks/ 検証
+- `tests/test-agents-structure.sh` - エージェント frontmatter 検証
+- `tests/test-skills-structure.sh` - SKILL.md 行数 + frontmatter 検証
+- 3つの over-limit SKILL.md を修正 (attack-report, context-review, flask-quality)
+- GitHub Issues #1-#9 登録完了
+
+### Issue Tracking
+
+| Issue | Title | Phase | Status |
+|-------|-------|-------|--------|
+| #1 | test: structure validation scripts | 1.5 | DONE |
+| #2 | feat: phase-compact skill | 2 | Open |
+| #3 | feat: orchestrate phase-compact integration | 2 | Open |
+| #4 | research: Japanese vs Western UI/UX | 3 | Open |
+| #5 | feat: designer agent (Japanese design) | 3 | Open |
+| #6 | feat: designer + plan-review integration | 3 | Open |
+| #7 | feat: model selection hints | 4 | Open |
+| #8 | feat: hook-based tool output filtering | 4 | Open |
+| #9 | chore: SKILL.md size audit | 4 | Open |
+
+---
+
 ## Phase 2: phase-compact Skill (New Development)
 
 新規スキル。TDDフェーズ境界でのcontext compaction。
@@ -24,7 +52,7 @@
 ### Design
 
 ```
-core/skills/phase-compact/
+skills/phase-compact/
 ├── SKILL.md          # スキル定義
 └── reference.md      # 実装詳細
 ```
