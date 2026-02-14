@@ -1,9 +1,0 @@
-{
-  "name": "flutter",
-  "description": "Flutter/Dart quality tools. dart analyze, dart format, flutter test integration.",
-  "author": {
-    "name": "morodomi"
-  },
-  "repository": "https://github.com/morodomi/dev-crew",
-  "license": "MIT"
-}

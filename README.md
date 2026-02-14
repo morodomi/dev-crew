@@ -1,32 +1,25 @@
 # dev-crew
 
-AI development team environment for Claude Code. Install once at user level, use across all projects.
+AI development team environment for Claude Code. Install once, use across all projects.
 
 ## What is this?
 
-A Claude Code plugin collection that provides an autonomous AI development team:
+A single Claude Code plugin that provides an autonomous AI development team:
 
 - **PdM** (Product Manager): Orchestrates the entire development workflow
 - **Engineer**: TDD-driven implementation (RED/GREEN/REFACTOR)
-- **Designer**: UI/UX design support
+- **Designer**: UI/UX design support (planned)
 - **Security Auditor**: OWASP-based vulnerability scanning
 - **Reviewers**: Parallel code review (correctness, performance, security, architecture, etc.)
+- **Meta Learner**: Session pattern extraction and skill evolution
 
 ## Installation
 
 ```bash
-# Install all plugins at user level
-/plugin install core@dev-crew
-/plugin install php@dev-crew
-/plugin install python@dev-crew
-/plugin install typescript@dev-crew
-/plugin install javascript@dev-crew
-/plugin install flask@dev-crew
-/plugin install flutter@dev-crew
-/plugin install hugo@dev-crew
-/plugin install security@dev-crew
-/plugin install meta@dev-crew
+/plugin install dev-crew
 ```
+
+One command. All 34 agents, 26 skills, rules, and hooks are available.
 
 ## Core Workflow
 
@@ -34,34 +27,43 @@ A Claude Code plugin collection that provides an autonomous AI development team:
 INIT -> PLAN -> RED -> GREEN -> REFACTOR -> REVIEW -> COMMIT
 ```
 
-Each phase boundary triggers automatic context compaction to maintain token efficiency across long sessions.
+Each phase boundary triggers automatic context compaction to maintain token efficiency.
 
 ## Token Optimization
 
-dev-crew implements phase-boundary compaction inspired by [OpenClaw](https://github.com/openclaw/openclaw):
+Phase-boundary compaction inspired by [OpenClaw](https://github.com/openclaw/openclaw):
 
-1. Phase output is persisted to Cycle doc
+1. Phase output persisted to Cycle doc
 2. `/compact` triggers at phase boundary
 3. Next phase loads context from Cycle doc (not conversation history)
 
-## Plugin Structure
+## Structure
 
 ```
 dev-crew/
-├── plugins/
-│   ├── core/          # PdM orchestration + TDD workflow + reviewers
-│   ├── php/           # PHP quality (PHPStan, Pint, PHPUnit)
-│   ├── python/        # Python quality (pytest, mypy, Black)
-│   ├── typescript/    # TypeScript quality (tsc, ESLint, Jest)
-│   ├── javascript/    # JavaScript quality (ESLint, Prettier, Jest)
-│   ├── flask/         # Flask quality (pytest-flask, mypy)
-│   ├── flutter/       # Flutter quality (dart analyze, flutter test)
-│   ├── hugo/          # Hugo quality (hugo build, htmltest)
-│   ├── security/      # Security scanning (OWASP Top 10)
-│   └── meta/          # Pattern learning and skill evolution
-├── scripts/           # Test scripts
-└── docs/              # Design docs and cycle docs
+├── .claude-plugin/plugin.json   # Single plugin
+├── agents/                      # 34 agents
+├── skills/                      # 26 skills
+├── rules/                       # Git safety, conventions, security
+├── hooks/hooks.json             # Phase-boundary compaction hooks
+├── scripts/hooks/               # Shell scripts for hooks
+├── tests/                       # Structure validation
+└── docs/                        # Architecture, design, user stories
 ```
+
+## Skills
+
+### Development Workflow (13)
+init, plan, red, green, refactor, review, commit, orchestrate, plan-review, quality-gate, diagnose, parallel, onboard
+
+### Security (4)
+security-scan, attack-report, context-review, generate-e2e
+
+### Language Quality (7)
+php-quality, python-quality, ts-quality, js-quality, flask-quality, flutter-quality, hugo-quality
+
+### Meta Learning (2)
+learn, evolve
 
 ## License
 

@@ -1,0 +1,9 @@
+{
+  "name": "dev-crew",
+  "description": "AI development team environment. TDD workflow, security audit, pattern learning, and phase-boundary compaction.",
+  "author": {
+    "name": "morodomi"
+  },
+  "repository": "https://github.com/morodomi/dev-crew",
+  "license": "MIT"
+}

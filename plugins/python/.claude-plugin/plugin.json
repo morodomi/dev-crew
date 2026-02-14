@@ -1,9 +1,0 @@
-{
-  "name": "python",
-  "description": "Python quality tools. pytest, mypy, Black/isort integration.",
-  "author": {
-    "name": "morodomi"
-  },
-  "repository": "https://github.com/morodomi/dev-crew",
-  "license": "MIT"
-}

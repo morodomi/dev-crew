@@ -1,9 +1,0 @@
-{
-  "name": "flask",
-  "description": "Flask quality tools. pytest-flask, mypy, Black/isort integration.",
-  "author": {
-    "name": "morodomi"
-  },
-  "repository": "https://github.com/morodomi/dev-crew",
-  "license": "MIT"
-}

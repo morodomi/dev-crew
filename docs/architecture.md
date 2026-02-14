@@ -36,73 +36,31 @@ User
 
 ## Plugin Architecture
 
-### Plugin Dependency
+### Single Plugin Structure
+
+dev-crewは単一のClaude Code Plugin。1回のinstallで全機能が有効化される。
 
 ```
-core (required)
-├── php / python / typescript / javascript / flask / flutter / hugo (optional, language-specific)
-├── security (optional, pre-release audit)
-└── meta (optional, pattern learning)
-```
-
-- `core` は必須。ワークフローエンジン + レビューエージェントを含む
-- 言語プラグインはプロジェクトの言語に応じて選択
-- `security` はリリース前監査用
-- `meta` はパターン学習・スキル進化用
-
-### Core Plugin Internal Architecture
-
-```
-core/
-├── agents/
-│   ├── Orchestration
-│   │   ├── pdm.md              # PdM: 全フェーズ管理
-│   │   └── socrates.md         # Devil's Advocate
-│   │
-│   ├── Implementation
-│   │   ├── architect.md        # PLAN phase設計
-│   │   ├── red-worker.md       # REDテスト作成
-│   │   ├── green-worker.md     # GREEN実装
-│   │   └── refactorer.md       # REFACTOR品質改善
-│   │
-│   ├── Design
-│   │   └── designer.md         # UI/UXデザイン (NEW)
-│   │
-│   └── Review (parallel execution)
-│       ├── correctness-reviewer.md
-│       ├── performance-reviewer.md
-│       ├── security-reviewer.md
-│       ├── guidelines-reviewer.md
-│       ├── scope-reviewer.md
-│       ├── architecture-reviewer.md
-│       ├── risk-reviewer.md
-│       ├── product-reviewer.md
-│       └── usability-reviewer.md
-│
-└── skills/
-    ├── Workflow (7 phases)
-    │   ├── init/
-    │   ├── plan/
-    │   ├── red/
-    │   ├── green/
-    │   ├── refactor/
-    │   ├── review/
-    │   └── commit/
-    │
-    ├── Review Gates
-    │   ├── plan-review/        # 5 agent parallel
-    │   └── quality-gate/       # 6 agent parallel
-    │
-    ├── Orchestration
-    │   ├── orchestrate/        # PdM全体管理
-    │   └── phase-compact/      # フェーズ境界compaction (NEW)
-    │
-    ├── Diagnostic
-    │   ├── diagnose/           # 並列仮説調査
-    │   └── parallel/           # クロスレイヤー並列開発
-    │
-    └── Setup
-        └── onboard/            # プロジェクト初期セットアップ
+dev-crew/
+├── .claude-plugin/plugin.json    # Single plugin metadata
+├── agents/                       # 34 agents (flat)
+│   ├── Orchestration: socrates.md
+│   ├── Implementation: architect.md, red-worker.md, green-worker.md, refactorer.md
+│   ├── Review (9): *-reviewer.md
+│   ├── Security (18): *-attacker.md, recon-agent.md, etc.
+│   └── Meta: observer.md
+├── skills/                       # 26 skills (flat)
+│   ├── Workflow (7): init/, plan/, red/, green/, refactor/, review/, commit/
+│   ├── Review Gates (2): plan-review/, quality-gate/
+│   ├── Orchestration (2): orchestrate/, phase-compact/ (NEW)
+│   ├── Diagnostic (2): diagnose/, parallel/
+│   ├── Setup (1): onboard/
+│   ├── Security (4): security-scan/, attack-report/, context-review/, generate-e2e/
+│   ├── Language Quality (7): php-quality/, python-quality/, ts-quality/, etc.
+│   └── Meta (2): learn/, evolve/
+├── rules/                        # Always-applied rules
+├── hooks/hooks.json              # Auto-loaded hooks
+└── scripts/hooks/                # Shell scripts for hooks
 ```
 
 ## Token Optimization Architecture

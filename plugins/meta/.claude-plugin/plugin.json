@@ -1,9 +1,0 @@
-{
-  "name": "meta",
-  "description": "Pattern learning and skill evolution. learn: extract session patterns. evolve: cluster into skills/agents.",
-  "author": {
-    "name": "morodomi"
-  },
-  "repository": "https://github.com/morodomi/dev-crew",
-  "license": "MIT"
-}

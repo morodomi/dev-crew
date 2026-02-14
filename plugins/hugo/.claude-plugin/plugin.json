@@ -1,9 +1,0 @@
-{
-  "name": "hugo",
-  "description": "Hugo SSG quality tools. hugo build, htmltest, template metrics integration.",
-  "author": {
-    "name": "morodomi"
-  },
-  "repository": "https://github.com/morodomi/dev-crew",
-  "license": "MIT"
-}

@@ -1,33 +1,57 @@
 # dev-crew
 
-AI development team environment as Claude Code Plugins.
+AI development team environment as a single Claude Code Plugin.
 
 ## Tech Stack
 
-- **Distribution**: Claude Code Plugins
+- **Distribution**: Claude Code Plugin (single plugin, user-level install)
 - **Target Languages**: PHP, Python, TypeScript, JavaScript, Flutter, Hugo
-- **Quality Tools**: Language-specific (see each plugin)
 - **Security**: OWASP Top 10, CWE Top 25
 
 ## Project Structure
 
 ```
 dev-crew/
-├── plugins/
-│   ├── core/              # PdM + TDD workflow + review agents
-│   │   ├── agents/        # pdm, engineer, designer, reviewers
-│   │   └── skills/        # init, plan, red, green, refactor, review, commit, orchestrate, phase-compact
-│   ├── php/               # PHPStan, Pint, PHPUnit
-│   ├── python/            # pytest, mypy, Black
-│   ├── typescript/        # tsc, ESLint, Jest
-│   ├── javascript/        # ESLint, Prettier, Jest
-│   ├── flask/             # pytest-flask, mypy
-│   ├── flutter/           # dart analyze, flutter test
-│   ├── hugo/              # hugo build, htmltest
-│   ├── security/          # OWASP security scanning
-│   └── meta/              # Pattern learning, skill evolution
-├── scripts/               # Structure validation tests
-└── docs/                  # Design docs, cycle docs
+├── .claude-plugin/
+│   └── plugin.json        # Single plugin metadata
+├── agents/                # 34 agents (flat)
+│   ├── architect.md       # PLAN phase design
+│   ├── red-worker.md      # RED test creation
+│   ├── green-worker.md    # GREEN implementation
+│   ├── refactorer.md      # REFACTOR quality
+│   ├── socrates.md        # Devil's Advocate advisor
+│   ├── observer.md        # Pattern detection (meta)
+│   ├── *-reviewer.md      # 9 review agents
+│   └── *-attacker.md      # 18 security agents
+├── skills/                # 26 skills (flat)
+│   ├── init/              # Cycle start
+│   ├── plan/              # Design + Test List
+│   ├── red/               # Failing tests
+│   ├── green/             # Minimal implementation
+│   ├── refactor/          # Code quality
+│   ├── review/            # Quality check
+│   ├── commit/            # Git commit
+│   ├── orchestrate/       # PdM orchestration
+│   ├── plan-review/       # 5-agent design review
+│   ├── quality-gate/      # 6-agent code review
+│   ├── diagnose/          # Parallel bug investigation
+│   ├── parallel/          # Cross-layer parallel dev
+│   ├── onboard/           # Project setup
+│   ├── security-scan/     # OWASP scanning
+│   ├── attack-report/     # Vulnerability report
+│   ├── learn/             # Pattern extraction
+│   ├── evolve/            # Skill evolution
+│   └── *-quality/         # 7 language quality tools
+├── rules/                 # Always-applied rules
+│   ├── git-safety.md
+│   ├── git-conventions.md
+│   └── security.md
+├── hooks/
+│   └── hooks.json         # Auto-loaded hook definitions
+├── scripts/
+│   └── hooks/             # Shell scripts for hooks
+├── tests/                 # Structure validation scripts
+└── docs/                  # Design docs + cycle docs
 ```
 
 ## Workflow
@@ -52,21 +76,6 @@ Phase-boundary compaction:
 | Coverage | 90%+ (minimum 80%) |
 | Static analysis | 0 errors |
 | SKILL.md | < 100 lines |
-
-## Plugin Architecture
-
-Each plugin is self-contained:
-```
-plugin-name/
-├── .claude-plugin/
-│   └── plugin.json
-├── agents/          # Optional: agent definitions (.md)
-├── skills/
-│   └── skill-name/
-│       ├── SKILL.md       # < 100 lines
-│       └── reference.md   # Detailed reference
-└── README.md
-```
 
 ## Development Rules
 
@@ -106,9 +115,3 @@ feat | fix | docs | refactor | test | chore
 | security-scan | "security scan" | SECURITY |
 | learn | "learn", "extract patterns" | META |
 | evolve | "evolve", "skill evolution" | META |
-
-## Test Commands
-
-```bash
-bash scripts/test-plugins-structure.sh
-```

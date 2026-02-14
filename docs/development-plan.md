@@ -1,75 +1,19 @@
 # Development Plan
 
-## Phase 1: Migration (Current)
+## Phase 1: Migration (DONE)
 
-既存スキルをdev-crewにコピー・リネームする。機能変更なし。
+既存スキルをdev-crewに統合。単一plugin構造にフラット化完了。
 
-### 1.1 Core Plugin Migration
+### 完了事項
 
-Source: `tdd-skills/plugins/tdd-core/`
-Target: `dev-crew/plugins/core/`
-
-Changes:
-- Directory: `tdd-core` -> `core`
-- plugin.json: name, description, repository更新
-- Skills rename: `tdd-init` -> `init`, `tdd-plan` -> `plan`, etc.
-- SKILL.md内のトリガーキーワード更新
-- reference.md内の`tdd-`参照を更新
-- Agents: 変更なし（tdd-プレフィックスなし）
-
-### 1.2 Language Plugin Migration
-
-| Source | Target | Changes |
-|--------|--------|---------|
-| tdd-php | php | plugin.json, README, skill name: `php-quality` (unchanged) |
-| tdd-python | python | plugin.json, README, skill name: `python-quality` (unchanged) |
-| tdd-ts | typescript | plugin.json, README, skill name: `ts-quality` (unchanged) |
-| tdd-js | javascript | plugin.json, README, skill name: `js-quality` (unchanged) |
-| tdd-flask | flask | plugin.json, README, skill name: `flask-quality` (unchanged) |
-| tdd-flutter | flutter | plugin.json, README, skill name: `flutter-quality` (unchanged) |
-| tdd-hugo | hugo | plugin.json, README, skill name: `hugo-quality` (unchanged) |
-
-### 1.3 Security Plugin Migration
-
-Source: `redteam-skills/plugins/redteam-core/`
-Target: `dev-crew/plugins/security/`
-
-Changes:
-- Directory: `redteam-core` -> `security`
-- plugin.json: name `security`, description, repository更新
-- Skills/Agents: 内部名は変更なし
-
-### 1.4 Meta Plugin Migration
-
-Source: `meta-skills/`
-Target: `dev-crew/plugins/meta/`
-
-Changes:
-- plugin.json: name `meta`, repository更新
-- Skills/Agents: 変更なし
-
-### 1.5 Marketplace Configuration
-
-Create: `dev-crew/.claude-plugin/marketplace.json`
-
-```json
-{
-  "name": "dev-crew",
-  "owner": { "name": "morodomi" },
-  "plugins": [
-    { "name": "core", "source": "./plugins/core" },
-    { "name": "php", "source": "./plugins/php" },
-    { "name": "python", "source": "./plugins/python" },
-    { "name": "typescript", "source": "./plugins/typescript" },
-    { "name": "javascript", "source": "./plugins/javascript" },
-    { "name": "flask", "source": "./plugins/flask" },
-    { "name": "flutter", "source": "./plugins/flutter" },
-    { "name": "hugo", "source": "./plugins/hugo" },
-    { "name": "security", "source": "./plugins/security" },
-    { "name": "meta", "source": "./plugins/meta" }
-  ]
-}
-```
+- tdd-core -> agents/ + skills/ (root直下)
+- tdd-php/python/ts/js/flask/flutter/hugo -> skills/*-quality/
+- redteam-core -> agents/*-attacker.md + skills/security-scan/ etc.
+- meta-skills -> agents/observer.md + skills/learn/ + skills/evolve/
+- 全`tdd-`参照を除去
+- 単一plugin.json作成（marketplace.json廃止）
+- rules/ 作成（git-safety, git-conventions, security）
+- hooks/hooks.json 作成（プレースホルダー）
 
 ---
 

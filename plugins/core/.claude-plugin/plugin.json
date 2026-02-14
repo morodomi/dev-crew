@@ -1,9 +1,0 @@
-{
-  "name": "core",
-  "description": "AI development workflow: INIT -> PLAN -> RED -> GREEN -> REFACTOR -> REVIEW -> COMMIT. PdM orchestration with phase-boundary compaction.",
-  "author": {
-    "name": "morodomi"
-  },
-  "repository": "https://github.com/morodomi/dev-crew",
-  "license": "MIT"
-}
