@@ -7,7 +7,7 @@
   "plugins": [
     {
       "name": "dev-crew",
-      "source": ".",
+      "source": "./",
       "description": "AI development team environment. TDD workflow, security audit, pattern learning, and phase-boundary compaction."
     }
   ]
