@@ -1,0 +1,9 @@
+{
+  "name": "js",
+  "description": "JavaScript quality tools. ESLint, Prettier, Jest/Vitest integration.",
+  "author": {
+    "name": "morodomi"
+  },
+  "repository": "https://github.com/morodomi/dev-crew",
+  "license": "MIT"
+}

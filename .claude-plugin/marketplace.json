@@ -1,0 +1,59 @@
+{
+  "name": "dev-crew",
+  "owner": {
+    "name": "morodomi"
+  },
+  "description": "AI development team environment for Claude Code",
+  "plugins": [
+    {
+      "name": "core",
+      "source": "./plugins/core",
+      "description": "AI development workflow: INIT -> PLAN -> RED -> GREEN -> REFACTOR -> REVIEW -> COMMIT"
+    },
+    {
+      "name": "php",
+      "source": "./plugins/php",
+      "description": "PHP quality tools: PHPStan, Pint, PHPUnit/Pest"
+    },
+    {
+      "name": "python",
+      "source": "./plugins/python",
+      "description": "Python quality tools: pytest, mypy, Black/isort"
+    },
+    {
+      "name": "ts",
+      "source": "./plugins/ts",
+      "description": "TypeScript quality tools: tsc, ESLint, Prettier, Jest/Vitest"
+    },
+    {
+      "name": "js",
+      "source": "./plugins/js",
+      "description": "JavaScript quality tools: ESLint, Prettier, Jest/Vitest"
+    },
+    {
+      "name": "flask",
+      "source": "./plugins/flask",
+      "description": "Flask quality tools: pytest-flask, mypy, Black/isort"
+    },
+    {
+      "name": "flutter",
+      "source": "./plugins/flutter",
+      "description": "Flutter/Dart quality tools: dart analyze, dart format, flutter test"
+    },
+    {
+      "name": "hugo",
+      "source": "./plugins/hugo",
+      "description": "Hugo SSG quality tools: hugo build, htmltest, template metrics"
+    },
+    {
+      "name": "security",
+      "source": "./plugins/security",
+      "description": "Security audit: OWASP Top 10 scanning with 18 specialized agents"
+    },
+    {
+      "name": "meta",
+      "source": "./plugins/meta",
+      "description": "Pattern learning and skill evolution: learn + evolve pipeline"
+    }
+  ]
+}

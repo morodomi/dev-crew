@@ -1,0 +1,9 @@
+{
+  "name": "php",
+  "description": "PHP quality tools. PHPStan, Pint, PHPUnit/Pest integration.",
+  "author": {
+    "name": "morodomi"
+  },
+  "repository": "https://github.com/morodomi/dev-crew",
+  "license": "MIT"
+}

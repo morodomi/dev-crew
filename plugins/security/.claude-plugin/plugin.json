@@ -1,0 +1,9 @@
+{
+  "name": "security",
+  "description": "Security audit automation. OWASP Top 10 scanning: RECON -> SCAN -> ATTACK -> REPORT",
+  "author": {
+    "name": "morodomi"
+  },
+  "repository": "https://github.com/morodomi/dev-crew",
+  "license": "MIT"
+}
