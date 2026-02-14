@@ -37,7 +37,7 @@ Task(subagent_type: "general-purpose", team_name: "dev-cycle", name: "architect"
 ### plan-review
 
 ```
-Skill(core:plan-review)
+Skill(dev-crew:plan-review)
 ```
 
 ### 自律判断
@@ -67,7 +67,7 @@ Skill(core:plan-review)
 N 個の red-worker teammate を起動（テストファイル別）:
 
 ```
-Task(subagent_type: "core:red-worker", team_name: "dev-cycle", name: "red-worker-N")
+Task(subagent_type: "dev-crew:red-worker", team_name: "dev-cycle", name: "red-worker-N")
 → テスト作成 → 結果報告 → shutdown
 ```
 
@@ -78,7 +78,7 @@ PdM がテスト失敗（RED 状態）を確認。
 N 個の green-worker teammate を起動（実装ファイル別）:
 
 ```
-Task(subagent_type: "core:green-worker", team_name: "dev-cycle", name: "green-worker-N")
+Task(subagent_type: "dev-crew:green-worker", team_name: "dev-cycle", name: "green-worker-N")
 → 実装 → 結果報告 → shutdown
 ```
 
@@ -96,7 +96,7 @@ Task(subagent_type: "general-purpose", team_name: "dev-cycle", name: "refactorer
 ### REVIEW (quality-gate)
 
 ```
-Skill(core:quality-gate)
+Skill(dev-crew:quality-gate)
 ```
 
 ### 自律判断

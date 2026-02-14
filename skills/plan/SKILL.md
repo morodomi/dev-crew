@@ -91,7 +91,7 @@ Riskフィールドなし → WARN（標準設計）として扱う。
 
 ### Step 6: plan-review自動実行
 
-Test List作成後、`Skill(core:plan-review)` を実行。plan-reviewがRED以降を制御。
+Test List作成後、`Skill(dev-crew:plan-review)` を実行。plan-reviewがRED以降を制御。
 
 ## Reference
 

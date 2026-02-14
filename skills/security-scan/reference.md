@@ -77,15 +77,15 @@ RECONの結果に基づき、エージェントを**並行実行**。
 
 レポートを生成します。
 
-Skill(redteam-core:attack-report)
+Skill(dev-crew:attack-report)
 ```
 
 **context-reviewが必要な場合**:
 ```
 曖昧な検出が3件あります。context-reviewを実行しますか? [Y/n]
 
-→ Y の場合: Skill(redteam-core:context-review)
-→ 完了後: Skill(redteam-core:attack-report)
+→ Y の場合: Skill(dev-crew:context-review)
+→ 完了後: Skill(dev-crew:attack-report)
 ```
 
 **オプション**:

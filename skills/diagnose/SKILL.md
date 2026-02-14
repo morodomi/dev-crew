@@ -74,7 +74,7 @@ DIAGNOSE Progress:
 
 ### Step 5: Cycle doc 更新 → plan 自動実行
 
-調査結果を Cycle doc に記録し、`Skill(core:plan)` を自動実行。
+調査結果を Cycle doc に記録し、`Skill(dev-crew:plan)` を自動実行。
 
 ## Reference
 

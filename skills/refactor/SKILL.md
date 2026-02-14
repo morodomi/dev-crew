@@ -78,7 +78,7 @@ REFACTOR完了
 ================================================================================
 ```
 
-**review 自動実行**: `Skill(core:review)`
+**review 自動実行**: `Skill(dev-crew:review)`
 
 ## Reference
 

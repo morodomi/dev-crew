@@ -49,7 +49,7 @@ WIPのテストケースを抽出。
 
 ### Step 3: green-worker並列起動
 
-Taskツールで `core:green-worker` を並列起動:
+Taskツールで `dev-crew:green-worker` を並列起動:
 
 ```
 Task 1: TC-01, TC-02 → src/Auth.php
@@ -83,7 +83,7 @@ GREEN完了。全テスト成功を確認しました。
 REFACTORフェーズを開始します。
 ```
 
-`Skill(core:refactor)` を実行してREFACTORフェーズへ進む。
+`Skill(dev-crew:refactor)` を実行してREFACTORフェーズへ進む。
 
 ## Reference
 

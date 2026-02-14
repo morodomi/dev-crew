@@ -35,10 +35,10 @@ TC-03: src/User/Profile.php を編集
 ```
 Taskツールで並列起動:
 
-Task 1 (core:green-worker):
+Task 1 (dev-crew:green-worker):
   prompt: "TC-01, TC-02を実装。対象: src/Auth/Login.php"
 
-Task 2 (core:green-worker):
+Task 2 (dev-crew:green-worker):
   prompt: "TC-03を実装。対象: src/User/Profile.php"
 ```
 

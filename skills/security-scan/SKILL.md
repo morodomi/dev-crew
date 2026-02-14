@@ -53,10 +53,10 @@ description: セキュリティスキャンを実行。RECON→SCAN→REPORT→A
    └── JSON output
 
 4. AUTO TRANSITION (unless --no-auto-report)
-   └── Skill(redteam-core:attack-report)
+   └── Skill(dev-crew:attack-report)
 
 5. [OPTIONAL] E2E (if --auto-e2e)
-   └── Skill(redteam-core:generate-e2e)
+   └── Skill(dev-crew:generate-e2e)
 
 6. LEARN Phase (unless --no-memory)
    └── Save scan context to auto memory (details: reference.md)
@@ -71,7 +71,7 @@ description: セキュリティスキャンを実行。RECON→SCAN→REPORT→A
 
 レポートを生成します。
 
-Skill(redteam-core:attack-report)
+Skill(dev-crew:attack-report)
 ```
 
 `--no-auto-report` でスキップ可能。

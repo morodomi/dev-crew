@@ -48,7 +48,7 @@ Test ListのTODOからテストケースを選択してWIPに移動。
 
 ### Step 3: red-worker並列起動
 
-Taskツールで `core:red-worker` を並列起動:
+Taskツールで `dev-crew:red-worker` を並列起動:
 
 ```
 Task 1: TC-01, TC-02 → tests/AuthTest.php
@@ -86,7 +86,7 @@ GREENフェーズを自動実行します。
 ================================================================================
 ```
 
-`Skill(core:green)` を呼び出して自動的にGREENフェーズへ進行。
+`Skill(dev-crew:green)` を呼び出して自動的にGREENフェーズへ進行。
 
 ## Reference
 

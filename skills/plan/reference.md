@@ -151,7 +151,7 @@ Scope Definitionを確認してください。
 
 検出時: AskUserQuestion で「parallel（並列開発）を利用しますか？」と提案。
 
-ユーザーが承認 → Cycle doc に記録。plan-review 後、RED の代わりに `Skill(core:parallel)` を実行（parallel 内で RED→GREEN→REFACTOR→REVIEW を実行）。
+ユーザーが承認 → Cycle doc に記録。plan-review 後、RED の代わりに `Skill(dev-crew:parallel)` を実行（parallel 内で RED→GREEN→REFACTOR→REVIEW を実行）。
 ユーザーが拒否 → 通常の red → green → refactor。
 
 ## Phase Completion

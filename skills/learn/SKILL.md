@@ -50,7 +50,7 @@ AskUserQuestion で確認:
 Task tool で observer を起動し、収集した入力ソースを渡す:
 
 ```
-Task(subagent_type: "meta-skills:observer", prompt: "...")
+Task(subagent_type: "dev-crew:observer", prompt: "...")
 ```
 
 ### Step 5: 品質フィルタ + 保存

@@ -70,7 +70,7 @@ tests/, src/, docs/ に CLAUDE.md 配置を推奨（各30-50行）。
 
 ### Step 6: .claude/ 構造生成
 
-存在しない場合に作成。rules/: git-safety, security, git-conventions。hooks/: recommended。推奨設定: `Skill(core:*)` をallowedToolsに追加。詳細は [reference.md](reference.md)。
+存在しない場合に作成。rules/: git-safety, security, git-conventions。hooks/: recommended。推奨設定: `Skill(dev-crew:*)` をallowedToolsに追加。詳細は [reference.md](reference.md)。
 
 Hook設定の案内: `.claude/hooks/recommended.md` に推奨Hook設定が記載されている旨をユーザーに伝え、`~/.claude/settings.json` にコピーしてClaude Codeを再起動するよう案内する。
 

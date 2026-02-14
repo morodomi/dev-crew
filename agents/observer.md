@@ -12,7 +12,7 @@ learn スキルから Task tool で呼び出されるサブエージェント。
 learn スキルが以下の形式で起動:
 
 ```
-Task(subagent_type: "meta-skills:observer", model: "sonnet", prompt: "...")
+Task(subagent_type: "dev-crew:observer", model: "sonnet", prompt: "...")
 ```
 
 ## Input

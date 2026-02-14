@@ -65,7 +65,7 @@ Cycle doc から In Scope のレイヤー情報を読取:
 ### Step 3: 並列開発実行
 
 [steps-teams.md](steps-teams.md) の手順に従い実行。
-各 Teammate が `Skill(core:red)` → `Skill(core:green)` → `Skill(core:refactor)` を順次実行。
+各 Teammate が `Skill(dev-crew:red)` → `Skill(dev-crew:green)` → `Skill(dev-crew:refactor)` を順次実行。
 
 ### Step 4: 統合テスト
 
@@ -87,7 +87,7 @@ parallel 完了。全レイヤー GREEN、統合テスト PASS。
 REVIEW フェーズを自動実行します。
 ```
 
-`Skill(core:review)` を実行。
+`Skill(dev-crew:review)` を実行。
 
 ## Reference
 

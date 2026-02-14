@@ -7,11 +7,11 @@
 Taskツールで5つのエージェントを **model: sonnet** で**並行**起動:
 
 ```
-Task(subagent_type: "core:scope-reviewer", model: "sonnet", prompt: "...")
-Task(subagent_type: "core:architecture-reviewer", model: "sonnet", prompt: "...")
-Task(subagent_type: "core:risk-reviewer", model: "sonnet", prompt: "...")
-Task(subagent_type: "core:product-reviewer", model: "sonnet", prompt: "...")
-Task(subagent_type: "core:usability-reviewer", model: "sonnet", prompt: "...")
+Task(subagent_type: "dev-crew:scope-reviewer", model: "sonnet", prompt: "...")
+Task(subagent_type: "dev-crew:architecture-reviewer", model: "sonnet", prompt: "...")
+Task(subagent_type: "dev-crew:risk-reviewer", model: "sonnet", prompt: "...")
+Task(subagent_type: "dev-crew:product-reviewer", model: "sonnet", prompt: "...")
+Task(subagent_type: "dev-crew:usability-reviewer", model: "sonnet", prompt: "...")
 ```
 
 各エージェントに以下を渡す:

@@ -68,7 +68,7 @@ Ask 2 lightweight questions. Templates: [reference.md](reference.md#warn-questio
 
 ### Step 4.7: Brainstorm & Risk Questions (BLOCK only)
 
-Templates: [reference.md](reference.md#brainstorm-questions-block-60-1). Bug keywords detected → `Skill(core:diagnose)`.
+Templates: [reference.md](reference.md#brainstorm-questions-block-60-1). Bug keywords detected → `Skill(dev-crew:diagnose)`.
 
 ### Step 5: Scope (Layer) Confirmation
 
@@ -92,8 +92,8 @@ Display `INIT Complete` and execute based on `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEA
 
 | 環境変数 | 実行 |
 |----------|------|
-| 有効 (`1`) | `Skill(core:orchestrate)` |
-| 無効 / 未設定 | `Skill(core:plan)` |
+| 有効 (`1`) | `Skill(dev-crew:orchestrate)` |
+| 無効 / 未設定 | `Skill(dev-crew:plan)` |
 
 ## Reference
 

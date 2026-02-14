@@ -42,7 +42,7 @@ Cycle doc: docs/cycles/20260207_feature.md
 ## Workflow
 
 1. Cycle docを読み、Implementation NotesとGREENの成果を把握
-2. `Skill(core:refactor)` を実行（リファクタリング + テスト確認）
+2. `Skill(dev-crew:refactor)` を実行（リファクタリング + テスト確認）
 3. 全テストがPASSすることを確認
 4. 結果をLeadに報告
 
