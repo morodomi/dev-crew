@@ -31,7 +31,14 @@ orchestrate 開始前に、Issue 番号と cycle doc の対応を確認する:
 
 ## Block 1: Planning
 
+> Pre-Flight Check:
+> - [ ] PLAN: Task() で architect に委譲しているか？
+> - [ ] RED/GREEN/REFACTOR: Task() で worker に委譲しているか？
+> - [ ] Skill() 直接呼び出しは REVIEW (quality-gate) と COMMIT のみか？
+
 ### PLAN
+
+> **MUST**: Task() で委譲すること。PdM による Skill() 直接呼び出し禁止。
 
 ```
 Task(subagent_type: "dev-crew:architect", prompt: "Cycle doc: [path]. Skill(dev-crew:plan)を実行し、設計・Test Listを作成せよ。")
@@ -43,18 +50,12 @@ PdM が plan-review スコアを判定:
 - PASS/WARN → Phase Summary 永続化 → Block 2 へ
 - BLOCK → Task() を再起動して PLAN 再実行（max 1回）
 
-### Delegation Decision
+### Delegation Rule
 
-Phase Summary の metrics を評価し、次 Phase の実行方法を決定する:
-
-| Metric | Lightweight Threshold | Heavy |
-|--------|-----------------------|-------|
-| line_count | < 200 | >= 200 |
-| file_count | < 3 | >= 3 |
-
-- 全 metrics が lightweight → PdM 直接実行（Skill() 呼び出し）
-- いずれかが heavy → subagent 委譲（Task() 呼び出し）
-- Default: always delegate to subagent (safest for token budget)
+Subagent Chain モードでは **全フェーズを Task() で委譲する**。例外なし。
+PdM は Skill() を直接呼び出してはならない（REVIEW の quality-gate を除く）。
+Fallback は Task() spawn エラー時のみ適用される（後述）。
+Phase Summary の metrics に基づく delegation decision は行わない（旧ロジック廃止）。
 
 ### Phase Summary 永続化 (PLAN→RED)
 
@@ -70,7 +71,14 @@ PdM が Cycle doc に Phase Summary を追記:
 
 ## Block 2: Implementation
 
+> Pre-Flight Check:
+> - [ ] PLAN: Task() で architect に委譲しているか？
+> - [ ] RED/GREEN/REFACTOR: Task() で worker に委譲しているか？
+> - [ ] Skill() 直接呼び出しは REVIEW (quality-gate) と COMMIT のみか？
+
 ### RED
+
+> **MUST**: Task() で委譲すること。PdM による Skill() 直接呼び出し禁止。
 
 ```
 Task(subagent_type: "dev-crew:red-worker", prompt: "Cycle doc: [path]. 担当テストケース: [TC-XX]. テストを作成し、失敗を確認せよ。")
@@ -82,6 +90,8 @@ PdM がテスト失敗（RED 状態）を確認。
 
 ### GREEN
 
+> **MUST**: Task() で委譲すること。PdM による Skill() 直接呼び出し禁止。
+
 ```
 Task(subagent_type: "dev-crew:green-worker", prompt: "Cycle doc: [path]. テストを通す最小限の実装を行え。")
 → green-worker が subagent 内で実装
@@ -92,6 +102,8 @@ PdM が全テスト成功（GREEN 状態）を確認。
 
 ### REFACTOR
 
+> **MUST**: Task() で委譲すること。PdM による Skill() 直接呼び出し禁止。
+
 ```
 Task(subagent_type: "dev-crew:refactorer", prompt: "Cycle doc: [path]. Skill(dev-crew:refactor)を実行し、コード品質を改善せよ。")
 → refactorer が subagent 内で Skill(refactor) 実行
@@ -99,6 +111,8 @@ Task(subagent_type: "dev-crew:refactorer", prompt: "Cycle doc: [path]. Skill(dev
 ```
 
 ### REVIEW
+
+> NOTE: quality-gate 内部で subagent 化済みのため、Skill() 直接呼び出しが正しい。
 
 ```
 Skill(dev-crew:quality-gate)
@@ -146,7 +160,8 @@ Subagent Chain モードでも PdM の判断基準は同一:
 
 ## Fallback
 
-Task() の起動に失敗した場合（subagent spawn エラー、タイムアウト等）:
+Task() の起動に失敗した場合（subagent spawn エラー、タイムアウト等）のみ適用。
+PdM の判断による Skill() 直接実行は Fallback ではない（禁止）。
 
 1. 警告を表示: 「Task() 委譲に失敗しました。Skill() 直接実行にフォールバックします。」
 2. 該当フェーズを Skill() で直接実行:
