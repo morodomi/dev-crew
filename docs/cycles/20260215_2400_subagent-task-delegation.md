@@ -241,3 +241,10 @@ Fallback は Task() spawn エラー時のみ適用される（後述）。
 - 実質判定: PASS (TC-10 は test-orchestrate-compact.sh で PASS 確認済み)
 - DISCOVERED: なし
 - 次: COMMIT フェーズへ進行可能
+
+### 2026-02-15 24:40 - COMMIT
+- 全テスト 101/101 PASS (10 suites)
+- quality-gate 実質 PASS (82/100, TC-10 指摘は設計通り)
+- DISCOVERED: なし
+- 変更: 1 file edited + 1 test new + 1 cycle doc new = 3 files
+- コミット: fix: enforce Task() delegation in Subagent Chain mode (#17)
