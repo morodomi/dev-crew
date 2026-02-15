@@ -230,6 +230,70 @@ else
   fail "TC-14: Cannot check - reference.md not found"
 fi
 
+# --- DISCOVERED Tests (D-01, D-02, D-03) ---
+echo ""
+echo "--- DISCOVERED Tests ---"
+
+if [ -f "$SKILL_MD" ]; then
+  skill_content=$(cat "$SKILL_MD")
+
+  # D-01: Mode conflict fallback
+  if echo "$skill_content" | grep -qi '両方\|both.*detect\|競合'; then
+    pass "D-01a: Mode conflict row exists"
+  else
+    fail "D-01a: Mode conflict row not found in Mode Selection"
+  fi
+
+  if echo "$skill_content" | grep -qi '両方.*AskUserQuestion\|競合.*AskUserQuestion\|both.*AskUserQuestion'; then
+    pass "D-01b: Mode conflict triggers AskUserQuestion"
+  else
+    fail "D-01b: Mode conflict does not trigger AskUserQuestion"
+  fi
+
+  # D-02: Create mode retry
+  if echo "$skill_content" | grep -qi 'リトライ\|再生成\|retry\|regenerat'; then
+    pass "D-02: Create mode retry/regenerate noted"
+  else
+    fail "D-02: Create mode retry/regenerate not found in Step 3/6"
+  fi
+else
+  fail "D-01a: Cannot check - SKILL.md not found"
+  fail "D-01b: Cannot check - SKILL.md not found"
+  fail "D-02: Cannot check - SKILL.md not found"
+fi
+
+# D-03: Security constraint tests
+if [ -f "$SKILL_MD" ]; then
+  name_val=$(get_frontmatter "$SKILL_MD" "name")
+  desc_val=$(get_frontmatter "$SKILL_MD" "description")
+
+  # TC-17: Description XML-free
+  if echo "$desc_val" | grep -qE '[<>]'; then
+    fail "TC-17: XML angle brackets found in description"
+  else
+    pass "TC-17: description is XML-free"
+  fi
+
+  # TC-18: Description length <= 1024
+  desc_len=$(printf '%s' "$desc_val" | wc -c | tr -d ' ')
+  if [ "$desc_len" -le 1024 ]; then
+    pass "TC-18: description is $desc_len chars (<= 1024)"
+  else
+    fail "TC-18: description is $desc_len chars (> 1024)"
+  fi
+
+  # TC-19: Reserved name check
+  if echo "$name_val" | grep -qiE '(claude|anthropic)'; then
+    fail "TC-19: Reserved name detected: $name_val"
+  else
+    pass "TC-19: name avoids reserved words ($name_val)"
+  fi
+else
+  fail "TC-17: Cannot check - SKILL.md not found"
+  fail "TC-18: Cannot check - SKILL.md not found"
+  fail "TC-19: Cannot check - SKILL.md not found"
+fi
+
 # Summary
 echo ""
 echo "=== Summary ==="

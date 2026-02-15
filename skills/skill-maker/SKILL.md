@@ -25,6 +25,7 @@ Skill Maker Progress:
 |-----------|--------|
 | create, make, 作りたい, 新規 | Create |
 | review, check, レビュー, 品質 | Review |
+| 両方検出（create+review） | AskUserQuestion で優先モード確認 |
 | 不明 | AskUserQuestion でモード選択 |
 
 ## Create Mode: 新規スキル作成
@@ -45,7 +46,7 @@ AskUserQuestion でカテゴリ選択:
 
 ### Step 3/6: YAML Frontmatter生成
 
-name + description を生成。description基準: [reference.md](reference.md#description-guide)
+name + description を生成。ユーザーが拒否した場合は再生成（リトライ可）。description基準: [reference.md](reference.md#description-guide)
 
 ### Step 4/6: SKILL.md Body作成
 
