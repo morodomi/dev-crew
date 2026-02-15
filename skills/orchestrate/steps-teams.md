@@ -40,6 +40,18 @@ Task(subagent_type: "general-purpose", team_name: "dev-cycle", name: "architect"
 Skill(dev-crew:plan-review)
 ```
 
+### Phase Summary 永続化 (PLAN→RED)
+
+plan-review 完了後、PdM が Cycle doc に Phase Summary を追記:
+
+```markdown
+### Phase: PLAN - Completed at HH:MM
+**Artifacts**: Cycle doc updated with PLAN section, Test List (N items)
+**Decisions**: architecture=[approach], test strategy=[approach]
+**Next Phase Input**: Test List items TC-01 ~ TC-NN
+**Subagent**: agent_id={architect_agent_id}, tokens={total_tokens}
+```
+
 ### 自律判断
 
 スコアベース判定:
@@ -73,6 +85,16 @@ Task(subagent_type: "dev-crew:red-worker", team_name: "dev-cycle", name: "red-wo
 
 PdM がテスト失敗（RED 状態）を確認。
 
+### Phase Summary 永続化 (RED→GREEN)
+
+```markdown
+### Phase: RED - Completed at HH:MM
+**Artifacts**: [test file paths]
+**Decisions**: test framework=[name], N tests created, all failing
+**Next Phase Input**: test files on disk, implement to make them pass
+**Subagent**: agent_id={red_worker_agent_id}, tokens={total_tokens}
+```
+
 ### GREEN
 
 N 個の green-worker teammate を起動（実装ファイル別）:
@@ -84,6 +106,16 @@ Task(subagent_type: "dev-crew:green-worker", team_name: "dev-cycle", name: "gree
 
 PdM が全テスト成功（GREEN 状態）を確認。
 
+### Phase Summary 永続化 (GREEN→REFACTOR)
+
+```markdown
+### Phase: GREEN - Completed at HH:MM
+**Artifacts**: [implementation file paths]
+**Decisions**: N/N tests passing
+**Next Phase Input**: source files on disk, refactor for quality
+**Subagent**: agent_id={green_worker_agent_id}, tokens={total_tokens}
+```
+
 ### REFACTOR
 
 refactorer teammate を起動:
@@ -93,10 +125,32 @@ Task(subagent_type: "general-purpose", team_name: "dev-cycle", name: "refactorer
 → Skill(refactor) 実行 → 結果報告 → shutdown
 ```
 
+### Phase Summary 永続化 (REFACTOR→REVIEW)
+
+```markdown
+### Phase: REFACTOR - Completed at HH:MM
+**Artifacts**: [refactored file paths]
+**Decisions**: refactoring=[changes made or "no changes needed"]
+**Next Phase Input**: source files on disk, run quality gate
+**Subagent**: agent_id={refactorer_agent_id}, tokens={total_tokens}
+```
+
 ### REVIEW (quality-gate)
 
 ```
 Skill(dev-crew:quality-gate)
+```
+
+### Phase Summary 永続化 (REVIEW→COMMIT)
+
+quality-gate 完了後、PdM が Cycle doc に Phase Summary を追記:
+
+```markdown
+### Phase: REVIEW - Completed at HH:MM
+**Artifacts**: quality-gate results
+**Decisions**: verdict=[PASS/WARN/BLOCK], score=[max score]
+**Next Phase Input**: all tests passing, ready to commit
+**Subagent**: agent_id={quality_gate_agent_id}, tokens={total_tokens}
 ```
 
 ### 自律判断
