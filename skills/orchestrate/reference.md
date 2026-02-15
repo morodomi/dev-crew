@@ -40,6 +40,20 @@ PdM (Product Manager) オーケストレータの詳細ガイド。
 | REVIEW | PdM → 6 reviewer | 討論/並列 quality-gate |
 | COMMIT | PdM (Lead) 直接実行 | - |
 
+## Delegation Decision Criteria
+
+PdM は前 Phase の metrics を評価し、次 Phase の実行方法を決定する:
+
+| Metric | lightweight threshold | heavy threshold | decision if lightweight | decision if heavy |
+|--------|----------------------|-----------------|-------------------------|-------------------|
+| line_count | < 200 | >= 200 | PdM 直接実行 | 委譲 |
+| file_count | < 3 | >= 3 | PdM 直接実行 | 委譲 |
+
+**判断ロジック**:
+- 全 metrics が lightweight → PdM が Skill() で直接実行（軽量な Phase）
+- いずれかの metric が heavy → subagent/teammate に委譲（重い Phase）
+- Default: always delegate (token budget 保護)
+
 ## 判断基準
 
 ### スコアベース判定 (Agent Teams 有効時)

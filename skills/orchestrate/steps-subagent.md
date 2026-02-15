@@ -43,6 +43,19 @@ PdM が plan-review スコアを判定:
 - PASS/WARN → Phase Summary 永続化 → Block 2 へ
 - BLOCK → Task() を再起動して PLAN 再実行（max 1回）
 
+### Delegation Decision
+
+Phase Summary の metrics を評価し、次 Phase の実行方法を決定する:
+
+| Metric | Lightweight Threshold | Heavy |
+|--------|-----------------------|-------|
+| line_count | < 200 | >= 200 |
+| file_count | < 3 | >= 3 |
+
+- 全 metrics が lightweight → PdM 直接実行（Skill() 呼び出し）
+- いずれかが heavy → subagent 委譲（Task() 呼び出し）
+- Default: always delegate to subagent (safest for token budget)
+
 ### Phase Summary 永続化 (PLAN→RED)
 
 PdM が Cycle doc に Phase Summary を追記:

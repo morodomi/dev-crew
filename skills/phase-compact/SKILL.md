@@ -26,6 +26,7 @@ Cycle docに以下の形式で追記する:
 ### Phase: [PHASE_NAME] - Completed at HH:MM
 **Artifacts**: [created/modified file list]
 **Decisions**: [key decisions made in this phase]
+**Metrics**: line_count=[N], file_count=[N], test_count=[N]
 **Next Phase Input**: [what the next phase needs to know]
 ```
 

@@ -28,6 +28,7 @@ phase-compactはTDDフェーズ境界でコンテキストを永続化し、
 ### Phase: INIT - Completed at HH:MM
 **Artifacts**: docs/cycles/YYYYMMDD_HHMM_feature-name.md
 **Decisions**: scope=[layer], risk=[score]([verdict])
+**Metrics**: line_count=[N], file_count=[N], test_count=0
 **Next Phase Input**: Cycle doc ready for PLAN phase
 ```
 
@@ -37,6 +38,7 @@ phase-compactはTDDフェーズ境界でコンテキストを永続化し、
 ### Phase: PLAN - Completed at HH:MM
 **Artifacts**: Cycle doc updated with PLAN section, Test List (N items)
 **Decisions**: architecture=[approach], test strategy=[approach]
+**Metrics**: line_count=[N], file_count=[N], test_count=[N]
 **Next Phase Input**: Test List items TC-01 ~ TC-NN
 ```
 
@@ -46,6 +48,7 @@ phase-compactはTDDフェーズ境界でコンテキストを永続化し、
 ### Phase: RED - Completed at HH:MM
 **Artifacts**: [test file paths]
 **Decisions**: test framework=[name], N tests created, all failing
+**Metrics**: line_count=[N], file_count=[N], test_count=[N]
 **Next Phase Input**: test files on disk, implement to make them pass
 ```
 
@@ -55,6 +58,7 @@ phase-compactはTDDフェーズ境界でコンテキストを永続化し、
 ### Phase: GREEN - Completed at HH:MM
 **Artifacts**: [implementation file paths]
 **Decisions**: N/N tests passing
+**Metrics**: line_count=[N], file_count=[N], test_count=[N]
 **Next Phase Input**: source files on disk, refactor for quality
 ```
 
@@ -64,6 +68,7 @@ phase-compactはTDDフェーズ境界でコンテキストを永続化し、
 ### Phase: REFACTOR - Completed at HH:MM
 **Artifacts**: [refactored file paths]
 **Decisions**: refactoring=[changes made or "no changes needed"]
+**Metrics**: line_count=[N], file_count=[N], test_count=[N]
 **Next Phase Input**: source files on disk, run quality gate
 ```
 
@@ -73,6 +78,7 @@ phase-compactはTDDフェーズ境界でコンテキストを永続化し、
 ### Phase: REVIEW - Completed at HH:MM
 **Artifacts**: quality-gate results
 **Decisions**: verdict=[PASS/WARN/BLOCK], score=[max score]
+**Metrics**: line_count=[N], file_count=[N], test_count=[N]
 **Next Phase Input**: all tests passing, ready to commit
 ```
 
