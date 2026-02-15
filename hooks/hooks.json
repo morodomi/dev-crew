@@ -1,4 +1,16 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-hooks.json",
-  "hooks": {}
+  "hooks": {
+    "PreCommit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash scripts/hooks/check-cycle-doc.sh"
+          }
+        ]
+      }
+    ]
+  }
 }

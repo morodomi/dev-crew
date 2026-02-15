@@ -3,6 +3,25 @@
 環境変数 `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` が有効時の手順。
 1つのチームが全 Phase を通して存続し、Phase ごとに Teammate を spawn/shutdown する。
 
+## Block 0: Prerequisite Check
+
+### Cycle Doc Validation
+
+orchestrate 開始前に、Issue 番号と cycle doc の対応を確認する:
+
+1. Issue 番号の特定:
+   - ユーザー指定がある場合はそれを使用
+   - 指定がない場合は AskUserQuestion で確認
+
+2. Cycle doc の存在確認:
+   ```bash
+   find docs/cycles -name '*.md' -exec grep -l "issue:.*#${ISSUE_NUM}" {} +
+   ```
+
+3. 分岐処理:
+   - cycle doc が存在 → path を確定し、Phase 1 (Team 作成) へ
+   - cycle doc が存在しない → Skill(dev-crew:init) を実行してから Phase 1 へ
+
 ## Phase 1: Team 作成
 
 Teammate ツールでチームを作成（INIT 時に1回のみ）:
