@@ -1,6 +1,7 @@
 ---
 name: plan
 description: 実装計画を作成し、Test Listを定義する。INITの次フェーズ。「設計して」「計画して」で起動。
+allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebSearch, WebFetch
 ---
 
 # TDD PLAN Phase

@@ -1,6 +1,7 @@
 ---
 name: phase-compact
-description: TDDフェーズ境界でcontext compactionを実行。Cycle docにPhase Summaryを永続化し、compactを促す。
+description: TDDフェーズ境界でcontext compactionを実行。Cycle docにPhase Summary（成果物・決定事項・引継ぎ情報）を永続化し、/compact実行を促す。When this auto-triggers after each TDD phase completion（orchestrateから自動呼び出し）。Manual trigger: 「phase-compact」「コンテキスト圧縮」。
+allowed-tools: Read, Write, Edit
 ---
 
 # Phase Compact

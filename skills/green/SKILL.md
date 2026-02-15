@@ -1,6 +1,7 @@
 ---
 name: green
 description: テストを通すための最小限の実装を行う。REDの次フェーズ。「実装して」「green」で起動。
+allowed-tools: Task, Read, Write, Edit, Bash, Grep, Glob
 ---
 
 # TDD GREEN Phase

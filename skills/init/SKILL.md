@@ -1,11 +1,10 @@
 ---
 name: init
-description: Start a new TDD cycle and create a Cycle doc. Triggers on "new feature", "start TDD", "add feature".
+description: Start a new TDD cycle and create a Cycle doc. Triggers on "new feature", "start TDD", "add feature", "機能追加", "TDDを始めたい", "新しい機能", "開発を始める", "新規開発". Do NOT use for continuing an existing cycle (check docs/cycles/ first).
+allowed-tools: Read, Write, Bash, Grep, Glob, AskUserQuestion
 ---
 
 # TDD INIT Phase
-
-Start a new TDD cycle and create a Cycle doc.
 
 ## Progress Checklist
 

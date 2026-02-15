@@ -1,6 +1,7 @@
 ---
 name: red
 description: テストコードを作成し、失敗することを確認する（並列実行対応）。PLANの次フェーズ。「テスト書いて」「red」で起動。
+allowed-tools: Task, Read, Write, Edit, Bash, Grep, Glob
 ---
 
 # TDD RED Phase

@@ -1,6 +1,7 @@
 ---
 name: commit
 description: 変更をGitコミットしてTDDサイクルを完了する。REVIEWの次フェーズ。「コミットして」「commit」で起動。
+allowed-tools: Read, Bash
 ---
 
 # TDD COMMIT Phase

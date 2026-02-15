@@ -1,6 +1,7 @@
 ---
 name: security-scan
-description: セキュリティスキャンを実行。RECON→SCAN→REPORT→AUTO TRANSITION→LEARNワークフロー。
+description: セキュリティスキャンを実行。RECON→SCAN→REPORT→AUTO TRANSITION→LEARNワークフローで脆弱性を検出しレポート自動生成。「セキュリティスキャン」「security scan」「脆弱性チェック」「セキュリティ診断」「OWASPチェック」で起動。Do NOT use for レポートのみ（→ attack-report）やE2Eテスト生成のみ（→ generate-e2e）。
+allowed-tools: Task, Read, Write, Bash, Grep, Glob
 ---
 
 # Security Scan

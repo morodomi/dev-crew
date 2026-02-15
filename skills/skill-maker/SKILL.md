@@ -1,6 +1,7 @@
 ---
 name: skill-maker
 description: Anthropic公式ガイド準拠の対話型スキル作成・レビュー支援。Use when user says "create skill", "make skill", "skill review", "スキルを作りたい", "スキルレビュー"。新規作成とdescription品質チェックの2モードで起動。
+allowed-tools: Read, Write, Edit, Bash, Grep, Glob
 ---
 
 # Skill Maker

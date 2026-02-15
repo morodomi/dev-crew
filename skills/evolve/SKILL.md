@@ -1,6 +1,7 @@
 ---
 name: evolve
 description: "蓄積された instinct をクラスタリングし、スキル/エージェント定義を自動生成する。「evolve」「スキル進化」で起動。"
+allowed-tools: Read, Write, Bash, Grep, Glob
 ---
 
 # Evolve - Instinct からスキル/エージェント進化

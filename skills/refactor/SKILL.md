@@ -1,6 +1,7 @@
 ---
 name: refactor
 description: テストを維持しながらコード品質を改善する。GREENの次フェーズ。「リファクタして」「refactor」で起動。
+allowed-tools: Read, Write, Edit, Bash, Grep, Glob
 ---
 
 # TDD REFACTOR Phase

@@ -1,6 +1,7 @@
 ---
 name: diagnose
 description: 複雑なバグの並列仮説調査。Subagent/Agent Teams両モード対応。「原因調査」「investigate」「diagnose」で起動。
+allowed-tools: Task, Read, Bash, Grep, Glob
 ---
 
 # TDD Diagnose Phase

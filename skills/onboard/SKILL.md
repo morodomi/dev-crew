@@ -1,6 +1,7 @@
 ---
 name: onboard
 description: 既存プロジェクトにTDD環境をセットアップする。フレームワーク検出、CLAUDE.md生成、docs/STATUS.md作成を行う。「TDDセットアップ」「onboard」「プロジェクト初期化」で起動。
+allowed-tools: Read, Write, Bash, Grep, Glob
 ---
 
 # TDD Onboard

@@ -1,6 +1,6 @@
 ---
 name: flutter-quality
-description: Flutter品質チェック。静的解析/フォーマット/テスト実行時に使用。「Flutterの品質チェック」で起動。
+description: Flutter/Dartプロジェクトの品質チェック。dart analyze/dart format/flutter testを実行。「Flutterの品質チェック」「Flutter テスト」「Flutterのテスト実行」「Flutter lint」「Dart解析」「Flutterフォーマット」で起動。Do NOT use for 純粋なDartパッケージ（Flutterなし）。
 allowed-tools: Bash, Read, Grep, Glob
 ---
 

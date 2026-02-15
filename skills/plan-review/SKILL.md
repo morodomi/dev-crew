@@ -1,6 +1,7 @@
 ---
 name: plan-review
-description: PLANフェーズの設計を5観点で並行レビュー。信頼スコア80以上でBLOCK。
+description: PLANフェーズの設計を5つの専門エージェントで並行レビュー。信頼スコアでPASS(0-49)/WARN(50-79)/BLOCK(80-100)を判定。When this auto-triggers after PLAN phase completion（orchestrateまたはplanから自動呼び出し）。Manual trigger: 「plan-review」「設計レビュー」。
+allowed-tools: Task, Read, Bash, Grep
 ---
 
 # Plan Review

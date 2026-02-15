@@ -1,6 +1,7 @@
 ---
 name: parallel
 description: クロスレイヤー並列開発オーケストレータ。Agent Teamsでレイヤー別にRED/GREEN/REFACTORを並列実行。「parallel」「並列開発」で起動。
+allowed-tools: Task, Read, Write, Bash, Grep, Glob
 ---
 
 # TDD Parallel - Cross-Layer Parallel Development

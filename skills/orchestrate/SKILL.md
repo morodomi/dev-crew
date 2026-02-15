@@ -1,6 +1,7 @@
 ---
 name: orchestrate
-description: TDDサイクル全体をPdMとして管理。Agent Teams有効時にinitから呼ばれ、全Phaseを自律的に委譲・判断する。
+description: TDDサイクル全体をPdM（Product Manager）として自律管理。INIT完了後にAgent Teams有効時は自動起動し、PLAN→RED→GREEN→REFACTOR→REVIEW→COMMITを専門エージェントに委譲・判断する。Manual trigger: 「orchestrate」「全体管理」「PdMモード」。Do NOT use for 個別フェーズのみの実行（→ 各フェーズスキル）。
+allowed-tools: Task, Read, Write, Bash, Grep, Glob, AskUserQuestion
 ---
 
 # TDD Orchestrate (PdM Mode)

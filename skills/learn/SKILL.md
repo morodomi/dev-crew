@@ -1,6 +1,7 @@
 ---
 name: learn
 description: "セッションからパターンを抽出し instinct として蓄積する。「learn」「パターン抽出」「セッション振り返り」で起動。"
+allowed-tools: Task, Read, Write, Bash, Grep, Glob
 ---
 
 # Learn - セッションパターン抽出

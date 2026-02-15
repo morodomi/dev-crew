@@ -1,6 +1,7 @@
 ---
 name: attack-report
-description: セキュリティスキャン結果をMarkdownレポートに変換。
+description: security-scan結果をMarkdownレポートに変換。脆弱性をCVSSスコア降順でソートし、Executive Summary・推奨事項を含むレポートを生成。「レポート生成」「attack report」「脆弱性レポート」「スキャン結果をまとめて」で起動。security-scanから自動遷移でも実行される。Do NOT use for スキャン実行（→ security-scan）。
+allowed-tools: Read, Write
 ---
 
 # Attack Report

@@ -1,6 +1,7 @@
 ---
 name: quality-gate
-description: コード変更を6観点で並行レビュー。信頼スコア80以上でBLOCK。reviewで自動実行。
+description: コード変更を6つの専門エージェントで並行レビュー。信頼スコアでPASS(0-49)/WARN(50-79)/BLOCK(80-100)を判定。When this auto-triggers after REVIEW phase（orchestrateまたはreviewから自動呼び出し）。Manual trigger: 「quality-gate」「コードレビュー」「品質チェック」。
+allowed-tools: Task, Read, Bash, Grep, Glob
 ---
 
 # Quality Gate

@@ -1,6 +1,7 @@
 ---
 name: review
 description: 最終的な品質検証を行う。テスト/カバレッジ/静的解析/quality-gateをチェック。REFACTORの次フェーズ。「レビューして」「review」で起動。
+allowed-tools: Task, Read, Bash, Grep, Glob
 ---
 
 # TDD REVIEW Phase
