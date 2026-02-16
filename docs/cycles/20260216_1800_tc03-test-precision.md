@@ -1,7 +1,7 @@
 ---
 feature: tc03-test-precision
 cycle: 20260216_1800
-phase: COMMIT
+phase: DONE
 created: 2026-02-16 18:00
 updated: 2026-02-16 18:15
 issue: "#22"
