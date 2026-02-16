@@ -1,6 +1,7 @@
 ---
 name: sca-attacker
 description: 依存関係脆弱性検出エージェント。OSV APIで既知CVEを検出。
+model: sonnet
 allowed-tools: Read, Grep, Glob, Bash
 ---
 

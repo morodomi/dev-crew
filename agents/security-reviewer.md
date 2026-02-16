@@ -1,6 +1,7 @@
 ---
 name: security-reviewer
 description: セキュリティレビュー。入力検証、認証・認可、SQLi/XSS、機密データをチェック。
+model: sonnet
 memory: project
 ---
 

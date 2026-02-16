@@ -1,6 +1,7 @@
 ---
 name: refactorer
 description: REFACTORフェーズのコード品質改善を担当するエージェント。Cycle docを受け取り、Skill(refactor)を実行してリファクタリングを行う。
+model: sonnet
 ---
 
 # Refactorer

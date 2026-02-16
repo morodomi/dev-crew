@@ -1,6 +1,7 @@
 ---
 name: crypto-attacker
 description: 暗号・設定脆弱性検出エージェント。A02 Security Misconfiguration + A04 Cryptographic Failures。
+model: sonnet
 allowed-tools: Read, Grep, Glob
 ---
 

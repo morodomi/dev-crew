@@ -1,6 +1,7 @@
 ---
 name: red-worker
 description: REDフェーズのテスト作成を担当するワーカーエージェント。Test List項目とCycle docを受け取り、失敗するテストコードを作成する。
+model: sonnet
 ---
 
 # Red Worker

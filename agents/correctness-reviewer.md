@@ -1,6 +1,7 @@
 ---
 name: correctness-reviewer
 description: コード正確性レビュー。論理エラー、エッジケース、例外処理をチェック。
+model: sonnet
 memory: project
 ---
 

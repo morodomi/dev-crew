@@ -1,6 +1,7 @@
 ---
 name: scope-reviewer
 description: スコープ妥当性レビュー。変更範囲、ファイル数、依存関係をチェック。
+model: sonnet
 ---
 
 # Scope Reviewer

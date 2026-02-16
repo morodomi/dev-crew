@@ -1,6 +1,7 @@
 ---
 name: green-worker
 description: GREENフェーズの実装を担当するワーカーエージェント。テストケースとCycle docを受け取り、最小限の実装を行う。
+model: sonnet
 ---
 
 # Green Worker

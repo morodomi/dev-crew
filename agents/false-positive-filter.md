@@ -1,6 +1,7 @@
 ---
 name: false-positive-filter
 description: 誤検知自動除外エージェント。静的解析結果をフィルタリング。
+model: sonnet
 memory: project
 allowed-tools: Read, Grep, Glob
 ---

@@ -1,6 +1,7 @@
 ---
 name: recon-agent
 description: 偵察エージェント。エンドポイント列挙、技術スタック特定、攻撃優先度付け。
+model: sonnet
 memory: project
 allowed-tools: Bash, Read, Grep, Glob
 ---

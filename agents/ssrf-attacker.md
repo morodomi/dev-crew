@@ -1,6 +1,7 @@
 ---
 name: ssrf-attacker
 description: SSRF脆弱性検出エージェント。A10:2021 / A01:2025 Broken Access Control。
+model: sonnet
 allowed-tools: Read, Grep, Glob
 ---
 

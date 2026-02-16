@@ -1,6 +1,7 @@
 ---
 name: csrf-attacker
 description: CSRF脆弱性検出エージェント。静的解析でCross-Site Request Forgery脆弱性を検出。
+model: sonnet
 allowed-tools: Read, Grep, Glob
 ---
 

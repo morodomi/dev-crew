@@ -1,6 +1,7 @@
 ---
 name: architect
 description: PLANフェーズの設計を担当するエージェント。Cycle docを受け取り、Skill(plan)を実行して設計・Test Listを作成する。
+model: sonnet
 memory: project
 ---
 

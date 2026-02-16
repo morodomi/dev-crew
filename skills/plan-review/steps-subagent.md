@@ -29,6 +29,7 @@ Task(subagent_type: "dev-crew:architecture-reviewer", model: "sonnet", prompt: "
 Task(subagent_type: "dev-crew:risk-reviewer", model: "sonnet", prompt: "...")
 Task(subagent_type: "dev-crew:product-reviewer", model: "sonnet", prompt: "...")
 Task(subagent_type: "dev-crew:usability-reviewer", model: "sonnet", prompt: "...")
+# model: 各エージェントの agents/*.md frontmatter の model フィールドに対応
 ```
 
 **UI関連 TRUE（6エージェント）:**
@@ -37,6 +38,7 @@ Task(subagent_type: "dev-crew:usability-reviewer", model: "sonnet", prompt: "...
 
 ```
 Task(subagent_type: "dev-crew:designer", model: "sonnet", prompt: "...")
+# model: agents/designer.md frontmatter の model フィールドに対応
 ```
 
 各 reviewer に Cycle doc の PLAN セクション（設計方針、Test List、変更予定ファイル）を渡す。

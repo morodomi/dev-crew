@@ -1,6 +1,7 @@
 ---
 name: api-attacker
 description: API脆弱性検出エージェント。静的解析でAPI Security Top 10脆弱性を検出。
+model: sonnet
 allowed-tools: Read, Grep, Glob
 ---
 

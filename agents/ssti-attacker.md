@@ -1,6 +1,7 @@
 ---
 name: ssti-attacker
 description: SSTI検出エージェント。静的解析でServer-Side Template Injection脆弱性を検出。
+model: sonnet
 allowed-tools: Read, Grep, Glob
 ---
 

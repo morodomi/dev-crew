@@ -1,6 +1,7 @@
 ---
 name: designer
 description: PLANフェーズでUI/UX設計ガイドラインを提案するエージェント。日本と欧米のデザインパターンを比較し、ターゲットに適した設計方針を提供する。
+model: sonnet
 ---
 
 # Designer

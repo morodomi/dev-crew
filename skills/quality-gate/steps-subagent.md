@@ -4,15 +4,17 @@
 
 ## 6エージェント並行起動
 
-Taskツールで6つのエージェントを **model: sonnet** で**並行**起動:
+Taskツールで6つのエージェントを並行起動（各エージェントの frontmatter model に準拠）:
 
 ```
 Task(subagent_type: "dev-crew:correctness-reviewer", model: "sonnet", prompt: "...")
 Task(subagent_type: "dev-crew:performance-reviewer", model: "sonnet", prompt: "...")
 Task(subagent_type: "dev-crew:security-reviewer", model: "sonnet", prompt: "...")
-Task(subagent_type: "dev-crew:guidelines-reviewer", model: "sonnet", prompt: "...")
+Task(subagent_type: "dev-crew:guidelines-reviewer", model: "haiku", prompt: "...")
 Task(subagent_type: "dev-crew:product-reviewer", model: "sonnet", prompt: "...")
 Task(subagent_type: "dev-crew:usability-reviewer", model: "sonnet", prompt: "...")
+# model: 各エージェントの agents/*.md frontmatter の model フィールドに対応
+# guidelines-reviewer のみ haiku（ルールベース作業）、他は sonnet（判断力必要）
 ```
 
 各エージェントに以下を渡す:

@@ -1,6 +1,7 @@
 ---
 name: risk-reviewer
 description: リスク評価レビュー。影響範囲、破壊的変更、ロールバック可能性をチェック。
+model: sonnet
 ---
 
 # Risk Reviewer

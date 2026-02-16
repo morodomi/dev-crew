@@ -1,6 +1,7 @@
 ---
 name: performance-reviewer
 description: パフォーマンスレビュー。アルゴリズム効率、N+1問題、メモリ使用をチェック。
+model: sonnet
 memory: project
 ---
 

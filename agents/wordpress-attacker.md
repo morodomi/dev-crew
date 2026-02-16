@@ -1,6 +1,7 @@
 ---
 name: wordpress-attacker
 description: WordPress脆弱性検出エージェント。静的解析でWordPress固有のセキュリティ問題を検出。
+model: sonnet
 allowed-tools: Read, Grep, Glob
 ---
 

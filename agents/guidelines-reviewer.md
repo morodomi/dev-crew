@@ -1,6 +1,7 @@
 ---
 name: guidelines-reviewer
 description: ガイドライン準拠レビュー。コーディング規約、命名規則、ドキュメントをチェック。
+model: haiku
 memory: project
 ---
 

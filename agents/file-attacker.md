@@ -1,6 +1,7 @@
 ---
 name: file-attacker
 description: ファイル関連脆弱性検出エージェント。A01 Broken Access Control + A03 Injection。
+model: sonnet
 allowed-tools: Read, Grep, Glob
 ---
 

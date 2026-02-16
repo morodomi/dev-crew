@@ -1,6 +1,7 @@
 ---
 name: architecture-reviewer
 description: 設計整合性レビュー。アーキテクチャ、パターン、レイヤー構造をチェック。
+model: sonnet
 ---
 
 # Architecture Reviewer

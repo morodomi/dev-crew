@@ -1,6 +1,7 @@
 ---
 name: auth-attacker
 description: 認証・認可脆弱性検出エージェント。静的解析でBroken Auth/Access Control脆弱性を検出。
+model: sonnet
 allowed-tools: Read, Grep, Glob
 ---
 

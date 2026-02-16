@@ -41,7 +41,8 @@ orchestrate 開始前に、Issue 番号と cycle doc の対応を確認する:
 > **MUST**: Task() で委譲すること。PdM による Skill() 直接呼び出し禁止。
 
 ```
-Task(subagent_type: "dev-crew:architect", prompt: "Cycle doc: [path]. Skill(dev-crew:plan)を実行し、設計・Test Listを作成せよ。")
+Task(subagent_type: "dev-crew:architect", model: "sonnet", prompt: "Cycle doc: [path]. Skill(dev-crew:plan)を実行し、設計・Test Listを作成せよ。")
+# model: agents/architect.md frontmatter の model フィールドに対応
 → architect が subagent 内で Skill(plan) + plan-review を実行
 → 結果 JSON 返却
 ```
@@ -81,7 +82,8 @@ PdM が Cycle doc に Phase Summary を追記:
 > **MUST**: Task() で委譲すること。PdM による Skill() 直接呼び出し禁止。
 
 ```
-Task(subagent_type: "dev-crew:red-worker", prompt: "Cycle doc: [path]. 担当テストケース: [TC-XX]. テストを作成し、失敗を確認せよ。")
+Task(subagent_type: "dev-crew:red-worker", model: "sonnet", prompt: "Cycle doc: [path]. 担当テストケース: [TC-XX]. テストを作成し、失敗を確認せよ。")
+# model: agents/red-worker.md frontmatter の model フィールドに対応
 → red-worker が subagent 内でテスト作成
 → 結果 JSON 返却
 ```
@@ -93,7 +95,8 @@ PdM がテスト失敗（RED 状態）を確認。
 > **MUST**: Task() で委譲すること。PdM による Skill() 直接呼び出し禁止。
 
 ```
-Task(subagent_type: "dev-crew:green-worker", prompt: "Cycle doc: [path]. テストを通す最小限の実装を行え。")
+Task(subagent_type: "dev-crew:green-worker", model: "sonnet", prompt: "Cycle doc: [path]. テストを通す最小限の実装を行え。")
+# model: agents/green-worker.md frontmatter の model フィールドに対応
 → green-worker が subagent 内で実装
 → 結果 JSON 返却
 ```
@@ -105,7 +108,8 @@ PdM が全テスト成功（GREEN 状態）を確認。
 > **MUST**: Task() で委譲すること。PdM による Skill() 直接呼び出し禁止。
 
 ```
-Task(subagent_type: "dev-crew:refactorer", prompt: "Cycle doc: [path]. Skill(dev-crew:refactor)を実行し、コード品質を改善せよ。")
+Task(subagent_type: "dev-crew:refactorer", model: "sonnet", prompt: "Cycle doc: [path]. Skill(dev-crew:refactor)を実行し、コード品質を改善せよ。")
+# model: agents/refactorer.md frontmatter の model フィールドに対応
 → refactorer が subagent 内で Skill(refactor) 実行
 → 結果 JSON 返却
 ```

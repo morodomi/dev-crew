@@ -1,6 +1,7 @@
 ---
 name: injection-attacker
 description: インジェクション検出エージェント。静的解析でSQL/Command Injection脆弱性を検出。
+model: sonnet
 allowed-tools: Read, Grep, Glob
 ---
 

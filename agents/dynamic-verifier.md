@@ -1,6 +1,7 @@
 ---
 name: dynamic-verifier
 description: 静的解析結果を動的に検証するエージェント。SQLi/XSS/Auth/CSRF/SSRF/File検証対応。
+model: sonnet
 memory: project
 allowed-tools: Bash, Read
 ---

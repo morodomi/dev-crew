@@ -1,6 +1,7 @@
 ---
 name: socrates
 description: PdMの判断に対する反論専門の常駐アドバイザー。plan-review/quality-gateのWARN/BLOCK時にSocrates Protocolを発動し、人間の判断を支援する。
+model: opus
 memory: project
 ---
 

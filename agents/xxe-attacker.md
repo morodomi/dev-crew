@@ -1,6 +1,7 @@
 ---
 name: xxe-attacker
 description: XXE検出エージェント。静的解析でXML External Entity Injection脆弱性を検出。
+model: sonnet
 allowed-tools: Read, Grep, Glob
 ---
 

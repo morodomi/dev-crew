@@ -1,6 +1,7 @@
 ---
 name: dast-crawler
 description: PlaywrightベースのURL自動発見エージェント。動的生成されるエンドポイントを検出。
+model: sonnet
 allowed-tools: Read, Bash, mcp__playwright__*
 ---
 

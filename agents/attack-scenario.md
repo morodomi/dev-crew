@@ -1,6 +1,7 @@
 ---
 name: attack-scenario
 description: 攻撃シナリオ自動生成エージェント。脆弱性チェーンから具体的な攻撃手順を生成。
+model: sonnet
 memory: project
 allowed-tools: Read
 ---
