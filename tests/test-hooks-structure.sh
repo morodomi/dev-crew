@@ -43,7 +43,7 @@ cat > "$TEMP_AGENT" <<'EOF'
 ---
 name: test-drift-agent
 description: Temporary agent for testing model drift detection
-model: claude-sonnet-4-5-20250929
+model: sonnet
 ---
 
 # Test Drift Agent
@@ -58,15 +58,7 @@ TEMP_STEPS="$TEMP_SKILL_DIR/steps-test-drift.md"
 cat > "$TEMP_STEPS" <<'EOF'
 # Test Drift Steps
 
-Task() call with drifted model:
-
-```
-Task(
-  name="test-drift-agent",
-  model="claude-opus-3-7-20250219",  # This drifts from frontmatter
-  instructions="Test instructions"
-)
-```
+Task(subagent_type: "dev-crew:test-drift-agent", model: "opus", prompt: "Test instructions")
 EOF
 
 # Run test-agents-structure.sh and expect failure
