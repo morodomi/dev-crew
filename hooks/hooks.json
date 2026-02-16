@@ -8,6 +8,10 @@
           {
             "type": "command",
             "command": "bash scripts/hooks/check-cycle-doc.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash tests/test-agents-structure.sh"
           }
         ]
       }
