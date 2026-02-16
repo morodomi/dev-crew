@@ -9,6 +9,15 @@ set -euo pipefail
 BASE_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 PASS=0
 FAIL=0
+TEMP_AGENT="$BASE_DIR/agents/test-drift-agent.md"
+TEMP_SKILL_DIR="$BASE_DIR/skills/test-drift-skill"
+
+cleanup() {
+  rm -f "$TEMP_AGENT"
+  rm -rf "$TEMP_SKILL_DIR"
+}
+
+trap cleanup EXIT INT TERM
 
 pass() { PASS=$((PASS + 1)); printf "  \033[32mPASS\033[0m %s\n" "$1"; }
 fail() { FAIL=$((FAIL + 1)); printf "  \033[31mFAIL\033[0m %s\n" "$1"; }
@@ -38,7 +47,6 @@ echo ""
 echo "TC-03: test-agents-structure.sh detects model drift (exit code 1)"
 
 # Create temporary agent file with drift
-TEMP_AGENT="$BASE_DIR/agents/test-drift-agent.md"
 cat > "$TEMP_AGENT" <<'EOF'
 ---
 name: test-drift-agent
@@ -52,7 +60,6 @@ This is a temporary agent for testing TC-03.
 EOF
 
 # Create temporary skill directory with drifted steps file
-TEMP_SKILL_DIR="$BASE_DIR/skills/test-drift-skill"
 mkdir -p "$TEMP_SKILL_DIR"
 TEMP_STEPS="$TEMP_SKILL_DIR/steps-test-drift.md"
 cat > "$TEMP_STEPS" <<'EOF'
@@ -67,10 +74,6 @@ if bash "$BASE_DIR/tests/test-agents-structure.sh" >/dev/null 2>&1; then
 else
   pass "test-agents-structure.sh detected model drift (exit code 1)"
 fi
-
-# Cleanup temporary files
-rm -f "$TEMP_AGENT"
-rm -rf "$TEMP_SKILL_DIR"
 
 # Summary
 echo ""
