@@ -19,7 +19,7 @@ memory: project
 
 ```json
 {
-  "confidence": 0-100,
+  "blocking_score": 0-100,
   "issues": [
     {
       "severity": "critical|important|optional",
@@ -32,7 +32,9 @@ memory: project
 }
 ```
 
-## 信頼スコア基準
+## ブロッキングスコア基準
+
+blocking_score はレビュー結果がパイプラインをブロックすべき度合いを表す（0 = 問題なし, 100 = ブロック必須）。
 
 - 80-100: BLOCK（修正必須）
 - 50-79: WARN（警告）

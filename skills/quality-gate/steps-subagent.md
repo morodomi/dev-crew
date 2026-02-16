@@ -26,7 +26,7 @@ Task(subagent_type: "dev-crew:usability-reviewer", model: "sonnet", prompt: "...
 
 ```json
 {
-  "confidence": 0-100,
+  "blocking_score": 0-100,
   "issues": [...]
 }
 ```

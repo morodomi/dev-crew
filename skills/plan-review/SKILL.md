@@ -1,6 +1,6 @@
 ---
 name: plan-review
-description: PLANフェーズの設計を5つの専門エージェントで並行レビュー。信頼スコアでPASS(0-49)/WARN(50-79)/BLOCK(80-100)を判定。When this auto-triggers after PLAN phase completion（orchestrateまたはplanから自動呼び出し）。Manual trigger: 「plan-review」「設計レビュー」。
+description: PLANフェーズの設計を5つの専門エージェントで並行レビュー。ブロッキングスコアでPASS(0-49)/WARN(50-79)/BLOCK(80-100)を判定。When this auto-triggers after PLAN phase completion（orchestrateまたはplanから自動呼び出し）。Manual trigger: 「plan-review」「設計レビュー」。
 allowed-tools: Task, Read, Bash, Grep
 ---
 
@@ -34,7 +34,7 @@ Subagent + Sonnet で並行実行。手順: [steps-subagent.md](steps-subagent.m
 
 ### Step 3: 結果統合
 
-各エージェントの信頼スコアを集計:
+各エージェントのブロッキングスコアを集計:
 
 | 最大スコア | 判定 | アクション |
 |-----------|------|-----------|

@@ -1,6 +1,6 @@
 ---
 name: quality-gate
-description: コード変更を6つの専門エージェントで並行レビュー。信頼スコアでPASS(0-49)/WARN(50-79)/BLOCK(80-100)を判定。When this auto-triggers after REVIEW phase（orchestrateまたはreviewから自動呼び出し）。Manual trigger: 「quality-gate」「コードレビュー」「品質チェック」。
+description: コード変更を6つの専門エージェントで並行レビュー。ブロッキングスコアでPASS(0-49)/WARN(50-79)/BLOCK(80-100)を判定。When this auto-triggers after REVIEW phase（orchestrateまたはreviewから自動呼び出し）。Manual trigger: 「quality-gate」「コードレビュー」「品質チェック」。
 allowed-tools: Task, Read, Bash, Grep, Glob
 ---
 
@@ -59,7 +59,7 @@ Subagent + Sonnet で並行実行。手順: [steps-subagent.md](steps-subagent.m
 
 ### Step 4: 結果統合
 
-各エージェントの信頼スコアを集計:
+各エージェントのブロッキングスコアを集計:
 
 | 最大スコア | 判定 | アクション |
 |-----------|------|-----------|
