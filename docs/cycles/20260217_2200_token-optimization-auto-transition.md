@@ -1,6 +1,6 @@
 # Cycle: Token消費量最適化 - Auto-Transition除去
 
-phase: COMMIT
+phase: DONE
 issue: #27
 date: 2026-02-17
 
