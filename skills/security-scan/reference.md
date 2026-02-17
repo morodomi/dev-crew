@@ -67,30 +67,24 @@ RECONの結果に基づき、エージェントを**並行実行**。
 
 全エージェントの結果を統合し、JSON形式で出力。
 
-### Phase 4: AUTO TRANSITION
+### Phase 4: COMPLETION
 
-スキャン完了後、自動的に次のスキルを呼び出す。
+スキャン完了後、結果サマリーと次のステップを表示する。
 
-**デフォルト動作**:
+**表示例**:
 ```
+================================================================================
+SCAN完了
+================================================================================
 検出件数: Critical 0, High 2, Medium 1
 
-レポートを生成します。
-
-Skill(dev-crew:attack-report)
+次のステップ:
+- レポート生成: /attack-report
+- スキャン+レポート一括: /security-audit
+================================================================================
 ```
 
-**context-reviewが必要な場合**:
-```
-曖昧な検出が3件あります。context-reviewを実行しますか? [Y/n]
-
-→ Y の場合: Skill(dev-crew:context-review)
-→ 完了後: Skill(dev-crew:attack-report)
-```
-
-**オプション**:
-- `--no-auto-report`: 自動レポート生成をスキップ
-- `--auto-e2e`: レポート後にE2Eテスト自動生成
+自動的な Skill() チェーン遷移は行わない（Issue #27 で除去）。
 
 ## Output Schema
 
@@ -191,11 +185,11 @@ Skill(dev-crew:attack-report)
 
 ### LEARN Phase
 
-AUTO TRANSITION / E2E 完了後に実行。スキャン結果から以下を auto memory に保存する。
+REPORT Phase 完了後に実行。スキャン結果から以下を auto memory に保存する。
 
 **実行タイミング**:
 ```
-AUTO TRANSITION → [OPTIONAL] E2E → LEARN Phase
+REPORT → LEARN Phase
 ```
 
 **メモリ参照時の表示**:

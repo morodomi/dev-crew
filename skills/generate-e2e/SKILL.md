@@ -1,6 +1,6 @@
 ---
 name: generate-e2e
-description: security-scan結果からPlaywright E2Eテストコードを自動生成。脆弱性タイプ別にテストファイルをtests/security/に出力。「E2Eテスト生成」「generate e2e」「セキュリティテスト作成」「Playwrightテスト生成」で起動。security-scanの--auto-e2eオプションでも自動実行される。Do NOT use for スキャン実行（→ security-scan）やレポート生成（→ attack-report）。
+description: security-scan結果からPlaywright E2Eテストコードを自動生成。脆弱性タイプ別にテストファイルをtests/security/に出力。「E2Eテスト生成」「generate e2e」「セキュリティテスト作成」「Playwrightテスト生成」で起動。security-auditの--auto-e2eオプションでも自動実行される。Do NOT use for スキャン実行（→ security-scan）やレポート生成（→ attack-report）。
 allowed-tools: Read, Write, Bash, Grep, Glob
 ---
 
