@@ -50,7 +50,7 @@ architect teammate を起動し、設計・Test List 作成を委譲:
 ```
 Task(subagent_type: "general-purpose", team_name: "dev-cycle", name: "architect", model: "sonnet")
 # model: agents/architect.md frontmatter の model フィールドに対応
-→ Skill(plan) 実行
+→ Skill(plan) 実行（plan-review は実行しない）
 → 結果報告
 → SendMessage(type: "shutdown_request", recipient: "architect")
 ```

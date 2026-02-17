@@ -1,12 +1,12 @@
 ---
 name: security-scan
-description: セキュリティスキャンを実行。RECON→SCAN→REPORT→AUTO TRANSITION→LEARNワークフローで脆弱性を検出しレポート自動生成。「セキュリティスキャン」「security scan」「脆弱性チェック」「セキュリティ診断」「OWASPチェック」で起動。Do NOT use for レポートのみ（→ attack-report）やE2Eテスト生成のみ（→ generate-e2e）。
+description: セキュリティスキャンを実行。RECON→SCAN→REPORT→LEARNワークフローで脆弱性を検出。「セキュリティスキャン」「security scan」「脆弱性チェック」「セキュリティ診断」「OWASPチェック」で起動。Do NOT use for レポートのみ（→ attack-report）やスキャン+レポート一括（→ security-audit）。
 allowed-tools: Task, Read, Write, Bash, Grep, Glob
 ---
 
 # Security Scan
 
-セキュリティスキャンを実行するスキル。エージェントを連携して脆弱性を検出し、自動でレポートを生成。
+セキュリティスキャンを実行するスキル。エージェントを連携して脆弱性を検出し、JSON形式で結果を出力。
 
 ## Usage
 
@@ -19,12 +19,6 @@ allowed-tools: Task, Read, Write, Bash, Grep, Glob
 
 # 動的テスト有効化（--target必須）
 /security-scan ./src --dynamic --target http://localhost:8000
-
-# レポート自動生成をスキップ
-/security-scan ./src --no-auto-report
-
-# レポート後にE2Eテスト自動生成
-/security-scan ./src --auto-e2e
 ```
 
 ## Options
@@ -32,8 +26,6 @@ allowed-tools: Task, Read, Write, Bash, Grep, Glob
 | Option | Description | Default |
 |--------|-------------|---------|
 | --full-scan | 全13エージェント並列実行 | Off (5 core agents) |
-| --no-auto-report | 自動attack-reportをスキップ | 有効 |
-| --auto-e2e | レポート後に自動E2E生成 | Off |
 | --dynamic | SQLi動的テストを有効化 | Off |
 | --enable-dynamic-xss | XSS動的テストを有効化 | Off |
 | --target | 検証対象URL | Required if --dynamic |
@@ -53,29 +45,23 @@ allowed-tools: Task, Read, Write, Bash, Grep, Glob
 3. REPORT Phase
    └── JSON output
 
-4. AUTO TRANSITION (unless --no-auto-report)
-   └── Skill(dev-crew:attack-report)
-
-5. [OPTIONAL] E2E (if --auto-e2e)
-   └── Skill(dev-crew:generate-e2e)
-
-6. LEARN Phase (unless --no-memory)
+4. LEARN Phase (unless --no-memory)
    └── Save scan context to auto memory (details: reference.md)
 ```
 
-## Auto Transition
-
-スキャン完了後、自動的にattack-reportを呼び出す:
+## Completion
 
 ```
-検出件数: Critical 0, High 2, Medium 1
+================================================================================
+SCAN完了
+================================================================================
+検出件数: Critical X, High Y, Medium Z
 
-レポートを生成します。
-
-Skill(dev-crew:attack-report)
+次のステップ:
+- レポート生成: /attack-report
+- スキャン+レポート一括: /security-audit
+================================================================================
 ```
-
-`--no-auto-report` でスキップ可能。
 
 ## Agent Integration
 

@@ -102,7 +102,19 @@ SKILL.mdの詳細情報。必要時のみ参照。
 - テストカバレッジ: 90%以上
 - 静的解析: エラー0件
 
-### Test List設計
+### Test List設計 {#test-list-template}
+
+**Cycle doc テンプレート**:
+
+```markdown
+## Test List
+
+### TODO
+- [ ] TC-01: [正常系]
+- [ ] TC-02: [境界値]
+- [ ] TC-03: [エッジケース]
+- [ ] TC-04: [異常系]
+```
 
 **Given/When/Then形式**:
 

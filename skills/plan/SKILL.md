@@ -14,7 +14,7 @@ allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebSearch, WebFetch
 PLAN Progress:
 - [ ] Cycle doc確認 → リスク確認 → ドキュメント確認
 - [ ] 対話 → PLAN更新 → Test List作成
-- [ ] plan-review自動実行
+- [ ] 完了メッセージ表示
 ```
 
 ## 禁止事項
@@ -44,17 +44,13 @@ Cycle docの `Risk: [スコア] ([判定])` を読み取り、設計深度を決
 
 Riskフィールドなし → WARN（標準設計）として扱う。
 
-### Step 2: 最新ドキュメント確認（必要な場合）
+### Step 2: 最新ドキュメント確認
 
 メジャーバージョンや破壊的変更が疑われる場合、WebSearch/WebFetchで確認。
 
-### Step 3: 実装計画の対話
+### Step 3: 対話 → PLANセクション更新
 
-アーキテクチャ、依存関係、品質基準をユーザーに確認。
-
-### Step 4: PLANセクション更新
-
-背景・設計方針・ファイル構成をCycle docに追記。
+アーキテクチャ、依存関係、品質基準をユーザーに確認し、背景・設計方針・ファイル構成をCycle docに追記。
 
 ### Step 5: Test List作成
 
@@ -74,27 +70,25 @@ Riskフィールドなし → WARN（標準設計）として扱う。
 
 目安: 機能1つにつき5-10ケース（各2-5分）
 
-異常系は [エラーメッセージ設計](reference.md#エラーメッセージ設計) を参照。
-
-```markdown
-## Test List
-
-### TODO
-- [ ] TC-01: [正常系]
-- [ ] TC-02: [境界値]
-- [ ] TC-03: [エッジケース]
-- [ ] TC-04: [異常系]
-```
+異常系は [エラーメッセージ設計](reference.md#エラーメッセージ設計) を参照。テンプレート: [reference.md](reference.md#test-list-template)
 
 ### Step 5.5: クロスレイヤー検出（parallel 提案）
 
 `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` 有効時、複数レイヤー検出で parallel を提案。詳細: [reference.md](reference.md#クロスレイヤー検出)
 
-### Step 6: plan-review自動実行
+### Step 6: 完了
 
-Test List作成後、`Skill(dev-crew:plan-review)` を実行。plan-reviewがRED以降を制御。
+```
+================================================================================
+PLAN完了
+================================================================================
+設計・Test Listを作成しました。
+次のステップ:
+- Orchestrate: 自動的にplan-reviewが実行されます
+- 手動: /plan-review で設計レビューを開始
+================================================================================
+```
 
 ## Reference
 
-- 詳細: [reference.md](reference.md)
-- Phase Completion（圧縮ガイダンス）: [reference.md#phase-completion](reference.md#phase-completion)
+- [reference.md](reference.md) / [Phase Completion](reference.md#phase-completion)

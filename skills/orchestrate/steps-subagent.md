@@ -34,7 +34,7 @@ orchestrate 開始前に、Issue 番号と cycle doc の対応を確認する:
 > Pre-Flight Check:
 > - [ ] PLAN: Task() で architect に委譲しているか？
 > - [ ] RED/GREEN/REFACTOR: Task() で worker に委譲しているか？
-> - [ ] Skill() 直接呼び出しは REVIEW (quality-gate) と COMMIT のみか？
+> - [ ] Skill() 直接呼び出しは plan-review, REVIEW (quality-gate) と COMMIT のみか？
 
 ### PLAN
 
@@ -43,11 +43,11 @@ orchestrate 開始前に、Issue 番号と cycle doc の対応を確認する:
 ```
 Task(subagent_type: "dev-crew:architect", model: "sonnet", prompt: "Cycle doc: [path]. Skill(dev-crew:plan)を実行し、設計・Test Listを作成せよ。")
 # model: agents/architect.md frontmatter の model フィールドに対応
-→ architect が subagent 内で Skill(plan) + plan-review を実行
+→ architect が subagent 内で Skill(plan) を実行（plan-review は実行しない）
 → 結果 JSON 返却
 ```
 
-PdM が plan-review スコアを判定:
+PdM が Skill(dev-crew:plan-review) を実行し、スコアを判定:
 - PASS/WARN → Phase Summary 永続化 → Block 2 へ
 - BLOCK → Task() を再起動して PLAN 再実行（max 1回）
 
@@ -75,7 +75,7 @@ PdM が Cycle doc に Phase Summary を追記:
 > Pre-Flight Check:
 > - [ ] PLAN: Task() で architect に委譲しているか？
 > - [ ] RED/GREEN/REFACTOR: Task() で worker に委譲しているか？
-> - [ ] Skill() 直接呼び出しは REVIEW (quality-gate) と COMMIT のみか？
+> - [ ] Skill() 直接呼び出しは plan-review, REVIEW (quality-gate) と COMMIT のみか？
 
 ### RED
 

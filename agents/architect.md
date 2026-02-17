@@ -41,7 +41,7 @@ Cycle doc: docs/cycles/20260207_feature.md
 
 1. Cycle docを読み、Scope Definition・Environment・Context を把握
 2. `Skill(dev-crew:plan)` を実行（設計・Test List作成）
-3. 結果をLeadに報告
+3. 結果をLeadに報告（plan-review はLeadが実行するため、architectは実行しない）
 
 ## Principles
 
