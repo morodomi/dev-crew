@@ -446,6 +446,68 @@ else
 fi
 
 ########################################
+# Step 9: Review Usability
+########################################
+
+echo ""
+echo "--- Step 9: Review Usability ---"
+
+# TC-27: SKILL.md Step 0 has explicit mode output instruction
+echo ""
+echo "TC-27: review/SKILL.md mode output instruction"
+if [ -f "$REVIEW_SKILL" ]; then
+  if grep -q '\[REVIEW\] Mode:' "$REVIEW_SKILL"; then
+    pass "TC-27: review/SKILL.md Step 0 has explicit mode output instruction"
+  else
+    fail "TC-27: review/SKILL.md missing [REVIEW] Mode: output instruction"
+  fi
+else
+  fail "TC-27: review/SKILL.md not found"
+fi
+
+# TC-28: SKILL.md Step 5 BLOCK row has mode-specific recovery
+echo ""
+echo "TC-28: review/SKILL.md mode-specific BLOCK recovery"
+if [ -f "$REVIEW_SKILL" ]; then
+  # Check that the BLOCK row itself contains mode-specific recovery paths
+  block_line=$(grep 'BLOCK' "$REVIEW_SKILL" | grep '80-100' || true)
+  if echo "$block_line" | grep -q 'plan' && echo "$block_line" | grep -q 'code'; then
+    pass "TC-28: review/SKILL.md BLOCK row has plan and code recovery paths"
+  else
+    fail "TC-28: review/SKILL.md BLOCK row missing mode-specific recovery (got: '$block_line')"
+  fi
+else
+  fail "TC-28: review/SKILL.md not found"
+fi
+
+# TC-29: steps-subagent.md has mode notification instruction
+echo ""
+echo "TC-29: review/steps-subagent.md mode notification"
+if [ -f "$REVIEW_STEPS" ]; then
+  if grep -q '\[REVIEW\] Mode:' "$REVIEW_STEPS"; then
+    pass "TC-29: review/steps-subagent.md has mode notification instruction"
+  else
+    fail "TC-29: review/steps-subagent.md missing [REVIEW] Mode: notification"
+  fi
+else
+  fail "TC-29: review/steps-subagent.md not found"
+fi
+
+# TC-30: reference.md has BLOCK Recovery section
+echo ""
+echo "TC-30: review/reference.md BLOCK Recovery section"
+REVIEW_REF="$BASE_DIR/skills/review/reference.md"
+if [ -f "$REVIEW_REF" ]; then
+  if grep -qi 'BLOCK Recovery\|BLOCK 復帰' "$REVIEW_REF"; then
+    pass "TC-30: review/reference.md has BLOCK Recovery section"
+  else
+    fail "TC-30: review/reference.md missing BLOCK Recovery section"
+  fi
+else
+  fail "TC-30: review/reference.md not found"
+fi
+
+########################################
 # Regression: SKILL.md line limits
 ########################################
 

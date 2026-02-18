@@ -25,7 +25,7 @@ dev-crew/
 │   ├── design-reviewer.md # Unified design review (scope+arch+risk)
 │   ├── *-reviewer.md      # 5 review agents
 │   └── *-attacker.md      # 18 security agents
-├── skills/                # 26 skills (flat)
+├── skills/                # 28 skills (flat)
 │   ├── init/              # Cycle start
 │   ├── plan/              # Design + Test List
 │   ├── red/               # Failing tests

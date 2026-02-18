@@ -2,6 +2,15 @@
 
 常に Subagent モードで実行する（環境変数に関わらず）。
 
+## Step 0: Mode Notification
+
+mode 決定後、ユーザーに明示出力する:
+
+```
+[REVIEW] Mode: plan (設計レビュー)
+[REVIEW] Mode: code (コードレビュー)
+```
+
 ## Step 1: Risk Classification
 
 決定論的にリスクレベルを判定（LLM不使用）:
@@ -92,9 +101,23 @@ Task(subagent_type: "dev-crew:designer", model: "sonnet", prompt: "...")        
 
 | 最大スコア | 判定 | アクション |
 |-----------|------|-----------|
-| 80-100 | BLOCK | 修正必須 |
+| 80-100 | BLOCK | 修正必須 (下記テンプレート参照) |
 | 50-79 | WARN | 警告確認 |
 | 0-49 | PASS | 問題なし |
+
+### BLOCK 時の mode 別出力テンプレート
+
+plan mode:
+```
+[REVIEW] BLOCK (score NN): PLAN フェーズに戻って再設計してください。
+指摘事項: ...
+```
+
+code mode:
+```
+[REVIEW] BLOCK (score NN): RED/GREEN/REFACTOR のいずれかに戻って修正してください。
+指摘事項: ...
+```
 
 Cycle doc の Progress Log に記録:
 ```

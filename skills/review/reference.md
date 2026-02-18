@@ -79,9 +79,32 @@ SKILL.mdの詳細情報。必要時のみ参照。
 
 | スコア | 判定 | アクション |
 |--------|------|-----------|
-| 80-100 | BLOCK | 前フェーズに戻って修正必須 |
+| 80-100 | BLOCK | 修正必須 (plan→PLAN再設計 / code→RED/GREEN/REFACTOR) |
 | 50-79 | WARN | 警告確認後、次フェーズへ |
 | 0-49 | PASS | 次フェーズへ自動進行 |
+
+## BLOCK Recovery
+
+BLOCK 判定時、mode に応じて復帰先が異なる。
+
+### plan mode の BLOCK 復帰
+
+1. BLOCK 指摘事項を Cycle doc の DISCOVERED に記録
+2. PLAN フェーズに戻って再設計
+3. 再設計後、再度 review --plan を実行
+
+復帰先: **PLAN**
+
+### code mode の BLOCK 復帰
+
+1. BLOCK 指摘事項を Cycle doc の DISCOVERED に記録
+2. 指摘内容に応じて適切なフェーズに戻る:
+   - ロジックエラー → RED (再現テスト作成) → GREEN (修正)
+   - 設計上の問題 → REFACTOR
+   - セキュリティ脆弱性 → RED (攻撃テスト作成) → GREEN (修正)
+3. 修正後、再度 review --code を実行
+
+復帰先: **RED / GREEN / REFACTOR** (指摘内容に依存)
 
 ## 品質チェック詳細
 

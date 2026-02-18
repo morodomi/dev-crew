@@ -33,7 +33,8 @@ review Progress:
 
 ### Step 0: Mode 判定
 
-引数または直前フェーズから mode を決定。
+引数または直前フェーズから mode を決定し、ユーザーに明示出力する。
+出力: `[REVIEW] Mode: plan (設計レビュー)` or `[REVIEW] Mode: code (コードレビュー)`
 
 ### Step 1: Risk Classification
 
@@ -70,7 +71,7 @@ Risk level に応じてエージェント数をスケール:
 
 | 最大スコア | 判定 | アクション |
 |-----------|------|-----------|
-| 80-100 | BLOCK | 修正必須、前フェーズに戻る |
+| 80-100 | BLOCK | 修正必須 (plan→PLAN再設計 / code→RED/GREEN/REFACTOR) |
 | 50-79 | WARN | 警告表示、継続可能 |
 | 0-49 | PASS | 問題なし |
 
