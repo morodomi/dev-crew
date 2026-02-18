@@ -11,7 +11,7 @@
 | red | tdd-red | Yes | 失敗するテスト作成。red-workerを並列spawn |
 | green | tdd-green | Yes | テストを通す最小実装。green-workerを並列spawn |
 | refactor | tdd-refactor | Yes | コード品質改善（DRY, naming等）テスト維持 |
-| review | tdd-review | Yes | 品質チェック: tests + coverage + static analysis + quality-gate |
+| review | tdd-review | Yes | 品質チェック: tests + coverage + static analysis + unified review (risk-based) |
 | commit | tdd-commit | Yes | git add/commit + STATUS.md更新 |
 
 ### Orchestration Skills

@@ -14,7 +14,7 @@ AI development team environment as a single Claude Code Plugin.
 dev-crew/
 ├── .claude-plugin/
 │   └── plugin.json        # Single plugin metadata
-├── agents/                # 32 agents (flat)
+├── agents/                # 33 agents (flat)
 │   ├── architect.md       # PLAN phase design
 │   ├── red-worker.md      # RED test creation
 │   ├── green-worker.md    # GREEN implementation
