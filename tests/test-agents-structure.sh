@@ -98,7 +98,7 @@ for agent_file in "$BASE_DIR"/agents/*.md; do
 done
 
 if [ "$model_missing_count" -eq 0 ]; then
-  pass "TC-21: All 34 agents have 'model' frontmatter"
+  pass "TC-21: All 32 agents have 'model' frontmatter"
 fi
 
 # TC-22: 'model' value is opus|sonnet|haiku
@@ -135,24 +135,24 @@ else
   fail "TC-23: socrates.md model is '$socrates_model' (expected: opus)"
 fi
 
-# TC-24: guidelines-reviewer.md has model 'haiku'
+# TC-24: review-briefer.md has model 'haiku'
 echo ""
-echo "TC-24: guidelines-reviewer.md model validation"
-guidelines_model=$(get_frontmatter "$BASE_DIR/agents/guidelines-reviewer.md" "model")
-if [ "$guidelines_model" = "haiku" ]; then
-  pass "TC-24: guidelines-reviewer.md has model 'haiku'"
+echo "TC-24: review-briefer.md model validation"
+briefer_model=$(get_frontmatter "$BASE_DIR/agents/review-briefer.md" "model")
+if [ "$briefer_model" = "haiku" ]; then
+  pass "TC-24: review-briefer.md has model 'haiku'"
 else
-  fail "TC-24: guidelines-reviewer.md model is '$guidelines_model' (expected: haiku)"
+  fail "TC-24: review-briefer.md model is '$briefer_model' (expected: haiku)"
 fi
 
-# TC-25: scope-reviewer.md has model 'sonnet'
+# TC-25: design-reviewer.md has model 'sonnet'
 echo ""
-echo "TC-25: scope-reviewer.md model validation"
-scope_model=$(get_frontmatter "$BASE_DIR/agents/scope-reviewer.md" "model")
-if [ "$scope_model" = "sonnet" ]; then
-  pass "TC-25: scope-reviewer.md has model 'sonnet'"
+echo "TC-25: design-reviewer.md model validation"
+design_model=$(get_frontmatter "$BASE_DIR/agents/design-reviewer.md" "model")
+if [ "$design_model" = "sonnet" ]; then
+  pass "TC-25: design-reviewer.md has model 'sonnet'"
 else
-  fail "TC-25: scope-reviewer.md model is '$scope_model' (expected: sonnet)"
+  fail "TC-25: design-reviewer.md model is '$design_model' (expected: sonnet)"
 fi
 
 # TC-26: architect.md has model 'sonnet'
@@ -251,39 +251,40 @@ else
   fail "TC-31: steps-subagent.md not found"
 fi
 
-# TC-32: plan-review/steps-subagent.md guidelines-reviewer has model "haiku"
+# TC-32: review/steps-subagent.md contains review-briefer with model "haiku"
 echo ""
-echo "TC-32: plan-review/steps-subagent.md guidelines-reviewer model"
-plan_review_steps="$BASE_DIR/skills/plan-review/steps-subagent.md"
-if [ -f "$plan_review_steps" ]; then
-  # Check if guidelines-reviewer is used in this file
-  if grep -q 'guidelines-reviewer' "$plan_review_steps"; then
-    # Check if it has model: "haiku"
-    if grep 'guidelines-reviewer' "$plan_review_steps" | grep -q 'model: "haiku"'; then
-      pass "TC-32: plan-review guidelines-reviewer has model 'haiku'"
+echo "TC-32: review/steps-subagent.md review-briefer model"
+review_steps="$BASE_DIR/skills/review/steps-subagent.md"
+if [ -f "$review_steps" ]; then
+  if grep -q 'review-briefer' "$review_steps"; then
+    if grep 'review-briefer' "$review_steps" | grep -q 'model: "haiku"'; then
+      pass "TC-32: review steps-subagent.md review-briefer has model 'haiku'"
     else
-      fail "TC-32: plan-review guidelines-reviewer missing or incorrect model (expected: haiku)"
+      fail "TC-32: review steps-subagent.md review-briefer missing or incorrect model (expected: haiku)"
     fi
   else
-    pass "TC-32: guidelines-reviewer not used in plan-review (skip)"
+    fail "TC-32: review-briefer not found in review/steps-subagent.md"
   fi
 else
-  fail "TC-32: plan-review/steps-subagent.md not found"
+  fail "TC-32: review/steps-subagent.md not found"
 fi
 
-# TC-33: quality-gate/steps-subagent.md guidelines-reviewer has model "haiku"
+# TC-33: review/steps-subagent.md contains design-reviewer with model "sonnet"
 echo ""
-echo "TC-33: quality-gate/steps-subagent.md guidelines-reviewer model"
-quality_gate_steps="$BASE_DIR/skills/quality-gate/steps-subagent.md"
-if [ -f "$quality_gate_steps" ]; then
-  # Check if guidelines-reviewer has model: "haiku"
-  if grep 'guidelines-reviewer' "$quality_gate_steps" | grep -q 'model: "haiku"'; then
-    pass "TC-33: quality-gate guidelines-reviewer has model 'haiku'"
+echo "TC-33: review/steps-subagent.md design-reviewer model"
+review_steps="$BASE_DIR/skills/review/steps-subagent.md"
+if [ -f "$review_steps" ]; then
+  if grep -q 'design-reviewer' "$review_steps"; then
+    if grep 'design-reviewer' "$review_steps" | grep -q 'model: "sonnet"'; then
+      pass "TC-33: review steps-subagent.md design-reviewer has model 'sonnet'"
+    else
+      fail "TC-33: review steps-subagent.md design-reviewer missing or incorrect model (expected: sonnet)"
+    fi
   else
-    fail "TC-33: quality-gate guidelines-reviewer missing or incorrect model (expected: haiku)"
+    fail "TC-33: design-reviewer not found in review/steps-subagent.md"
   fi
 else
-  fail "TC-33: quality-gate/steps-subagent.md not found"
+  fail "TC-33: review/steps-subagent.md not found"
 fi
 
 # TC-34: Drift detection - frontmatter model vs steps-*.md model parameter

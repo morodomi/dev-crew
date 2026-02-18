@@ -14,19 +14,13 @@
 | review | tdd-review | Yes | 品質チェック: tests + coverage + static analysis + quality-gate |
 | commit | tdd-commit | Yes | git add/commit + STATUS.md更新 |
 
-### Review Gate Skills
-
-| Skill | Origin | Rename | Agents | Description |
-|-------|--------|--------|--------|-------------|
-| plan-review | plan-review | No | 5並行 | 設計レビュー(scope, architecture, risk, product, usability) |
-| quality-gate | quality-gate | No | 6並行 | コードレビュー(correctness, performance, security, guidelines, architecture + optional) |
-
 ### Orchestration Skills
 
 | Skill | Origin | Rename | Description |
 |-------|--------|--------|-------------|
 | orchestrate | tdd-orchestrate | Yes | PdMとして全フェーズ自律管理。Socrates Protocol対応 |
 | phase-compact | NEW | - | フェーズ境界でのcompaction。Cycle docに永続化後/compact |
+| strategy | NEW (v2) | - | 企画フェーズ。要件理解→リサーチ→設計→GitHub Issue作成 |
 
 ### Diagnostic Skills
 
@@ -67,19 +61,17 @@
 |-------|--------|-------------|
 | designer | NEW | UI/UXデザイン支援。Refactoring UI原則ベース |
 
-### Reviewers (9)
+### Reviewers (7) (v2: unified review)
 
-| Agent | Origin | Gate | Description |
-|-------|--------|------|-------------|
-| correctness-reviewer | same | quality-gate | 論理エラー、エッジケース、例外処理 |
-| performance-reviewer | same | quality-gate | アルゴリズム効率、N+1、メモリ |
-| security-reviewer | same | quality-gate | 入力検証、認証、SQLi/XSS |
-| guidelines-reviewer | same | quality-gate | コーディング規約、命名規則 |
-| scope-reviewer | same | plan-review | 変更範囲、ファイル数、依存関係 |
-| architecture-reviewer | same | both | 設計整合性、パターン、レイヤー構造 |
-| risk-reviewer | same | plan-review | 影響範囲、破壊的変更、ロールバック |
-| product-reviewer | same | plan-review | ユーザー価値、コスト妥当性、優先度 |
-| usability-reviewer | same | plan-review | UX/UI、アクセシビリティ、ユーザーフロー |
+| Agent | Origin | Mode | Model | Description |
+|-------|--------|------|-------|-------------|
+| review-briefer | NEW (v2) | both | haiku | Review Brief生成。入力トークン圧縮 |
+| design-reviewer | NEW (v2) | plan | sonnet | 統合設計レビュー (scope+architecture+risk) |
+| correctness-reviewer | same | code | sonnet | 論理エラー、エッジケース、例外処理 |
+| performance-reviewer | same | both | sonnet | アルゴリズム効率、N+1、メモリ |
+| security-reviewer | same | both | sonnet | 入力検証、認証、SQLi/XSS |
+| product-reviewer | same | both | haiku | ユーザー価値、コスト妥当性、優先度 |
+| usability-reviewer | same | both | haiku | UX/UI、アクセシビリティ、ユーザーフロー |
 
 ---
 
@@ -150,6 +142,5 @@
 
 | Skill | Plugin | Priority | Description |
 |-------|--------|----------|-------------|
-| phase-compact | core | P0 | フェーズ境界compaction |
 | designer workflow | core | P1 | UI/UXデザインワークフロー |
 | dev-status | core | P2 | プロジェクト進捗ダッシュボード |

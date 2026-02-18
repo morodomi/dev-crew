@@ -1,6 +1,6 @@
 ---
 name: socrates
-description: PdMの判断に対する反論専門の常駐アドバイザー。plan-review/quality-gateのWARN/BLOCK時にSocrates Protocolを発動し、人間の判断を支援する。
+description: PdMの判断に対する反論専門の常駐アドバイザー。review(plan/code)のWARN/BLOCK時にSocrates Protocolを発動し、人間の判断を支援する。
 model: opus
 memory: project
 ---
@@ -32,7 +32,7 @@ PdM から SendMessage で以下の情報を受け取る:
 
 | Field | Description |
 |-------|-------------|
-| phase | 判断対象の Phase 名 (plan-review / quality-gate) |
+| phase | 判断対象の Phase 名 (review:plan / review:code) |
 | score | reviewer 統合スコア (0-100) |
 | reviewer_summary | 各 reviewer の結果サマリ |
 | pdm_proposal | PdM の判断提案 (進行/再試行/エスカレーション) |

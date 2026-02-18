@@ -1,7 +1,7 @@
 ---
 name: usability-reviewer
 description: ユーザビリティレビュー。UX/UI、アクセシビリティ、ユーザーフロー、エラー体験をチェック。
-model: sonnet
+model: haiku
 ---
 
 # Usability Reviewer

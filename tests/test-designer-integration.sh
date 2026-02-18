@@ -1,7 +1,7 @@
 #!/bin/bash
-# test-designer-integration.sh - Designer integration with plan-review validation
-# TC-01, TC-02, TC-03/04/05, TC-06/09, TC-07, TC-08, TC-10, TC-11, TC-12, SKILL.md
-# Tests the integration of designer agent into the plan-review workflow
+# test-designer-integration.sh - Designer integration with unified review validation
+# TC-01 ~ TC-13
+# Tests the integration of designer agent into the unified review workflow (plan mode)
 
 set -euo pipefail
 
@@ -13,9 +13,9 @@ FAIL=0
 pass() { PASS=$((PASS + 1)); printf "  \033[32mPASS\033[0m %s\n" "$1"; }
 fail() { FAIL=$((FAIL + 1)); printf "  \033[31mFAIL\033[0m %s\n" "$1"; }
 
-SKILL_FILE="$BASE_DIR/skills/plan-review/SKILL.md"
-REFERENCE_FILE="$BASE_DIR/skills/plan-review/reference.md"
-STEPS_FILE="$BASE_DIR/skills/plan-review/steps-subagent.md"
+SKILL_FILE="$BASE_DIR/skills/review/SKILL.md"
+REFERENCE_FILE="$BASE_DIR/skills/review/reference.md"
+STEPS_FILE="$BASE_DIR/skills/review/steps-subagent.md"
 
 echo "=== Designer Integration Tests ==="
 
@@ -38,28 +38,18 @@ echo ""
 echo "TC-02: File existence and frontmatter validation"
 tc02_fail=0
 
-if [ ! -f "$SKILL_FILE" ]; then
-  fail "TC-02: SKILL.md not found"
-  tc02_fail=$((tc02_fail + 1))
-fi
-
-if [ ! -f "$REFERENCE_FILE" ]; then
-  fail "TC-02: reference.md not found"
-  tc02_fail=$((tc02_fail + 1))
-fi
-
-if [ ! -f "$STEPS_FILE" ]; then
-  fail "TC-02: steps-subagent.md not found"
-  tc02_fail=$((tc02_fail + 1))
-fi
+for f in "$SKILL_FILE" "$REFERENCE_FILE" "$STEPS_FILE"; do
+  if [ ! -f "$f" ]; then
+    fail "TC-02: $(basename "$f") not found"
+    tc02_fail=$((tc02_fail + 1))
+  fi
+done
 
 if [ -f "$SKILL_FILE" ]; then
-  # Check frontmatter has name and description
-  if ! grep -q "^name: plan-review" "$SKILL_FILE"; then
+  if ! grep -q "^name: review" "$SKILL_FILE"; then
     fail "TC-02: SKILL.md missing 'name' frontmatter"
     tc02_fail=$((tc02_fail + 1))
   fi
-
   if ! grep -q "^description:" "$SKILL_FILE"; then
     fail "TC-02: SKILL.md missing 'description' frontmatter"
     tc02_fail=$((tc02_fail + 1))
@@ -70,221 +60,207 @@ if [ "$tc02_fail" -eq 0 ]; then
   pass "TC-02: All files exist with valid frontmatter"
 fi
 
-# TC-07: steps-subagent.md has designer description
+# TC-03: UI detection in risk classifier
 echo ""
-echo "TC-07: steps-subagent.md has designer description"
-tc07_fail=0
-
-if [ ! -f "$STEPS_FILE" ]; then
-  fail "TC-07: steps-subagent.md not found"
-  tc07_fail=1
-else
-  if ! grep -qi "designer" "$STEPS_FILE"; then
-    fail "TC-07: steps-subagent.md missing 'designer'"
-    tc07_fail=$((tc07_fail + 1))
-  fi
-
-  if ! grep -qi "model" "$STEPS_FILE"; then
-    fail "TC-07: steps-subagent.md missing 'model' (sonnet specification)"
-    tc07_fail=$((tc07_fail + 1))
-  fi
-
-  # Check for conditional invocation keywords (UI or 条件)
-  if ! grep -qiE "(UI|条件)" "$STEPS_FILE"; then
-    fail "TC-07: steps-subagent.md missing conditional invocation description"
-    tc07_fail=$((tc07_fail + 1))
-  fi
-fi
-
-if [ "$tc07_fail" -eq 0 ]; then
-  pass "TC-07: steps-subagent.md has designer with model and conditional invocation"
-fi
-
-# TC-08: Result integration - designer excluded from scoring
-echo ""
-echo "TC-08: Result integration - designer scoring exclusion"
-tc08_fail=0
-
-# Check steps-subagent.md or reference.md for designer scoring exclusion mention
-found_scoring_exclusion=0
-
-if [ -f "$STEPS_FILE" ]; then
-  if grep -qi "scoring.*対象外" "$STEPS_FILE" || grep -qi "ブロッキングスコア.*designer" "$STEPS_FILE"; then
-    found_scoring_exclusion=1
-  fi
-fi
+echo "TC-03: UI detection in risk classification"
+tc03_fail=0
 
 if [ -f "$REFERENCE_FILE" ]; then
-  if grep -qi "blocking_score.*5.*reviewer" "$REFERENCE_FILE" || grep -qi "5.*レビュアー.*ブロッキングスコア" "$REFERENCE_FILE"; then
+  if ! grep -qE "(component|view|page|\.vue|\.tsx)" "$REFERENCE_FILE"; then
+    fail "TC-03: reference.md missing UI component detection patterns"
+    tc03_fail=$((tc03_fail + 1))
+  fi
+else
+  fail "TC-03: reference.md not found"
+  tc03_fail=1
+fi
+
+if [ "$tc03_fail" -eq 0 ]; then
+  pass "TC-03: UI detection patterns in risk classification"
+fi
+
+# TC-04: Designer in plan mode agent roster
+echo ""
+echo "TC-04: Designer in plan mode agent roster"
+tc04_fail=0
+
+if [ -f "$REFERENCE_FILE" ]; then
+  if ! grep -qi "designer" "$REFERENCE_FILE"; then
+    fail "TC-04: reference.md missing 'designer' agent"
+    tc04_fail=$((tc04_fail + 1))
+  fi
+  if ! grep -qiE "UI.*tech.*stack|UI.*flag" "$REFERENCE_FILE"; then
+    fail "TC-04: reference.md missing designer UI condition"
+    tc04_fail=$((tc04_fail + 1))
+  fi
+else
+  fail "TC-04: reference.md not found"
+  tc04_fail=1
+fi
+
+if [ "$tc04_fail" -eq 0 ]; then
+  pass "TC-04: Designer in plan mode roster with UI condition"
+fi
+
+# TC-05: Designer in steps-subagent.md
+echo ""
+echo "TC-05: steps-subagent.md has designer"
+tc05_fail=0
+
+if [ -f "$STEPS_FILE" ]; then
+  if ! grep -qi "designer" "$STEPS_FILE"; then
+    fail "TC-05: steps-subagent.md missing 'designer'"
+    tc05_fail=$((tc05_fail + 1))
+  fi
+  if ! grep -qi "model" "$STEPS_FILE"; then
+    fail "TC-05: steps-subagent.md missing 'model' parameter"
+    tc05_fail=$((tc05_fail + 1))
+  fi
+else
+  fail "TC-05: steps-subagent.md not found"
+  tc05_fail=1
+fi
+
+if [ "$tc05_fail" -eq 0 ]; then
+  pass "TC-05: steps-subagent.md has designer with model parameter"
+fi
+
+# TC-06: Designer scoring exclusion
+echo ""
+echo "TC-06: Designer scoring exclusion"
+tc06_fail=0
+
+found_scoring_exclusion=0
+if [ -f "$STEPS_FILE" ]; then
+  if grep -qi "designer.*スコア対象外" "$STEPS_FILE"; then
     found_scoring_exclusion=1
   fi
 fi
 
 if [ "$found_scoring_exclusion" -eq 0 ]; then
-  fail "TC-08: No mention that designer is excluded from blocking_score calculation"
-  tc08_fail=1
+  fail "TC-06: No mention that designer is excluded from scoring"
+  tc06_fail=1
 else
-  pass "TC-08: Designer is excluded from blocking_score (5 reviewers only)"
+  pass "TC-06: Designer is excluded from blocking_score calculation"
 fi
 
-# TC-10: reference.md has designer section
+# TC-07: Usability-reviewer and designer coexistence
 echo ""
-echo "TC-10: reference.md has designer section"
-tc10_fail=0
-
-if [ ! -f "$REFERENCE_FILE" ]; then
-  fail "TC-10: reference.md not found"
-  tc10_fail=1
-else
-  if ! grep -qi "designer" "$REFERENCE_FILE"; then
-    fail "TC-10: reference.md missing 'designer' section"
-    tc10_fail=$((tc10_fail + 1))
-  fi
-
-  if ! grep -qi "UI" "$REFERENCE_FILE"; then
-    fail "TC-10: reference.md missing UI-related judgment criteria"
-    tc10_fail=$((tc10_fail + 1))
-  fi
-
-  # Check for role separation with usability-reviewer (designer vs usability-reviewer)
-  if ! grep -qiE "(usability|役割分離|role.*boundary)" "$REFERENCE_FILE"; then
-    fail "TC-10: reference.md missing role separation explanation"
-    tc10_fail=$((tc10_fail + 1))
-  fi
-fi
-
-if [ "$tc10_fail" -eq 0 ]; then
-  pass "TC-10: reference.md has designer section with UI criteria and role separation"
-fi
-
-# TC-11: steps-subagent.md heading reflects 5+1 reviewers
-echo ""
-echo "TC-11: steps-subagent.md heading shows 5+1 structure"
-if [ ! -f "$STEPS_FILE" ]; then
-  fail "TC-11: steps-subagent.md not found"
-else
-  if grep -qE "(5\+1|5.*1|6.*エージェント)" "$STEPS_FILE"; then
-    pass "TC-11: steps-subagent.md heading reflects 5+1 structure"
-  else
-    fail "TC-11: steps-subagent.md heading missing 5+1 structure"
-  fi
-fi
-
-# TC-03/04/05: reference.md documents UI detection keyword categories
-echo ""
-echo "TC-03/04/05: reference.md has UI detection keyword categories"
-tc_ui_fail=0
+echo "TC-07: usability-reviewer and designer coexistence"
+tc07_fail=0
 
 if [ -f "$REFERENCE_FILE" ]; then
-  # TC-03 equiv: UI tech stack keywords (React, Vue, Flutter etc.)
-  if ! grep -qE "(React|Vue|Flutter|Next\.js|Angular|Svelte)" "$REFERENCE_FILE"; then
-    fail "TC-03: reference.md missing UI tech stack keywords"
-    tc_ui_fail=$((tc_ui_fail + 1))
-  fi
-
-  # TC-04 equiv: UI component file paths (components/, views/, pages/ etc.)
-  if ! grep -qE "(components/|views/|templates/|pages/|layouts/)" "$REFERENCE_FILE"; then
-    fail "TC-04: reference.md missing UI component file path patterns"
-    tc_ui_fail=$((tc_ui_fail + 1))
-  fi
-
-  # TC-05 equiv: UI/UX keywords in description
-  if ! grep -qE "(UI|UX|フロントエンド|デザイン)" "$REFERENCE_FILE"; then
-    fail "TC-05: reference.md missing UI/UX description keywords"
-    tc_ui_fail=$((tc_ui_fail + 1))
+  if grep -qi "usability" "$REFERENCE_FILE" && grep -qi "designer" "$REFERENCE_FILE"; then
+    pass "TC-07: Both usability-reviewer and designer in reference"
+  else
+    fail "TC-07: Missing usability-reviewer or designer in reference"
+    tc07_fail=1
   fi
 else
-  fail "TC-03/04/05: reference.md not found"
-  tc_ui_fail=1
+  fail "TC-07: reference.md not found"
+  tc07_fail=1
 fi
 
-if [ "$tc_ui_fail" -eq 0 ]; then
-  pass "TC-03/04/05: reference.md documents all 3 UI detection categories"
-fi
-
-# TC-06/09: steps-subagent.md documents both UI and non-UI flows
+# TC-08: Risk-based scaling includes designer
 echo ""
-echo "TC-06/09: steps-subagent.md documents conditional execution flows"
-tc_flow_fail=0
+echo "TC-08: Risk-based scaling"
+tc08_fail=0
+
+if [ -f "$REFERENCE_FILE" ]; then
+  if grep -qE "LOW|MEDIUM|HIGH" "$REFERENCE_FILE" && grep -q "Risk" "$REFERENCE_FILE"; then
+    pass "TC-08: Risk-based scaling with LOW/MEDIUM/HIGH levels"
+  else
+    fail "TC-08: Missing risk-based scaling"
+    tc08_fail=1
+  fi
+else
+  fail "TC-08: reference.md not found"
+  tc08_fail=1
+fi
+
+# TC-09: Plan mode vs code mode distinction
+echo ""
+echo "TC-09: Plan mode vs code mode distinction"
+tc09_fail=0
 
 if [ -f "$STEPS_FILE" ]; then
-  # TC-06 equiv: non-UI case documented (5 agents only)
-  if ! grep -qE "(FALSE|5.*エージェント)" "$STEPS_FILE"; then
-    fail "TC-06: steps-subagent.md missing non-UI (5 agents) flow"
-    tc_flow_fail=$((tc_flow_fail + 1))
-  fi
-
-  # TC-09 equiv: result collection distinguishes reviewer JSON from designer Markdown
-  if ! grep -qi "Markdown" "$STEPS_FILE"; then
-    fail "TC-09: steps-subagent.md missing designer Markdown output distinction"
-    tc_flow_fail=$((tc_flow_fail + 1))
+  if grep -qi "Plan Mode" "$STEPS_FILE" && grep -qi "Code Mode" "$STEPS_FILE"; then
+    pass "TC-09: Both plan and code modes documented in steps"
+  else
+    fail "TC-09: Missing plan/code mode distinction in steps"
+    tc09_fail=1
   fi
 else
-  fail "TC-06/09: steps-subagent.md not found"
-  tc_flow_fail=1
+  fail "TC-09: steps-subagent.md not found"
+  tc09_fail=1
 fi
 
-if [ "$tc_flow_fail" -eq 0 ]; then
-  pass "TC-06/09: Both UI and non-UI flows documented with output format distinction"
-fi
-
-# TC-12: target_audience/ui_scope extraction guidance
+# TC-10: Designer conditional on UI flags
 echo ""
-echo "TC-12: target_audience/ui_scope extraction guidance"
-tc_param_fail=0
+echo "TC-10: Designer conditional on UI flags"
+tc10_fail=0
 
-found_params=0
-if [ -f "$STEPS_FILE" ] && grep -qi "target_audience" "$STEPS_FILE"; then
-  found_params=$((found_params + 1))
-fi
-if [ -f "$REFERENCE_FILE" ] && grep -qi "target_audience" "$REFERENCE_FILE"; then
-  found_params=$((found_params + 1))
-fi
-
-if [ "$found_params" -eq 0 ]; then
-  fail "TC-12: No target_audience extraction guidance in steps or reference"
-  tc_param_fail=1
-fi
-
-found_scope=0
-if [ -f "$STEPS_FILE" ] && grep -qi "ui_scope" "$STEPS_FILE"; then
-  found_scope=$((found_scope + 1))
-fi
-if [ -f "$REFERENCE_FILE" ] && grep -qi "ui_scope" "$REFERENCE_FILE"; then
-  found_scope=$((found_scope + 1))
-fi
-
-if [ "$found_scope" -eq 0 ]; then
-  fail "TC-12: No ui_scope extraction guidance in steps or reference"
-  tc_param_fail=$((tc_param_fail + 1))
-fi
-
-if [ "$tc_param_fail" -eq 0 ]; then
-  pass "TC-12: target_audience and ui_scope extraction documented"
-fi
-
-# SKILL.md designer mention
-echo ""
-echo "SKILL.md: designer mention check"
-tc_skill_fail=0
-
-if [ ! -f "$SKILL_FILE" ]; then
-  fail "SKILL.md: File not found"
-  tc_skill_fail=1
+if [ -f "$STEPS_FILE" ]; then
+  if grep -qi "UI" "$STEPS_FILE"; then
+    pass "TC-10: steps-subagent.md has UI-related conditions"
+  else
+    fail "TC-10: steps-subagent.md missing UI conditions"
+    tc10_fail=1
+  fi
 else
-  if ! grep -qi "designer" "$SKILL_FILE"; then
-    fail "SKILL.md: Missing 'designer' mention"
-    tc_skill_fail=$((tc_skill_fail + 1))
-  fi
-
-  if ! grep -qE "(最大6つ|5\+1|6.*エージェント)" "$SKILL_FILE"; then
-    fail "SKILL.md: Description missing '最大6つ' or '5+1' structure"
-    tc_skill_fail=$((tc_skill_fail + 1))
-  fi
+  fail "TC-10: steps-subagent.md not found"
+  tc10_fail=1
 fi
 
-if [ "$tc_skill_fail" -eq 0 ]; then
-  pass "SKILL.md: Has designer mention with 5+1 structure"
+# TC-11: SKILL.md references unified review modes
+echo ""
+echo "TC-11: SKILL.md references plan and code modes"
+tc11_fail=0
+
+if [ -f "$SKILL_FILE" ]; then
+  if grep -qi "plan" "$SKILL_FILE" && grep -qi "code" "$SKILL_FILE"; then
+    pass "TC-11: SKILL.md references both plan and code modes"
+  else
+    fail "TC-11: SKILL.md missing plan/code mode references"
+    tc11_fail=1
+  fi
+else
+  fail "TC-11: SKILL.md not found"
+  tc11_fail=1
+fi
+
+# TC-12: ブロッキングスコア基準 in reference
+echo ""
+echo "TC-12: Blocking score criteria in reference"
+tc12_fail=0
+
+if [ -f "$REFERENCE_FILE" ]; then
+  if grep -q "ブロッキングスコア基準" "$REFERENCE_FILE"; then
+    pass "TC-12: reference.md has blocking score criteria section"
+  else
+    fail "TC-12: reference.md missing blocking score criteria"
+    tc12_fail=1
+  fi
+else
+  fail "TC-12: reference.md not found"
+  tc12_fail=1
+fi
+
+# TC-13: Cost comparison documented
+echo ""
+echo "TC-13: Cost comparison in reference"
+tc13_fail=0
+
+if [ -f "$REFERENCE_FILE" ]; then
+  if grep -q "コスト比較" "$REFERENCE_FILE"; then
+    pass "TC-13: reference.md has cost comparison section"
+  else
+    fail "TC-13: reference.md missing cost comparison"
+    tc13_fail=1
+  fi
+else
+  fail "TC-13: reference.md not found"
+  tc13_fail=1
 fi
 
 # Summary

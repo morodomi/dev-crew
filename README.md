@@ -19,7 +19,7 @@ A single Claude Code plugin that provides an autonomous AI development team:
 /plugin install dev-crew
 ```
 
-One command. All 34 agents, 26 skills, rules, and hooks are available.
+One command. All 32 agents, 26 skills, rules, and hooks are available.
 
 ## Core Workflow
 
@@ -42,7 +42,7 @@ Phase-boundary compaction inspired by [OpenClaw](https://github.com/openclaw/ope
 ```
 dev-crew/
 ├── .claude-plugin/plugin.json   # Single plugin
-├── agents/                      # 34 agents
+├── agents/                      # 32 agents
 ├── skills/                      # 26 skills
 ├── rules/                       # Git safety, conventions, security
 ├── hooks/hooks.json             # Phase-boundary compaction hooks
@@ -54,7 +54,7 @@ dev-crew/
 ## Skills
 
 ### Development Workflow (13)
-init, plan, red, green, refactor, review, commit, orchestrate, plan-review, quality-gate, diagnose, parallel, onboard
+init, plan, red, green, refactor, review, commit, orchestrate, strategy, diagnose, parallel, onboard, phase-compact
 
 ### Security (4)
 security-scan, attack-report, context-review, generate-e2e

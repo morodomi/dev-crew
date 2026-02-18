@@ -89,17 +89,17 @@ done
 echo ""
 echo "--- REVIEW Exception (Layer 2) ---"
 
-# TC-05: REVIEW section contains exception note for quality-gate
+# TC-05: REVIEW section contains exception note for review
 # Given: steps-subagent.md has a ### REVIEW section
-# When: checking for NOTE explaining quality-gate exception
+# When: checking for NOTE explaining review exception
 # Then: should find the exact NOTE string
 echo ""
 echo "TC-05: REVIEW section contains exception note"
 REVIEW_SECTION=$(extract_section "$TARGET_FILE" "REVIEW" "Phase Summary")
-if echo "$REVIEW_SECTION" | grep -qF '> NOTE: quality-gate 内部で subagent 化済みのため、Skill() 直接呼び出しが正しい。'; then
+if echo "$REVIEW_SECTION" | grep -qF '> NOTE: review 内部で subagent 化済みのため、Skill() 直接呼び出しが正しい。'; then
   pass "REVIEW section has exception note"
 else
-  fail "REVIEW section missing exception note for quality-gate"
+  fail "REVIEW section missing exception note for review"
 fi
 
 ########################################

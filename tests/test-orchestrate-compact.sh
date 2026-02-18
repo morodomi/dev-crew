@@ -34,7 +34,7 @@ echo "--- steps-teams.md: Phase Summary ---"
 echo ""
 echo "TC-01: PLAN->RED Phase Summary persistence"
 if between_sections "$TEAMS_FILE" "### PLAN" "### RED" "Phase Summary" 2>/dev/null || \
-   between_sections "$TEAMS_FILE" "plan-review" "### RED" "Phase Summary" 2>/dev/null; then
+   between_sections "$TEAMS_FILE" "review.*plan" "### RED" "Phase Summary" 2>/dev/null; then
   pass "PLAN->RED Phase Summary found"
 else
   fail "PLAN->RED Phase Summary not found"

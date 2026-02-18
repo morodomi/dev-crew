@@ -2,6 +2,87 @@
 
 SKILL.mdの詳細情報。必要時のみ参照。
 
+## Mode 判定詳細
+
+| コンテキスト | Mode | 判定方法 |
+|-------------|------|---------|
+| orchestrate から PLAN 後に呼ばれた | plan | 直前フェーズが PLAN |
+| orchestrate から REFACTOR 後に呼ばれた | code | 直前フェーズが REFACTOR |
+| `review --plan` | plan | 引数指定 |
+| `review --code` | code | 引数指定 |
+| `review` (引数なし) | code | デフォルト |
+
+## Risk Classification 詳細
+
+### Signal と Points
+
+| Signal | Points | 検出方法 |
+|--------|:------:|---------|
+| auth/security ファイル変更 | +25 | ファイルパスに auth/security/login/password 等 |
+| SQL/DB 操作追加 | +25 | diff に SELECT/INSERT/UPDATE/DELETE/DB:: 等 |
+| crypto/token/secret パターン | +30 | diff に password/secret/token/hash/encrypt 等 |
+| API contract 変更 | +15 | ファイルパスに route/api/controller 等 |
+| ファイル数 > 5 | +15 | 変更ファイル数 |
+| 変更行数 > 200 | +20 | diff 行数 |
+| UI コンポーネント変更 | +10 | ファイルパスに component/view/page/.vue/.tsx 等 |
+
+### Level 判定
+
+| Points | Level | Plan Review Agents | Code Review Agents |
+|--------|-------|:------------------:|:------------------:|
+| 0-29 | LOW | 2 | 3 |
+| 30-59 | MEDIUM | 3-4 | 4-5 |
+| 60+ | HIGH | 5-6 | 5-6 |
+
+## Review Brief 形式
+
+```markdown
+## Review Brief
+### Change Summary
+- Type: [new feature | bug fix | refactor | docs | test]
+- Scope: [files/dirs changed, count]
+- Risk Level: [LOW/MEDIUM/HIGH] (score: NN)
+
+### Key Changes (per-file, 2-3 lines each)
+### Security-Relevant Changes
+### Logic Hotspots
+### Risk Flags
+```
+
+## Agent Roster (Plan Mode)
+
+| Agent | Model | Condition |
+|-------|-------|-----------|
+| review-briefer | Haiku | Always |
+| design-reviewer | Sonnet | Always |
+| security-reviewer | Sonnet | If auth/security flags |
+| product-reviewer | Haiku | If API/user-facing flags |
+| performance-reviewer | Sonnet | If DB/perf flags |
+| usability-reviewer | Haiku | If UI flags |
+| designer | Sonnet | If UI + UI tech stack |
+
+## Agent Roster (Code Mode)
+
+| Agent | Model | Condition |
+|-------|-------|-----------|
+| review-briefer | Haiku | Always |
+| security-reviewer | Sonnet | **Always (NON-NEGOTIABLE)** |
+| correctness-reviewer | Sonnet | **Always (NON-NEGOTIABLE)** |
+| performance-reviewer | Sonnet | If DB/perf/large-data flags |
+| product-reviewer | Haiku | If API/user-facing flags |
+| usability-reviewer | Haiku | If UI flags |
+| Lint-as-Code | - | Always (ESLint/PHPStan/mypy, LLMコスト0) |
+
+## ブロッキングスコア基準
+
+各エージェントが0-100のブロッキングスコアを返す（0 = 問題なし, 100 = ブロック必須）:
+
+| スコア | 判定 | アクション |
+|--------|------|-----------|
+| 80-100 | BLOCK | 前フェーズに戻って修正必須 |
+| 50-79 | WARN | 警告確認後、次フェーズへ |
+| 0-49 | PASS | 次フェーズへ自動進行 |
+
 ## 品質チェック詳細
 
 ### 静的解析レベル
@@ -22,27 +103,6 @@ SKILL.mdの詳細情報。必要時のみ参照。
 - マイグレーション
 - シーダー
 
-## quality-gate 詳細
-
-4つのエージェントが並行実行:
-
-| エージェント | チェック内容 |
-|------------|------------|
-| correctness-reviewer | 論理エラー、エッジケース、例外処理 |
-| performance-reviewer | O記法、N+1問題、メモリ使用 |
-| security-reviewer | 入力検証、認証・認可、SQLi/XSS |
-| guidelines-reviewer | コーディング規約、命名規則 |
-
-### ブロッキングスコア
-
-各エージェントが0-100のブロッキングスコアを返す（0 = 問題なし, 100 = ブロック必須）:
-
-| スコア | 判定 | アクション |
-|--------|------|-----------|
-| 80-100 | BLOCK | GREENに戻って修正必須 |
-| 50-79 | WARN | 警告確認後、COMMITへ |
-| 0-49 | PASS | COMMITへ自動進行 |
-
 ## Error Handling
 
 ### 品質基準未達
@@ -57,17 +117,6 @@ SKILL.mdの詳細情報。必要時のみ参照。
 4. 再度REVIEWを実行
 ```
 
-### 静的解析エラー
-
-```
-静的解析でエラーが検出されました。
-
-対応:
-1. エラー内容を確認
-2. 型ヒントの追加または修正
-3. 再度解析を実行
-```
-
 ## DISCOVERED issue 起票
 
 REVIEW の PASS/WARN 後、COMMIT の前に実行する。
@@ -75,7 +124,6 @@ REVIEW の PASS/WARN 後、COMMIT の前に実行する。
 ### データソース
 
 Cycle doc の `### DISCOVERED` セクションから読み取る。
-quality-gate JSON issues[] は直接の入力ソースではない（BLOCK/WARN 判定に使用済み）。
 
 ### 判断基準
 
@@ -89,17 +137,6 @@ quality-gate JSON issues[] は直接の入力ソースではない（BLOCK/WARN 
 
 ```bash
 gh auth status 2>/dev/null || echo "gh CLI未認証。issue起票をスキップします。"
-```
-
-### ユーザー確認ゲート
-
-GitHub issue 作成は外部副作用のため、ユーザー承認を求める:
-
-```
-DISCOVERED items found:
-1. [項目の要約]
-
-GitHub issue を作成しますか? (Y/n/skip)
 ```
 
 ### issue 起票コマンド
@@ -119,12 +156,13 @@ EOF
 
 ### 重複防止
 
-起票済みの項目は Cycle doc で `→ #<issue番号>` マークが付く:
-
-```markdown
-### DISCOVERED
-- パフォーマンス問題 → #42
-- エラーハンドリング不足 → #43
-```
-
+起票済みの項目は Cycle doc で `→ #<issue番号>` マークが付く。
 `→ #` が付いている項目は起票をスキップする。
+
+## コスト比較
+
+| Scenario | v1 (Current) | v2 (Proposed) | Savings |
+|----------|:------------:|:-------------:|:-------:|
+| LOW risk (80%) | 11 agents, ~88K tokens | 5 agents, ~25K tokens | ~72% |
+| MEDIUM risk | 11 agents, ~88K tokens | 7-9 agents, ~45K tokens | ~49% |
+| HIGH risk | 11-12 agents | 10-12 agents, ~75K tokens | ~15% |

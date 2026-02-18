@@ -57,7 +57,7 @@
 
 **Acceptance Criteria:**
 - [ ] red-worker, green-workerはSonnetで実行
-- [ ] guidelines-reviewerなどルールベースのレビューはHaikuで実行
+- [ ] product-reviewer, usability-reviewer等チェックリストベースのレビューはHaikuで実行
 - [ ] model選択の基準がドキュメント化されている
 
 ### US-2.3: 段階的コンテキストロード
@@ -82,7 +82,7 @@
 **So that** 私はINITで要件を伝えるだけで開発が進む
 
 **Acceptance Criteria:**
-- [ ] INIT -> PLAN -> plan-review -> RED -> GREEN -> REFACTOR -> quality-gate -> COMMIT が自動遷移
+- [ ] INIT -> PLAN -> review(plan) -> RED -> GREEN -> REFACTOR -> review(code) -> COMMIT が自動遷移
 - [ ] WARN/BLOCKでSocrates Protocolが発動
 - [ ] BLOCK時は人間にエスカレーション
 - [ ] 各フェーズ間でphase-compactが実行される

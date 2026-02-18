@@ -62,13 +62,18 @@ STATUS.md を最新状態に更新。
 
 **Type**: feat / fix / refactor / test
 
+Cycle doc の issue 参照（`issue: #NN` or `issue: ...`）を確認し、コミットメッセージに含める:
+
 ```
-<type>: <subject>
+<type>: <subject> (#<issue_number>)
 
 <body>
 
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+Refs #<issue_number>
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
 ```
+
+issue 参照がない場合は `Refs #` 行を省略する。
 
 ### Step 6: git add & git commit
 
@@ -80,14 +85,8 @@ git commit -m "..."
 ### Step 7: サイクル完了
 
 ```
-================================================================================
-TDDサイクル完了
-================================================================================
-コミット: [hash]
-機能: [機能名]
-
+TDDサイクル完了: [hash] - [機能名]
 次: git push / init で新サイクル開始
-================================================================================
 ```
 
 ## Reference

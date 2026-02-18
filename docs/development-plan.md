@@ -102,7 +102,7 @@ core/agents/designer.md
 ### Dependencies
 
 - ux-design skill (既存) の知識をagent化
-- plan-review でusability-reviewerと連携
+- review(plan) でusability-reviewerと連携
 
 ---
 
@@ -118,8 +118,9 @@ core/agents/designer.md
 | architect | Sonnet | 設計は中程度の複雑さ |
 | red-worker | Sonnet | テスト作成は中程度 |
 | green-worker | Sonnet | 実装は中程度 |
-| guidelines-reviewer | Haiku | ルールベースで十分 |
-| scope-reviewer | Haiku | チェックリスト的 |
+| product-reviewer | Haiku | チェックリストベース |
+| usability-reviewer | Haiku | チェックリストベース |
+| review-briefer | Haiku | 圧縮タスク |
 | correctness-reviewer | Sonnet | 論理的判断が必要 |
 | security-reviewer | Sonnet | セキュリティ知識が必要 |
 

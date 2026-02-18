@@ -50,7 +50,7 @@ SKILL.mdの詳細情報。必要時のみ参照。
 
 ## リスクスコア連動の詳細
 
-### スコア閾値（init/plan-review/quality-gateと統一）
+### スコア閾値（init/reviewと統一）
 
 | スコア | 判定 | 設計深度 | 内容 |
 |--------|------|----------|------|
@@ -81,7 +81,7 @@ SKILL.mdの詳細情報。必要時のみ参照。
 
 - Step 3（対話）を省略可能
 - Test List作成に集中
-- plan-reviewもスキップ可能
+- review(plan)もスキップ可能
 
 ### Riskフィールドなしの場合
 
@@ -163,7 +163,7 @@ Scope Definitionを確認してください。
 
 検出時: AskUserQuestion で「parallel（並列開発）を利用しますか？」と提案。
 
-ユーザーが承認 → Cycle doc に記録。plan-review 後、RED の代わりに `Skill(dev-crew:parallel)` を実行（parallel 内で RED→GREEN→REFACTOR→REVIEW を実行）。
+ユーザーが承認 → Cycle doc に記録。review(plan) 後、RED の代わりに `Skill(dev-crew:parallel)` を実行（parallel 内で RED→GREEN→REFACTOR→REVIEW を実行）。
 ユーザーが拒否 → 通常の red → green → refactor。
 
 ## Phase Completion

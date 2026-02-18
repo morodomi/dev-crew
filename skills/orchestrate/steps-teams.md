@@ -50,20 +50,23 @@ architect teammate を起動し、設計・Test List 作成を委譲:
 ```
 Task(subagent_type: "general-purpose", team_name: "dev-cycle", name: "architect", model: "sonnet")
 # model: agents/architect.md frontmatter の model フィールドに対応
-→ Skill(plan) 実行（plan-review は実行しない）
+→ Skill(plan) 実行（review は実行しない）
 → 結果報告
 → SendMessage(type: "shutdown_request", recipient: "architect")
 ```
 
-### plan-review
+### review(plan)
+
+統一レビュー (mode: plan) で設計レビュー:
 
 ```
-Skill(dev-crew:plan-review)
+Skill(dev-crew:review, args: "--plan")
+→ review(plan) が Risk Classification + Brief + Specialist Panel を実行
 ```
 
 ### Phase Summary 永続化 (PLAN→RED)
 
-plan-review 完了後、PdM が Cycle doc に Phase Summary を追記:
+review(plan) 完了後、PdM が Cycle doc に Phase Summary を追記:
 
 ```markdown
 ### Phase: PLAN - Completed at HH:MM
@@ -80,7 +83,7 @@ plan-review 完了後、PdM が Cycle doc に Phase Summary を追記:
 - PASS (0-49) → Block 2 (Phase 3) へ自動進行
 - WARN (50-79) / BLOCK (80+) → Socrates Protocol 発動:
 
-#### Socrates Protocol (plan-review)
+#### Socrates Protocol (review plan)
 
 1. PdM → socrates に判断提案を SendMessage（Phase名, スコア, reviewer サマリ, 提案）
 2. socrates → PdM に反論を返答（Objections + Alternative 形式）
@@ -168,26 +171,30 @@ Task(subagent_type: "general-purpose", team_name: "dev-cycle", name: "refactorer
 ### Phase: REFACTOR - Completed at HH:MM
 **Artifacts**: [refactored file paths]
 **Decisions**: refactoring=[changes made or "no changes needed"]
-**Next Phase Input**: source files on disk, run quality gate
+**Next Phase Input**: source files on disk, run review
 **Subagent**: agent_id={refactorer_agent_id}, tokens={total_tokens}
 ```
 
-### REVIEW (quality-gate)
+### REVIEW (review code)
+
+統一レビュー (mode: code) でコードレビュー:
 
 ```
-Skill(dev-crew:quality-gate)
+Skill(dev-crew:review, args: "--code")
+→ review(code) が Risk Classification + Brief + Specialist Panel を実行
+→ security-reviewer + correctness-reviewer は常時起動 (NON-NEGOTIABLE)
 ```
 
 ### Phase Summary 永続化 (REVIEW→COMMIT)
 
-quality-gate 完了後、PdM が Cycle doc に Phase Summary を追記:
+review(code) 完了後、PdM が Cycle doc に Phase Summary を追記:
 
 ```markdown
 ### Phase: REVIEW - Completed at HH:MM
-**Artifacts**: quality-gate results
+**Artifacts**: review results (mode: code)
 **Decisions**: verdict=[PASS/WARN/BLOCK], score=[max score]
 **Next Phase Input**: all tests passing, ready to commit
-**Subagent**: agent_id={quality_gate_agent_id}, tokens={total_tokens}
+**Subagent**: agent_id={review_agent_id}, tokens={total_tokens}
 ```
 
 ### 自律判断
@@ -197,7 +204,7 @@ quality-gate 完了後、PdM が Cycle doc に Phase Summary を追記:
 - PASS (0-49) → DISCOVERED 判断へ自動進行
 - WARN (50-79) / BLOCK (80+) → Socrates Protocol 発動:
 
-#### Socrates Protocol (quality-gate)
+#### Socrates Protocol (review code)
 
 1. PdM → socrates に判断提案を SendMessage（Phase名, スコア, reviewer サマリ, 提案）
 2. socrates → PdM に反論を返答（Objections + Alternative 形式）

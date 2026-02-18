@@ -76,7 +76,7 @@ phase-compactはTDDフェーズ境界でコンテキストを永続化し、
 
 ```markdown
 ### Phase: REVIEW - Completed at HH:MM
-**Artifacts**: quality-gate results
+**Artifacts**: review results (mode: code)
 **Decisions**: verdict=[PASS/WARN/BLOCK], score=[max score]
 **Metrics**: line_count=[N], file_count=[N], test_count=[N]
 **Next Phase Input**: all tests passing, ready to commit
@@ -96,8 +96,7 @@ phase-compactはTDDフェーズ境界でコンテキストを永続化し、
 | Phase Count | Without Compaction | With Compaction | Savings |
 |-------------|-------------------|-----------------|---------|
 | 7 phases | ~100% context | ~50% per phase | ~50% |
-| + quality-gate (6 agents) | +600% subagent context | unchanged | ~70% |
-| + plan-review (5 agents) | +500% subagent context | unchanged | ~70% |
+| + review (risk-gated) | +300-600% subagent context | unchanged | ~50-70% |
 
 ## Integration with Auto-Compact
 

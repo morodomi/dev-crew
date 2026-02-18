@@ -14,14 +14,16 @@ AI development team environment as a single Claude Code Plugin.
 dev-crew/
 ├── .claude-plugin/
 │   └── plugin.json        # Single plugin metadata
-├── agents/                # 34 agents (flat)
+├── agents/                # 32 agents (flat)
 │   ├── architect.md       # PLAN phase design
 │   ├── red-worker.md      # RED test creation
 │   ├── green-worker.md    # GREEN implementation
 │   ├── refactorer.md      # REFACTOR quality
 │   ├── socrates.md        # Devil's Advocate advisor
 │   ├── observer.md        # Pattern detection (meta)
-│   ├── *-reviewer.md      # 9 review agents
+│   ├── review-briefer.md  # Review Brief generation (haiku)
+│   ├── design-reviewer.md # Unified design review (scope+arch+risk)
+│   ├── *-reviewer.md      # 5 review agents
 │   └── *-attacker.md      # 18 security agents
 ├── skills/                # 26 skills (flat)
 │   ├── init/              # Cycle start
@@ -32,8 +34,7 @@ dev-crew/
 │   ├── review/            # Quality check
 │   ├── commit/            # Git commit
 │   ├── orchestrate/       # PdM orchestration
-│   ├── plan-review/       # 5-agent design review
-│   ├── quality-gate/      # 6-agent code review
+│   ├── strategy/          # Phase A: 企画フェーズ
 │   ├── diagnose/          # Parallel bug investigation
 │   ├── parallel/          # Cross-layer parallel dev
 │   ├── onboard/           # Project setup
@@ -109,8 +110,7 @@ feat | fix | docs | refactor | test | chore
 | commit | "commit" | COMMIT |
 | orchestrate | (auto from init) | META |
 | phase-compact | (auto between phases) | META |
-| plan-review | (auto after plan) | PLAN+1 |
-| quality-gate | (auto in review) | REVIEW+1 |
+| strategy | "strategy", "企画" | PHASE A |
 | diagnose | "investigate", "diagnose" | SPECIAL |
 | security-scan | "security scan" | SECURITY |
 | learn | "learn", "extract patterns" | META |

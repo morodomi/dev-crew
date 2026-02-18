@@ -4,7 +4,7 @@ Detailed information for SKILL.md. Refer only when needed.
 
 ## Risk Score Assessment Details
 
-### Score Thresholds (unified with plan-review/quality-gate)
+### Score Thresholds (unified with review)
 
 | Score | Result | Action |
 |-------|--------|--------|

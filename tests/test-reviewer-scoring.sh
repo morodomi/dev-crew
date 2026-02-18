@@ -82,17 +82,15 @@ check_single_file_contains() {
   fi
 }
 
-# Constants: 9 reviewer agents
+# Constants: 6 scoring reviewer agents (v2: guidelines/scope/architecture/risk retired, design-reviewer added)
+# Note: review-briefer is excluded (generates briefs, not blocking scores)
 REVIEWERS=(
   "correctness-reviewer"
   "performance-reviewer"
   "security-reviewer"
-  "guidelines-reviewer"
   "product-reviewer"
-  "risk-reviewer"
-  "scope-reviewer"
-  "architecture-reviewer"
   "usability-reviewer"
+  "design-reviewer"
 )
 
 # Build file paths array
@@ -106,44 +104,42 @@ echo "=== Reviewer Scoring Migration Tests ==="
 # TC-01: All reviewer agents have blocking_score
 echo ""
 echo "TC-01: All reviewer agents have 'blocking_score'"
-check_all_files_contain "TC-01" '"blocking_score"' "All 9 reviewer agents have 'blocking_score'" "${REVIEWER_FILES[@]}"
+check_all_files_contain "TC-01" '"blocking_score"' "All 6 scoring reviewer agents have 'blocking_score'" "${REVIEWER_FILES[@]}"
 
 # TC-02: All reviewer agents do not have old "confidence"
 echo ""
 echo "TC-02: All reviewer agents do not contain old 'confidence'"
-check_all_files_not_contain "TC-02" '"confidence"' "All 9 reviewer agents do not contain old 'confidence'" "${REVIEWER_FILES[@]}"
+check_all_files_not_contain "TC-02" '"confidence"' "All 6 scoring reviewer agents do not contain old 'confidence'" "${REVIEWER_FILES[@]}"
 
 # TC-03: All reviewer agents have ブロッキングスコア基準 section
 echo ""
 echo "TC-03: All reviewer agents have 'ブロッキングスコア基準' section"
-check_all_files_contain "TC-03" 'ブロッキングスコア基準' "All 9 reviewer agents have 'ブロッキングスコア基準' section" "${REVIEWER_FILES[@]}"
+check_all_files_contain "TC-03" 'ブロッキングスコア基準' "All 6 scoring reviewer agents have 'ブロッキングスコア基準' section" "${REVIEWER_FILES[@]}"
 
 # TC-04: All reviewer agents do not have old 信頼スコア基準
 echo ""
 echo "TC-04: All reviewer agents do not contain old '信頼スコア基準'"
-check_all_files_not_contain "TC-04" '信頼スコア基準' "All 9 reviewer agents do not contain old '信頼スコア基準'" "${REVIEWER_FILES[@]}"
+check_all_files_not_contain "TC-04" '信頼スコア基準' "All 6 scoring reviewer agents do not contain old '信頼スコア基準'" "${REVIEWER_FILES[@]}"
 
 # TC-05: All reviewer agents have score explanation text
 echo ""
 echo "TC-05: All reviewer agents have score explanation '0 = 問題なし'"
-check_all_files_contain "TC-05" '0 = 問題なし' "All 9 reviewer agents have score explanation text" "${REVIEWER_FILES[@]}"
+check_all_files_contain "TC-05" '0 = 問題なし' "All 6 scoring reviewer agents have score explanation text" "${REVIEWER_FILES[@]}"
 
-# TC-06: quality-gate SKILL.md has ブロッキングスコア
+# TC-06: review SKILL.md has Score Aggregation
 echo ""
-echo "TC-06: quality-gate SKILL.md has 'ブロッキングスコア'"
-check_single_file_contains "TC-06" "$BASE_DIR/skills/quality-gate/SKILL.md" 'ブロッキングスコア' "quality-gate SKILL.md has 'ブロッキングスコア'"
+echo "TC-06: review SKILL.md has 'Score Aggregation'"
+check_single_file_contains "TC-06" "$BASE_DIR/skills/review/SKILL.md" 'Score Aggregation' "review SKILL.md has 'Score Aggregation'"
 
-# TC-07: plan-review SKILL.md has ブロッキングスコア
+# TC-07: review SKILL.md has mode: plan/code
 echo ""
-echo "TC-07: plan-review SKILL.md has 'ブロッキングスコア'"
-check_single_file_contains "TC-07" "$BASE_DIR/skills/plan-review/SKILL.md" 'ブロッキングスコア' "plan-review SKILL.md has 'ブロッキングスコア'"
+echo "TC-07: review SKILL.md has mode support"
+check_single_file_contains "TC-07" "$BASE_DIR/skills/review/SKILL.md" 'plan.*code\|mode' "review SKILL.md has mode support"
 
 # TC-08: skill reference.md files do not have old 信頼スコア
 echo ""
 echo "TC-08: skill reference.md files do not contain old '信頼スコア'"
 REF_FILES=(
-  "$BASE_DIR/skills/quality-gate/reference.md"
-  "$BASE_DIR/skills/plan-review/reference.md"
   "$BASE_DIR/skills/review/reference.md"
 )
 check_all_files_not_contain "TC-08" '信頼スコア' "skill reference.md files do not contain old '信頼スコア'" "${REF_FILES[@]}"
@@ -152,8 +148,7 @@ check_all_files_not_contain "TC-08" '信頼スコア' "skill reference.md files 
 echo ""
 echo "TC-09: steps-subagent.md files do not contain old 'confidence'"
 STEPS_FILES=(
-  "$BASE_DIR/skills/quality-gate/steps-subagent.md"
-  "$BASE_DIR/skills/plan-review/steps-subagent.md"
+  "$BASE_DIR/skills/review/steps-subagent.md"
 )
 check_all_files_not_contain "TC-09" '"confidence"' "steps-subagent.md files do not contain old 'confidence'" "${STEPS_FILES[@]}"
 

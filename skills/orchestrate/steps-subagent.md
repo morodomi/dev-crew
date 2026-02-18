@@ -34,7 +34,7 @@ orchestrate 開始前に、Issue 番号と cycle doc の対応を確認する:
 > Pre-Flight Check:
 > - [ ] PLAN: Task() で architect に委譲しているか？
 > - [ ] RED/GREEN/REFACTOR: Task() で worker に委譲しているか？
-> - [ ] Skill() 直接呼び出しは plan-review, REVIEW (quality-gate) と COMMIT のみか？
+> - [ ] Skill() 直接呼び出しは review と COMMIT のみか？
 
 ### PLAN
 
@@ -43,18 +43,25 @@ orchestrate 開始前に、Issue 番号と cycle doc の対応を確認する:
 ```
 Task(subagent_type: "dev-crew:architect", model: "sonnet", prompt: "Cycle doc: [path]. Skill(dev-crew:plan)を実行し、設計・Test Listを作成せよ。")
 # model: agents/architect.md frontmatter の model フィールドに対応
-→ architect が subagent 内で Skill(plan) を実行（plan-review は実行しない）
+→ architect が subagent 内で Skill(plan) を実行（review は実行しない）
 → 結果 JSON 返却
 ```
 
-PdM が Skill(dev-crew:plan-review) を実行し、スコアを判定:
+PdM が Skill(dev-crew:review) を `--plan` モードで実行し、スコアを判定:
+
+```
+Skill(dev-crew:review, args: "--plan")
+→ review(plan) が Risk Classification + Brief + Specialist Panel を実行
+→ 結果スコア返却
+```
+
 - PASS/WARN → Phase Summary 永続化 → Block 2 へ
 - BLOCK → Task() を再起動して PLAN 再実行（max 1回）
 
 ### Delegation Rule
 
 Subagent Chain モードでは **全フェーズを Task() で委譲する**。例外なし。
-PdM は Skill() を直接呼び出してはならない（REVIEW の quality-gate を除く）。
+PdM は Skill() を直接呼び出してはならない（review と COMMIT を除く）。
 Fallback は Task() spawn エラー時のみ適用される（後述）。
 Phase Summary の metrics に基づく delegation decision は行わない（旧ロジック廃止）。
 
@@ -75,7 +82,7 @@ PdM が Cycle doc に Phase Summary を追記:
 > Pre-Flight Check:
 > - [ ] PLAN: Task() で architect に委譲しているか？
 > - [ ] RED/GREEN/REFACTOR: Task() で worker に委譲しているか？
-> - [ ] Skill() 直接呼び出しは plan-review, REVIEW (quality-gate) と COMMIT のみか？
+> - [ ] Skill() 直接呼び出しは review と COMMIT のみか？
 
 ### RED
 
@@ -116,11 +123,12 @@ Task(subagent_type: "dev-crew:refactorer", model: "sonnet", prompt: "Cycle doc: 
 
 ### REVIEW
 
-> NOTE: quality-gate 内部で subagent 化済みのため、Skill() 直接呼び出しが正しい。
+> NOTE: review 内部で subagent 化済みのため、Skill() 直接呼び出しが正しい。
 
 ```
-Skill(dev-crew:quality-gate)
-→ 6 reviewer で並列レビュー（quality-gate 内部で subagent 化済み）
+Skill(dev-crew:review, args: "--code")
+→ review(code) が Risk Classification + Brief + Specialist Panel を実行
+→ security-reviewer + correctness-reviewer は常時起動 (NON-NEGOTIABLE)
 ```
 
 PdM がスコアを判定:
@@ -133,17 +141,17 @@ Block 2 完了後、PdM が Cycle doc に Phase Summary を追記:
 
 ```markdown
 ### Phase: REVIEW - Completed at HH:MM
-**Artifacts**: quality-gate results
+**Artifacts**: review results (mode: code)
 **Decisions**: verdict=[PASS/WARN/BLOCK], score=[max score]
 **Next Phase Input**: all tests passing, ready to commit
-**Subagent**: agent_id={quality_gate_agent_id}, tokens={total_tokens}
+**Subagent**: agent_id={review_agent_id}, tokens={total_tokens}
 ```
 
 ### DISCOVERED 判断
 
 REVIEW が PASS/WARN の場合、Cycle doc の DISCOVERED セクションを確認し、
 スコープ外の未起票項目を GitHub issue に起票する。
-詳細は [reference.md](reference.md#discovered-issue-起票) を参照。
+詳細は review の [reference.md](../review/reference.md#discovered-issue-起票) を参照。
 
 ## Block 3: Finalization
 
@@ -176,7 +184,7 @@ PdM の判断による Skill() 直接実行は Fallback ではない（禁止）
 | RED | `Skill(dev-crew:red)` |
 | GREEN | `Skill(dev-crew:green)` |
 | REFACTOR | `Skill(dev-crew:refactor)` |
-| REVIEW | `Skill(dev-crew:quality-gate)` |
+| REVIEW | `Skill(dev-crew:review)` |
 
 3. Cycle doc の Progress Log に fallback を記録:
    `- [Phase名] Task() failed, fallback to Skill() direct execution`

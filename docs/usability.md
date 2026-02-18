@@ -59,7 +59,7 @@
 
 ```
 User: 「ログイン機能を追加して」
-  -> PdM: INIT (質問) -> PLAN -> plan-review -> RED -> GREEN -> REFACTOR -> quality-gate -> COMMIT
+  -> PdM: INIT (質問) -> PLAN -> review(plan) -> RED -> GREEN -> REFACTOR -> review(code) -> COMMIT
   -> PdM: 「完了しました。PRを作成しますか？」
 ```
 
@@ -114,7 +114,7 @@ StatusLineに現在フェーズとtoken使用量を表示:
 ### WARN (50-79)
 
 ```
-PdM: 「plan-reviewでWARN(score: 65)が出ました。」
+PdM: 「review(plan)でWARN(score: 65)が出ました。」
 Socrates: 「この設計には3つの懸念があります:
   1. ...
   2. ...
@@ -125,7 +125,7 @@ PdM: 「どうしますか？ proceed / fix / abort」
 ### BLOCK (80-100)
 
 ```
-PdM: 「quality-gateでBLOCK(score: 85)です。修正が必要です。」
+PdM: 「review(code)でBLOCK(score: 85)です。修正が必要です。」
 Socrates: 「Critical問題:
   1. [security] SQLインジェクション: user_input が未サニタイズ
   2. [correctness] null参照: line 42

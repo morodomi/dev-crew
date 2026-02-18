@@ -1,90 +1,85 @@
 ---
 name: review
-description: 最終的な品質検証を行う。テスト/カバレッジ/静的解析/quality-gateをチェック。REFACTORの次フェーズ。「レビューして」「review」で起動。
+description: 統一レビュースキル。mode "plan"（設計レビュー）または "code"（コードレビュー）で動作。Risk-based scaling でエージェント数を最適化。REFACTORの次フェーズ。「レビューして」「review」で起動。
 allowed-tools: Task, Read, Bash, Grep, Glob
 ---
 
-# TDD REVIEW Phase
+# Unified Review
 
-最終的な品質検証を行う。
+設計またはコードを Risk-based scaling でレビューする統一スキル。
+
+## Mode Determination
+
+| 引数/コンテキスト | Mode | 入力ソース |
+|------------------|------|-----------|
+| `--plan` or PLAN直後 | "plan" | Cycle doc PLAN セクション |
+| `--code` or REFACTOR直後 | "code" | `git diff HEAD` |
+| 引数なし | "code" (default) | `git diff HEAD` |
 
 ## Progress Checklist
 
-コピーして進捗を追跡:
-
 ```
-REVIEW Progress:
-- [ ] テスト実行（全PASS）
-- [ ] カバレッジチェック（目標達成）
-- [ ] 静的解析実行（エラー0件）
-- [ ] quality-gate 実行（必須・スキップ不可）
-- [ ] コードフォーマッタ実行
-- [ ] DISCOVERED issue 起票（該当項目がある場合）
-- [ ] Cycle doc更新
-- [ ] COMMITフェーズへ誘導
+review Progress:
+- [ ] Step 0: Mode 判定
+- [ ] Step 1: Risk Classification (決定論的)
+- [ ] Step 2: Review Brief 生成 (haiku)
+- [ ] Step 3: Lint-as-Code (code mode のみ)
+- [ ] Step 4: Specialist Panel (並行起動, risk-gated)
+- [ ] Step 5: Score Aggregation -> PASS/WARN/BLOCK
+- [ ] Step 6: DISCOVERED -> gh issue create
 ```
-
-## 品質基準
-
-| 項目 | 目標 | 最低ライン |
-|------|------|----------|
-| テスト | 全PASS | 全PASS |
-| カバレッジ | 90%+ | 80% |
-| 静的解析 | エラー0 | エラー0 |
-| quality-gate | PASS | WARN以下 |
 
 ## Workflow
 
-### Step 1: テスト実行
+### Step 0: Mode 判定
 
-```bash
-php artisan test  # PHP / pytest  # Python
-```
+引数または直前フェーズから mode を決定。
 
-### Step 2: カバレッジ確認
+### Step 1: Risk Classification
 
-```bash
-php artisan test --coverage --min=80  # PHP
-pytest --cov=src --cov-fail-under=80  # Python
-```
+`skills/review/risk-classifier.sh` で決定論的にリスクレベルを判定（LLM不使用）。
+手順: [steps-subagent.md](steps-subagent.md)
 
-### Step 3: 静的解析
+### Step 2: Review Brief (haiku)
 
-```bash
-./vendor/bin/phpstan analyse --level=8  # PHP
-mypy --strict src/                       # Python
-```
+review-briefer (haiku) で diff/plan を圧縮した Brief を生成。
 
-### Step 4: quality-gate（必須・スキップ不可）
+### Step 3: Lint-as-Code (code mode のみ)
 
-quality-gateスキルを必ず実行する。スキップ不可。4エージェントで並行レビュー。
+静的解析ツール実行（ESLint/PHPStan/mypy等）。LLMコスト0。
 
-- PASS（スコア49以下） → Step 5へ
-- WARN（スコア50-79） → 警告確認後、Step 5へ
-- BLOCK（スコア80以上） → GREENに戻って修正
+### Step 4: Specialist Panel
 
-### Step 5: フォーマッタ
+Risk level に応じてエージェント数をスケール:
 
-```bash
-./vendor/bin/pint   # PHP
-black . && isort .  # Python
-```
+**Always-on (code mode)**:
+- security-reviewer (NON-NEGOTIABLE)
+- correctness-reviewer (NON-NEGOTIABLE)
 
-### Step 6: DISCOVERED issue 起票
+**Always-on (plan mode)**:
+- design-reviewer
 
-Cycle doc の DISCOVERED セクションを確認し、スコープ外の未起票項目を GitHub issue に起票する。
-DISCOVERED が空の場合はスキップ。詳細: [reference.md](reference.md#discovered-issue-起票)
+**Risk-gated**:
+- performance-reviewer (DB/perf flags)
+- product-reviewer (API/user-facing flags)
+- usability-reviewer (UI flags)
 
-### Step 7: 品質基準クリア確認
+手順: [steps-subagent.md](steps-subagent.md)
 
-結果を表示し、ユーザー承認を求める。COMMIT判断はユーザーが行う。
+### Step 5: Score Aggregation
 
-```
-REVIEW完了。quality-gate: [PASS/WARN/BLOCK]
-COMMITしますか？
-```
+| 最大スコア | 判定 | アクション |
+|-----------|------|-----------|
+| 80-100 | BLOCK | 修正必須、前フェーズに戻る |
+| 50-79 | WARN | 警告表示、継続可能 |
+| 0-49 | PASS | 問題なし |
+
+### Step 6: DISCOVERED -> Issue
+
+Cycle doc の DISCOVERED セクションを確認し、未起票項目を `gh issue create` で起票。
+詳細: [reference.md](reference.md#discovered-issue-起票)
 
 ## Reference
 
 - 詳細: [reference.md](reference.md)
-- quality-gate: [../quality-gate/SKILL.md](../quality-gate/SKILL.md)
+- Risk Classifier: [risk-classifier.sh](risk-classifier.sh)
