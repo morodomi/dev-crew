@@ -75,6 +75,37 @@ else
   pass "test-agents-structure.sh detected model drift (exit code 1)"
 fi
 
+# TC-04: hooks.json contains check-claude-md-staleness.sh entry in PreCommit hooks
+echo ""
+echo "TC-04: hooks.json contains check-claude-md-staleness.sh entry"
+if jq -e '.hooks.PreCommit[].hooks[] | select(.command | contains("check-claude-md-staleness.sh"))' "$BASE_DIR/hooks/hooks.json" >/dev/null 2>&1; then
+  pass "check-claude-md-staleness.sh entry found in PreCommit hooks"
+else
+  fail "check-claude-md-staleness.sh entry NOT found in PreCommit hooks"
+fi
+
+# TC-05: check-claude-md-staleness.sh exits 0 with no warning when CLAUDE.md is recent
+echo ""
+echo "TC-05: check-claude-md-staleness.sh exits 0 with no warning when CLAUDE.md is recent"
+output=$(cd "$BASE_DIR" && bash scripts/hooks/check-claude-md-staleness.sh 2>&1)
+exit_code=$?
+if [ "$exit_code" -eq 0 ] && [ -z "$output" ]; then
+  pass "No warning and exit 0 for recently updated CLAUDE.md"
+else
+  fail "Unexpected output or exit code (exit=$exit_code, output='$output')"
+fi
+
+# TC-06: check-claude-md-staleness.sh warns when STALENESS_THRESHOLD_DAYS=0
+echo ""
+echo "TC-06: check-claude-md-staleness.sh warns when STALENESS_THRESHOLD_DAYS=0"
+output=$(cd "$BASE_DIR" && STALENESS_THRESHOLD_DAYS=0 bash scripts/hooks/check-claude-md-staleness.sh 2>&1)
+exit_code=$?
+if [ "$exit_code" -eq 0 ] && echo "$output" | grep -q "\[WARNING\]"; then
+  pass "Warning displayed and exit 0 with STALENESS_THRESHOLD_DAYS=0"
+else
+  fail "Expected warning with exit 0 (exit=$exit_code, output='$output')"
+fi
+
 # Summary
 echo ""
 echo "=== Summary ==="
