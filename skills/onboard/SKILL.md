@@ -29,14 +29,7 @@ Onboard Progress:
 
 ### Step 1: プロジェクト分析
 
-フレームワークとツールを検出:
-
-```bash
-ls artisan 2>/dev/null          # Laravel
-ls app.py wsgi.py 2>/dev/null   # Flask
-ls wp-config.php 2>/dev/null    # WordPress
-ls composer.json package.json pyproject.toml 2>/dev/null
-```
+フレームワークとツールを検出。検出コマンドは [reference.md](reference.md) 参照。
 
 ### Step 2: 検出結果確認
 
@@ -63,11 +56,12 @@ mkdir -p docs/cycles
 - 既存なし → テンプレートから生成
 
 テンプレートとマージ戦略は [reference.md](reference.md) を参照。
+生成後に Deletion Test（各行を削除してもClaude が困らないなら削除）を実施。詳細は [reference.md](reference.md)。
 
 ### Step 5: 階層CLAUDE.md推奨（任意）
 
 tests/, src/, docs/ に CLAUDE.md 配置を推奨（各30-50行）。
-詳細は [reference.md](reference.md) を参照。
+`@docs/xxx.md` 形式の import で外部ファイルを参照可能。詳細は [reference.md](reference.md)。
 
 ### Step 6: .claude/ 構造生成
 
@@ -86,5 +80,6 @@ hookなし → セットアップ推奨。詳細は [reference.md](reference.md)
 ### Step 9: 完了
 
 セットアップ完了メッセージを表示。次: init で開発開始。
+CLAUDE.md のメンテナンス（定期レビュー・Feedback Loop）について [reference.md](reference.md) を案内。
 
 ## Reference: [reference.md](reference.md)
