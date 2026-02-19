@@ -1,6 +1,6 @@
 #!/bin/bash
-# test-hooks-structure.sh - dev-crew hooks.json validation
-# TC-01: hooks.json contains test-agents-structure.sh entry
+# test-hooks-structure.sh - dev-crew hooks validation
+# TC-01: check-cycle-doc.sh exists and is executable
 # TC-02: test-agents-structure.sh executes successfully (TC-21~TC-34)
 # TC-03: test-agents-structure.sh detects model drift and exits with code 1
 
@@ -24,13 +24,13 @@ fail() { FAIL=$((FAIL + 1)); printf "  \033[31mFAIL\033[0m %s\n" "$1"; }
 
 echo "=== Hooks Structure Tests ==="
 
-# TC-01: hooks.json contains test-agents-structure.sh entry in PreCommit hooks
+# TC-01: check-cycle-doc.sh exists and is executable
 echo ""
-echo "TC-01: hooks.json contains test-agents-structure.sh entry"
-if jq -e '.hooks.PreCommit[].hooks[] | select(.command | contains("test-agents-structure.sh"))' "$BASE_DIR/hooks/hooks.json" >/dev/null 2>&1; then
-  pass "test-agents-structure.sh entry found in PreCommit hooks"
+echo "TC-01: check-cycle-doc.sh exists and is executable"
+if [ -x "$BASE_DIR/scripts/hooks/check-cycle-doc.sh" ]; then
+  pass "check-cycle-doc.sh exists and is executable"
 else
-  fail "test-agents-structure.sh entry NOT found in PreCommit hooks"
+  fail "check-cycle-doc.sh does not exist or is not executable"
 fi
 
 # TC-02: test-agents-structure.sh executes successfully (all TC-21~TC-34 pass)
@@ -75,13 +75,13 @@ else
   pass "test-agents-structure.sh detected model drift (exit code 1)"
 fi
 
-# TC-04: hooks.json contains check-claude-md-staleness.sh entry in PreCommit hooks
+# TC-04: check-claude-md-staleness.sh exists and is executable
 echo ""
-echo "TC-04: hooks.json contains check-claude-md-staleness.sh entry"
-if jq -e '.hooks.PreCommit[].hooks[] | select(.command | contains("check-claude-md-staleness.sh"))' "$BASE_DIR/hooks/hooks.json" >/dev/null 2>&1; then
-  pass "check-claude-md-staleness.sh entry found in PreCommit hooks"
+echo "TC-04: check-claude-md-staleness.sh exists and is executable"
+if [ -x "$BASE_DIR/scripts/hooks/check-claude-md-staleness.sh" ]; then
+  pass "check-claude-md-staleness.sh exists and is executable"
 else
-  fail "check-claude-md-staleness.sh entry NOT found in PreCommit hooks"
+  fail "check-claude-md-staleness.sh does not exist or is not executable"
 fi
 
 # TC-05: check-claude-md-staleness.sh exits 0 with no warning when CLAUDE.md is recent
@@ -106,13 +106,13 @@ else
   fail "Expected warning with exit 0 (exit=$exit_code, output='$output')"
 fi
 
-# TC-07: hooks.json contains PostToolUse observe.sh entry
+# TC-07: hooks.json PostToolUse observe.sh uses ${CLAUDE_PLUGIN_ROOT} path
 echo ""
-echo "TC-07: hooks.json contains PostToolUse observe.sh entry"
-if jq -e '.hooks.PostToolUse[].hooks[] | select(.command | contains("observe.sh"))' "$BASE_DIR/hooks/hooks.json" >/dev/null 2>&1; then
-  pass "observe.sh entry found in PostToolUse hooks"
+echo "TC-07: hooks.json PostToolUse observe.sh uses \${CLAUDE_PLUGIN_ROOT} path"
+if jq -e '.hooks.PostToolUse[].hooks[] | select(.command | contains("${CLAUDE_PLUGIN_ROOT}"))' "$BASE_DIR/hooks/hooks.json" >/dev/null 2>&1; then
+  pass "observe.sh uses \${CLAUDE_PLUGIN_ROOT} path in PostToolUse hooks"
 else
-  fail "observe.sh entry NOT found in PostToolUse hooks"
+  fail "observe.sh does NOT use \${CLAUDE_PLUGIN_ROOT} path in PostToolUse hooks"
 fi
 
 # TC-08: observe.sh exists and is executable
@@ -131,6 +131,15 @@ if echo "" | bash "$BASE_DIR/scripts/hooks/observe.sh" 2>/dev/null; then
   pass "observe.sh exits 0 on empty stdin"
 else
   fail "observe.sh exits non-zero on empty stdin"
+fi
+
+# TC-10: hooks.json has NO PreCommit entries (plugin-level hooks fire globally)
+echo ""
+echo "TC-10: hooks.json has NO PreCommit entries"
+if jq -e '.hooks.PreCommit' "$BASE_DIR/hooks/hooks.json" >/dev/null 2>&1; then
+  fail "hooks.json still contains PreCommit entries (plugin hooks fire for all projects)"
+else
+  pass "hooks.json has no PreCommit entries"
 fi
 
 # Summary

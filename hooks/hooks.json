@@ -1,32 +1,13 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-hooks.json",
   "hooks": {
-    "PreCommit": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash scripts/hooks/check-cycle-doc.sh"
-          },
-          {
-            "type": "command",
-            "command": "bash tests/test-agents-structure.sh"
-          },
-          {
-            "type": "command",
-            "command": "bash scripts/hooks/check-claude-md-staleness.sh"
-          }
-        ]
-      }
-    ],
     "PostToolUse": [
       {
         "matcher": "Edit|Write|Bash",
         "hooks": [
           {
             "type": "command",
-            "command": "bash scripts/hooks/observe.sh"
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/hooks/observe.sh"
           }
         ]
       }
