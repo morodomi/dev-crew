@@ -160,6 +160,26 @@ Skill(dev-crew:commit)
 → サイクル完了
 ```
 
+### Auto-Learn (COMMIT 後)
+
+条件を満たす場合、COMMIT 後に learn を自動実行:
+
+1. `DEV_CREW_AUTO_LEARN=1` が設定されている
+2. `~/.claude/dev-crew/observations/log.jsonl` が存在する
+
+```bash
+if [ "${DEV_CREW_AUTO_LEARN:-0}" = "1" ] && [ -f ~/.claude/dev-crew/observations/log.jsonl ]; then
+  # learn を実行
+fi
+```
+
+```
+Skill(dev-crew:learn)
+→ パターン抽出（失敗時: 警告ログのみ、COMMIT 完了をブロックしない）
+```
+
+learn 失敗時は警告を表示して正常終了する。サイクル全体の成否には影響しない。
+
 ## 判断基準
 
 Subagent Chain モードでも PdM の判断基準は同一:

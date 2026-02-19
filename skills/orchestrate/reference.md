@@ -165,6 +165,27 @@ GitHub issue を作成しますか? (Y/n)
 
 `→ #` が付いている項目は起票をスキップする。
 
+## Auto-Learn トリガー条件
+
+COMMIT 後に learn を自動実行するための条件テーブル:
+
+| 条件 | 値 | 必須 |
+|------|-----|------|
+| `DEV_CREW_AUTO_LEARN` 環境変数 | `1` | Yes |
+| `~/.claude/dev-crew/observations/log.jsonl` 存在 | ファイルが存在する | Yes |
+
+両条件を満たさない場合、Auto-Learn はスキップされる (サイレント)。
+
+### 失敗時の挙動
+
+| 状況 | アクション |
+|------|-----------|
+| learn 正常完了 | 結果サマリーを表示 |
+| learn 失敗 | 警告ログのみ表示、COMMIT 完了はブロックしない |
+| learn タイムアウト | 警告ログのみ表示、サイクル正常終了 |
+
+Auto-Learn は best-effort であり、サイクルの成否に影響しない。
+
 ## Socrates Protocol
 
 Agent Teams 有効時、review(plan) / review(code) のスコアが WARN (50-79) または BLOCK (80+) の場合に発動する。
