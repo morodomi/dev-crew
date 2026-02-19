@@ -66,12 +66,12 @@ description: "{cluster-summary}"
 
 ## バックアップ + ロールバック
 
-evolve 実行前に `.claude/meta-skills/backup/YYYYMMDD_HHMM/` にスナップショットを保存。
+evolve 実行前に `~/.claude/dev-crew/backup/YYYYMMDD_HHMM/` にスナップショットを保存。
 
 ロールバック手順:
 ```bash
 # 直前の evolve を取り消す
-cp -r .claude/meta-skills/backup/YYYYMMDD_HHMM/* .claude/meta-skills/evolved/
+cp -r ~/.claude/dev-crew/backup/YYYYMMDD_HHMM/* ~/.claude/dev-crew/evolved/
 ```
 
 ## 成功基準 (価値検証)

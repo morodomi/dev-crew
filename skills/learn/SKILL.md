@@ -20,13 +20,13 @@ allowed-tools: Task, Read, Write, Bash, Grep, Glob
 蓄積先ディレクトリを確認。存在しない場合は自動作成しオンボーディングメッセージを表示:
 
 ```
-meta-skills へようこそ。
+dev-crew learn へようこそ。
 learn はセッションの作業パターンを記録し、evolve でスキルに進化させます。
 初回セットアップを実行しました。
 ```
 
 ```bash
-mkdir -p .claude/meta-skills/instincts/
+mkdir -p ~/.claude/dev-crew/instincts/
 ```
 
 ### Step 2: 入力ソース収集
@@ -38,7 +38,7 @@ mkdir -p .claude/meta-skills/instincts/
 | Cycle doc | `ls -t docs/cycles/*.md 2>/dev/null \| head -1` |
 | 変更履歴 | `git log --oneline -20` |
 | 変更ファイル | `git diff --name-only HEAD~5..HEAD` |
-| observations | `cat .claude/meta-skills/observations/log.jsonl 2>/dev/null` |
+| observations | `cat ~/.claude/dev-crew/observations/log.jsonl 2>/dev/null` |
 
 ### Step 3: ユーザー補足情報
 
@@ -60,7 +60,7 @@ observer の出力から instinct を選別:
 
 | confidence | 判定 |
 |------------|------|
-| >= 0.5 | 保存 (.claude/meta-skills/instincts/ に JSONL 追記) |
+| >= 0.5 | 保存 (~/.claude/dev-crew/instincts/ に JSONL 追記) |
 | < 0.5 | 破棄 (理由付きで報告) |
 
 confidence >= 0.8 の instinct は MEMORY.md 昇格候補としてユーザーに提示する。棲み分けルール詳細: [reference.md](reference.md#memorymd-との棲み分け)

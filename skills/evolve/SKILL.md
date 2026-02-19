@@ -11,14 +11,14 @@ allowed-tools: Read, Write, Bash, Grep, Glob
 ## 前提
 
 - learn スキルで instinct が蓄積されていること
-- .claude/meta-skills/instincts/ に JSONL ファイルが存在すること
+- ~/.claude/dev-crew/instincts/ に JSONL ファイルが存在すること
 
 ## 実行手順
 
 ### Step 1: instinct 読み込み + Empty State チェック
 
 ```bash
-wc -l .claude/meta-skills/instincts/*.jsonl 2>/dev/null
+wc -l ~/.claude/dev-crew/instincts/*.jsonl 2>/dev/null
 ```
 
 instinct が不足している場合:
@@ -59,17 +59,17 @@ learn を継続して instinct を蓄積してください。
 
 承認されたクラスタから定義ファイルを生成:
 
-- 出力先: `.claude/meta-skills/evolved/`
+- 出力先: `~/.claude/dev-crew/evolved/`
 - 生成物に由来 instinct ID をコメントとして埋め込む
 
 ### Step 5: バックアップ + 結果報告
 
-生成前に既存ファイルのバックアップを `.claude/meta-skills/backup/` に保存。
+生成前に既存ファイルのバックアップを `~/.claude/dev-crew/backup/` に保存。
 
 ```
 スキル「phpstan-type-fix」を生成しました。
 由来: inst-20260213-001, inst-20260214-003, inst-20260215-002
-保存先: .claude/meta-skills/evolved/phpstan-type-fix/SKILL.md
+保存先: ~/.claude/dev-crew/evolved/phpstan-type-fix/SKILL.md
 ```
 
 ## Reference
