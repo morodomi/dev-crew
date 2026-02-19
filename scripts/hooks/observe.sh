@@ -23,6 +23,17 @@ fi
 OBS_DIR="${HOME}/.claude/dev-crew/observations"
 mkdir -p "$OBS_DIR"
 
+# Filter out read-only Bash commands to reduce noise
+TOOL_NAME=$(echo "$INPUT" | jq -r '.tool_name // ""')
+if [ "$TOOL_NAME" = "Bash" ]; then
+  COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // ""')
+  # Skip read-only commands: ls, cat, head, tail, grep, find, wc, echo, which, type, file
+  READ_ONLY_PATTERN='^[[:space:]]*(ls|cat|head|tail|grep|rg|find|wc|echo|which|type|file|pwd|date|whoami|uname|env|printenv|hostname|id|df|du|stat|realpath|dirname|basename|readlink|jq -r|jq -e|jq -c)[[:space:]]'
+  if echo "$COMMAND" | grep -qE "$READ_ONLY_PATTERN"; then
+    exit 0
+  fi
+fi
+
 # Extract fields and build output JSON in a single jq call
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 echo "$INPUT" | jq -c --arg timestamp "$TIMESTAMP" \

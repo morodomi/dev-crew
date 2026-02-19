@@ -4,6 +4,9 @@
 # TC-19: steps-teams.md Block 3 references learn
 # TC-20: orchestrate mentions DEV_CREW_AUTO_LEARN environment variable
 # TC-21: orchestrate mentions observations file check
+# TC-22: orchestrate documents observation count threshold gate
+# TC-23: orchestrate documents learn failure non-blocking behavior
+# TC-24: observe.sh supports .last-learn-timestamp marker
 
 set -euo pipefail
 
@@ -51,6 +54,35 @@ if grep -rq 'observations.*log\.jsonl\|log\.jsonl.*observations' "$BASE_DIR/skil
   pass "orchestrate mentions observations file check"
 else
   fail "orchestrate does not mention observations file check"
+fi
+
+# TC-22: orchestrate documents observation count threshold gate
+echo ""
+echo "TC-22: orchestrate documents observation count threshold"
+# Should mention counting observations since last learn (20+ threshold)
+if grep -rqE 'threshold|閾値|20' "$BASE_DIR/skills/orchestrate/" && \
+   grep -rq 'last.learn\|前回.*learn' "$BASE_DIR/skills/orchestrate/"; then
+  pass "orchestrate documents observation count threshold"
+else
+  fail "orchestrate does NOT document observation count threshold"
+fi
+
+# TC-23: orchestrate documents learn failure non-blocking behavior
+echo ""
+echo "TC-23: orchestrate documents learn failure non-blocking"
+if grep -rqE '失敗.*ブロック|failure.*block|警告.*正常終了|warn.*continue' "$BASE_DIR/skills/orchestrate/"; then
+  pass "orchestrate documents learn failure non-blocking"
+else
+  fail "orchestrate does NOT document learn failure non-blocking"
+fi
+
+# TC-24: observe.sh supports .last-learn-timestamp marker
+echo ""
+echo "TC-24: orchestrate references .last-learn-timestamp marker"
+if grep -rq 'last-learn-timestamp\|last.learn.*timestamp' "$BASE_DIR/skills/orchestrate/"; then
+  pass "orchestrate references .last-learn-timestamp"
+else
+  fail "orchestrate does NOT reference .last-learn-timestamp"
 fi
 
 # Summary

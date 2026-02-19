@@ -268,10 +268,21 @@ git commit -m "..."
 
 1. `DEV_CREW_AUTO_LEARN=1` が設定されている
 2. `~/.claude/dev-crew/observations/log.jsonl` が存在する
+3. 前回 learn 以降の観測数が閾値 (20件) 以上
 
 ```bash
 if [ "${DEV_CREW_AUTO_LEARN:-0}" = "1" ] && [ -f ~/.claude/dev-crew/observations/log.jsonl ]; then
-  # learn を実行
+  # 観測数閾値ゲート: .last-learn-timestamp 以降のエントリ数を確認
+  LAST_LEARN="~/.claude/dev-crew/observations/.last-learn-timestamp"
+  if [ -f "$LAST_LEARN" ]; then
+    SINCE=$(cat "$LAST_LEARN")
+    COUNT=$(jq -r --arg since "$SINCE" 'select(.timestamp > $since)' ~/.claude/dev-crew/observations/log.jsonl | wc -l)
+  else
+    COUNT=$(wc -l < ~/.claude/dev-crew/observations/log.jsonl)
+  fi
+  if [ "$COUNT" -ge 20 ]; then
+    # learn を実行
+  fi
 fi
 ```
 
@@ -280,6 +291,7 @@ Skill(dev-crew:learn)
 → パターン抽出（失敗時: 警告ログのみ、COMMIT 完了をブロックしない）
 ```
 
+learn 実行後、`.last-learn-timestamp` を現在時刻で更新する。
 learn 失敗時は警告を表示して正常終了する。サイクル全体の成否には影響しない。
 
 ### Team Cleanup

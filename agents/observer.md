@@ -26,6 +26,7 @@ learn スキルから以下の情報を受け取る:
 | git_log | git log --oneline -20 の出力 |
 | changed_files | git diff --name-only の出力 |
 | user_notes | ユーザーからの補足情報 |
+| observations | `~/.claude/dev-crew/observations/log.jsonl` のツール使用ログ |
 
 ## Output
 
@@ -56,13 +57,26 @@ learn スキルから以下の情報を受け取る:
 
 「観測回数」= 入力ソース内で同一パターンが出現した回数。
 
+## observations からのパターン抽出ルール
+
+observations (log.jsonl) の各行は `{timestamp, session_id, tool_name, target}` 形式。
+以下のルールでツール使用ログからパターンを検出する:
+
+| パターン | 検出条件 | 例 |
+|---------|---------|-----|
+| 繰り返しファイル編集 | 同一 target への Edit/Write が 3+ 回 | 設定ファイルの試行錯誤 |
+| コマンドシーケンス | 同一 session_id 内で tool_name の列が 3+ 回反復 | Read→Edit→Bash の繰り返し |
+| ツール選好 | 特定 tool_name の使用頻度が突出 | Grep を多用 |
+| セッション横断パターン | 異なる session_id で同一 target が出現 | 同じファイルを毎回修正 |
+
 ## Workflow
 
-1. 入力ソースを読み込む
+1. 入力ソースを読み込む（observations 含む）
 2. パターン検出ルールを適用 (ユーザー修正、エラー解決、繰り返し、ツール選好)
-3. 各パターンの出現頻度をカウント
-4. 信頼度スコアを算出
-5. instinct JSON 配列として返却
+3. observations の tool_name / target 頻度を集計
+4. 各パターンの出現頻度をカウント
+5. 信頼度スコアを算出
+6. instinct JSON 配列として返却
 
 ## Principles
 
