@@ -106,6 +106,33 @@ else
   fail "Expected warning with exit 0 (exit=$exit_code, output='$output')"
 fi
 
+# TC-07: hooks.json contains PostToolUse observe.sh entry
+echo ""
+echo "TC-07: hooks.json contains PostToolUse observe.sh entry"
+if jq -e '.hooks.PostToolUse[].hooks[] | select(.command | contains("observe.sh"))' "$BASE_DIR/hooks/hooks.json" >/dev/null 2>&1; then
+  pass "observe.sh entry found in PostToolUse hooks"
+else
+  fail "observe.sh entry NOT found in PostToolUse hooks"
+fi
+
+# TC-08: observe.sh exists and is executable
+echo ""
+echo "TC-08: observe.sh exists and is executable"
+if [ -x "$BASE_DIR/scripts/hooks/observe.sh" ]; then
+  pass "observe.sh exists and is executable"
+else
+  fail "observe.sh does not exist or is not executable"
+fi
+
+# TC-09: observe.sh handles empty stdin without error (exit 0)
+echo ""
+echo "TC-09: observe.sh handles empty stdin without error"
+if echo "" | bash "$BASE_DIR/scripts/hooks/observe.sh" 2>/dev/null; then
+  pass "observe.sh exits 0 on empty stdin"
+else
+  fail "observe.sh exits non-zero on empty stdin"
+fi
+
 # Summary
 echo ""
 echo "=== Summary ==="
