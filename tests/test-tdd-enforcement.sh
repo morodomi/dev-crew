@@ -69,13 +69,19 @@ fi
 echo ""
 echo "--- Pre-commit Hook ---"
 
-# TC-05: hooks.json has "PreCommit" or "pre-commit" hook definition
+# TC-05: hooks.json does NOT have PreCommit (plugin hooks fire globally; use standalone script instead)
 echo ""
-echo "TC-05: hooks.json has pre-commit hook definition"
-if grep -q "PreCommit\|pre-commit" "$HOOKS_JSON" 2>/dev/null; then
-  pass "hooks.json has pre-commit hook"
+echo "TC-05: hooks.json does NOT have PreCommit (global-fire prevention)"
+if grep -q "PreCommit" "$HOOKS_JSON" 2>/dev/null; then
+  fail "hooks.json should NOT have PreCommit (plugin hooks fire globally across all projects)"
 else
-  fail "hooks.json missing pre-commit hook definition"
+  pass "hooks.json correctly omits PreCommit"
+fi
+# Verify standalone script exists as project-local alternative
+if [ -f "$HOOK_SCRIPT" ]; then
+  pass "check-cycle-doc.sh exists as standalone alternative"
+else
+  fail "check-cycle-doc.sh not found (needed as standalone pre-commit check)"
 fi
 
 # TC-06: scripts/hooks/check-cycle-doc.sh exists
