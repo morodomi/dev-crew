@@ -197,6 +197,57 @@ else
   fail "Structure validation failed"
 fi
 
+########################################
+# steps-teams.md: Socrates on-demand
+########################################
+
+echo ""
+echo "--- steps-teams.md: Socrates on-demand ---"
+
+# TC-15: Phase 1 should NOT have socrates permanent spawn
+echo ""
+echo "TC-15: No socrates permanent spawn in Phase 1"
+phase1=$(awk '/## Phase 1/,/## Phase 2/' "$TEAMS_FILE" 2>/dev/null || true)
+if [ -n "$phase1" ]; then
+  # Phase 1 should not contain socrates spawn with team_name
+  if echo "$phase1" | grep -qi 'socrates.*常駐\|常駐.*socrates\|name:.*"socrates".*team_name'; then
+    fail "Socrates permanent spawn found in Phase 1 (should be on-demand)"
+  else
+    pass "No socrates permanent spawn in Phase 1"
+  fi
+else
+  fail "Phase 1 section not found"
+fi
+
+# TC-16: Socrates Protocol uses Task() for on-demand spawn (not SendMessage to pre-existing teammate)
+echo ""
+echo "TC-16: Socrates Protocol uses Task() for on-demand spawn"
+# Extract Socrates Protocol sections and check for Task() with socrates
+socrates_protocol=$(awk '/#### Socrates Protocol/,/^###[^#]/' "$TEAMS_FILE" 2>/dev/null || true)
+if [ -n "$socrates_protocol" ]; then
+  if echo "$socrates_protocol" | grep -q 'Task(.*socrates\|subagent_type.*socrates'; then
+    pass "Socrates Protocol uses Task() for on-demand spawn"
+  else
+    fail "Socrates Protocol does not use Task() for on-demand spawn"
+  fi
+else
+  fail "Socrates Protocol sections not found"
+fi
+
+# TC-17: Team Cleanup should NOT reference socrates shutdown
+echo ""
+echo "TC-17: No socrates shutdown in Team Cleanup"
+cleanup_section=$(awk '/### Team Cleanup/,0' "$TEAMS_FILE" 2>/dev/null || true)
+if [ -n "$cleanup_section" ]; then
+  if echo "$cleanup_section" | grep -qi 'shutdown.*socrates\|socrates.*shutdown'; then
+    fail "Socrates shutdown found in Team Cleanup (should not exist for on-demand)"
+  else
+    pass "No socrates shutdown in Team Cleanup"
+  fi
+else
+  fail "Team Cleanup section not found"
+fi
+
 # Summary
 echo ""
 echo "=== Summary ==="
