@@ -59,7 +59,8 @@ learn を継続して instinct を蓄積してください。
 
 承認されたクラスタから定義ファイルを生成:
 
-- 出力先: `~/.claude/dev-crew/evolved/`
+- デフォルト出力先: `~/.claude/dev-crew/evolved/` (staging)
+- `--contribute` 時: dev-crew ソース (`skills/` or `agents/`) に直接出力
 - 生成物に由来 instinct ID をコメントとして埋め込む
 
 ### Step 5: バックアップ + 結果報告
@@ -71,6 +72,17 @@ learn を継続して instinct を蓄積してください。
 由来: inst-20260213-001, inst-20260214-003, inst-20260215-002
 保存先: ~/.claude/dev-crew/evolved/phpstan-type-fix/SKILL.md
 ```
+
+### Step 6: Contribute to dev-crew (Optional)
+
+`--contribute` 指定時、生成物を dev-crew ソースに書き戻す:
+
+1. staging (`~/.claude/dev-crew/evolved/`) から `skills/` or `agents/` にコピー
+2. 構造検証テスト実行 (`bash tests/test-skills-structure.sh`, `bash tests/test-agents-structure.sh`)
+3. テスト失敗時: 書き戻しをロールバックし、staging に残す
+4. テスト成功時: ユーザーに commit を促す
+
+デフォルト (contribute なし): staging に出力して終了。
 
 ## Reference
 
