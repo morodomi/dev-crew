@@ -22,9 +22,10 @@ dev-crew/
 │   ├── socrates.md        # Devil's Advocate advisor
 │   ├── observer.md        # Pattern detection (meta)
 │   ├── review-briefer.md  # Review Brief generation (haiku)
-│   ├── design-reviewer.md # Unified design review (scope+arch+risk)
-│   ├── *-reviewer.md      # 5 review agents
-│   └── *-attacker.md      # 18 security agents
+│   ├── designer.md        # UI/UX design guidance
+│   ├── *-reviewer.md      # 6 review agents
+│   └── *-attacker.md +    # 19 security agents
+│       security specialists   (attackers, recon, DAST, etc.)
 ├── skills/                # 29 skills (flat)
 │   ├── init/              # Cycle start
 │   ├── plan/              # Design + Test List
@@ -43,6 +44,10 @@ dev-crew/
 │   ├── reload/            # Context restore after compact
 │   ├── learn/             # Pattern extraction
 │   ├── evolve/            # Skill evolution
+│   ├── context-review/    # Context integrity check
+│   ├── generate-e2e/      # E2E test generation
+│   ├── security-audit/    # Security audit report
+│   ├── skill-maker/       # Interactive skill builder
 │   └── *-quality/         # 7 language quality tools
 ├── rules/                 # Always-applied rules
 │   ├── git-safety.md
@@ -117,6 +122,14 @@ feat | fix | docs | refactor | test | chore
 | security-scan | "security scan" | SECURITY |
 | learn | "learn", "extract patterns" | META |
 | evolve | "evolve", "skill evolution" | META |
+| onboard | "onboard", "setup" | SETUP |
+| parallel | "parallel", "cross-layer" | SPECIAL |
+| attack-report | "attack report" | SECURITY |
+| security-audit | "security audit" | SECURITY |
+| context-review | "context review" | META |
+| generate-e2e | "generate e2e" | TEST |
+| skill-maker | "skill maker", "new skill" | META |
+| *-quality (7) | (auto per language) | QUALITY |
 
 ## Usage Patterns
 
@@ -127,3 +140,4 @@ feat | fix | docs | refactor | test | chore
 | 中規模 + 圧縮 | accept edits on | phase-compact → /compact → /reload を各フェーズ間で |
 | 大規模 (自動) | accept edits on (AGENT_TEAMS=1) | init → orchestrate（Task()で自動分離）|
 | セッション再開 | accept edits on | /reload → 現在フェーズから継続 |
+| auto-learn 有効 | accept edits on (DEV_CREW_AUTO_LEARN=1) | commit 後に自動で learn 実行 (20件以上の観測時) |
