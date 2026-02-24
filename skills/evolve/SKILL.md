@@ -77,10 +77,12 @@ learn を継続して instinct を蓄積してください。
 
 `--contribute` 指定時、生成物を dev-crew ソースに書き戻す:
 
-1. staging (`~/.claude/dev-crew/evolved/`) から `skills/` or `agents/` にコピー
-2. 構造検証テスト実行 (`bash tests/test-skills-structure.sh`, `bash tests/test-agents-structure.sh`)
-3. テスト失敗時: 書き戻しをロールバックし、staging に残す
-4. テスト成功時: ユーザーに commit を促す
+1. **パス解決**: `cat ~/.claude/dev-crew/source-path` で dev-crew 絶対パスを取得（不在時は AskUserQuestion）
+2. **パス検証**: `{source-path}/.claude-plugin/plugin.json` の存在を確認
+3. staging (`~/.claude/dev-crew/evolved/`) から `{source-path}/skills/` or `{source-path}/agents/` にコピー
+4. 全テスト実行: `for f in {source-path}/tests/test-*.sh; do bash "$f"; done`
+5. テスト失敗時: コピーを削除しロールバック。staging に残す
+6. テスト成功時: ユーザーに `{source-path}` での commit を促す
 
 デフォルト (contribute なし): staging に出力して終了。
 

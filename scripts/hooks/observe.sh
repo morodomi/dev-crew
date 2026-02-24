@@ -23,6 +23,9 @@ fi
 OBS_DIR="${HOME}/.claude/dev-crew/observations"
 mkdir -p "$OBS_DIR"
 
+# Cache plugin source path for evolve --contribute
+printf '%s\n' "$(cd "$(dirname "$0")/../.." && pwd)" > "$HOME/.claude/dev-crew/source-path" 2>/dev/null || true
+
 # Filter out read-only Bash commands to reduce noise
 TOOL_NAME=$(echo "$INPUT" | jq -r '.tool_name // ""')
 if [ "$TOOL_NAME" = "Bash" ]; then

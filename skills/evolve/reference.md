@@ -78,24 +78,36 @@ cp -r ~/.claude/dev-crew/backup/YYYYMMDD_HHMM/* ~/.claude/dev-crew/evolved/
 
 `--contribute` 指定時、evolve の生成物を dev-crew ソースに書き戻すモード。
 
+### Source Path 解決
+
+| 優先度 | ソース | パス |
+|--------|--------|------|
+| 1 | キャッシュ | `~/.claude/dev-crew/source-path` (observe.sh が毎回更新) |
+| 2 | ユーザー入力 | AskUserQuestion で dev-crew ソースパスを質問 |
+
+### Contribute テーブル
+
 | 項目 | デフォルト | --contribute |
 |------|-----------|-------------|
-| 出力先 | `~/.claude/dev-crew/evolved/` | `skills/` or `agents/` |
-| 構造検証 | なし | `test-skills-structure.sh` / `test-agents-structure.sh` 実行 |
-| 失敗時 | - | ロールバックし staging に残す |
-| Git 操作 | なし | ユーザーに commit を促す |
+| 出力先 | `~/.claude/dev-crew/evolved/` | `{source-path}/skills/` or `{source-path}/agents/` |
+| テスト | なし | 全テスト実行: `for f in {source-path}/tests/test-*.sh; do bash "$f"; done` |
+| 失敗時 | - | コピーを削除しロールバック。staging に残す |
+| Git 操作 | なし | ユーザーに `{source-path}` での commit を促す |
 
 ### Contribute フロー
 
-1. Step 4 で生成した定義ファイルを staging path から dev-crew ソースにコピー
-2. 構造検証テストを実行
-3. テスト失敗 → コピーを削除し、staging に残す + エラーメッセージ表示
-4. テスト成功 → 「commit して反映してください」とユーザーに案内
+1. `cat ~/.claude/dev-crew/source-path` でパス取得（不在時は AskUserQuestion）
+2. `{source-path}/.claude-plugin/plugin.json` の存在を確認（不在時はエラー終了）
+3. staging から `{source-path}/skills/` or `{source-path}/agents/` にコピー
+4. 全テスト実行: `for f in {source-path}/tests/test-*.sh; do bash "$f"; done`
+5. テスト失敗 → コピーを削除し、staging に残す + エラーメッセージ表示
+6. テスト成功 → 「`{source-path}` で commit して反映してください」とユーザーに案内
 
 ### 安全性
 
 - 既存ファイルの上書き前にバックアップを取得 (Step 5 と同一)
-- 構造検証テストがゲートとなり、不正な定義ファイルの混入を防止
+- 全テストスイート (`test-*.sh`) がゲートとなり、不正な定義ファイルの混入を防止
+- パス検証: `plugin.json` の存在確認で誤ったディレクトリへのコピーを防止
 
 ## 成功基準 (価値検証)
 
