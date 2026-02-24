@@ -72,6 +72,11 @@ N 件のパターンを保存しました。
 現在の蓄積: X 件。evolve 可能まであと Y 件。
 ```
 
+保存成功後、タイムスタンプを更新:
+```bash
+date -u +"%Y-%m-%dT%H:%M:%SZ" > ~/.claude/dev-crew/observations/.last-learn-timestamp
+```
+
 ## Reference
 
 詳細: [reference.md](reference.md)

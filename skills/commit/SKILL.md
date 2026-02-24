@@ -21,6 +21,7 @@ COMMIT Progress:
 - [ ] コミットメッセージ生成
 - [ ] git add & git commit
 - [ ] サイクル完了
+- [ ] Auto-Learn チェック
 ```
 
 ## Workflow
@@ -88,6 +89,31 @@ git commit -m "..."
 TDDサイクル完了: [hash] - [機能名]
 次: git push / init で新サイクル開始
 ```
+
+### Step 8: Auto-Learn (Optional)
+
+条件を満たす場合、サイクル完了後に learn を自動実行:
+
+1. `DEV_CREW_AUTO_LEARN=1` が設定されている
+2. `~/.claude/dev-crew/observations/log.jsonl` が存在する
+3. 前回 learn 以降の観測数が 20件以上
+
+```bash
+LAST_LEARN="$HOME/.claude/dev-crew/observations/.last-learn-timestamp"
+if [ "${DEV_CREW_AUTO_LEARN:-0}" = "1" ] && [ -f "$HOME/.claude/dev-crew/observations/log.jsonl" ]; then
+  if [ -f "$LAST_LEARN" ]; then
+    SINCE=$(cat "$LAST_LEARN")
+    COUNT=$(jq -r --arg since "$SINCE" 'select(.timestamp > $since)' "$HOME/.claude/dev-crew/observations/log.jsonl" | wc -l)
+  else
+    COUNT=$(wc -l < "$HOME/.claude/dev-crew/observations/log.jsonl")
+  fi
+  if [ "$COUNT" -ge 20 ]; then
+    Skill(dev-crew:learn)
+  fi
+fi
+```
+
+失敗時: 警告のみ表示。コミット結果には影響しない (best-effort)。
 
 ## Reference
 

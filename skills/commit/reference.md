@@ -53,6 +53,28 @@ pushは明示的に要求された場合のみ実行します。
 pushしますか？
 ```
 
+## Auto-Learn
+
+COMMIT 後に learn を自動実行する仕組み。`DEV_CREW_AUTO_LEARN=1` 環境変数で有効化。
+
+### トリガー条件
+
+| 条件 | 値 | 必須 |
+|------|-----|------|
+| `DEV_CREW_AUTO_LEARN` 環境変数 | `1` | Yes |
+| `~/.claude/dev-crew/observations/log.jsonl` 存在 | ファイルが存在する | Yes |
+| 前回 learn 以降の観測数 | 20件以上 | Yes |
+
+### 失敗時の挙動
+
+| 状況 | アクション |
+|------|-----------|
+| learn 正常完了 | 結果サマリーを表示 |
+| learn 失敗 | 警告ログのみ表示、COMMIT 完了はブロックしない |
+| learn タイムアウト | 警告ログのみ表示、サイクル正常終了 |
+
+Auto-Learn は best-effort。サイクルの成否に影響しない。
+
 ## Cycle doc完了形式
 
 ```markdown
