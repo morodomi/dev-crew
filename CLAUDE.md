@@ -25,7 +25,7 @@ dev-crew/
 │   ├── design-reviewer.md # Unified design review (scope+arch+risk)
 │   ├── *-reviewer.md      # 5 review agents
 │   └── *-attacker.md      # 18 security agents
-├── skills/                # 28 skills (flat)
+├── skills/                # 29 skills (flat)
 │   ├── init/              # Cycle start
 │   ├── plan/              # Design + Test List
 │   ├── red/               # Failing tests
@@ -40,6 +40,7 @@ dev-crew/
 │   ├── onboard/           # Project setup
 │   ├── security-scan/     # OWASP scanning
 │   ├── attack-report/     # Vulnerability report
+│   ├── reload/            # Context restore after compact
 │   ├── learn/             # Pattern extraction
 │   ├── evolve/            # Skill evolution
 │   └── *-quality/         # 7 language quality tools
@@ -110,6 +111,7 @@ feat | fix | docs | refactor | test | chore
 | commit | "commit" | COMMIT |
 | orchestrate | (auto from init) | META |
 | phase-compact | (auto between phases) | META |
+| reload | "reload", "コンテキスト復元" | META |
 | strategy | "strategy", "企画" | PHASE A |
 | diagnose | "investigate", "diagnose" | SPECIAL |
 | security-scan | "security scan" | SECURITY |

@@ -40,11 +40,16 @@ Cycle doc: docs/cycles/20260207_feature.md
 ## Workflow
 
 1. Cycle docを読み、Scope Definition・Environment・Context を把握
-2. `Skill(dev-crew:plan)` を実行（設計・Test List作成）
-3. 結果をLeadに報告（review(plan) はLeadが実行するため、architectは実行しない）
+2. **探索フェーズ（Exploration）**: 設計に入る前に最低5ファイルを読む
+   - Scope内の既存コード・テスト・設定ファイルをRead/Glob/Grepで調査
+   - 既存パターン・ユーティリティ・共通処理を特定
+   - 影響範囲（依存先・依存元）を把握
+3. `Skill(dev-crew:plan)` を実行（設計・Test List作成）
+4. 結果をLeadに報告（review(plan) はLeadが実行するため、architectは実行しない）
 
 ## Principles
 
+- **探索優先**: 設計前に必ずコードを読む。推測で設計しない
 - **設計に集中**: 実装コード・テストコードは作成しない
 - **Leadに報告重視**: 不明点はLeadにSendMessageで報告し、直接ユーザーと対話しない
 - **Cycle doc駆動**: 全ての設計判断はCycle docに記録する

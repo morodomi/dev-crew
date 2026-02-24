@@ -13,7 +13,8 @@ allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebSearch, WebFetch
 ```
 PLAN Progress:
 - [ ] Cycle doc確認 → リスク確認 → ドキュメント確認
-- [ ] 対話 → PLAN更新 → Test List作成
+- [ ] 探索（Exploration）→ 既存パターン把握
+- [ ] 対話 → PLAN更新 → QA自問 → Test List作成
 - [ ] 完了メッセージ表示
 ```
 
@@ -48,29 +49,35 @@ Riskフィールドなし → WARN（標準設計）として扱う。
 
 メジャーバージョンや破壊的変更が疑われる場合、WebSearch/WebFetchで確認。
 
+### Step 2.5: 探索（Exploration）
+
+設計に入る前に、関連コード・ドキュメントを最低5ファイル読む:
+
+1. Scope内の既存コード・テストをRead/Glob/Grepで調査
+2. 既存パターン・ユーティリティ・共通処理を特定
+3. 影響範囲の把握（依存先・依存元）
+
+探索結果をCycle docのPLANセクションに記録してから設計に入る。
+
 ### Step 3: 対話 → PLANセクション更新
 
 アーキテクチャ、依存関係、品質基準をユーザーに確認し、背景・設計方針・ファイル構成をCycle docに追記。
 
+### Step 4: QA Question Asker（自問）
+
+Test List作成前に、以下の質問に回答しCycle docに記録する。詳細: [reference.md](reference.md#qa-question-asker)
+
+1. この設計で最も壊れやすい箇所はどこか?
+2. ユーザーが「やってはいけない」使い方をした場合に何が起こるか?
+3. この機能が他の機能に与える影響は何か?
+4. 6ヶ月後にこのコードを変更する人が困る点は何か?
+
 ### Step 5: Test List作成
 
-**タスク粒度: 各タスクは2-5分で完了する1アクション**
+**タスク粒度: 各タスクは2-5分で完了する1アクション**（詳細: [reference.md](reference.md#タスク粒度)）
 
-5分を超えそうなタスクは分割する。詳細: [reference.md](reference.md#タスク粒度)
-
-| カテゴリ | 必須 |
-|----------|------|
-| 正常系 | ✅ |
-| 境界値 | ✅ |
-| エッジケース | ✅ |
-| 異常系 | ✅ |
-| 権限 | △ 認証機能時 |
-| 外部依存 | △ API/DB連携時 |
-| セキュリティ | △ 入力処理時 |
-
-目安: 機能1つにつき5-10ケース（各2-5分）
-
-異常系は [エラーメッセージ設計](reference.md#エラーメッセージ設計) を参照。テンプレート: [reference.md](reference.md#test-list-template)
+必須: 正常系・境界値・エッジケース・異常系。目安: 5-10ケース。
+テンプレート: [reference.md](reference.md#test-list-template)
 
 ### Step 5.5: クロスレイヤー検出（parallel 提案）
 
