@@ -117,3 +117,13 @@ feat | fix | docs | refactor | test | chore
 | security-scan | "security scan" | SECURITY |
 | learn | "learn", "extract patterns" | META |
 | evolve | "evolve", "skill evolution" | META |
+
+## Usage Patterns
+
+| シナリオ | モード | Context管理 |
+|---------|--------|------------|
+| タスク探し | plan mode | search-task → strategy |
+| 小〜中規模 | accept edits on | 手動: init → plan → red → ... |
+| 中規模 + 圧縮 | accept edits on | phase-compact → /compact → /reload を各フェーズ間で |
+| 大規模 (自動) | accept edits on (AGENT_TEAMS=1) | init → orchestrate（Task()で自動分離）|
+| セッション再開 | accept edits on | /reload → 現在フェーズから継続 |

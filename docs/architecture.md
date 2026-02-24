@@ -49,12 +49,12 @@ dev-crew/
 │   ├── Review (7): *-reviewer.md + review-briefer.md
 │   ├── Security (18): *-attacker.md, recon-agent.md, etc.
 │   └── Meta: observer.md
-├── skills/                       # 26 skills (flat)
-│   ├── Workflow (7): init/, plan/, red/, green/, refactor/, review/, commit/
+├── skills/                       # 29 skills (flat)
+│   ├── Workflow (8): init/, plan/, red/, green/, refactor/, review/, commit/, reload/
 │   ├── Orchestration (3): orchestrate/, phase-compact/, strategy/
 │   ├── Diagnostic (2): diagnose/, parallel/
-│   ├── Setup (1): onboard/
-│   ├── Security (4): security-scan/, attack-report/, context-review/, generate-e2e/
+│   ├── Setup (2): onboard/, skill-maker/
+│   ├── Security (5): security-scan/, attack-report/, context-review/, generate-e2e/, security-audit/
 │   ├── Language Quality (7): php-quality/, python-quality/, ts-quality/, etc.
 │   └── Meta (2): learn/, evolve/
 ├── rules/                        # Always-applied rules
@@ -109,13 +109,19 @@ Phase N 完了
 
 ## Session Continuity
 
-### Within Session (phase-compact)
+### Orchestrate Mode (Task()分離)
 
-Cycle doc acts as persistent state across compaction boundaries.
+Task()委譲で各フェーズのcontextは自動分離。PdMが直接Phase SummaryをCycle docに書き込む。
 
-### Across Sessions (future: ai-company scope)
+### Manual Mode (PreCompact + reload)
 
-- cc-session-manager hooks for state save/restore
+1. PreCompact hook → Phase Summary自動追記
+2. `/compact` で会話履歴を圧縮
+3. `/reload` でCycle docからコンテキスト復元
+
+### Across Sessions
+
+- `/reload` で前回セッションのCycle docからコンテキスト復元
 - memory/ files for cross-session knowledge
 - meta plugin learn/evolve for pattern accumulation
 

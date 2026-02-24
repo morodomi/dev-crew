@@ -67,8 +67,8 @@ Phase Summary をCycle docに追記しました。
 
 ## Trigger
 
-- orchestrateスキルから自動呼び出し（フェーズ遷移時）
 - 手動: `/phase-compact`
+- orchestrateモードではPdMが直接Phase Summaryを書き込むため、このスキルは呼ばれない
 
 ## Reference
 

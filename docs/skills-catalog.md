@@ -21,6 +21,7 @@
 | orchestrate | tdd-orchestrate | Yes | PdMとして全フェーズ自律管理。Socrates Protocol対応 |
 | phase-compact | NEW | - | フェーズ境界でのcompaction。Cycle docに永続化後/compact |
 | strategy | NEW (v2) | - | 企画フェーズ。要件理解→リサーチ→設計→GitHub Issue作成 |
+| reload | NEW | - | /compact後のコンテキスト復元。Cycle docから現在フェーズを復元 |
 
 ### Diagnostic Skills
 
@@ -34,6 +35,7 @@
 | Skill | Origin | Rename | Description |
 |-------|--------|--------|-------------|
 | onboard | tdd-onboard | Yes | プロジェクト初期セットアップ。CLAUDE.md生成 |
+| skill-maker | NEW | - | Anthropic公式ガイド準拠の対話型スキル作成・レビュー支援 |
 
 ---
 
@@ -83,6 +85,7 @@
 | attack-report | attack-report | No | 脆弱性レポート生成(JSON + Markdown) |
 | context-review | context-review | No | ビジネスロジック確認 |
 | generate-e2e | generate-e2e | No | 脆弱性からE2Eテスト自動生成 |
+| security-audit | NEW | - | security-scan + attack-reportを一括実行するオーケストレータ |
 
 ## Security Plugin Agents (18)
 
