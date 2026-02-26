@@ -27,6 +27,7 @@ learn スキルから以下の情報を受け取る:
 | changed_files | git diff --name-only の出力 |
 | user_notes | ユーザーからの補足情報 |
 | observations | `~/.claude/dev-crew/observations/log.jsonl` のツール使用ログ |
+| tfidf_summary | learn が算出した TF-IDF サマリ (term, tf, idf, tfidf, count, sessions) |
 
 ## Output
 
@@ -46,7 +47,31 @@ learn スキルから以下の情報を受け取る:
 
 ## 信頼度スコア計算
 
-観測頻度ベースで confidence を算出:
+TF-IDF + COUNT の2軸でスコアリング:
+
+```
+confidence = tfidf_to_base(tfidf_score) * evidence_multiplier(count)
+```
+
+### tfidf_to_base: TF-IDF → ベーススコア (パターンの特徴度)
+
+| TF-IDF | ベーススコア | 判定 |
+|--------|-------------|------|
+| < 0.2 | 破棄 | baseline 行動 (discard) |
+| 0.2 - 0.5 | 0.5 | やや特徴的 |
+| 0.5 - 1.0 | 0.7 | 特徴的 |
+| >= 1.0 | 0.85 | 非常に特徴的 |
+
+### evidence_multiplier: COUNT → 信頼度係数 (証拠の量)
+
+| COUNT | 係数 | 判定 |
+|-------|------|------|
+| < 3 | 破棄 | 証拠不足 (discard) |
+| 3 - 10 | 0.8 | 限定的な証拠 |
+| 11 - 30 | 0.9 | 中程度の証拠 |
+| >= 31 | 1.0 | 十分な証拠 |
+
+tfidf_summary が未提供 (ブートストラップ期間) の場合、以下のフォールバックを使用:
 
 | 観測回数 | confidence | 判定 |
 |---------|------------|------|
@@ -54,8 +79,6 @@ learn スキルから以下の情報を受け取る:
 | 3-5 回 | 0.5 | 中信頼 (保存) |
 | 6-10 回 | 0.7 | 高信頼 (保存) |
 | 11 回+ | 0.85 | 非常に高信頼 (保存) |
-
-「観測回数」= 入力ソース内で同一パターンが出現した回数。
 
 ## observations からのパターン抽出ルール
 

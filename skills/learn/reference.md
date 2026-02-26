@@ -79,6 +79,41 @@ learn 実行のタイムスタンプを管理するファイル。auto-learn の
 | evidence | string[] | 根拠となるソース |
 | created | string | 作成日 (YYYY-MM-DD) |
 
+## TF-IDF サマリ計算
+
+### Term 定義
+
+`{tool_name}:{category}` 形式。tool_name に応じたカテゴリ抽出:
+
+| tool_name | category | 例 |
+|-----------|----------|-----|
+| Bash | コマンド名 (target の先頭トークン) | `Bash:aws`, `Bash:docker` |
+| Edit, Write | 拡張子 (target のファイル拡張子) | `Edit:*.php`, `Write:*.md` |
+| Read, Grep, Glob | 拡張子 (target のファイル拡張子) | `Read:*.ts`, `Grep:*.py` |
+| Task | subagent_type | `Task:dev-crew:observer` |
+| その他 | tool_name そのまま | `WebSearch:WebSearch` |
+
+### 計算式
+
+- **TF (Term Frequency)**: セッション内の出現割合の平均
+  - `TF = avg(count_in_session / total_ops_in_session)` (全セッションの平均)
+- **IDF (Inverse Document Frequency)**: セッション横断の希少性
+  - `IDF = log2(total_sessions / (sessions_with_term + 1))`
+- **TF-IDF**: `TF * IDF`
+
+### ブートストラップ期間
+
+セッション数 < 20 の場合、IDF が統計的に不安定。TF-IDF サマリを生成せず、observer に tfidf_summary を渡さない。observer は回数ベースのフォールバックテーブルを使用する。
+
+### tfidf_summary 出力形式
+
+```json
+[
+  {"term": "Bash:aws", "tf": 0.012, "idf": 4.5, "tfidf": 3.27, "count": 120, "sessions": 15},
+  {"term": "Edit:*.php", "tf": 0.008, "idf": 3.2, "tfidf": 1.00, "count": 47, "sessions": 22}
+]
+```
+
 ## 品質フィルタ詳細
 
 confidence 閾値 0.5 は仮値。運用データで調整予定。
