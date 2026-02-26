@@ -42,15 +42,13 @@ mkdir -p ~/.claude/dev-crew/instincts/
 
 #### TF-IDF サマリ計算
 
-observations (log.jsonl) からセッション横断の TF-IDF スコアを算出し、tfidf_summary として observer に渡す。
+`scripts/tfidf-summary.sh` で observations (log.jsonl) からセッション横断の TF-IDF スコアを算出し、tfidf_summary として observer に渡す。
 
-1. log.jsonl の全行を読み込み、`{tool_name}:{category}` の Term を生成
-2. セッションごとに Term 出現頻度を集計し TF を算出
-3. 全セッション数から IDF を算出
-4. TF * IDF でスコアを計算
-5. Term ごとに count (総出現回数) と sessions (出現セッション数) を付与
+```bash
+TFIDF_JSON="$(bash scripts/tfidf-summary.sh)"
+```
 
-ブートストラップ期間 (セッション数 < 20): TF-IDF サマリを生成せず、observer にフォールバック動作させる。
+空配列 `[]` が返った場合 (ブートストラップ期間 or データなし)、observer に tfidf_summary を渡さない。
 
 詳細: [reference.md](reference.md#tf-idf-サマリ計算)
 
