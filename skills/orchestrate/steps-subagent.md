@@ -26,24 +26,25 @@ orchestrate 開始前に、Issue 番号と cycle doc の対応を確認する:
    ```
 
 3. 分岐処理:
-   - cycle doc が存在 → path を確定し、Block 1 (Planning) へ
-   - cycle doc が存在しない → Skill(dev-crew:init) を実行してから Block 1 へ
+   - cycle doc が存在 → path を確定し、Block 1 へ
+   - cycle doc が存在しない → plan mode で開始:
+     1. `Skill(dev-crew:init)` でTDDコンテキスト設定（planファイルに記録）
+     2. 探索・設計・Test List・QAチェックをplan mode内で実施
+     3. approve → auto-compact → normal modeへ → Block 1 へ
 
-## Block 1: Planning
+## Block 1: Kickoff + Plan Review
 
 > Pre-Flight Check:
-> - [ ] PLAN: Task() で architect に委譲しているか？
-> - [ ] RED/GREEN/REFACTOR: Task() で worker に委譲しているか？
-> - [ ] Skill() 直接呼び出しは review と COMMIT のみか？
+> - [ ] plan modeが承認済みか？
+> - [ ] planファイルが存在するか？
 
-### PLAN
+### KICKOFF
 
 > **MUST**: Task() で委譲すること。PdM による Skill() 直接呼び出し禁止。
 
 ```
-Task(subagent_type: "dev-crew:architect", model: "sonnet", prompt: "Cycle doc: [path]. Skill(dev-crew:plan)を実行し、設計・Test Listを作成せよ。")
-# model: agents/architect.md frontmatter の model フィールドに対応
-→ architect が subagent 内で Skill(plan) を実行（review は実行しない）
+Task(subagent_type: "general-purpose", model: "sonnet", prompt: "planファイルを読み取り、Skill(dev-crew:kickoff)を実行してCycle docを生成せよ。")
+→ subagent が Skill(kickoff) を実行
 → 結果 JSON 返却
 ```
 
@@ -56,32 +57,32 @@ Skill(dev-crew:review, args: "--plan")
 ```
 
 - PASS/WARN → Phase Summary 永続化 → Block 2 へ
-- BLOCK → Task() を再起動して PLAN 再実行（max 1回）
+- BLOCK → Task() を再起動して KICKOFF 再実行（max 1回）
 
-### Delegation Rule
+### Delegation Decision
 
-Subagent Chain モードでは **全フェーズを Task() で委譲する**。例外なし。
+Phase Summary の metrics を評価し、delegation decision を行う。
+Subagent Chain モードでは **全フェーズを Task() で委譲する**（lightweight threshold 以下でも同様）。
 PdM は Skill() を直接呼び出してはならない（review と COMMIT を除く）。
 Fallback は Task() spawn エラー時のみ適用される（後述）。
-Phase Summary の metrics に基づく delegation decision は行わない（旧ロジック廃止）。
 
-### Phase Summary 永続化 (PLAN→RED)
+### Phase Summary 永続化 (KICKOFF→RED)
 
 PdM が Cycle doc に Phase Summary を追記:
 
 ```markdown
-### Phase: PLAN - Completed at HH:MM
+### Phase: KICKOFF - Completed at HH:MM
 **Artifacts**: Cycle doc updated with PLAN section, Test List (N items)
 **Decisions**: architecture=[approach], test strategy=[approach]
 **Next Phase Input**: Test List items TC-01 ~ TC-NN
-**Subagent**: agent_id={architect_agent_id}, tokens={total_tokens}
+**Subagent**: agent_id={kickoff_agent_id}, tokens={total_tokens}
 ```
 
 ## Block 2: Implementation
 
 > Pre-Flight Check:
-> - [ ] PLAN: Task() で architect に委譲しているか？
-> - [ ] RED/GREEN/REFACTOR: Task() で worker に委譲しているか？
+> - [ ] KICKOFF: Task() で委譲しているか？
+> - [ ] RED/GREEN: Task() で worker に委譲しているか？
 > - [ ] Skill() 直接呼び出しは review と COMMIT のみか？
 
 ### RED
@@ -90,7 +91,6 @@ PdM が Cycle doc に Phase Summary を追記:
 
 ```
 Task(subagent_type: "dev-crew:red-worker", model: "sonnet", prompt: "Cycle doc: [path]. 担当テストケース: [TC-XX]. テストを作成し、失敗を確認せよ。")
-# model: agents/red-worker.md frontmatter の model フィールドに対応
 → red-worker が subagent 内でテスト作成
 → 結果 JSON 返却
 ```
@@ -103,22 +103,19 @@ PdM がテスト失敗（RED 状態）を確認。
 
 ```
 Task(subagent_type: "dev-crew:green-worker", model: "sonnet", prompt: "Cycle doc: [path]. テストを通す最小限の実装を行え。")
-# model: agents/green-worker.md frontmatter の model フィールドに対応
 → green-worker が subagent 内で実装
 → 結果 JSON 返却
 ```
 
 PdM が全テスト成功（GREEN 状態）を確認。
 
-### REFACTOR
+### /simplify + Verification Gate
 
-> **MUST**: Task() で委譲すること。PdM による Skill() 直接呼び出し禁止。
+コード品質改善を `/simplify` に委譲し、Verification Gateで品質確認:
 
 ```
-Task(subagent_type: "dev-crew:refactorer", model: "sonnet", prompt: "Cycle doc: [path]. Skill(dev-crew:refactor)を実行し、コード品質を改善せよ。")
-# model: agents/refactorer.md frontmatter の model フィールドに対応
-→ refactorer が subagent 内で Skill(refactor) 実行
-→ 結果 JSON 返却
+Skill(dev-crew:refactor)
+→ /simplify 実行案内 + Verification Gate（テスト全PASS + 静的解析0件 + フォーマット適用）
 ```
 
 ### REVIEW
@@ -168,29 +165,10 @@ Skill(dev-crew:commit)
 2. `~/.claude/dev-crew/observations/log.jsonl` が存在する
 3. 前回 learn 以降の観測数が閾値 (20件) 以上
 
-```bash
-if [ "${DEV_CREW_AUTO_LEARN:-0}" = "1" ] && [ -f ~/.claude/dev-crew/observations/log.jsonl ]; then
-  # 観測数閾値ゲート: .last-learn-timestamp 以降のエントリ数を確認
-  LAST_LEARN="~/.claude/dev-crew/observations/.last-learn-timestamp"
-  if [ -f "$LAST_LEARN" ]; then
-    SINCE=$(cat "$LAST_LEARN")
-    COUNT=$(jq -r --arg since "$SINCE" 'select(.timestamp > $since)' ~/.claude/dev-crew/observations/log.jsonl | wc -l)
-  else
-    COUNT=$(wc -l < ~/.claude/dev-crew/observations/log.jsonl)
-  fi
-  if [ "$COUNT" -ge 20 ]; then
-    # learn を実行
-  fi
-fi
-```
-
 ```
 Skill(dev-crew:learn)
 → パターン抽出（失敗時: 警告ログのみ、COMMIT 完了をブロックしない）
 ```
-
-learn 実行後、`.last-learn-timestamp` を現在時刻で更新する。
-learn 失敗時は警告を表示して正常終了する。サイクル全体の成否には影響しない。
 
 ## 判断基準
 
@@ -205,19 +183,17 @@ Subagent Chain モードでも PdM の判断基準は同一:
 ## Fallback
 
 Task() の起動に失敗した場合（subagent spawn エラー、タイムアウト等）のみ適用。
-PdM の判断による Skill() 直接実行は Fallback ではない（禁止）。
 
 1. 警告を表示: 「Task() 委譲に失敗しました。Skill() 直接実行にフォールバックします。」
 2. 該当フェーズを Skill() で直接実行:
 
 | Phase | Fallback |
 |-------|----------|
-| PLAN | `Skill(dev-crew:plan)` |
+| KICKOFF | `Skill(dev-crew:kickoff)` |
 | RED | `Skill(dev-crew:red)` |
 | GREEN | `Skill(dev-crew:green)` |
-| REFACTOR | `Skill(dev-crew:refactor)` |
+| /simplify | `Skill(dev-crew:refactor)` |
 | REVIEW | `Skill(dev-crew:review)` |
 
-3. Cycle doc の Progress Log に fallback を記録:
-   `- [Phase名] Task() failed, fallback to Skill() direct execution`
+3. Cycle doc の Progress Log に fallback を記録
 4. Phase Summary の Subagent 行を `**Subagent**: fallback (Skill direct)` とする

@@ -145,13 +145,13 @@ else
   pass "phase-compact SKILL.md does not claim auto-invocation from orchestrate"
 fi
 
-# TC-11: plan reference.md has 7 test categories
+# TC-11: kickoff reference.md has 7 test categories
 echo ""
-echo "TC-11: plan reference.md has 7 test categories"
+echo "TC-11: kickoff reference.md has 7 test categories"
 categories=("正常系" "境界値" "エッジケース" "異常系" "権限" "外部依存" "セキュリティ")
 missing=()
 for cat in "${categories[@]}"; do
-  if ! grep -q "$cat" "$BASE_DIR/skills/plan/reference.md"; then
+  if ! grep -q "$cat" "$BASE_DIR/skills/kickoff/reference.md"; then
     missing+=("$cat")
   fi
 done

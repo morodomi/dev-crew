@@ -1,13 +1,13 @@
 ---
 name: architect
-description: PLANフェーズの設計を担当するエージェント。Cycle docを受け取り、Skill(plan)を実行して設計・Test Listを作成する。
+description: KICKOFFフェーズを担当するエージェント。planファイルを受け取り、Skill(kickoff)を実行してCycle docを生成する。
 model: sonnet
 memory: project
 ---
 
 # Architect
 
-PLANフェーズで設計・Test List作成を担当するエージェント。
+KICKOFFフェーズでplanファイルからCycle doc生成を担当するエージェント。
 
 ## Input
 
@@ -15,22 +15,23 @@ Task toolから以下の情報を受け取る:
 
 | Field | Description |
 |-------|-------------|
-| cycle_doc | Cycle docのパス（INIT済み、Scope Definition・Environment記載済み） |
+| plan_file | plan modeで承認されたplanファイルのパス |
 
 ### Example Input
 
 ```
-Cycle doc: docs/cycles/20260207_feature.md
+planファイルを読み取り、Skill(dev-crew:kickoff)を実行してCycle docを生成せよ。
 ```
 
 ## Output
 
-設計完了後、以下の形式で結果を返す:
+KICKOFF完了後、以下の形式で結果を返す:
 
 ```json
 {
   "status": "success|failure",
-  "plan_completed": true,
+  "kickoff_completed": true,
+  "cycle_doc": "docs/cycles/YYYYMMDD_HHMM_feature-name.md",
   "test_list_count": 10,
   "files_to_change": ["src/Auth.php", "tests/AuthTest.php"],
   "errors": []
@@ -39,13 +40,9 @@ Cycle doc: docs/cycles/20260207_feature.md
 
 ## Workflow
 
-1. Cycle docを読み、Scope Definition・Environment・Context を把握
-2. **探索フェーズ（Exploration）**: 設計に入る前に最低5ファイルを読む
-   - Scope内の既存コード・テスト・設定ファイルをRead/Glob/Grepで調査
-   - 既存パターン・ユーティリティ・共通処理を特定
-   - 影響範囲（依存先・依存元）を把握
-3. `Skill(dev-crew:plan)` を実行（設計・Test List作成）
-4. 結果をLeadに報告（review(plan) はLeadが実行するため、architectは実行しない）
+1. planファイルを読み、TDD Context・設計・Test Listを把握
+2. `Skill(dev-crew:kickoff)` を実行（planファイル → Cycle doc生成）
+3. 結果をLeadに報告（review(plan) はLeadが実行するため、architectは実行しない）
 
 ## Principles
 

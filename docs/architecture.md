@@ -11,23 +11,25 @@ Engineer、Designer、Security Auditorが各フェーズを担当する。
 ```
 User
   │
-  ├── /init "feature description"
+  ├── plan mode で /init
   │
   ▼
 ┌─────────────────────────────────────────────┐
-│  PdM (Orchestrator)                         │
-│  ┌─────────┐  ┌─────────┐  ┌───────────────┐ │
-│  │ INIT    │→│ PLAN    │→│ review(plan) │ │
-│  └─────────┘  └─────────┘  └───────────────┘ │
-│       │            │              │           │
-│       │    phase-compact    phase-compact      │
-│       │            │              │           │
+│  plan mode (設計フェーズ)                     │
+│  ┌─────────┐  ┌─────────┐  ┌───────────┐    │
+│  │ INIT    │→│ 探索設計 │→│ Test List │    │
+│  └─────────┘  └─────────┘  └───────────┘    │
+│                                    ↓ approve │
+├──────────────────────────────────────────────┤
+│  normal mode (実行フェーズ)                   │
+│  ┌──────────┐  ┌───────────────┐              │
+│  │ KICKOFF  │→│ review(plan) │              │
+│  └──────────┘  └───────────────┘              │
+│       │              │                        │
 │  ┌─────────┐  ┌─────────┐  ┌───────────┐     │
-│  │ RED     │→│ GREEN   │→│ REFACTOR  │     │
+│  │ RED     │→│ GREEN   │→│ /simplify │     │
 │  └─────────┘  └─────────┘  └───────────┘     │
-│       │            │              │           │
-│       │    phase-compact    phase-compact      │
-│       │            │              │           │
+│       │              │              │         │
 │  ┌───────────────┐  ┌─────────┐               │
 │  │ review(code) │→│ COMMIT  │               │
 │  └───────────────┘  └─────────┘               │
@@ -50,7 +52,7 @@ dev-crew/
 │   ├── Security (18): *-attacker.md, recon-agent.md, etc.
 │   └── Meta: observer.md
 ├── skills/                       # 29 skills (flat)
-│   ├── Workflow (8): init/, plan/, red/, green/, refactor/, review/, commit/, reload/
+│   ├── Workflow (8): init/, kickoff/, red/, green/, refactor/, review/, commit/, reload/
 │   ├── Orchestration (3): orchestrate/, phase-compact/, strategy/
 │   ├── Diagnostic (2): diagnose/, parallel/
 │   ├── Setup (2): onboard/, skill-maker/
@@ -91,11 +93,11 @@ Phase N 完了
 
 | Transition | Persist | Restore |
 |------------|---------|---------|
-| INIT -> PLAN | Cycle doc (scope, env) | Cycle doc |
-| PLAN -> RED | Test List | Cycle doc + Test List |
+| plan mode → KICKOFF | planファイル (scope, env, Test List) | planファイル |
+| KICKOFF -> RED | Cycle doc (Test List) | Cycle doc + Test List |
 | RED -> GREEN | Test files (on disk) | Cycle doc + test files |
-| GREEN -> REFACTOR | Implementation (on disk) | Cycle doc + source files |
-| REFACTOR -> REVIEW | Refactored code (on disk) | Cycle doc + source files |
+| GREEN -> /simplify | Implementation (on disk) | Cycle doc + source files |
+| /simplify -> REVIEW | Refactored code (on disk) | Cycle doc + source files |
 | REVIEW -> COMMIT | Review report | Cycle doc + review |
 
 ### Additional Token Savings

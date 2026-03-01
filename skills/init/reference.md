@@ -386,3 +386,27 @@ fi
 ### Extending Cycle Doc Template
 
 Add project-specific sections to `templates/cycle.md`.
+
+## Plan File Template {#plan-file-template}
+
+planファイルに記録するTDDコンテキストのテンプレート:
+
+```markdown
+## TDD Context
+
+- Workflow: TDD (kickoff → RED → GREEN → /simplify → REVIEW → COMMIT)
+- Cycle doc: kickoff フェーズで docs/cycles/ に作成
+- Feature: [feature name (3-5 words)]
+
+### Environment
+- Layer: [Backend / Frontend / Both]
+- Plugin: [php / flask / python / js / ts]
+- Risk: [0-100] ([PASS / WARN / BLOCK])
+- Language: [version info]
+- Dependencies: [key packages]
+
+### Risk Details (BLOCK only)
+- [risk interview answers]
+```
+
+この後、plan mode内で探索・設計・Test List定義・QAチェックを続行する。

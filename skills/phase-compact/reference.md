@@ -11,31 +11,31 @@ phase-compactはTDDフェーズ境界でコンテキストを永続化し、
 
 | Transition | Persist to Cycle Doc | Restore From |
 |------------|---------------------|--------------|
-| INIT -> PLAN | scope, environment, goal | Cycle doc |
-| PLAN -> RED | Test List, design decisions | Cycle doc + Test List section |
+| plan mode -> KICKOFF | scope, environment, goal | planファイル |
+| KICKOFF -> RED | Test List, design decisions | Cycle doc + Test List section |
 | RED -> GREEN | test file paths, failure descriptions | Cycle doc + test files on disk |
-| GREEN -> REFACTOR | impl file paths, test results | Cycle doc + source files on disk |
-| REFACTOR -> REVIEW | refactored file list, changes summary | Cycle doc + source files on disk |
+| GREEN -> /simplify | impl file paths, test results | Cycle doc + source files on disk |
+| /simplify -> REVIEW | refactored file list, changes summary | Cycle doc + source files on disk |
 | REVIEW -> COMMIT | review score, issues found | Cycle doc + review summary |
 
 **Note**: COMMIT はサイクルの終端。COMMIT後のphase-compactは不要（次サイクルは新しいINITで開始）。
 
 ## Phase Summary Details
 
-### INIT -> PLAN
+### plan mode -> KICKOFF
 
 ```markdown
 ### Phase: INIT - Completed at HH:MM
-**Artifacts**: docs/cycles/YYYYMMDD_HHMM_feature-name.md
+**Artifacts**: planファイル (TDDコンテキスト, Test List)
 **Decisions**: scope=[layer], risk=[score]([verdict])
 **Metrics**: line_count=[N], file_count=[N], test_count=0
-**Next Phase Input**: Cycle doc ready for PLAN phase
+**Next Phase Input**: planファイル ready for KICKOFF phase
 ```
 
-### PLAN -> RED
+### KICKOFF -> RED
 
 ```markdown
-### Phase: PLAN - Completed at HH:MM
+### Phase: KICKOFF - Completed at HH:MM
 **Artifacts**: Cycle doc updated with PLAN section, Test List (N items)
 **Decisions**: architecture=[approach], test strategy=[approach]
 **Metrics**: line_count=[N], file_count=[N], test_count=[N]
@@ -52,24 +52,24 @@ phase-compactはTDDフェーズ境界でコンテキストを永続化し、
 **Next Phase Input**: test files on disk, implement to make them pass
 ```
 
-### GREEN -> REFACTOR
+### GREEN -> /simplify
 
 ```markdown
 ### Phase: GREEN - Completed at HH:MM
 **Artifacts**: [implementation file paths]
 **Decisions**: N/N tests passing
 **Metrics**: line_count=[N], file_count=[N], test_count=[N]
-**Next Phase Input**: source files on disk, refactor for quality
+**Next Phase Input**: source files on disk, run /simplify for quality
 ```
 
-### REFACTOR -> REVIEW
+### /simplify -> REVIEW
 
 ```markdown
 ### Phase: REFACTOR - Completed at HH:MM
 **Artifacts**: [refactored file paths]
-**Decisions**: refactoring=[changes made or "no changes needed"]
+**Decisions**: /simplify=[changes made or "no changes needed"]
 **Metrics**: line_count=[N], file_count=[N], test_count=[N]
-**Next Phase Input**: source files on disk, run quality gate
+**Next Phase Input**: source files on disk, run review
 ```
 
 ### REVIEW -> COMMIT

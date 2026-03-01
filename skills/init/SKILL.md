@@ -1,10 +1,16 @@
 ---
 name: init
-description: Start a new TDD cycle and create a Cycle doc. Triggers on "new feature", "start TDD", "add feature", "機能追加", "TDDを始めたい", "新しい機能", "開発を始める", "新規開発". Do NOT use for continuing an existing cycle (check docs/cycles/ first).
-allowed-tools: Read, Write, Bash, Grep, Glob, AskUserQuestion
+description: TDDサイクルのコンテキストをplan mode内で設定する（plan mode専用）。Triggers on "new feature", "start TDD", "add feature", "機能追加", "TDDを始めたい", "新しい機能", "開発を始める", "新規開発". Do NOT use for continuing an existing cycle (check docs/cycles/ first).
+allowed-tools: Read, Bash, Grep, Glob, AskUserQuestion
 ---
 
-# TDD INIT Phase
+# TDD INIT Phase (Plan Mode)
+
+plan mode内でTDDコンテキストを設定し、planファイルに記録する。
+
+## Plan Mode Check
+
+**plan modeでない場合**: 「plan modeで開始してください。EnterPlanMode → /init」と案内して終了。
 
 ## Progress Checklist
 
@@ -12,14 +18,14 @@ allowed-tools: Read, Write, Bash, Grep, Glob, AskUserQuestion
 INIT Progress:
 - [ ] STATUS確認 → 環境収集 → 既存cycle確認
 - [ ] 実装内容確認 → リスク評価 → スコープ確認
-- [ ] Cycle doc作成 → plan自動実行
+- [ ] planファイルにTDDコンテキスト記録
 ```
 
 ## Restrictions
 
-- No detailed implementation planning (done in PLAN)
-- No test code (done in RED)
-- No implementation code (done in GREEN)
+- planファイルへの記録のみ（Cycle docはkickoffで作成）
+- No implementation planning（plan modeの探索・設計で行う）
+- No test/implementation code
 
 ## Workflow
 
@@ -33,8 +39,7 @@ If not found, recommend `onboard`. Also check hooks: [reference.md](reference.md
 
 ### Step 2: Collect Environment Info
 
-Collect language versions and key packages for Cycle doc Environment section.
-Details: [reference.md](reference.md)
+Collect language versions and key packages. Details: [reference.md](reference.md)
 
 ### Step 3: Check Existing Cycles
 
@@ -50,28 +55,17 @@ Ask "What feature do you want to implement?" e.g., login, CSV export.
 
 ### Step 4.5: Risk Score Assessment
 
-Calculate risk score (0-100) from user input:
+Calculate risk score (0-100). Keyword scores: [reference.md](reference.md)
 
 | Score | Result | Action |
 |-------|--------|--------|
-| 0-29 | PASS | Show confirmation, auto-proceed |
-| 30-59 | WARN | Quick questions (Step 4.6), then Step 5 |
-| 60-100 | BLOCK | Brainstorm & risk questions (Step 4.7) |
-
-Keyword scores: [reference.md](reference.md)
-Record `Risk: [score] ([result])` in Cycle doc.
-
-### Step 4.6: Quick Questions (WARN only)
-
-Ask 2 lightweight questions. Templates: [reference.md](reference.md#warn-questions-30-59)
-
-### Step 4.7: Brainstorm & Risk Questions (BLOCK only)
-
-Templates: [reference.md](reference.md#brainstorm-questions-block-60-1). Bug keywords detected → `Skill(dev-crew:diagnose)`.
+| 0-29 | PASS | Auto-proceed |
+| 30-59 | WARN | Quick questions ([reference.md](reference.md#warn-questions-30-59)) |
+| 60-100 | BLOCK | Brainstorm ([reference.md](reference.md#brainstorm-questions-block-60-1)) |
 
 ### Step 5: Scope (Layer) Confirmation
 
-Use AskUserQuestion to confirm scope:
+Use AskUserQuestion to confirm scope. Details: [reference.md](reference.md)
 
 | Layer | Description | Plugin |
 |-------|-------------|--------|
@@ -79,20 +73,20 @@ Use AskUserQuestion to confirm scope:
 | Frontend | JavaScript/TypeScript | js, ts |
 | Both | Full stack | Multiple plugins |
 
-Details: [reference.md](reference.md)
+### Step 6: Record to Plan File
 
-### Step 6: Generate Feature Name & Create Cycle Doc
+planファイルにTDDコンテキストを記録。テンプレート: [reference.md](reference.md#plan-file-template)
 
-Generate feature name (3-5 words) and create Cycle doc from [templates/cycle.md](templates/cycle.md).
+### Step 7: Continue in Plan Mode
 
-### Step 7: Complete & Auto-Execute Next Phase
+initの記録後、plan mode内で以下を続行（initスキルの範囲外）:
 
-Display `INIT Complete` and execute based on `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS`:
+1. **探索**: コードベース調査（最低5ファイル読む）
+2. **設計**: アーキテクチャ決定、設計方針
+3. **Test List**: Given/When/Then形式
+4. **QAチェック**: カバレッジ・粒度・セキュリティ・独立性
 
-| 環境変数 | 実行 |
-|----------|------|
-| 有効 (`1`) | `Skill(dev-crew:orchestrate)` |
-| 無効 / 未設定 | `Skill(dev-crew:plan)` |
+→ approve → kickoff でCycle doc生成
 
 ## Reference
 

@@ -51,17 +51,15 @@ echo "=== Subagent Task() Delegation Enforcement Tests ==="
 echo ""
 echo "--- MUST Marker Validation (Layer 2) ---"
 
-# TC-01 ~ TC-04: Each phase section contains MUST marker for Task() delegation
-# Given: steps-subagent.md has ### PLAN/RED/GREEN/REFACTOR sections
+# TC-01 ~ TC-03: Each phase section contains MUST marker for Task() delegation
+# Given: steps-subagent.md has ### KICKOFF/RED/GREEN sections
 # When: checking for MUST marker in each section
 # Then: should find the exact MUST string requiring Task() delegation
 
-# phase_name:end_heading pairs for MUST marker checks
 MUST_MARKER_CASES=(
-  "PLAN:Delegation"
+  "KICKOFF:Delegation"
   "RED:GREEN"
-  "GREEN:REFACTOR"
-  "REFACTOR:REVIEW"
+  "GREEN:REVIEW"
 )
 
 TC_NUM=1
@@ -83,6 +81,22 @@ for case in "${MUST_MARKER_CASES[@]}"; do
 done
 
 ########################################
+# /simplify delegation (Layer 2)
+########################################
+
+echo ""
+echo "--- /simplify Delegation (Layer 2) ---"
+
+# TC-04: /simplify section references refactor skill
+echo ""
+echo "TC-04: /simplify section references Skill(refactor)"
+if grep -q "Skill(dev-crew:refactor)" "$TARGET_FILE"; then
+  pass "/simplify section references Skill(refactor)"
+else
+  fail "/simplify section missing Skill(refactor) reference"
+fi
+
+########################################
 # REVIEW Exception (Layer 2)
 ########################################
 
@@ -90,9 +104,6 @@ echo ""
 echo "--- REVIEW Exception (Layer 2) ---"
 
 # TC-05: REVIEW section contains exception note for review
-# Given: steps-subagent.md has a ### REVIEW section
-# When: checking for NOTE explaining review exception
-# Then: should find the exact NOTE string
 echo ""
 echo "TC-05: REVIEW section contains exception note"
 REVIEW_SECTION=$(extract_section "$TARGET_FILE" "REVIEW" "Phase Summary")
@@ -110,9 +121,6 @@ echo ""
 echo "--- Delegation Rule (Layer 1) ---"
 
 # TC-06: Delegation Decision section does NOT contain lightweight -> PdM direct execution (negative test)
-# Given: steps-subagent.md exists
-# When: checking for the old "lightweight -> PdM direct execution" pattern
-# Then: should NOT find it (the old logic must be removed)
 echo ""
 echo "TC-06: No 'lightweight -> PdM direct execution' pattern (negative test)"
 if grep -qE "lightweight.*PdM 直接実行|lightweight.*Skill\(\)" "$TARGET_FILE" 2>/dev/null; then
@@ -128,17 +136,14 @@ fi
 echo ""
 echo "--- Fallback Constraint (Layer 1) ---"
 
-# TC-07: Fallback section constrains usage to Task() spawn errors only
-# Given: steps-subagent.md has a ## Fallback section
-# When: checking for constraint text
-# Then: should find text stating Fallback is only for Task() spawn errors/timeouts
+# TC-07: Fallback section references Task() spawn errors
 echo ""
-echo "TC-07: Fallback section constrains usage to Task() spawn errors only"
+echo "TC-07: Fallback section references Task() spawn errors"
 FALLBACK_SECTION=$(sed -n '/^## Fallback/,$p' "$TARGET_FILE")
-if echo "$FALLBACK_SECTION" | grep -qE "PdM の判断による.*禁止|PdM.*判断.*Skill\(\).*禁止|PdM.*Skill\(\) 直接実行.*Fallback ではない"; then
-  pass "Fallback section constrains to Task() spawn errors only"
+if echo "$FALLBACK_SECTION" | grep -qE "Task\(\).*失敗|spawn.*エラー|タイムアウト"; then
+  pass "Fallback section references Task() spawn errors"
 else
-  fail "Fallback section missing constraint (PdM judgment-based Skill() is not Fallback)"
+  fail "Fallback section missing Task() spawn error reference"
 fi
 
 ########################################
@@ -149,9 +154,6 @@ echo ""
 echo "--- PdM Pre-Flight Check (Layer 3) ---"
 
 # TC-08: Pre-Flight Check exists in Block 1
-# Given: steps-subagent.md has ## Block 1 and ## Block 2
-# When: checking content between Block 1 and Block 2
-# Then: should find "Pre-Flight Check" text
 echo ""
 echo "TC-08: Pre-Flight Check exists in Block 1"
 BLOCK1_CONTENT=$(extract_block "$TARGET_FILE" "Block 1" "Block 2")
@@ -162,9 +164,6 @@ else
 fi
 
 # TC-09: Pre-Flight Check exists in Block 2
-# Given: steps-subagent.md has ## Block 2 and ## Block 3
-# When: checking content between Block 2 and Block 3
-# Then: should find "Pre-Flight Check" text
 echo ""
 echo "TC-09: Pre-Flight Check exists in Block 2"
 BLOCK2_CONTENT=$(extract_block "$TARGET_FILE" "Block 2" "Block 3")

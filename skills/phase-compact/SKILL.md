@@ -1,12 +1,12 @@
 ---
 name: phase-compact
-description: TDDフェーズ境界でcontext compactionを実行。Cycle docにPhase Summary（成果物・決定事項・引継ぎ情報）を永続化し、/compact実行を促す。When this auto-triggers after each TDD phase completion（orchestrateから自動呼び出し）。Manual trigger: 「phase-compact」「コンテキスト圧縮」。
+description: TDDフェーズ境界でCycle docにPhase Summaryを永続化し、/compact実行を案内する。orchestrateから自動呼び出し、または手動「phase-compact」「コンテキスト圧縮」。
 allowed-tools: Read, Write, Edit
 ---
 
 # Phase Compact
 
-フェーズ完了時にコンテキストを永続化し、会話履歴を圧縮するスキル。
+フェーズ完了時にコンテキストをCycle docに永続化し、Claude Code組み込みの `/compact` に圧縮を委譲する。
 
 ## Progress Checklist
 
@@ -14,7 +14,7 @@ allowed-tools: Read, Write, Edit
 phase-compact Progress:
 - [ ] Cycle doc特定・現フェーズ確認
 - [ ] Phase Summary生成・追記
-- [ ] /compact 実行促進
+- [ ] /compact 実行案内
 - [ ] 次フェーズ案内
 ```
 
@@ -45,7 +45,9 @@ Cycle docのProgressチェックリストから現在のフェーズを特定。
 現フェーズの成果物・決定事項・引継ぎ情報を収集し、Phase Summary formatでCycle docに追記。
 各フェーズで永続化する内容: [reference.md](reference.md#compaction-points)
 
-### Step 3: /compact 実行促進
+### Step 3: /compact 委譲
+
+Cycle docへの永続化完了後、コンテキスト圧縮をClaude Code組み込みの `/compact` に委譲する。
 
 ```
 Phase Summary をCycle docに追記しました。

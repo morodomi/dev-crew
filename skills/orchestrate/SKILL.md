@@ -1,19 +1,21 @@
 ---
 name: orchestrate
-description: TDDサイクル全体をPdM（Product Manager）として自律管理。INIT完了後にAgent Teams有効時は自動起動し、PLAN→REVIEW(plan)→RED→GREEN→REFACTOR→REVIEW(code)→COMMITを専門エージェントに委譲・判断する。Manual trigger: 「orchestrate」「全体管理」「PdMモード」。Do NOT use for 個別フェーズのみの実行（→ 各フェーズスキル）。
+description: TDDサイクル全体をPdM（Product Manager）として自律管理。plan mode起点でワークフロー制御。kickoff→RED→GREEN→/simplify→REVIEW→COMMITを専門エージェントに委譲・判断する。Manual trigger: 「orchestrate」「全体管理」「PdMモード」。Do NOT use for 個別フェーズのみの実行（→ 各フェーズスキル）。
 allowed-tools: Task, Read, Write, Bash, Grep, Glob, AskUserQuestion
 ---
 
 # TDD Orchestrate (PdM Mode)
 
 TDDサイクル全体をPdM (Product Manager) として管理するオーケストレータ。
+plan mode起点でワークフロー制御を行う。
 
 ## Progress Checklist
 
 ```
 orchestrate Progress:
-- [ ] Block 1: INIT → PLAN → review(plan) → 自律判断
-- [ ] Block 2: RED → GREEN → REFACTOR → review(code) → 自律判断 → DISCOVERED
+- [ ] Block 0: plan mode → INIT → 探索・設計 → Test List → QA → approve
+- [ ] Block 1: kickoff → review(plan) → 自律判断
+- [ ] Block 2: RED → GREEN → /simplify → review(code) → 自律判断 → DISCOVERED
 - [ ] Block 3: COMMIT → 完了
 ```
 
@@ -25,21 +27,32 @@ orchestrate Progress:
 
 ## Workflow
 
-### Block 1: Planning
+### Block 0: Planning (plan mode)
 
-1. **INIT**: Cycle doc 作成（PdM 直接実行）
-2. **PLAN**: 設計・Test List 作成を委譲
-3. **review(plan)**: 統一レビュー (mode: plan) で設計レビュー
-4. **自律判断**: PASS/WARN → Block 2 へ、BLOCK → PLAN 再実行
+plan modeで開始し、以下を実行:
+
+1. **INIT**: `Skill(dev-crew:init)` でTDDコンテキスト設定（planファイルに記録）
+2. **探索**: コードベース調査（最低5ファイル読む）
+3. **設計**: アーキテクチャ決定、設計方針の記録
+4. **Test List**: 正常系/境界値/エッジケース/異常系（Given/When/Then形式）
+5. **QAチェック**: カバレッジ・粒度・セキュリティ・独立性
+
+→ approve → auto-compact → normal modeへ
+
+### Block 1: Kickoff + Plan Review
+
+1. **kickoff**: planファイル → Cycle doc生成を委譲
+2. **review(plan)**: 統一レビュー (mode: plan) で設計レビュー
+3. **自律判断**: PASS/WARN → Block 2 へ、BLOCK → kickoff再実行
 
 ### Block 2: Implementation
 
 1. **RED**: red-worker にテスト作成を委譲
 2. **GREEN**: green-worker に実装を委譲
-3. **REFACTOR**: refactorer にリファクタリングを委譲
+3. **/simplify**: コード品質改善（refactorの代替）+ Verification Gate
 4. **review(code)**: 統一レビュー (mode: code) でコードレビュー
-5. **自律判断**: PASS/WARN → DISCOVERED 判断 → Block 3 へ、BLOCK → GREEN 再実行
-6. **DISCOVERED**: スコープ外項目を GitHub issue に起票（ユーザー確認後）
+5. **自律判断**: PASS/WARN → DISCOVERED判断 → Block 3 へ、BLOCK → GREEN再実行
+6. **DISCOVERED**: スコープ外項目をGitHub issueに起票（ユーザー確認後）
 
 ### Block 3: Finalization
 

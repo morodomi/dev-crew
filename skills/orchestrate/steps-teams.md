@@ -20,11 +20,14 @@ orchestrate 開始前に、Issue 番号と cycle doc の対応を確認する:
 
 3. 分岐処理:
    - cycle doc が存在 → path を確定し、Phase 1 (Team 作成) へ
-   - cycle doc が存在しない → Skill(dev-crew:init) を実行してから Phase 1 へ
+   - cycle doc が存在しない → plan mode で開始:
+     1. `Skill(dev-crew:init)` でTDDコンテキスト設定（planファイルに記録）
+     2. 探索・設計・Test List・QAチェックをplan mode内で実施
+     3. approve → auto-compact → normal modeへ → Phase 1 へ
 
 ## Phase 1: Team 作成
 
-Teammate ツールでチームを作成（INIT 時に1回のみ）:
+plan mode承認後、Teammate ツールでチームを作成（1回のみ）:
 
 ```
 Teammate(operation: "spawnTeam", team_name: "dev-cycle")
@@ -35,16 +38,15 @@ Teammate(operation: "spawnTeam", team_name: "dev-cycle")
 socrates は WARN/BLOCK 時のみ on-demand で起動する。PASS サイクル (~80%) では spawn しない。
 詳細: [../../agents/socrates.md](../../agents/socrates.md)
 
-## Phase 2: Block 1 - Planning
+## Phase 2: Block 1 - Kickoff + Plan Review
 
-### PLAN
+### KICKOFF
 
-architect teammate を起動し、設計・Test List 作成を委譲:
+architect teammate を起動し、planファイル → Cycle doc 生成を委譲:
 
 ```
 Task(subagent_type: "general-purpose", team_name: "dev-cycle", name: "architect", model: "sonnet")
-# model: agents/architect.md frontmatter の model フィールドに対応
-→ Skill(plan) 実行（review は実行しない）
+→ Skill(kickoff) 実行（review は実行しない）
 → 結果報告
 → SendMessage(type: "shutdown_request", recipient: "architect")
 ```
@@ -58,12 +60,12 @@ Skill(dev-crew:review, args: "--plan")
 → review(plan) が Risk Classification + Brief + Specialist Panel を実行
 ```
 
-### Phase Summary 永続化 (PLAN→RED)
+### Phase Summary 永続化 (KICKOFF→RED)
 
 review(plan) 完了後、PdM が Cycle doc に Phase Summary を追記:
 
 ```markdown
-### Phase: PLAN - Completed at HH:MM
+### Phase: KICKOFF - Completed at HH:MM
 **Artifacts**: Cycle doc updated with PLAN section, Test List (N items)
 **Decisions**: architecture=[approach], test strategy=[approach]
 **Next Phase Input**: Test List items TC-01 ~ TC-NN
@@ -90,7 +92,7 @@ review(plan) 完了後、PdM が Cycle doc に Phase Summary を追記:
 初回発動時のみユーザー案内を表示（[reference.md](reference.md#初回発動時のユーザー案内) 参照）。
 
 - proceed → Block 2 へ進行
-- fix → architect を再起動して PLAN 再実行（max 1回再試行）
+- fix → architect を再起動して KICKOFF 再実行（max 1回再試行）
 - abort → サイクル中断
 
 ### Delegation Decision
@@ -114,7 +116,6 @@ N 個の red-worker teammate を起動（テストファイル別）:
 
 ```
 Task(subagent_type: "dev-crew:red-worker", team_name: "dev-cycle", name: "red-worker-N", model: "sonnet")
-# model: agents/red-worker.md frontmatter の model フィールドに対応
 → テスト作成 → 結果報告 → shutdown
 ```
 
@@ -136,40 +137,38 @@ N 個の green-worker teammate を起動（実装ファイル別）:
 
 ```
 Task(subagent_type: "dev-crew:green-worker", team_name: "dev-cycle", name: "green-worker-N", model: "sonnet")
-# model: agents/green-worker.md frontmatter の model フィールドに対応
 → 実装 → 結果報告 → shutdown
 ```
 
 PdM が全テスト成功（GREEN 状態）を確認。
 
-### Phase Summary 永続化 (GREEN→REFACTOR)
+### Phase Summary 永続化 (GREEN→/simplify)
 
 ```markdown
 ### Phase: GREEN - Completed at HH:MM
 **Artifacts**: [implementation file paths]
 **Decisions**: N/N tests passing
-**Next Phase Input**: source files on disk, refactor for quality
+**Next Phase Input**: source files on disk, run /simplify for quality
 **Subagent**: agent_id={green_worker_agent_id}, tokens={total_tokens}
 ```
 
-### REFACTOR
+### /simplify + Verification Gate
 
-refactorer teammate を起動:
+コード品質改善を `/simplify` に委譲し、Verification Gateで品質確認:
 
 ```
-Task(subagent_type: "general-purpose", team_name: "dev-cycle", name: "refactorer", model: "sonnet")
-# model: agents/refactorer.md frontmatter の model フィールドに対応
-→ Skill(refactor) 実行 → 結果報告 → shutdown
+Skill(dev-crew:refactor)
+→ /simplify 実行案内 + Verification Gate（テスト全PASS + 静的解析0件 + フォーマット適用）
 ```
 
-### Phase Summary 永続化 (REFACTOR→REVIEW)
+### Phase Summary 永続化 (/simplify→REVIEW)
 
 ```markdown
 ### Phase: REFACTOR - Completed at HH:MM
 **Artifacts**: [refactored file paths]
-**Decisions**: refactoring=[changes made or "no changes needed"]
+**Decisions**: /simplify=[changes made or "no changes needed"]
 **Next Phase Input**: source files on disk, run review
-**Subagent**: agent_id={refactorer_agent_id}, tokens={total_tokens}
+**Subagent**: PdM direct (/simplify delegation)
 ```
 
 ### REVIEW (review code)
@@ -269,22 +268,6 @@ git commit -m "..."
 1. `DEV_CREW_AUTO_LEARN=1` が設定されている
 2. `~/.claude/dev-crew/observations/log.jsonl` が存在する
 3. 前回 learn 以降の観測数が閾値 (20件) 以上
-
-```bash
-if [ "${DEV_CREW_AUTO_LEARN:-0}" = "1" ] && [ -f ~/.claude/dev-crew/observations/log.jsonl ]; then
-  # 観測数閾値ゲート: .last-learn-timestamp 以降のエントリ数を確認
-  LAST_LEARN="~/.claude/dev-crew/observations/.last-learn-timestamp"
-  if [ -f "$LAST_LEARN" ]; then
-    SINCE=$(cat "$LAST_LEARN")
-    COUNT=$(jq -r --arg since "$SINCE" 'select(.timestamp > $since)' ~/.claude/dev-crew/observations/log.jsonl | wc -l)
-  else
-    COUNT=$(wc -l < ~/.claude/dev-crew/observations/log.jsonl)
-  fi
-  if [ "$COUNT" -ge 20 ]; then
-    # learn を実行
-  fi
-fi
-```
 
 ```
 Skill(dev-crew:learn)

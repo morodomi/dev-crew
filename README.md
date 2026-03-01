@@ -24,10 +24,15 @@ One command. All 33 agents, 29 skills, rules, and hooks are available.
 ## Core Workflow
 
 ```
-INIT -> PLAN -> RED -> GREEN -> REFACTOR -> REVIEW -> COMMIT
+plan mode (設計フェーズ)
+  init → 探索 → 設計 → Test List → QA → approve
+
+normal mode (実行フェーズ)
+  kickoff → red → green → /simplify → review → commit
 ```
 
-Each phase boundary triggers automatic context compaction to maintain token efficiency.
+Claude Code組み込み機能（plan mode, /simplify, /compact）と連携し、
+各フェーズ境界で自動コンテキスト圧縮を実行。
 
 ## Token Optimization
 
@@ -36,6 +41,7 @@ Phase-boundary compaction inspired by [OpenClaw](https://github.com/openclaw/ope
 1. Phase output persisted to Cycle doc
 2. `/compact` triggers at phase boundary
 3. Next phase loads context from Cycle doc (not conversation history)
+4. plan mode → approve → auto-compact で自然なコンテキスト圧縮
 
 ## Structure
 
@@ -54,7 +60,7 @@ dev-crew/
 ## Skills
 
 ### Development Workflow (14)
-init, plan, red, green, refactor, review, commit, orchestrate, strategy, diagnose, parallel, onboard, phase-compact, reload
+init, kickoff, red, green, refactor, review, commit, orchestrate, strategy, diagnose, parallel, onboard, phase-compact, reload
 
 ### Security (5)
 security-scan, attack-report, context-review, generate-e2e, security-audit

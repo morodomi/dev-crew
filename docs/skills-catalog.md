@@ -6,11 +6,11 @@
 
 | Skill | Origin | Rename | Description |
 |-------|--------|--------|-------------|
-| init | tdd-init | Yes (remove tdd-) | Cycle doc作成。スコープ・環境を定義 |
-| plan | tdd-plan | Yes | 実装計画作成、Test List定義(5-10件) |
+| init | tdd-init | Yes (remove tdd-) | TDDコンテキスト設定（plan mode専用） |
+| kickoff | tdd-plan | Yes (plan→kickoff) | planファイル→Cycle doc生成 |
 | red | tdd-red | Yes | 失敗するテスト作成。red-workerを並列spawn |
 | green | tdd-green | Yes | テストを通す最小実装。green-workerを並列spawn |
-| refactor | tdd-refactor | Yes | コード品質改善（DRY, naming等）テスト維持 |
+| refactor | tdd-refactor | Yes | /simplify委譲 + Verification Gate |
 | review | tdd-review | Yes | 品質チェック: tests + coverage + static analysis + unified review (risk-based) |
 | commit | tdd-commit | Yes | git add/commit + STATUS.md更新 |
 
@@ -52,7 +52,7 @@
 
 | Agent | Origin | Description |
 |-------|--------|-------------|
-| architect | architect | PLAN設計。Test List作成 |
+| architect | architect | KICKOFFフェーズ。planファイル→Cycle doc変換 |
 | red-worker | red-worker | REDテスト作成ワーカー |
 | green-worker | green-worker | GREEN実装ワーカー |
 | refactorer | refactorer | REFACTORコード改善 |

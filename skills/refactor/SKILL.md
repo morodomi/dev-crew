@@ -1,12 +1,12 @@
 ---
 name: refactor
-description: テストを維持しながらコード品質を改善する。GREENの次フェーズ。「リファクタして」「refactor」で起動。
+description: /simplifyにコード品質改善を委譲し、Verification Gateで品質を確認する。GREENの次フェーズ。「リファクタして」「refactor」で起動。
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
 ---
 
 # TDD REFACTOR Phase
 
-テストを維持しながらコード品質を改善する。
+Claude Code組み込みの `/simplify` にコード品質改善を委譲し、Verification Gateで品質を確認する。
 
 ## Progress Checklist
 
@@ -16,8 +16,8 @@ allowed-tools: Read, Write, Edit, Bash, Grep, Glob
 REFACTOR Progress:
 - [ ] 最新Cycle doc確認
 - [ ] 現在のテストが全てPASSすることを確認
-- [ ] リファクタリング実施
-- [ ] テスト実行→成功確認
+- [ ] /simplify でコード品質改善を実行
+- [ ] Verification Gate通過
 - [ ] Cycle doc更新
 - [ ] 完了メッセージ表示
 ```
@@ -38,25 +38,18 @@ ls -t docs/cycles/*.md 2>/dev/null | head -1
 
 ### Step 2: テスト確認
 
-```bash
-php artisan test  # PHP
-pytest            # Python
-```
-
 全テストがPASSすることを確認してから開始。
 
-### Step 3: リファクタリング
+### Step 3: /simplify 実行
 
-| 項目 | 例 |
-|------|-----|
-| DRY | 重複コードの共通化 |
-| 定数化 | マジックナンバー除去 |
-| メソッド分割 | 長いメソッドの分割 |
-| ネーミング | 変数・メソッド名の改善 |
+Claude Code組み込みの `/simplify` にコード品質改善を委譲する。
 
-### Step 4: テスト実行→成功確認
+```
+/simplify を実行してください。
+対象: 今回のサイクルで変更・作成したファイル
+```
 
-**期待**: 全テストが**成功**すること
+/simplify が3エージェント並列でコードをレビュー・改善する。完了後、Verification Gateに進む。
 
 ### Verification Gate
 
@@ -66,15 +59,19 @@ pytest            # Python
 | 静的解析 | エラー0 | 必須 |
 | フォーマット | 適用済み | 必須 |
 
-全て通過 → REVIEWへ自動進行。失敗時は修正して再試行。
+全て通過 → Cycle doc更新 → REVIEWへ進行。失敗時は修正して再試行。
 
-### Step 5: 完了
+### Step 5: Cycle doc更新
+
+Cycle docのProgress Logに REFACTOR完了を記録。
+
+### Step 6: 完了
 
 ```
 ================================================================================
 REFACTOR完了
 ================================================================================
-コード品質を改善しました。テストは全てPASS。
+/simplify + Verification Gate通過。テストは全てPASS。
 
 次のステップ:
 - Orchestrate使用時: 自動的にREVIEWが実行されます

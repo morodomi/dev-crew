@@ -15,7 +15,7 @@ dev-crew/
 ├── .claude-plugin/
 │   └── plugin.json        # Single plugin metadata
 ├── agents/                # 33 agents (flat)
-│   ├── architect.md       # PLAN phase design
+│   ├── architect.md       # KICKOFF phase (plan→Cycle doc)
 │   ├── red-worker.md      # RED test creation
 │   ├── green-worker.md    # GREEN implementation
 │   ├── refactorer.md      # REFACTOR quality
@@ -27,14 +27,14 @@ dev-crew/
 │   └── *-attacker.md +    # 19 security agents
 │       security specialists   (attackers, recon, DAST, etc.)
 ├── skills/                # 29 skills (flat)
-│   ├── init/              # Cycle start
-│   ├── plan/              # Design + Test List
+│   ├── init/              # TDD context setup (plan mode)
+│   ├── kickoff/           # Plan file → Cycle doc
 │   ├── red/               # Failing tests
 │   ├── green/             # Minimal implementation
-│   ├── refactor/          # Code quality
+│   ├── refactor/          # /simplify delegation + Verification Gate
 │   ├── review/            # Quality check
 │   ├── commit/            # Git commit
-│   ├── orchestrate/       # PdM orchestration
+│   ├── orchestrate/       # PdM orchestration (plan mode起点)
 │   ├── strategy/          # Phase A: 企画フェーズ
 │   ├── diagnose/          # Parallel bug investigation
 │   ├── parallel/          # Cross-layer parallel dev
@@ -64,17 +64,33 @@ dev-crew/
 ## Workflow
 
 ```
-INIT -> PLAN -> RED -> GREEN -> REFACTOR -> REVIEW -> COMMIT
+plan mode (常にここから開始)
+  ├─ init: TDDコンテキスト設定（planファイルに記録）
+  ├─ 探索・設計
+  ├─ Test List定義
+  └─ QAチェック
+  ↓ approve → auto-compact
+
+normal mode (実行フェーズ)
+  ├─ kickoff: planファイル → Cycle doc生成
+  ├─ red: 失敗テスト作成
+  ├─ green: 最小実装
+  ├─ /simplify: コード品質改善（refactorスキルが委譲）
+  ├─ review: リスクベースコードレビュー
+  └─ commit: Git commit + auto-learn
 ```
 
-Each phase boundary: persist output -> compact -> load from artifact.
+Claude Code組み込み機能との連携:
+- plan mode: init + 設計をplanファイルに集約
+- /simplify: refactorスキルが実行を委譲
+- /compact: phase-compactスキルがCycle doc更新後に案内
 
 ## Token Optimization
 
 Phase-boundary compaction:
 - Phase output persisted to Cycle doc before compaction
 - Context restored from files, not conversation history
-- Inspired by OpenClaw's memory flush pattern
+- plan mode → approve → auto-compact で自然なコンテキスト圧縮
 
 ## Quality Standards
 
@@ -107,11 +123,11 @@ feat | fix | docs | refactor | test | chore
 
 | Skill | Trigger | Phase |
 |-------|---------|-------|
-| init | "start", "new feature" | INIT |
-| plan | "design", "plan" | PLAN |
+| init | "start", "new feature" | INIT (plan mode) |
+| kickoff | "kickoff" | KICKOFF |
 | red | "write test", "red" | RED |
 | green | "implement", "green" | GREEN |
-| refactor | "refactor" | REFACTOR |
+| refactor | "refactor" | REFACTOR (/simplify委譲) |
 | review | "review" | REVIEW |
 | commit | "commit" | COMMIT |
 | orchestrate | (auto from init) | META |
@@ -136,8 +152,8 @@ feat | fix | docs | refactor | test | chore
 | シナリオ | モード | Context管理 |
 |---------|--------|------------|
 | タスク探し | plan mode | search-task → strategy |
-| 小〜中規模 | accept edits on | 手動: init → plan → red → ... |
-| 中規模 + 圧縮 | accept edits on | phase-compact → /compact → /reload を各フェーズ間で |
-| 大規模 (自動) | accept edits on (AGENT_TEAMS=1) | init → orchestrate（Task()で自動分離）|
+| 小〜中規模 | plan mode → accept edits on | init(plan mode) → kickoff → red → green → /simplify → review → commit |
+| 中規模 + 圧縮 | plan mode → accept edits on | phase-compact → /compact → /reload を各フェーズ間で |
+| 大規模 (自動) | plan mode → accept edits on (AGENT_TEAMS=1) | init → orchestrate（Task()で自動分離）|
 | セッション再開 | accept edits on | /reload → 現在フェーズから継続 |
 | auto-learn 有効 | accept edits on (DEV_CREW_AUTO_LEARN=1) | commit 後に自動で learn 実行 (20件以上の観測時) |
