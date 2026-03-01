@@ -10,16 +10,13 @@ allowed-tools: Read, Bash
 
 ## Progress Checklist
 
-コピーして進捗を追跡:
-
 ```
 COMMIT Progress:
-- [ ] git status / git diff で変更確認
+- [ ] git status/diff 確認
 - [ ] Pre-commit Hook確認
-- [ ] Cycle doc更新（phase: DONE）
-- [ ] docs/STATUS.md 更新
-- [ ] コミットメッセージ生成
-- [ ] git add & git commit
+- [ ] Cycle doc更新 (phase: DONE)
+- [ ] STATUS.md 更新
+- [ ] git add & commit
 - [ ] サイクル完了
 - [ ] Auto-Learn チェック
 ```
@@ -92,28 +89,8 @@ TDDサイクル完了: [hash] - [機能名]
 
 ### Step 8: Auto-Learn (Optional)
 
-条件を満たす場合、サイクル完了後に learn を自動実行:
-
-1. `DEV_CREW_AUTO_LEARN=1` が設定されている
-2. `~/.claude/dev-crew/observations/log.jsonl` が存在する
-3. 前回 learn 以降の観測数が 20件以上
-
-```bash
-LAST_LEARN="$HOME/.claude/dev-crew/observations/.last-learn-timestamp"
-if [ "${DEV_CREW_AUTO_LEARN:-0}" = "1" ] && [ -f "$HOME/.claude/dev-crew/observations/log.jsonl" ]; then
-  if [ -f "$LAST_LEARN" ]; then
-    SINCE=$(cat "$LAST_LEARN")
-    COUNT=$(jq -r --arg since "$SINCE" 'select(.timestamp > $since)' "$HOME/.claude/dev-crew/observations/log.jsonl" | wc -l)
-  else
-    COUNT=$(wc -l < "$HOME/.claude/dev-crew/observations/log.jsonl")
-  fi
-  if [ "$COUNT" -ge 20 ]; then
-    Skill(dev-crew:learn)
-  fi
-fi
-```
-
-失敗時: 警告のみ表示。コミット結果には影響しない (best-effort)。
+`DEV_CREW_AUTO_LEARN=1` かつ観測数 20件以上で learn スキルを自動実行。
+失敗時は警告のみ (best-effort)。詳細: [reference.md](reference.md#auto-learn)
 
 ## Reference
 

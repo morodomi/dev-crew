@@ -57,6 +57,23 @@ pushしますか？
 
 COMMIT 後に learn を自動実行する仕組み。`DEV_CREW_AUTO_LEARN=1` 環境変数で有効化。
 
+### 判定ロジック
+
+```bash
+LAST_LEARN="$HOME/.claude/dev-crew/observations/.last-learn-timestamp"
+if [ "${DEV_CREW_AUTO_LEARN:-0}" = "1" ] && [ -f "$HOME/.claude/dev-crew/observations/log.jsonl" ]; then
+  if [ -f "$LAST_LEARN" ]; then
+    SINCE=$(cat "$LAST_LEARN")
+    COUNT=$(jq -r --arg since "$SINCE" 'select(.timestamp > $since)' "$HOME/.claude/dev-crew/observations/log.jsonl" | wc -l)
+  else
+    COUNT=$(wc -l < "$HOME/.claude/dev-crew/observations/log.jsonl")
+  fi
+  if [ "$COUNT" -ge 20 ]; then
+    Skill(dev-crew:learn)
+  fi
+fi
+```
+
 ### トリガー条件
 
 | 条件 | 値 | 必須 |
