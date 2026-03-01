@@ -40,7 +40,7 @@
 | #5 | feat: designer agent (Japanese design) | 3 | DONE |
 | #6 | feat: designer + plan-review integration | 3 | DONE |
 | #7 | feat: model selection hints | 4 | DONE |
-| #8 | feat: hook-based tool output filtering | 4 | Open |
+| #8 | feat: hook-based tool output filtering | 4 | DONE |
 | #9 | chore: SKILL.md size audit | 4 | DONE |
 
 ---
@@ -53,19 +53,19 @@ TDDフェーズ境界でのcontext compaction。orchestrate skillと統合済み
 
 ## Phase 3: Designer Agent (DONE)
 
-designer.md 作成済み。plan-review に統合済み。
+designer.md 作成済み。review スキル (--plan mode) に統合済み。
 
 ---
 
-## Phase 4: Optimization (Partial DONE)
+## Phase 4: Optimization (DONE)
 
 ### 4.1 Model Selection Optimization (DONE)
 
 agent frontmatter に model hints 実装済み。
 
-### 4.2 Tool Output Filtering (Open: #8)
+### 4.2 Tool Output Filtering (Closed: #8)
 
-git log, git diff等の出力をHookでフィルタリング。P2。
+git log, git diff等の出力をHookでフィルタリング。Closed。
 
 ### 4.3 Skill Loading Optimization (DONE)
 
@@ -87,17 +87,37 @@ SKILL.md スリム化 + reference.md Progressive Disclosure 実装済み。
 
 ---
 
+## Phase 5.5: Orchestrator Redesign (DONE)
+
+self-contained型からオーケストレータ型ワークフローへ再設計 (#43)。
+
+### 完了事項
+
+- plan mode起点のワークフロー統一
+- /simplify委譲パターン導入（refactorスキル）
+- phase-compact + /compact 自然なコンテキスト圧縮
+- CLAUDE.md スキル/エージェント数更新
+
+---
+
 ## Phase 6: Next Evolution (Planning)
+
+### Closed Issues
+
+| Issue | Title | Priority | Status |
+|-------|-------|----------|--------|
+| #31 | CLAUDE.md 陳腐化警告 hook | P1 | Closed |
+| #30 | onboard テンプレート簡素化 | P1 | Closed |
+| #32 | HTML コメント構造保護の検証 | P2 | Closed |
+| #19 | designer レビュー価値の検証 | P2 | Closed |
+| #8 | hook-based tool output filtering | P2 | Closed |
 
 ### Open Issues
 
 | Issue | Title | Priority |
 |-------|-------|----------|
-| #31 | CLAUDE.md 陳腐化警告 hook | P1 |
-| #30 | onboard テンプレート簡素化 | P1 |
-| #32 | HTML コメント構造保護の検証 | P2 |
-| #19 | designer レビュー価値の検証 | P2 |
-| #8 | hook-based tool output filtering | P2 |
+| #36 | Risk Classifier チューニング (LOW閾値の実運用検証) | P2 |
+| #38 | On-Demand Capabilities (OSS調査・E2Eベンチマーク) | P2 |
 
 ### Evolution Themes
 
@@ -115,6 +135,7 @@ SKILL.md スリム化 + reference.md Progressive Disclosure 実装済み。
 | Phase 1.5 | Test Infrastructure | DONE |
 | Phase 2 | phase-compact | DONE |
 | Phase 3 | Designer Agent | DONE |
-| Phase 4 | Optimization | Partial (4.2 remaining) |
+| Phase 4 | Optimization | DONE |
 | Phase 5 | v2 Restructuring | DONE |
+| Phase 5.5 | Orchestrator Redesign | DONE |
 | Phase 6 | Next Evolution | Planning |
