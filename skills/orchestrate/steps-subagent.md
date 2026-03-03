@@ -32,7 +32,7 @@ orchestrate 開始前に、Issue 番号と cycle doc の対応を確認する:
      2. 探索・設計・Test List・QAチェックをplan mode内で実施
      3. approve → auto-compact → normal modeへ → Block 1 へ
 
-## Block 1: Kickoff + Plan Review
+## Block 1: Kickoff (with Design Review)
 
 > Pre-Flight Check:
 > - [ ] plan modeが承認済みか？
@@ -43,21 +43,17 @@ orchestrate 開始前に、Issue 番号と cycle doc の対応を確認する:
 > **MUST**: Task() で委譲すること。PdM による Skill() 直接呼び出し禁止。
 
 ```
-Task(subagent_type: "general-purpose", model: "sonnet", prompt: "planファイルを読み取り、Skill(dev-crew:kickoff)を実行してCycle docを生成せよ。")
-→ subagent が Skill(kickoff) を実行
-→ 結果 JSON 返却
+Task(subagent_type: "dev-crew:architect", model: "sonnet", prompt: "planファイルを読み取り、Design Review Gate を実施した後、PASS/WARN なら Skill(dev-crew:kickoff) を実行して Cycle doc を生成せよ。BLOCK の場合は Cycle doc を生成せず、問題点を報告せよ。")
+→ architect が Design Review Gate を実施
+→ PASS/WARN: Skill(kickoff) 実行 → 結果 JSON 返却（pre_review 付き）
+→ BLOCK: 失敗 JSON 返却（pre_review.verdict = "BLOCK"）
 ```
 
-PdM が Skill(dev-crew:review) を `--plan` モードで実行し、スコアを判定:
+architect の結果 JSON の `pre_review.verdict` で分岐:
 
-```
-Skill(dev-crew:review, args: "--plan")
-→ review(plan) が Risk Classification + Brief + Specialist Panel を実行
-→ 結果スコア返却
-```
-
-- PASS/WARN → Phase Summary 永続化 → Block 2 へ
-- BLOCK → Task() を再起動して KICKOFF 再実行（max 1回）
+- PASS → Phase Summary 永続化 → Block 2 へ
+- WARN → 警告ログ出力 → Phase Summary 永続化 → Block 2 へ（v5.0 互換）
+- BLOCK → Task() を再起動して KICKOFF 再実行（max 1回）→ 再度 BLOCK ならユーザーに報告
 
 ### Delegation Decision
 
@@ -74,8 +70,9 @@ PdM が Cycle doc に Phase Summary を追記:
 ### Phase: KICKOFF - Completed at HH:MM
 **Artifacts**: Cycle doc updated with PLAN section, Test List (N items)
 **Decisions**: architecture=[approach], test strategy=[approach]
+**Pre-Review**: verdict=[PASS/WARN/BLOCK], score=[N], issues=[summary]
 **Next Phase Input**: Test List items TC-01 ~ TC-NN
-**Subagent**: agent_id={kickoff_agent_id}, tokens={total_tokens}
+**Subagent**: agent_id={architect_agent_id}, tokens={total_tokens}
 ```
 
 ## Block 2: Implementation

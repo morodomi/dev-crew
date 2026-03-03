@@ -38,52 +38,45 @@ Teammate(operation: "spawnTeam", team_name: "dev-cycle")
 socrates は WARN/BLOCK 時のみ on-demand で起動する。PASS サイクル (~80%) では spawn しない。
 詳細: [../../agents/socrates.md](../../agents/socrates.md)
 
-## Phase 2: Block 1 - Kickoff + Plan Review
+## Phase 2: Block 1 - Kickoff (with Design Review)
 
 ### KICKOFF
 
-architect teammate を起動し、planファイル → Cycle doc 生成を委譲:
+architect teammate を起動し、Design Review Gate + Cycle doc 生成を委譲:
 
 ```
-Task(subagent_type: "general-purpose", team_name: "dev-cycle", name: "architect", model: "sonnet")
-→ Skill(kickoff) 実行（review は実行しない）
-→ 結果報告
+Task(subagent_type: "dev-crew:architect", team_name: "dev-cycle", name: "architect", model: "sonnet", prompt: "planファイルを読み取り、Design Review Gate を実施した後、PASS/WARN なら Skill(dev-crew:kickoff) を実行して Cycle doc を生成せよ。BLOCK の場合は Cycle doc を生成せず、問題点を報告せよ。")
+→ Design Review Gate 実施
+→ PASS/WARN: Skill(kickoff) 実行 → 結果報告
+→ BLOCK: 失敗報告
 → SendMessage(type: "shutdown_request", recipient: "architect")
-```
-
-### review(plan)
-
-統一レビュー (mode: plan) で設計レビュー:
-
-```
-Skill(dev-crew:review, args: "--plan")
-→ review(plan) が Risk Classification + Brief + Specialist Panel を実行
 ```
 
 ### Phase Summary 永続化 (KICKOFF→RED)
 
-review(plan) 完了後、PdM が Cycle doc に Phase Summary を追記:
+architect 完了後、PdM が Cycle doc に Phase Summary を追記:
 
 ```markdown
 ### Phase: KICKOFF - Completed at HH:MM
 **Artifacts**: Cycle doc updated with PLAN section, Test List (N items)
 **Decisions**: architecture=[approach], test strategy=[approach]
+**Pre-Review**: verdict=[PASS/WARN/BLOCK], score=[N], issues=[summary]
 **Next Phase Input**: Test List items TC-01 ~ TC-NN
 **Subagent**: agent_id={architect_agent_id}, tokens={total_tokens}
 ```
 
 ### 自律判断
 
-スコアベース判定:
+architect の `pre_review.verdict` でスコアベース判定:
 
 - PASS (0-49) → Block 2 (Phase 3) へ自動進行
 - WARN (50-79) / BLOCK (80+) → Socrates Protocol 発動:
 
-#### Socrates Protocol (review plan)
+#### Socrates Protocol (pre-review plan)
 
 1. PdM → Task() で socrates を on-demand 起動（Phase名, スコア, reviewer サマリ, 提案, Progress Log）
    ```
-   Task(subagent_type: "dev-crew:socrates", model: "opus", prompt: "Phase: review:plan, Score: [N], Summary: [...], Proposal: [...], Progress Log: [Cycle doc の Progress Log 全文]")
+   Task(subagent_type: "dev-crew:socrates", model: "opus", prompt: "Phase: pre-review:plan, Score: [N], Summary: [...], Proposal: [...], Progress Log: [Cycle doc の Progress Log 全文]")
    ```
 2. socrates → 反論を返却（Objections + Alternative 形式）
 3. PdM → 人間にメリデメを構造化してテキスト出力（自由入力を求める）

@@ -14,7 +14,7 @@ plan mode起点でワークフロー制御を行う。
 ```
 orchestrate Progress:
 - [ ] Block 0: plan mode → INIT → 探索・設計 → Test List → QA → approve
-- [ ] Block 1: kickoff → review(plan) → 自律判断
+- [ ] Block 1: kickoff (with Design Review) → 自律判断
 - [ ] Block 2: RED → GREEN → /simplify → review(code) → 自律判断 → DISCOVERED
 - [ ] Block 3: COMMIT → 完了
 ```
@@ -39,11 +39,10 @@ plan modeで開始し、以下を実行:
 
 → approve → auto-compact → normal modeへ
 
-### Block 1: Kickoff + Plan Review
+### Block 1: Kickoff (with Design Review)
 
-1. **kickoff**: planファイル → Cycle doc生成を委譲
-2. **review(plan)**: 統一レビュー (mode: plan) で設計レビュー
-3. **自律判断**: PASS/WARN → Block 2 へ、BLOCK → kickoff再実行
+1. **kickoff**: architect が Design Review Gate を実施後、PASS/WARN なら Cycle doc 生成
+2. **自律判断**: PASS/WARN → Block 2 へ、BLOCK → kickoff再実行
 
 ### Block 2: Implementation
 

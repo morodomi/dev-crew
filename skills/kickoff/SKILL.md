@@ -85,9 +85,11 @@ planファイルからCycle docを生成しました。
 
 Cycle doc: docs/cycles/YYYYMMDD_HHMM_feature-name.md
 
+Design Review Gate: architectにより事前実施済み
+
 次のステップ:
-- Orchestrate: 自動的にreview(plan)が実行されます
-- 手動: /review --plan で設計レビューを開始
+- Orchestrate: 自動的にREDフェーズへ進行します
+- 手動: /review --plan で設計レビューを再実行可能
 ================================================================================
 ```
 
