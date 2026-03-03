@@ -23,10 +23,12 @@ User
 │                                    ↓ approve │
 ├──────────────────────────────────────────────┤
 │  normal mode (実行フェーズ)                   │
-│  ┌──────────┐  ┌───────────────┐              │
-│  │ KICKOFF  │→│ review(plan) │              │
-│  └──────────┘  └───────────────┘              │
-│       │              │                        │
+│  ┌──────────────────────────┐                 │
+│  │ KICKOFF                  │                 │
+│  │  Design Review Gate      │                 │
+│  │  → PASS/WARN: Cycle doc  │                 │
+│  └──────────────────────────┘                 │
+│       │                                       │
 │  ┌──────────────────────┐                      │
 │  │ RED (Stage 1-3)      │                      │
 │  │  Plan→Review→Code   │                      │
@@ -73,9 +75,10 @@ dev-crew/
 
 ### Problem
 
-Agent Teams + review(code: 3-6並行) + review(plan: 2-6並行) により、
+Agent Teams + review(code: 3-6並行) により、
 1セッションで5時間windowを使い切る。
 主因は会話履歴の累積。v2ではRisk-Based Scalingで改善。
+review(plan) は廃止し、architect 内部の Design Review Gate に置き換え済み。
 
 ### Solution: Phase-Boundary Compaction
 

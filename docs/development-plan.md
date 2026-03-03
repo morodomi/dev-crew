@@ -175,6 +175,22 @@ Addy Osmani「The Factory Model」から取り入れる改善。
 
 ---
 
+## Phase 8: Design Review Gate Integration (DONE)
+
+orchestrate の設計レビューを kickoff 前に実施するよう変更。
+
+### 完了事項
+
+- architect agent に Design Review Gate (Scope/Architecture/Test List/Risk) を追加
+- architect output JSON に pre_review フィールド (verdict/score/issues) 追加
+- orchestrate Block 1 から review(plan) Skill 呼び出しを削除
+- steps-subagent.md / steps-teams.md で architect Task() prompt を更新
+- reference.md の Phase Ownership、再試行ロジック、Socrates Protocol 発動条件を更新
+- kickoff 完了メッセージを更新
+- `/review --plan` は手動実行用として維持
+
+---
+
 ## Timeline
 
 | Phase | Content | Status |
@@ -188,3 +204,4 @@ Addy Osmani「The Factory Model」から取り入れる改善。
 | Phase 5.5 | Orchestrator Redesign | DONE |
 | Phase 6 | Next Evolution | DONE |
 | Phase 7 | Factory Model Adaptation | DONE |
+| Phase 8 | Design Review Gate Integration | DONE |
