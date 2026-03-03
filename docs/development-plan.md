@@ -127,6 +127,51 @@ self-contained型からオーケストレータ型ワークフローへ再設計
 
 ---
 
+## Phase 7: Factory Model Adaptation (DONE)
+
+Addy Osmani「The Factory Model」から取り入れる改善。
+コスト最適化を維持しつつ、仕様精度とテスト検証を強化する。
+
+### 7.1 Spec Precision (仕様精度の強化)
+
+**課題**: initスキルのStep 4「何を実装するか聞く」が1問で終わり、曖昧な仕様がそのまま下流に流れる。
+
+**方針**: fumiya-kume/claude-code digプラグインのアプローチを参考に、AskUserQuestionによる構造化質問でplan mode内の曖昧さを体系的に排除する。
+
+**対象スキル**: init (Step 4強化)
+
+**設計方針**:
+- カテゴリ別の曖昧性検出（データ、API、UI/UX、スコープ、エッジケース）
+- AskUserQuestion で2-4問ずつ、選択肢付きで質問
+- 曖昧さが残る限りループ。全解消後にplan mode設計フェーズへ進む
+- token消費を抑えるため、既存plan mode内で完結（新エージェント不要）
+
+**NOT doing**:
+- 並行エージェントによるファクトリー化（token消費問題。将来検討）
+
+### 7.2 Test Plan Verification (テスト計画の検証)
+
+**課題**: REDフェーズでテスト作成と同時にテスト計画を暗黙的に決めており、要件定義との突合がない。
+
+**方針**: REDフェーズを3段階に分割する。
+
+1. **Test Plan**: 要件からテスト計画を作成（Given/When/Then一覧）
+2. **Test Plan Review**: テスト計画を要件定義（Cycle doc）と照合し、漏れ・過剰を検証
+3. **Test Code**: 検証済みテスト計画からテストコードを作成
+
+**対象スキル**: red (内部フェーズ分割)
+
+**設計方針**:
+- red-worker agentに渡す前にテスト計画をCycle docに記録
+- テスト計画の検証はplan mode内のQAチェック強化で対応可能（新エージェント不要）
+- 現行のTest List（plan mode Step 7.3）を「テスト計画」として正式化し、要件との突合ステップを追加
+
+**NOT doing**:
+- ADR運用（entire.io等の外部ツール連携は将来検討）
+- 人間の役割再定義（対応不要）
+
+---
+
 ## Timeline
 
 | Phase | Content | Status |
@@ -139,3 +184,4 @@ self-contained型からオーケストレータ型ワークフローへ再設計
 | Phase 5 | v2 Restructuring | DONE |
 | Phase 5.5 | Orchestrator Redesign | DONE |
 | Phase 6 | Next Evolution | Planning |
+| Phase 7 | Factory Model Adaptation | DONE |

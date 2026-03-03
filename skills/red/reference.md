@@ -2,6 +2,105 @@
 
 SKILL.mdの詳細情報。必要時のみ参照。
 
+## Test Plan Stage {#test-plan-stage}
+
+Stage 1 でテスト計画を正式化する手順。
+
+### TC展開テンプレート
+
+Test List の各項目を以下の形式で詳細化:
+
+```markdown
+### TC-XX: [テストケース名]
+
+- **Given**: [前提条件 + 具体データ]
+- **When**: [操作 + 具体入力値]
+- **Then**: [期待結果 + 具体出力値]
+- **Category**: [正常系 / 異常系 / 境界値 / 権限 / セキュリティ]
+- **Test File**: [tests/XxxTest.php / tests/test_xxx.py]
+```
+
+### 簡潔→詳細TC変換の例
+
+| 簡潔 (Test List) | 詳細 (Formal Test Plan) |
+|-------------------|------------------------|
+| ログイン成功 | Given: email="test@example.com", password="Pass123!" / When: POST /login / Then: 200, session作成 |
+| 空パスワードエラー | Given: email="test@example.com", password="" / When: POST /login / Then: 422, "Password required" |
+| 最大文字数超過 | Given: name="a" * 256 / When: POST /users / Then: 422, "Name max 255 chars" |
+
+### Cycle doc記録フォーマット
+
+Cycle doc に「## Formal Test Plan」セクションとして追記:
+
+```markdown
+## Formal Test Plan
+
+### TC-01: ユーザーログイン成功
+- Given: 有効なユーザー (email: "test@example.com", password: "Pass123!")
+- When: POST /api/login with valid credentials
+- Then: 200 OK, セッション作成, ダッシュボードへリダイレクト
+- Category: 正常系
+- Test File: tests/Feature/AuthTest.php
+```
+
+## Test Plan Review {#tp-review}
+
+Stage 2 でテスト計画を要件と照合する手順。
+
+### レビューチェックリスト
+
+| # | チェック項目 | 内容 |
+|---|-------------|------|
+| 1 | 網羅性 | In Scope の全項目に対応するTCが存在するか |
+| 2 | エッジケース | null/空/上限/下限のテストがあるか |
+| 3 | エラー処理 | 各操作の失敗パターンがカバーされているか |
+| 4 | セキュリティ | 認証・認可・入力検証のテストがあるか |
+| 5 | 境界値 | 数値/文字列の境界値テストがあるか |
+
+### Gap分析プロセス
+
+1. Cycle doc の **Scope** セクションの各項目を列挙
+2. **Formal Test Plan** の各TCとマッピング
+3. TCが存在しない Scope 項目 = **Gap**
+4. Gap が見つかった場合:
+   - Test List に DISCOVERED 項目として追加
+   - Stage 1 に戻り、追加TCを展開
+
+### Gap発見時のDISCOVERED項目追加フロー
+
+```markdown
+## Test List
+
+### TODO
+- [ ] TC-XX: [Gap分析で発見されたテストケース] ← DISCOVERED
+
+### WIP
+...
+```
+
+DISCOVERED項目はTest ListのTODOに追加し、次のStage 1実行で詳細化する。
+
+## Dependency Analysis {#dependency-analysis}
+
+テストケースを対象テストファイル別にグルーピングする例:
+
+| テストファイル | テストケース |
+|---------------|-------------|
+| tests/AuthTest.php | TC-01, TC-02 |
+| tests/UserTest.php | TC-03 |
+
+**原則**: 同一テストファイル→同一workerに割り当て（競合回避）
+
+## Test Execution {#test-execution}
+
+テスト実行コマンドの例:
+
+```bash
+php artisan test --filter=TestName  # PHP
+pytest tests/test_xxx.py -v          # Python
+npm test -- --grep "TestName"        # JavaScript
+```
+
 ## red-worker並列実行
 
 ### 概要

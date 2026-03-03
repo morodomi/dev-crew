@@ -387,6 +387,63 @@ fi
 
 Add project-specific sections to `templates/cycle.md`.
 
+## Ambiguity Detection {#ambiguity-detection}
+
+Step 4.8 で実行する仕様曖昧性の検出・解消プロセス。strategy skill の Questioning Protocol パターンを再利用する。
+
+### トリガー条件
+
+全 risk level (PASS/WARN/BLOCK) で実行する。ただし BLOCK のリスク質問で既にカバー済みのカテゴリはスキップする。
+
+### 5カテゴリの検出シグナルと質問テンプレート
+
+| カテゴリ | 検出シグナル | 質問例 |
+|----------|-------------|--------|
+| Data | "export", "import", "CSV", "data" | 対象データ? フォーマット? 件数上限? |
+| API | "API", "endpoint", "webhook" | どのAPI? 認証方式? エラー処理? |
+| UI/UX | "page", "form", "button", "screen" | どの画面? ユーザーフロー? レスポンシブ? |
+| Scope | 曖昧動詞 ("add", "improve", "fix", "update") | どのコンポーネント? 何が変わる? 影響範囲? |
+| Edge cases | エラー/制限の明示なし | 失敗時の振る舞い? 空状態? 上限値? |
+
+### AskUserQuestion テンプレート
+
+各カテゴリで検出されたシグナルに基づき、AskUserQuestion で構造化質問を実施:
+
+```yaml
+questions:
+  - question: "[カテゴリ固有の質問]"
+    header: "[カテゴリ名]"
+    options:
+      - label: "[具体的な選択肢A]"
+        description: "[選択肢Aの説明]"
+      - label: "[具体的な選択肢B]"
+        description: "[選択肢Bの説明]"
+    multiSelect: false
+```
+
+- 1ラウンド 2-4問
+- 検出カテゴリのみ質問（全カテゴリを毎回聞かない）
+
+### Questioning Protocol ルール
+
+| ルール | 内容 |
+|--------|------|
+| 質問数 | 1ラウンド 2-4問 |
+| ラウンド上限 | 最大3ラウンド |
+| 3ラウンド後 | 残る曖昧点は「TBD」として記録し次ステップへ |
+| スキップ条件 | 20語以上の具体的な記述があるカテゴリはスキップ可 |
+
+### 記録
+
+決定事項をplanファイルのTDD Context末尾に追記:
+
+```markdown
+### Ambiguity Resolution
+- Data: CSV形式、最大10,000行
+- Scope: UserControllerのみ変更
+- Edge cases: 空ファイル時はエラーメッセージ表示
+```
+
 ## Plan File Template {#plan-file-template}
 
 planファイルに記録するTDDコンテキストのテンプレート:
