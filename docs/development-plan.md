@@ -170,6 +170,14 @@ Addy Osmani「The Factory Model」から取り入れる改善。
 - ADR運用（entire.io等の外部ツール連携は将来検討）
 - 人間の役割再定義（対応不要）
 
+### 完了事項
+
+- init SKILL.md: Step 4.8 Ambiguity Detection 追加（93→99行）
+- init reference.md / reference.ja.md: Ambiguity Detection セクション追加（5カテゴリ、Questioning Protocol、3ラウンド上限）
+- red SKILL.md: Stage 1-3 構造に再編（96→89行）。旧Step 2-5の例示をreference.mdへ移動
+- red reference.md: Test Plan Stage / Test Plan Review セクション追加（Gap分析、DISCOVERED項目フロー）
+- tests/test-factory-model-adaptation.sh: TC-01〜TC-14（14テスト全PASS）
+
 ---
 
 ## Timeline

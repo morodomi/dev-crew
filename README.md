@@ -25,10 +25,10 @@ One command. All 33 agents, 29 skills, rules, and hooks are available.
 
 ```
 plan mode (設計フェーズ)
-  init → 探索 → 設計 → Test List → QA → approve
+  init (+ Ambiguity Detection) → 探索 → 設計 → Test List → QA → approve
 
 normal mode (実行フェーズ)
-  kickoff → red → green → /simplify → review → commit
+  kickoff → red (Plan → Review → Code) → green → /simplify → review → commit
 ```
 
 Claude Code組み込み機能（plan mode, /simplify, /compact）と連携し、

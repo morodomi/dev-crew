@@ -27,9 +27,9 @@ dev-crew/
 │   └── *-attacker.md +    # 19 security agents
 │       security specialists   (attackers, recon, DAST, etc.)
 ├── skills/                # 29 skills (flat)
-│   ├── init/              # TDD context setup (plan mode)
+│   ├── init/              # TDD context + Ambiguity Detection (plan mode)
 │   ├── kickoff/           # Plan file → Cycle doc
-│   ├── red/               # Failing tests
+│   ├── red/               # Test Plan → Review → Code (Stage 1-3)
 │   ├── green/             # Minimal implementation
 │   ├── refactor/          # /simplify delegation + Verification Gate
 │   ├── review/            # Quality check
@@ -65,7 +65,7 @@ dev-crew/
 
 ```
 plan mode (常にここから開始)
-  ├─ init: TDDコンテキスト設定（planファイルに記録）
+  ├─ init: TDDコンテキスト + 仕様曖昧性検出（Questioning Protocol）
   ├─ 探索・設計
   ├─ Test List定義
   └─ QAチェック
@@ -73,7 +73,7 @@ plan mode (常にここから開始)
 
 normal mode (実行フェーズ)
   ├─ kickoff: planファイル → Cycle doc生成
-  ├─ red: 失敗テスト作成
+  ├─ red: テスト計画検証 + 失敗テスト作成（Stage 1-3）
   ├─ green: 最小実装
   ├─ /simplify: コード品質改善（refactorスキルが委譲）
   ├─ review: リスクベースコードレビュー
