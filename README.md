@@ -75,7 +75,7 @@ learn, evolve, skill-maker
 
 ## Background Reading
 
-- [Claude Codeで33エージェント29スキルのAI開発チームを作った](https://note.com/morodomi/n/) (note.com)
+- [Claude Codeで33エージェント29スキルのAI開発チームを作った](https://note.com/morodomi/n/nd960ef99d0f3) (note.com)
 
 ## License
 
