@@ -1,5 +1,7 @@
 # dev-crew
 
+> **Not Maintained.** This repository is published as-is for reference. No issues, PRs, or feature requests will be addressed.
+
 AI development team environment for Claude Code. Install once, use across all projects.
 
 ## What is this?
@@ -8,7 +10,7 @@ A single Claude Code plugin that provides an autonomous AI development team:
 
 - **PdM** (Product Manager): Orchestrates the entire development workflow
 - **Engineer**: TDD-driven implementation (RED/GREEN/REFACTOR)
-- **Designer**: UI/UX design support (planned)
+- **Designer**: UI/UX design support (Japanese/Western pattern comparison)
 - **Security Auditor**: OWASP-based vulnerability scanning
 - **Reviewers**: Parallel code review (correctness, performance, security, architecture, etc.)
 - **Meta Learner**: Session pattern extraction and skill evolution
@@ -70,6 +72,10 @@ php-quality, python-quality, ts-quality, js-quality, flask-quality, flutter-qual
 
 ### Meta/Tooling (3)
 learn, evolve, skill-maker
+
+## Background Reading
+
+- [Claude Codeで33エージェント29スキルのAI開発チームを作った](https://note.com/morodomi/n/) (note.com)
 
 ## License
 

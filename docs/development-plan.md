@@ -100,7 +100,7 @@ self-contained型からオーケストレータ型ワークフローへ再設計
 
 ---
 
-## Phase 6: Next Evolution (Planning)
+## Phase 6: Next Evolution (DONE)
 
 ### Closed Issues
 
@@ -111,15 +111,10 @@ self-contained型からオーケストレータ型ワークフローへ再設計
 | #32 | HTML コメント構造保護の検証 | P2 | Closed |
 | #19 | designer レビュー価値の検証 | P2 | Closed |
 | #8 | hook-based tool output filtering | P2 | Closed |
+| #36 | Risk Classifier チューニング (LOW閾値の実運用検証) | P2 | Closed |
+| #38 | On-Demand Capabilities (OSS調査・E2Eベンチマーク) | P2 | Closed |
 
-### Open Issues
-
-| Issue | Title | Priority |
-|-------|-------|----------|
-| #36 | Risk Classifier チューニング (LOW閾値の実運用検証) | P2 |
-| #38 | On-Demand Capabilities (OSS調査・E2Eベンチマーク) | P2 |
-
-### Evolution Themes
+### Evolution Themes (Closed)
 
 1. **Risk Classifier チューニング** - LOW閾値 (0-29) の実運用データ収集後に再調整
 2. **Usability 改善** - mode判定の明示化、BLOCK復帰フロー、agent出力形式統一
@@ -191,5 +186,5 @@ Addy Osmani「The Factory Model」から取り入れる改善。
 | Phase 4 | Optimization | DONE |
 | Phase 5 | v2 Restructuring | DONE |
 | Phase 5.5 | Orchestrator Redesign | DONE |
-| Phase 6 | Next Evolution | Planning |
+| Phase 6 | Next Evolution | DONE |
 | Phase 7 | Factory Model Adaptation | DONE |
