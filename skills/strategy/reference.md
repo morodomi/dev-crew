@@ -60,3 +60,27 @@ Strategy (Phase A) で作成した Issues は:
 2. `orchestrate` で TDD サイクル (Phase B) を実行
 3. Discovered items は `gh issue create` で自動登録
 4. 次の `search-task` で自動的に拾える
+
+## Questioning Protocol
+
+### AskUserQuestion テンプレート
+
+各質問は以下の形式で提示:
+- question: 判断が必要な論点
+- options: 2-4個、各選択肢に pros/cons を description に含める
+- multiSelect: 原則 false
+
+### 決定記録テーブル
+
+| # | 論点 | 選択肢 | 決定 | 理由 |
+|---|------|--------|------|------|
+| D1 | [論点] | A / B / C | [選択] | [根拠] |
+| D2 | [論点] | A / B | TBD | 実装フェーズで判明次第決定 |
+
+Issue作成時にTechnical Notesへ転記する。
+
+### ラウンド上限
+
+- 1ステップ最大3ラウンド
+- 3ラウンド後の曖昧点は「TBD」として記録し次ステップへ
+- TBDはIssueのAcceptance Criteriaに「要確認」として明記
