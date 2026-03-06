@@ -113,7 +113,7 @@ Step 4 完了後、Cycle doc の Implementation Notes に以下を追記:
 
 ## トリガーキーワード
 
-init の BLOCK 判定時に以下のキーワードで自動起動:
+spec の BLOCK 判定時に以下のキーワードで自動起動:
 
 | キーワード | 言語 |
 |-----------|------|

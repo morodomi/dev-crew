@@ -31,7 +31,7 @@ PdM (Product Manager) オーケストレータの詳細ガイド。
 
 | Phase | Owner | 委譲先 |
 |-------|-------|--------|
-| INIT (plan mode) | PdM (Lead) 直接実行 | Skill(init) |
+| SPEC (plan mode) | PdM (Lead) 直接実行 | Skill(spec) |
 | KICKOFF (Design Review Gate) | PdM → architect | Skill(kickoff) + Design Review Gate |
 | RED | PdM → N red-worker | 並列テスト作成 |
 | GREEN | PdM → N green-worker | 並列実装 |

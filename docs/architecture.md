@@ -11,7 +11,7 @@ Engineer、Designer、Security Auditorが各フェーズを担当する。
 ```
 User
   │
-  ├── plan mode で /init
+  ├── plan mode で /spec
   │
   ▼
 ┌─────────────────────────────────────────────┐
@@ -59,7 +59,7 @@ dev-crew/
 │   ├── Security (18): *-attacker.md, recon-agent.md, etc.
 │   └── Meta: observer.md
 ├── skills/                       # 29 skills (flat)
-│   ├── Workflow (8): init/, kickoff/, red/, green/, refactor/, review/, commit/, reload/
+│   ├── Workflow (8): spec/, kickoff/, red/, green/, refactor/, review/, commit/, reload/
 │   ├── Orchestration (3): orchestrate/, phase-compact/, strategy/
 │   ├── Diagnostic (2): diagnose/, parallel/
 │   ├── Setup (2): onboard/, skill-maker/

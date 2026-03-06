@@ -28,7 +28,7 @@ orchestrate 開始前に、Issue 番号と cycle doc の対応を確認する:
 3. 分岐処理:
    - cycle doc が存在 → path を確定し、Block 1 へ
    - cycle doc が存在しない → plan mode で開始:
-     1. `Skill(dev-crew:init)` でTDDコンテキスト設定（planファイルに記録）
+     1. `Skill(dev-crew:spec)` でTDDコンテキスト設定（planファイルに記録）
      2. 探索・設計・Test List・QAチェックをplan mode内で実施
      3. approve → auto-compact → normal modeへ → Block 1 へ
 

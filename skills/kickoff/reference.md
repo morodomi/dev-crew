@@ -113,7 +113,7 @@ planファイルが見つかりません。
 
 plan modeでINIT + 設計を先に実行してください:
 1. EnterPlanMode
-2. /init
+2. /spec
 3. 探索・設計・Test List作成
 4. approve
 ```

@@ -27,7 +27,7 @@ One command. All 33 agents, 29 skills, rules, and hooks are available.
 
 ```
 plan mode (設計フェーズ)
-  init (+ Ambiguity Detection) → 探索 → 設計 → Test List → QA → approve
+  spec (+ Ambiguity Detection) → 探索 → 設計 → Test List → QA → approve
 
 normal mode (実行フェーズ)
   kickoff → red (Plan → Review → Code) → green → /simplify → review → commit
@@ -62,7 +62,7 @@ dev-crew/
 ## Skills
 
 ### Development Workflow (14)
-init, kickoff, red, green, refactor, review, commit, orchestrate, strategy, diagnose, parallel, onboard, phase-compact, reload
+spec, kickoff, red, green, refactor, review, commit, orchestrate, strategy, diagnose, parallel, onboard, phase-compact, reload
 
 ### Security (5)
 security-scan, attack-report, context-review, generate-e2e, security-audit

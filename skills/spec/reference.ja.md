@@ -1,4 +1,4 @@
-# init Reference (Japanese)
+# spec Reference (Japanese)
 
 SKILL.mdの詳細情報。必要時のみ参照。
 

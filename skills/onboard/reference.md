@@ -202,7 +202,7 @@ CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 → Agent Teams、それ以外 → 並行
 |---------|------|
 | 詰め込み (overstuffing) | 指示数 ~200 超で全体の遵守率が低下 |
 | リンター代替 (linter substitute) | フォーマットルールは静的解析に任せる |
-| `/init` 出力そのまま使用 | 不要な情報が多く含まれる |
+| `/spec` 出力そのまま使用 | 不要な情報が多く含まれる |
 | 禁止のみで代替なし (prohibition-only) | 「何をすべきか」を書く |
 | IMPORTANT/YOU MUST の乱用 | 強調は少数に限定。多用で効果が薄れる |
 
@@ -271,7 +271,7 @@ hookなし → セットアップ推奨。
 
 ## Step 8: 初期Cycle doc
 
-init スキルの [templates/cycle.md](../init/templates/cycle.md) をベースに `docs/cycles/YYYYMMDD_0000_project-setup.md` を作成。
+spec スキルの [templates/cycle.md](../spec/templates/cycle.md) をベースに `docs/cycles/YYYYMMDD_0000_project-setup.md` を作成。
 
 ---
 

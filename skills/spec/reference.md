@@ -1,4 +1,4 @@
-# init Reference
+# spec Reference
 
 Detailed information for SKILL.md. Refer only when needed.
 

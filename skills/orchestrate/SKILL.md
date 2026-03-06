@@ -13,7 +13,7 @@ plan mode起点でワークフロー制御を行う。
 
 ```
 orchestrate Progress:
-- [ ] Block 0: plan mode → INIT → 探索・設計 → Test List → QA → approve
+- [ ] Block 0: plan mode → SPEC → 探索・設計 → Test List → QA → approve
 - [ ] Block 1: kickoff (with Design Review) → 自律判断
 - [ ] Block 2: RED → GREEN → /simplify → review(code) → 自律判断 → DISCOVERED
 - [ ] Block 3: COMMIT → 完了
@@ -31,7 +31,7 @@ orchestrate Progress:
 
 plan modeで開始し、以下を実行:
 
-1. **INIT**: `Skill(dev-crew:init)` でTDDコンテキスト設定（planファイルに記録）
+1. **SPEC**: `Skill(dev-crew:spec)` でTDDコンテキスト設定（planファイルに記録）
 2. **探索**: コードベース調査（最低5ファイル読む）
 3. **設計**: アーキテクチャ決定、設計方針の記録
 4. **Test List**: 正常系/境界値/エッジケース/異常系（Given/When/Then形式）

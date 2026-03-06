@@ -129,11 +129,11 @@ Addy Osmani「The Factory Model」から取り入れる改善。
 
 ### 7.1 Spec Precision (仕様精度の強化)
 
-**課題**: initスキルのStep 4「何を実装するか聞く」が1問で終わり、曖昧な仕様がそのまま下流に流れる。
+**課題**: specスキルのStep 4「何を実装するか聞く」が1問で終わり、曖昧な仕様がそのまま下流に流れる。
 
 **方針**: fumiya-kume/claude-code digプラグインのアプローチを参考に、AskUserQuestionによる構造化質問でplan mode内の曖昧さを体系的に排除する。
 
-**対象スキル**: init (Step 4強化)
+**対象スキル**: spec (Step 4強化)
 
 **設計方針**:
 - カテゴリ別の曖昧性検出（データ、API、UI/UX、スコープ、エッジケース）
@@ -167,8 +167,8 @@ Addy Osmani「The Factory Model」から取り入れる改善。
 
 ### 完了事項
 
-- init SKILL.md: Step 4.8 Ambiguity Detection 追加（93→99行）
-- init reference.md / reference.ja.md: Ambiguity Detection セクション追加（5カテゴリ、Questioning Protocol、3ラウンド上限）
+- spec SKILL.md: Step 4.8 Ambiguity Detection 追加（93→99行）
+- spec reference.md / reference.ja.md: Ambiguity Detection セクション追加（5カテゴリ、Questioning Protocol、3ラウンド上限）
 - red SKILL.md: Stage 1-3 構造に再編（96→89行）。旧Step 2-5の例示をreference.mdへ移動
 - red reference.md: Test Plan Stage / Test Plan Review セクション追加（Gap分析、DISCOVERED項目フロー）
 - tests/test-factory-model-adaptation.sh: TC-01〜TC-14（14テスト全PASS）

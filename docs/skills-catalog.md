@@ -6,7 +6,7 @@
 
 | Skill | Origin | Rename | Description |
 |-------|--------|--------|-------------|
-| init | tdd-init | Yes (remove tdd-) | TDDコンテキスト設定 + 仕様曖昧性検出（Questioning Protocol, 5カテゴリ） |
+| spec | tdd-init | Yes (remove tdd-) | TDDコンテキスト設定 + 仕様曖昧性検出（Questioning Protocol, 5カテゴリ） |
 | kickoff | tdd-plan | Yes (plan→kickoff) | planファイル→Cycle doc生成 |
 | red | tdd-red | Yes | テスト計画検証(Stage 1-3) + テストコード作成。red-workerを並列spawn |
 | green | tdd-green | Yes | テストを通す最小実装。green-workerを並列spawn |

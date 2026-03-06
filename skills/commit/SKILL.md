@@ -84,7 +84,7 @@ git commit -m "..."
 
 ```
 TDDサイクル完了: [hash] - [機能名]
-次: git push / init で新サイクル開始
+次: git push / spec で新サイクル開始
 ```
 
 ### Step 8: Auto-Learn (Optional)

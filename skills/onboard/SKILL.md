@@ -88,7 +88,7 @@ hookなし → セットアップ推奨。詳細は [reference.md](reference.md)
 
 ### Step 9: 完了
 
-セットアップ完了メッセージを表示。次: init で開発開始。
+セットアップ完了メッセージを表示。次: spec で開発開始。
 CLAUDE.md のメンテナンス（定期レビュー・Feedback Loop）について [reference.md](reference.md) を案内。
 
 ## Reference: [reference.md](reference.md)

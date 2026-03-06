@@ -27,7 +27,7 @@ dev-crew/
 │   └── *-attacker.md +    # 19 security agents
 │       security specialists   (attackers, recon, DAST, etc.)
 ├── skills/                # 29 skills (flat)
-│   ├── init/              # TDD context + Ambiguity Detection (plan mode)
+│   ├── spec/              # TDD context + Ambiguity Detection (plan mode)
 │   ├── kickoff/           # Plan file → Cycle doc
 │   ├── red/               # Test Plan → Review → Code (Stage 1-3)
 │   ├── green/             # Minimal implementation
@@ -65,7 +65,7 @@ dev-crew/
 
 ```
 plan mode (常にここから開始)
-  ├─ init: TDDコンテキスト + 仕様曖昧性検出（Questioning Protocol）
+  ├─ spec: TDDコンテキスト + 仕様曖昧性検出（Questioning Protocol）
   ├─ 探索・設計
   ├─ Test List定義
   └─ QAチェック
@@ -81,7 +81,7 @@ normal mode (実行フェーズ)
 ```
 
 Claude Code組み込み機能との連携:
-- plan mode: init + 設計をplanファイルに集約
+- plan mode: spec + 設計をplanファイルに集約
 - /simplify: refactorスキルが実行を委譲
 - /compact: phase-compactスキルがCycle doc更新後に案内
 
@@ -123,14 +123,14 @@ feat | fix | docs | refactor | test | chore
 
 | Skill | Trigger | Phase |
 |-------|---------|-------|
-| init | "start", "new feature" | INIT (plan mode) |
+| spec | "spec", "new feature" | SPEC (plan mode) |
 | kickoff | "kickoff" | KICKOFF |
 | red | "write test", "red" | RED |
 | green | "implement", "green" | GREEN |
 | refactor | "refactor" | REFACTOR (/simplify委譲) |
 | review | "review" | REVIEW |
 | commit | "commit" | COMMIT |
-| orchestrate | (auto from init) | META |
+| orchestrate | (auto from spec) | META |
 | phase-compact | (auto between phases) | META |
 | reload | "reload", "コンテキスト復元" | META |
 | strategy | "strategy", "企画" | PHASE A |
@@ -152,8 +152,8 @@ feat | fix | docs | refactor | test | chore
 | シナリオ | モード | Context管理 |
 |---------|--------|------------|
 | タスク探し | plan mode | search-task → strategy |
-| 小〜中規模 | plan mode → accept edits on | init(plan mode) → kickoff → red → green → /simplify → review → commit |
+| 小〜中規模 | plan mode → accept edits on | spec(plan mode) → kickoff → red → green → /simplify → review → commit |
 | 中規模 + 圧縮 | plan mode → accept edits on | phase-compact → /compact → /reload を各フェーズ間で |
-| 大規模 (自動) | plan mode → accept edits on (AGENT_TEAMS=1) | init → orchestrate（Task()で自動分離）|
+| 大規模 (自動) | plan mode → accept edits on (AGENT_TEAMS=1) | spec → orchestrate（Task()で自動分離）|
 | セッション再開 | accept edits on | /reload → 現在フェーズから継続 |
 | auto-learn 有効 | accept edits on (DEV_CREW_AUTO_LEARN=1) | commit 後に自動で learn 実行 (20件以上の観測時) |

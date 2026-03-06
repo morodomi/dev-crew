@@ -42,7 +42,7 @@
 
 | Intent | Japanese | English | Skill |
 |--------|----------|---------|-------|
-| 新機能開発 | 「機能追加」「新しい機能」 | "new feature", "start" | init |
+| 新機能開発 | 「機能追加」「新しい機能」 | "new feature", "spec" | spec |
 | キックオフ | 「キックオフ」 | "kickoff" | kickoff |
 | テスト作成 | 「テスト書いて」 | "red", "write test" | red |
 | 実装 | 「実装して」 | "green", "implement" | green |
@@ -72,7 +72,7 @@ User: 「ログイン機能を追加して」
 ### Manual (skill-by-skill)
 
 ```
-User: /init
+User: /spec
 User: /plan
 User: /red
 User: /green
