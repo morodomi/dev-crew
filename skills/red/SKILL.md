@@ -16,6 +16,7 @@ RED Progress:
 - [ ] Stage 1: テスト計画の正式化
 - [ ] Stage 2: テスト計画の検証
 - [ ] Stage 3: テストコード作成・失敗確認
+- [ ] exspec check (optional)
 - [ ] Cycle doc更新（WIP→DONE相当）
 - [ ] 完了メッセージ表示
 ```
@@ -71,6 +72,16 @@ Taskツールで `dev-crew:red-worker` を並列起動。詳細: [reference.md](
 #### テスト実行→失敗確認
 
 テストを実行し**失敗**を確認（RED状態）。実行例: [reference.md](reference.md#test-execution)
+
+### exspec check (optional)
+
+テスト設計品質の静的解析。exspecインストール済みの場合のみ実行。
+
+1. `which exspec` で存在確認。未インストール → スキップしてVerification Gateへ
+2. `exspec --format json {test_files}` を実行（non-strictモード）
+3. exit 0 → PASS、Verification Gateへ
+4. exit 1 (BLOCK) → `exspec {test_files}` で人間可読出力を取得し、red-workerへフィードバック。最大2回リトライ
+5. 2回失敗 → AskUserQuestionで判断を仰ぐ
 
 ### Verification Gate
 
