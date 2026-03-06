@@ -53,7 +53,7 @@
 | Agent | Origin | Description |
 |-------|--------|-------------|
 | architect | architect | KICKOFFフェーズ。Design Review Gate + planファイル→Cycle doc変換 |
-| red-worker | red-worker | REDテスト作成ワーカー |
+| red-worker | red-worker | REDテスト作成ワーカー。Step 0で決定論的/確率的を判定しテスト戦略を選択 |
 | green-worker | green-worker | GREEN実装ワーカー |
 | refactorer | refactorer | REFACTORコード改善 |
 
