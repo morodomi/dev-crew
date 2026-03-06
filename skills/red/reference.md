@@ -208,3 +208,46 @@ def test_user_can_login():
 1. 依存関係がインストールされているか
 2. 設定ファイルが正しいか
 ```
+
+## Test Architecture Guide {#test-architecture-guide}
+
+テスト = 仕様の実行可能な表現（Executable Specification）。
+詳細な思想・不採用記録: `Keiba/docs/test_architecture.md`
+
+### 2領域モデル
+
+| 領域 | テスト戦略 | 具体例 |
+|------|-----------|--------|
+| 決定論的 | Data Contract + Property-Based Testing | 特徴量計算、データ変換、CRUD |
+| 確率的 | Metamorphic Testing + 統計的Property | ML推論、レコメンド、シミュレーション |
+
+### テスト設計原則
+
+| 原則 | 内容 | 違反例 |
+|------|------|--------|
+| What not How | 入出力の契約を検証。実装手順を検証しない | 内部メソッド呼び出し順のアサート |
+| DAMP over DRY | テスト内で仕様が完結する | 共通ヘルパーに隠れた前提条件 |
+| Self-contained | 1ファイル内でContract+Propertiesが完結 | conftest.pyへの過度な依存 |
+
+### Mock方針
+
+- 内部実装詳細への過度なmockは避ける
+- 外部依存（API、DB、ファイルシステム）は最小限のmockでOK
+- mockを使う場合、mockの振る舞いが実際のサービスと一致することを確認
+
+### 言語別ツールマッピング
+
+| 言語 | Data Contract | Property-Based Testing |
+|------|--------------|----------------------|
+| Python | Pandera / Pydantic | Hypothesis |
+| TypeScript | Zod / io-ts | fast-check |
+| PHP | Laravel Validation / typed properties | parametrized test (フォールバック) |
+| Flutter/Dart | freezed + json_serializable | parametrized test (フォールバック) |
+| Hugo | YAML Schema / Frontmatter validation | N/A |
+
+### フォールバック戦略（PBTライブラリなし環境）
+
+PBTライブラリが未導入 or 未成熟の場合:
+- **Contract**: 型定義 + バリデーション関数で代替
+- **Property**: パラメタライズドテスト（境界値を人間/AIが網羅した配列で検証）
+- **精神は同じ**: 「具体例の羅列」ではなく「不変量の検証」を意識する

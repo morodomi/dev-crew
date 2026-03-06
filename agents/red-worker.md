@@ -67,6 +67,19 @@ Cycle doc: docs/cycles/20260126_1130_feature.md
 
 ## Workflow
 
+### Step 0: Test Strategy Classification
+
+テスト対象コードの性質を判定し、テスト戦略を選択する。
+
+| 性質 | 判定基準 | テスト戦略 |
+|------|---------|-----------|
+| 決定論的 | 同じ入力→同じ出力。ビジネスロジック、データ変換、特徴量計算 | Contract（入出力スキーマ定義）+ Property（不変量検証）優先 |
+| 確率的 | 出力にばらつき。ML推論、確率アルゴリズム、シミュレーション | Metamorphic Relation（入力変換と出力の相対関係）定義 |
+
+- 判定に迷ったら**決定論的**として扱う
+- **バグ修正の場合**: 再現テスト優先。分類はスキップ可
+- 戦略の詳細・言語別ツール: [red/reference.md](../skills/red/reference.md#test-architecture-guide)
+
 1. Cycle docを読み、Test Listと設計方針を把握（存在しない場合はエラー返却）
 2. 担当テストケースの内容を確認
 3. Given/When/Then形式でテストコードを作成（Edit/Write）
