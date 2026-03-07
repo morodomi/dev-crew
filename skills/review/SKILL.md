@@ -1,7 +1,7 @@
 ---
 name: review
 description: 統一レビュースキル。mode "plan"（設計レビュー）または "code"（コードレビュー）で動作。Risk-based scaling でエージェント数を最適化。REFACTORの次フェーズ。「レビューして」「review」で起動。
-allowed-tools: Task, Read, Bash, Grep, Glob
+allowed-tools: Task, Read, Edit, Bash, Grep, Glob
 ---
 
 # Unified Review
@@ -16,69 +16,44 @@ allowed-tools: Task, Read, Bash, Grep, Glob
 | `--code` or REFACTOR直後 | "code" | `git diff HEAD` |
 | 引数なし | "code" (default) | `git diff HEAD` |
 
-## Progress Checklist
-
-```
-review Progress:
-- [ ] Step 0: Mode 判定
-- [ ] Step 1: Risk Classification (決定論的)
-- [ ] Step 2: Review Brief 生成 (haiku)
-- [ ] Step 3: Lint-as-Code (code mode のみ)
-- [ ] Step 4: Specialist Panel (並行起動, risk-gated)
-- [ ] Step 5: Score Aggregation -> PASS/WARN/BLOCK
-- [ ] Step 6: DISCOVERED -> gh issue create
-```
-
 ## Workflow
 
-### Step 0: Mode 判定
+### Step 0: Cycle doc確認（Hard Gate）
 
-引数または直前フェーズから mode を決定し、ユーザーに明示出力する。
-出力: `[REVIEW] Mode: plan (設計レビュー)` or `[REVIEW] Mode: code (コードレビュー)`
+```bash
+CYCLE_DOC=$(grep -L 'phase: DONE' docs/cycles/*.md 2>/dev/null | head -1)
+```
 
-### Step 1: Risk Classification
+| 結果 | アクション |
+|------|-----------|
+| 見つかった | Cycle doc を読み込んで続行 |
+| 見つからない | BLOCK: 「進行中の Cycle doc がありません。kickoff を実行してください」で中断 |
 
-`skills/review/risk-classifier.sh` で決定論的にリスクレベルを判定（LLM不使用）。
-手順: [steps-subagent.md](steps-subagent.md)
+**Phase Ordering Gate**: Progress Log に `REFACTOR` の `Phase completed` 記録があるか確認。なければ BLOCK: 「先に refactor を実行してください」
 
-### Step 2: Review Brief (haiku)
+Mode を判定し出力: `[REVIEW] Mode: plan` or `[REVIEW] Mode: code`
 
-review-briefer (haiku) で diff/plan を圧縮した Brief を生成。
+### Step 1-5: Review Pipeline
 
-### Step 3: Lint-as-Code (code mode のみ)
+1. **Risk Classification**: `risk-classifier.sh` で決定論的判定
+2. **Review Brief**: review-briefer (haiku) で圧縮 Brief 生成
+3. **Lint-as-Code** (code mode のみ): 静的解析ツール実行
+4. **Specialist Panel**: Always-on: security-reviewer + correctness-reviewer (code) / design-reviewer (plan)。Risk-gated: performance/product/usability-reviewer。詳細: [steps-subagent.md](steps-subagent.md)
+5. **Score Aggregation**: 80-100=BLOCK(plan→PLAN再設計/code→RED/GREEN/REFACTOR) / 50-79=WARN / 0-49=PASS
 
-静的解析ツール実行（ESLint/PHPStan/mypy等）。LLMコスト0。
+### Step 6: Cycle doc更新（Progress Log）
 
-### Step 4: Specialist Panel
+Cycle doc の Progress Log に追記し、frontmatter の `phase` を `REVIEW`、`updated` を現在時刻に更新:
 
-Risk level に応じてエージェント数をスケール:
+```markdown
+### YYYY-MM-DD HH:MM - REVIEW
+- review(code) score:NN verdict:PASS/WARN/BLOCK
+- Phase completed
+```
 
-**Always-on (code mode)**:
-- security-reviewer (NON-NEGOTIABLE)
-- correctness-reviewer (NON-NEGOTIABLE)
+### Step 7: DISCOVERED -> Issue
 
-**Always-on (plan mode)**:
-- design-reviewer
-
-**Risk-gated**:
-- performance-reviewer (DB/perf flags)
-- product-reviewer (API/user-facing flags)
-- usability-reviewer (UI flags)
-
-手順: [steps-subagent.md](steps-subagent.md)
-
-### Step 5: Score Aggregation
-
-| 最大スコア | 判定 | アクション |
-|-----------|------|-----------|
-| 80-100 | BLOCK | 修正必須 (plan→PLAN再設計 / code→RED/GREEN/REFACTOR) |
-| 50-79 | WARN | 警告表示、継続可能 |
-| 0-49 | PASS | 問題なし |
-
-### Step 6: DISCOVERED -> Issue
-
-Cycle doc の DISCOVERED セクションを確認し、未起票項目を `gh issue create` で起票。
-詳細: [reference.md](reference.md#discovered-issue-起票)
+Cycle doc の DISCOVERED セクション未起票項目を `gh issue create` で起票。詳細: [reference.md](reference.md#discovered-issue-起票)
 
 ## Reference
 

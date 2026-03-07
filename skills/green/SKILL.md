@@ -8,19 +8,6 @@ allowed-tools: Task, Read, Write, Edit, Bash, Grep, Glob
 
 テストを通すための最小限の実装を行う（並列実行がデフォルト）。
 
-## Progress Checklist
-
-```
-GREEN Progress:
-- [ ] Cycle doc確認、WIPテスト抽出
-- [ ] ファイル依存関係分析
-- [ ] green-worker並列起動
-- [ ] 結果収集・マージ
-- [ ] 全テスト実行→成功確認
-- [ ] Cycle doc更新（WIP→DONE）
-- [ ] 完了メッセージ表示
-```
-
 ## 禁止事項
 
 - 過剰な実装（テストに必要ない機能）
@@ -29,33 +16,26 @@ GREEN Progress:
 
 ## Workflow
 
-### Step 1: Cycle doc確認
+### Step 1: Cycle doc確認（Hard Gate）
 
 ```bash
-ls -t docs/cycles/*.md 2>/dev/null | head -1
+CYCLE_DOC=$(grep -L 'phase: DONE' docs/cycles/*.md 2>/dev/null | head -1)
 ```
+
+| 結果 | アクション |
+|------|-----------|
+| 見つかった | Cycle doc を読み込んで続行 |
+| 見つからない | BLOCK: 「進行中の Cycle doc がありません。kickoff を実行してください」で中断 |
 
 WIPのテストケースを抽出。
 
 ### Step 2: ファイル依存関係分析
 
-テストケースを対象ファイル別にグルーピング:
-
-| ファイル | テストケース |
-|----------|-------------|
-| src/Auth.php | TC-01, TC-02 |
-| src/User.php | TC-03 |
-
-**原則**: 同一ファイル→同一workerに割り当て（競合回避）
+テストケースを対象ファイル別にグルーピング。同一ファイル→同一workerに割り当て（競合回避）。
 
 ### Step 3: green-worker並列起動
 
-Taskツールで `dev-crew:green-worker` を並列起動:
-
-```
-Task 1: TC-01, TC-02 → src/Auth.php
-Task 2: TC-03 → src/User.php
-```
+Taskツールで `dev-crew:green-worker` を並列起動。
 
 ### Step 4: 結果収集・マージ
 
@@ -63,12 +43,7 @@ Task 2: TC-03 → src/User.php
 
 ### Step 5: 全テスト実行→成功確認
 
-```bash
-php artisan test  # PHP
-pytest            # Python
-```
-
-**期待**: 全テストが**成功**すること（GREEN状態）
+全テストが**成功**すること（GREEN状態）を確認。
 
 ### Verification Gate
 
@@ -77,22 +52,21 @@ pytest            # Python
 | 全テスト成功 | PASS | REFACTORへ自動進行 |
 | テスト失敗 | BLOCK | 該当worker再試行 |
 
-### Step 6: 完了
+### Step 6: Cycle doc更新（Progress Log）
 
-```
-================================================================================
-GREEN完了
-================================================================================
-全テスト成功を確認しました。
+Cycle doc の Progress Log に追記し、frontmatter の `phase` を `GREEN`、`updated` を現在時刻に更新:
 
-次のステップ:
-- Orchestrate使用時: 自動的にREFACTORが実行されます
-- 手動実行時: /refactor で次フェーズを開始してください
-================================================================================
+```markdown
+### YYYY-MM-DD HH:MM - GREEN
+- Implementation complete, all tests passing
+- Phase completed
 ```
+
+### Step 7: 完了
+
+GREEN完了。次: Orchestrate時は自動REFACTOR / 手動時は `/refactor`。
 
 ## Reference
 
 - 詳細: [reference.md](reference.md)
 - green-worker: [../../agents/green-worker.md](../../agents/green-worker.md)
-- Phase Completion（圧縮ガイダンス）: [reference.md#phase-completion](reference.md#phase-completion)

@@ -1,96 +1,71 @@
 ---
 name: commit
 description: 変更をGitコミットしてTDDサイクルを完了する。REVIEWの次フェーズ。「コミットして」「commit」で起動。
-allowed-tools: Read, Bash
+allowed-tools: Read, Write, Edit, Bash
 ---
 
 # TDD COMMIT Phase
 
 変更をGitコミットしてTDDサイクルを完了する。
 
-## Progress Checklist
-
-```
-COMMIT Progress:
-- [ ] git status/diff 確認
-- [ ] Pre-commit Hook確認
-- [ ] Cycle doc更新 (phase: DONE)
-- [ ] STATUS.md 更新
-- [ ] git add & commit
-- [ ] サイクル完了
-- [ ] Auto-Learn チェック
-```
-
 ## Workflow
 
-### Step 1: 変更確認
+### Step 1: Cycle doc確認（Hard Gate）
 
 ```bash
-git status
-git diff --stat
+CYCLE_DOC=$(grep -L 'phase: DONE' docs/cycles/*.md 2>/dev/null | head -1)
 ```
 
-### Step 2: Pre-commit Hook確認
+| 結果 | アクション |
+|------|-----------|
+| 見つかった | Cycle doc を読み込んで続行 |
+| 見つからない | BLOCK: 「進行中の Cycle doc がありません。kickoff を実行してください」で中断 |
 
-コミット時のテスト自動実行を確認:
+**Phase Ordering Gate**: Progress Log に `REVIEW` の `Phase completed` 記録があるか確認。なければ BLOCK: 「先に review を実行してください」
+
+### Step 2: 変更確認 + Pre-commit Hook
 
 ```bash
+git status && git diff --stat
 ls .husky/pre-commit .git/hooks/pre-commit 2>/dev/null
 ```
 
-| 状態 | メッセージ |
-|------|-----------|
-| hookあり | コミット時に自動実行されます |
-| hookなし | 手動でテスト実行を推奨（reviewで実行済みならOK） |
+### Step 3: ドキュメント更新
 
-### Step 3: Cycle doc更新
-
-phase を DONE に変更。Next Stepsを更新。
-
-### Step 4: docs/STATUS.md 更新
+| ドキュメント | 条件 | 更新内容 |
+|------------|------|---------|
+| Cycle doc | 常に | phase: DONE, Progress Log に COMMIT 記録 |
+| STATUS.md | 常に | 完了タスクを Completed に移動 |
+| README.md | skills/ or agents/ 変更時 | スキル一覧・構成の更新 |
+| CLAUDE.md | skills/ or agents/ 変更時 | Skills セクションの更新 |
 
 ```bash
-gh issue list --limit 10 --json number,title,labels
-ls -t docs/cycles/*.md | head -5
+git diff --name-only HEAD | grep -qE '^(skills|agents)/' && echo "UPDATE" || echo "SKIP"
 ```
 
-STATUS.md を最新状態に更新。
+Progress Log に追記し、frontmatter の `phase` を `DONE`、`updated` を現在時刻に更新:
 
-### Step 5: コミットメッセージ生成
-
-**Type**: feat / fix / refactor / test
-
-Cycle doc の issue 参照（`issue: #NN` or `issue: ...`）を確認し、コミットメッセージに含める:
-
-```
-<type>: <subject> (#<issue_number>)
-
-<body>
-
-Refs #<issue_number>
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+```markdown
+### YYYY-MM-DD HH:MM - COMMIT
+- Committed: [hash]
+- Phase completed
 ```
 
-issue 参照がない場合は `Refs #` 行を省略する。
+### Step 4: コミットメッセージ生成 + 実行
 
-### Step 6: git add & git commit
+Type: feat / fix / refactor / test。Cycle doc の issue 参照を含める。詳細: [reference.md](reference.md#commit-message)
 
 ```bash
-git add <files>
-git commit -m "..."
+git add <files> && git commit -m "..."
 ```
 
-### Step 7: サイクル完了
+### Step 5: サイクル完了
 
-```
-TDDサイクル完了: [hash] - [機能名]
-次: git push / spec で新サイクル開始
-```
+`TDDサイクル完了: [hash] - [機能名]` を出力。
 
-### Step 8: Auto-Learn (Optional)
+### Step 6: Auto-Learn (Optional)
 
-`DEV_CREW_AUTO_LEARN=1` かつ観測数 20件以上で learn スキルを自動実行。
-失敗時は警告のみ (best-effort)。詳細: [reference.md](reference.md#auto-learn)
+`DEV_CREW_AUTO_LEARN=1` かつ観測数 20件以上で learn スキル自動実行。詳細: [reference.md](reference.md#auto-learn)
 
 ## Reference
 

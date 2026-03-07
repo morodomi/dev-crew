@@ -86,6 +86,22 @@ updated: YYYY-MM-DD HH:MM
 
 ## Progress Log
 
+Format for each phase entry:
+
+```
+### YYYY-MM-DD HH:MM - PHASE_NAME
+- [completed action]
+- Phase completed
+```
+
+Phase-specific content:
+- KICKOFF: `Cycle doc created`
+- RED: `Test code created, N tests failing`
+- GREEN: `Implementation complete, all tests passing`
+- REFACTOR: `/simplify + Verification Gate passed`
+- REVIEW: `review(code) score:NN verdict:PASS/WARN/BLOCK`
+- COMMIT: `Committed: [hash]`
+
 ### YYYY-MM-DD HH:MM - INIT
 - Cycle doc created
 - Scope definition ready
