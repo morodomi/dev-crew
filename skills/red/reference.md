@@ -17,8 +17,23 @@ Test List の各項目を以下の形式で詳細化:
 - **When**: [操作 + 具体入力値]
 - **Then**: [期待結果 + 具体出力値]
 - **Category**: [正常系 / 異常系 / 境界値 / 権限 / セキュリティ]
+- **Paradigm**: [Contract / Property / Metamorphic / Example]
+- **Invariant**: [不変量の記述（Property/Metamorphic時。Example時は省略可）]
 - **Test File**: [tests/xxx_test.{ext}]
 ```
+
+### Paradigm Selection ガイド
+
+Step 0 の2領域分類結果に基づき、Paradigm欄を設定する:
+
+| 分類結果 | 推奨Paradigm | Invariant記述例 |
+|---------|-------------|----------------|
+| 決定論的 | Contract + Property | 「出力スキーマが常にXを満たす」「正規化は冪等」 |
+| 確率的 | Metamorphic | 「入力スケールを変えても順位は不変」「強い要素追加で既存スコア低下」 |
+| バグ修正 | Example | 省略可（再現テストに集中） |
+
+- Paradigm欄が**Example のみ**の場合、不変量を意識的に検討したか確認する
+- 検討の上で Example が最適と判断した場合はそのまま進行（強制しない）
 
 ### 簡潔→詳細TC変換の例
 
@@ -40,6 +55,8 @@ Cycle doc に「## Formal Test Plan」セクションとして追記:
 - When: POST /api/login with valid credentials
 - Then: 200 OK, セッション作成, ダッシュボードへリダイレクト
 - Category: 正常系
+- Paradigm: Contract
+- Invariant: レスポンスは常に {status, token, user} スキーマを満たす
 - Test File: tests/auth_test.{ext}
 ```
 

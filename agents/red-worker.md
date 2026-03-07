@@ -78,11 +78,15 @@ Cycle doc: docs/cycles/20260126_1130_feature.md
 
 - 判定に迷ったら**決定論的**として扱う
 - **バグ修正の場合**: 再現テスト優先。分類はスキップ可
+- 分類結果は各TCのParadigm欄に反映する（[Paradigm Selectionガイド](../skills/red/reference.md#test-plan-stage)参照）
 - 戦略の詳細・言語別ツール: [red/reference.md](../skills/red/reference.md#test-architecture-guide)
 
 1. Cycle docを読み、Test Listと設計方針を把握（存在しない場合はエラー返却）
-2. 担当テストケースの内容を確認
+2. 担当テストケースの内容を確認（Paradigm欄から推奨テスト戦略を判断）
 3. Given/When/Then形式でテストコードを作成（Edit/Write）
+   - 決定論的 + Contract/Property → スキーマ定義 + 不変量テストを優先
+   - 確率的 + Metamorphic → 相対関係テストを優先
+   - Example → 具体値によるアサーション
 4. テスト実行で失敗を確認（RED状態）
 5. 結果を返却
 
