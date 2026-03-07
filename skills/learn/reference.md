@@ -33,9 +33,9 @@ instinct は以下の3つのパスで MEMORY.md に昇格できる:
 
 ### 具体例
 
-MEMORY.md に書くべき例: 「このプロジェクトでは PHPStan レベル 9 を使用する」（確認済みの規約）
+MEMORY.md に書くべき例: 「このプロジェクトでは静的解析の最も厳格なレベルを使用する」（確認済みの規約）
 
-instinct に蓄積される例: 「array access 時に null check を追加するパターンが2回観測された」（未検証、confidence 0.6）
+instinct に蓄積される例: 「配列アクセス時に null check を追加するパターンが2回観測された」（未検証、confidence 0.6）
 
 昇格候補の例: 「テスト前に必ず static analysis を実行するワークフローが5セッション連続で観測された」（confidence 0.85、安定パターン）
 
@@ -64,7 +64,7 @@ learn 実行のタイムスタンプを管理するファイル。auto-learn の
 ## instinct フォーマット
 
 ```json
-{"id":"inst-20260213-001", "trigger":"PHPStan error on array access", "action":"Add null check before array access", "confidence":0.7, "domain":"php", "evidence":["Cycle doc 20260213", "git log abc123"], "created":"2026-02-13"}
+{"id":"inst-20260213-001", "trigger":"Static analysis error on collection access", "action":"Add null check before collection access", "confidence":0.7, "domain":"tdd", "evidence":["Cycle doc 20260213", "git log abc123"], "created":"2026-02-13"}
 ```
 
 ### フィールド定義

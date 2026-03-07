@@ -22,12 +22,12 @@ green（オーケストレーター）
 テストケースが編集するファイルを特定し、同一ファイルは同一workerに集約:
 
 ```
-TC-01: src/Auth/Login.php を編集
-TC-02: src/Auth/Login.php を編集
-TC-03: src/User/Profile.php を編集
+TC-01: src/auth/login.{ext} を編集
+TC-02: src/auth/login.{ext} を編集
+TC-03: src/user/profile.{ext} を編集
 
-→ Worker A: TC-01, TC-02 (Login.php担当)
-→ Worker B: TC-03 (Profile.php担当)
+→ Worker A: TC-01, TC-02 (login.{ext}担当)
+→ Worker B: TC-03 (profile.{ext}担当)
 ```
 
 ### green-worker起動例
@@ -36,10 +36,10 @@ TC-03: src/User/Profile.php を編集
 Taskツールで並列起動:
 
 Task 1 (dev-crew:green-worker):
-  prompt: "TC-01, TC-02を実装。対象: src/Auth/Login.php"
+  prompt: "TC-01, TC-02を実装。対象: src/auth/login.{ext}"
 
 Task 2 (dev-crew:green-worker):
-  prompt: "TC-03を実装。対象: src/User/Profile.php"
+  prompt: "TC-03を実装。対象: src/user/profile.{ext}"
 ```
 
 ## 競合解決戦略
@@ -69,34 +69,30 @@ Task 2 (dev-crew:green-worker):
 テストが要求していない機能は実装しない。
 
 **ダメな例**:
-```php
+```
 // テストはログインのみ要求
-public function login($email, $password, $rememberMe = false, $twoFactor = null) {
-    // 2FAの実装... ← テストが要求していない
-}
+function login(email, password, rememberMe = false, twoFactor = null)
+  // 2FAの実装... ← テストが要求していない
 ```
 
 **良い例**:
-```php
-public function login($email, $password) {
-    // テストを通すために必要な最小限の実装
-}
+```
+function login(email, password)
+  // テストを通すために必要な最小限の実装
 ```
 
 ### ハードコード許容
 
 初期実装ではハードコードも許容。REFACTORで改善。
 
-```php
+```
 // GREEN段階: ハードコードでOK
-public function getWelcomeMessage() {
-    return "Welcome!";  // テストを通すだけ
-}
+function getWelcomeMessage()
+  return "Welcome!"  // テストを通すだけ
 
 // REFACTOR段階: 改善
-public function getWelcomeMessage() {
-    return $this->translator->get('welcome');
-}
+function getWelcomeMessage()
+  return translator.get("welcome")
 ```
 
 ## シーケンシャル実行（フォールバック）

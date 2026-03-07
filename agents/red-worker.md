@@ -24,8 +24,8 @@ Task toolから以下の情報を受け取る:
 ```
 担当テストケース: TC-01, TC-02
 Cycle doc: docs/cycles/20260126_1130_feature.md
-対象テストファイル: tests/AuthTest.php
-言語プラグイン: php
+対象テストファイル: tests/auth_test.{ext}
+言語プラグイン: {project_language}
 ```
 
 ## Output
@@ -36,7 +36,7 @@ Cycle doc: docs/cycles/20260126_1130_feature.md
 {
   "status": "success|failure",
   "test_cases": ["TC-01", "TC-02"],
-  "files_created": ["tests/AuthTest.php"],
+  "files_created": ["tests/auth_test.{ext}"],
   "red_state_verified": true,
   "test_result": {
     "passed": false,

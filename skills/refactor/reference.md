@@ -6,43 +6,39 @@ SKILL.mdの詳細情報。必要時のみ参照。
 
 ### DRY (Don't Repeat Yourself)
 
-```php
+```
 // Before: 重複
-$user->name = ucfirst(strtolower($input['name']));
-$user->email = strtolower($input['email']);
+user.name = capitalize(lowercase(input.name))
+user.email = lowercase(input.email)
 
 // After: 共通化
-private function normalize(string $value): string {
-    return ucfirst(strtolower($value));
-}
+function normalize(value) -> capitalize(lowercase(value))
 ```
 
 ### 定数化
 
-```php
+```
 // Before: マジックナンバー
-if ($attempts > 5) { ... }
+if attempts > 5 ...
 
 // After: 定数
-const MAX_LOGIN_ATTEMPTS = 5;
-if ($attempts > self::MAX_LOGIN_ATTEMPTS) { ... }
+MAX_LOGIN_ATTEMPTS = 5
+if attempts > MAX_LOGIN_ATTEMPTS ...
 ```
 
 ### メソッド分割
 
-```php
+```
 // Before: 長いメソッド
-public function processOrder() {
-    // 50行のコード...
-}
+function processOrder()
+  // 50行のコード...
 
 // After: 分割
-public function processOrder() {
-    $this->validateOrder();
-    $this->calculateTotal();
-    $this->applyDiscounts();
-    $this->saveOrder();
-}
+function processOrder()
+  validateOrder()
+  calculateTotal()
+  applyDiscounts()
+  saveOrder()
 ```
 
 ## Error Handling
