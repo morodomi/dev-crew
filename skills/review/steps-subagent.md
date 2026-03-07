@@ -16,12 +16,7 @@ mode 決定後、ユーザーに明示出力する:
 決定論的にリスクレベルを判定（LLM不使用）:
 
 ```bash
-# ファイルリスト取得
-git diff HEAD --name-only > /tmp/review-files.txt
-# diff 内容取得
-git diff HEAD > /tmp/review-diff.txt
-# Risk Classification 実行
-bash skills/review/risk-classifier.sh /tmp/review-files.txt /tmp/review-diff.txt
+bash skills/review/risk-classifier.sh
 # Output: "LOW|MEDIUM|HIGH score:NN"
 ```
 

@@ -23,8 +23,11 @@ FILES_LIST="${1:-}"
 DIFF_CONTENT="${2:-}"
 
 if [ -z "$FILES_LIST" ] || [ -z "$DIFF_CONTENT" ]; then
-  echo "Usage: risk-classifier.sh <files_list_file> <diff_content_file>"
-  exit 1
+  FILES_LIST=$(mktemp)
+  DIFF_CONTENT=$(mktemp)
+  trap 'rm -f "$FILES_LIST" "$DIFF_CONTENT"' EXIT
+  git diff HEAD --name-only > "$FILES_LIST"
+  git diff HEAD > "$DIFF_CONTENT"
 fi
 
 score=0
