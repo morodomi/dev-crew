@@ -92,6 +92,68 @@ fi
 
 Auto-Learn は best-effort。サイクルの成否に影響しない。
 
+## Test List Completion Gate
+
+COMMIT前にCycle docのTest Listセクションを検査し、未完了テストケースが残っていないことを確認する。
+
+### 検査対象
+
+Test List内の以下のサブセクション配下にある `- [ ] TC-` 行（未チェックのテストケース）:
+
+| セクション | 未完了時のアクション |
+|-----------|-------------------|
+| TODO | BLOCK: 「未実装のテストケースがあります。red/green を実行してください」 |
+| WIP | BLOCK: 「作業中のテストケースがあります。完了させてください」 |
+| DISCOVERED | BLOCK: 「DISCOVERED項目があります。review の DISCOVERED→Issue 処理に戻してください」 |
+
+### 判定ロジック
+
+```bash
+# Cycle doc 内の Test List セクションで未チェック項目を検索
+if grep -E '^\- \[ \] TC-' "$CYCLE_DOC" | grep -q .; then
+  echo "BLOCK: 未完了のテストケースが残っています"
+  exit 1
+fi
+```
+
+`- [x] TC-` はチェック済み（完了）として扱う。DONEセクションに移動済みの `- [x]` 行は問題なし。
+
+## Progress Log Completeness Gate
+
+COMMIT前にProgress Logを検査し、全フェーズが完了記録を持っていることを確認する。
+
+### 必須フェーズ
+
+以下の5フェーズすべてに `Phase completed` 記録が必要:
+
+1. KICKOFF
+2. RED
+3. GREEN
+4. REFACTOR
+5. REVIEW
+
+### 判定ロジック
+
+```bash
+REQUIRED_PHASES="KICKOFF RED GREEN REFACTOR REVIEW"
+for phase in $REQUIRED_PHASES; do
+  if ! grep -q "- $phase" "$CYCLE_DOC" || ! grep -A5 "- $phase" "$CYCLE_DOC" | grep -q "Phase completed"; then
+    echo "BLOCK: $phase の Phase completed 記録がありません"
+    exit 1
+  fi
+done
+```
+
+### 不足時の対応
+
+| 不足フェーズ | 対応 |
+|------------|------|
+| KICKOFF | kickoff を実行 |
+| RED | red を実行 |
+| GREEN | green を実行 |
+| REFACTOR | refactor を実行 |
+| REVIEW | review を実行 |
+
 ## Cycle doc完了形式
 
 ```markdown

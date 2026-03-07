@@ -203,6 +203,19 @@ orchestrate の設計レビューを kickoff 前に実施するよう変更。
 
 ---
 
+## Phase 10: Commit Completion Validation (DONE)
+
+commitスキルにTest List / Progress Logの包括的な完了検証を追加。
+
+### 完了事項
+
+- commit/SKILL.md に Test List Completion Gate 追加（未完了TC残存でBLOCK）
+- commit/SKILL.md に Progress Log Completeness Gate 追加（全5フェーズの Phase completed 記録を要求）
+- commit/reference.md に両Gateの詳細ロジック追加（判定コード、不足時の対応表）
+- tests/test-phase-gate.sh に TC-19〜TC-22 追加（全22テストPASS）
+
+---
+
 ## Timeline
 
 | Phase | Content | Status |
@@ -218,3 +231,4 @@ orchestrate の設計レビューを kickoff 前に実施するよう変更。
 | Phase 7 | Factory Model Adaptation | DONE |
 | Phase 8 | Design Review Gate Integration | DONE |
 | Phase 9 | Test Architecture Integration | DONE |
+| Phase 10 | Commit Completion Validation | DONE |

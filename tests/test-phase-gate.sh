@@ -1,6 +1,6 @@
 #!/bin/bash
-# test-phase-gate.sh - Phase Gate + Progress Log + Commit doc update validation
-# TC-01 ~ TC-18
+# test-phase-gate.sh - Phase Gate + Progress Log + Commit doc update + Completion validation
+# TC-01 ~ TC-22
 
 set -euo pipefail
 
@@ -246,6 +246,52 @@ if grep -q "STATUS.md" "$COMMIT"; then
   pass "commit/SKILL.md has STATUS.md update"
 else
   fail "commit/SKILL.md missing STATUS.md update"
+fi
+
+########################################
+# Commit Completion Validation (TC-19 ~ TC-22)
+########################################
+
+echo ""
+echo "--- Commit Completion Validation ---"
+
+COMMIT_REF="$BASE_DIR/skills/commit/reference.md"
+[ -f "$COMMIT_REF" ] || { echo "FATAL: $COMMIT_REF not found"; exit 1; }
+
+# TC-19: commit/SKILL.md has Test List Completion Gate
+echo ""
+echo "TC-19: commit/SKILL.md has Test List Completion Gate"
+if grep -q "Test List Completion" "$COMMIT" && grep -q "BLOCK" "$COMMIT"; then
+  pass "commit/SKILL.md has Test List Completion Gate"
+else
+  fail "commit/SKILL.md missing Test List Completion Gate"
+fi
+
+# TC-20: commit/reference.md has Test List Completion Gate details
+echo ""
+echo "TC-20: commit/reference.md has Test List Completion Gate details"
+if grep -q "Test List Completion" "$COMMIT_REF" && grep -q "TODO\|WIP\|DISCOVERED" "$COMMIT_REF"; then
+  pass "commit/reference.md has Test List Completion Gate details"
+else
+  fail "commit/reference.md missing Test List Completion Gate details"
+fi
+
+# TC-21: commit/SKILL.md has Progress Log Completeness Gate
+echo ""
+echo "TC-21: commit/SKILL.md has Progress Log Completeness Gate"
+if grep -q "Progress Log Completeness" "$COMMIT" && grep -q "KICKOFF.*RED.*GREEN.*REFACTOR.*REVIEW\|5.*Phase completed\|5フェーズ\|全フェーズ" "$COMMIT"; then
+  pass "commit/SKILL.md has Progress Log Completeness Gate"
+else
+  fail "commit/SKILL.md missing Progress Log Completeness Gate"
+fi
+
+# TC-22: commit/reference.md has Progress Log Completeness Gate details
+echo ""
+echo "TC-22: commit/reference.md has Progress Log Completeness Gate details"
+if grep -q "Progress Log Completeness" "$COMMIT_REF" && grep -q "KICKOFF" "$COMMIT_REF" && grep -q "RED" "$COMMIT_REF" && grep -q "GREEN" "$COMMIT_REF" && grep -q "REFACTOR" "$COMMIT_REF" && grep -q "REVIEW" "$COMMIT_REF"; then
+  pass "commit/reference.md has Progress Log Completeness Gate details"
+else
+  fail "commit/reference.md missing Progress Log Completeness Gate details"
 fi
 
 # Summary
