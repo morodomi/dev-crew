@@ -26,15 +26,15 @@ One command. All 33 agents, 29 skills, rules, and hooks are available.
 ## Core Workflow
 
 ```
-plan mode (設計フェーズ)
-  spec (+ Ambiguity Detection) → 探索 → 設計 → Test List → QA → approve
+plan mode (design phase)
+  spec (+ Ambiguity Detection) → explore → design → Test List → QA → approve
 
-normal mode (実行フェーズ)
+normal mode (execution phase)
   kickoff → red (Plan → Review → Code) → green → /simplify → review → commit
 ```
 
-Claude Code組み込み機能（plan mode, /simplify, /compact）と連携し、
-各フェーズ境界で自動コンテキスト圧縮を実行。
+Integrates with Claude Code built-in features (plan mode, /simplify, /compact),
+performing automatic context compaction at each phase boundary.
 
 ## Token Optimization
 
@@ -43,7 +43,7 @@ Phase-boundary compaction inspired by [OpenClaw](https://github.com/openclaw/ope
 1. Phase output persisted to Cycle doc
 2. `/compact` triggers at phase boundary
 3. Next phase loads context from Cycle doc (not conversation history)
-4. plan mode → approve → auto-compact で自然なコンテキスト圧縮
+4. plan mode → approve → auto-compact for natural context compaction
 
 ## Structure
 
@@ -73,9 +73,13 @@ php-quality, python-quality, ts-quality, js-quality, flask-quality, flutter-qual
 ### Meta/Tooling (3)
 learn, evolve, skill-maker
 
-## Background Reading
+## Background Reading (Japanese)
 
-- [Claude Codeで33エージェント29スキルのAI開発チームを作った](https://note.com/morodomi/n/nd960ef99d0f3) (note.com)
+- [暴走するAIを飼い慣らすまで9ヶ月。dev-crewを公開する](https://note.com/morodomi/n/ne40fb866f9c6)
+- [10個の自作スキルを捨ててClaude Codeのデフォルトに戻した](https://note.com/morodomi/n/nd960ef99d0f3)
+- [コンテキストウィンドウは制約じゃない。フェーズの区切りだ](https://note.com/morodomi/n/n55b4b658e80e)
+- [typo修正に4人のレビュアーは要らない。リスクベースレビューの設計](https://note.com/morodomi/n/n00074c4f1d1e)
+- [AIにセキュリティレビューさせるなら、防御側ではなく攻撃側をやらせろ](https://note.com/morodomi/n/n99f7722c2e99)
 
 ## License
 
