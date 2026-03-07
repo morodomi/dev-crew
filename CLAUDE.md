@@ -92,6 +92,13 @@ Phase-boundary compaction:
 - Context restored from files, not conversation history
 - plan mode → approve → auto-compact で自然なコンテキスト圧縮
 
+## Hooks
+
+| Event | Matcher | Script | Purpose |
+|-------|---------|--------|---------|
+| PostToolUse | Edit\|Write\|Bash | `scripts/hooks/observe.sh` | Logs tool usage patterns for learn skill |
+| PreCompact | manual | `scripts/hooks/pre-compact.sh` | Persists phase summary before /compact |
+
 ## Quality Standards
 
 | Metric | Target |
@@ -104,8 +111,14 @@ Phase-boundary compaction:
 
 1. All changes follow TDD cycle with Cycle doc in `docs/cycles/`
 2. SKILL.md < 100 lines (Progressive Disclosure to reference.md)
-3. Agents defined as Markdown with specific prompts
-4. plugin.json must be valid JSON
+3. Each skill directory: `SKILL.md` (concise) + `reference.md` (detailed docs)
+4. Agents defined as Markdown with YAML frontmatter (name, description, model)
+5. plugin.json must be valid JSON
+
+## Tests
+
+33 shell scripts in `tests/`. Run: `bash tests/test-*.sh`
+Covers: plugin structure, agent/skill structure, cross-references, TDD enforcement, hooks.
 
 ## File Naming
 
