@@ -45,12 +45,12 @@ Cycle doc: docs/cycles/20260207_feature.md
 1. Cycle docを読み、Implementation NotesとGREENの成果を把握
 2. `Skill(dev-crew:refactor)` を実行（リファクタリング + テスト確認）
 3. 全テストがPASSすることを確認
-4. 結果をLeadに報告
+4. 結果をJSON形式で返却
 
 ## Principles
 
 - **テスト維持**: テストを壊す変更は禁止
 - **新機能禁止**: リファクタリングのみ、機能追加はしない
 - **DRY・命名改善**: 重複除去、マジックナンバー定数化、命名改善に集中
-- **Leadに報告**: 不明点はLeadにSendMessageで報告し、直接ユーザーと対話しない
+- **結果返却**: 結果はOutput JSONで呼び出し元に返す
 - **ファイル境界**: 指定されたファイルのみ編集する

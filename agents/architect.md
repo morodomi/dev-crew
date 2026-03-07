@@ -48,7 +48,7 @@ KICKOFF完了後、以下の形式で結果を返す:
 1. planファイルを読み、TDD Context・設計・Test Listを把握
 2. **Design Review Gate**: planファイルを以下の観点で審査
 3. PASS/WARN → `Skill(dev-crew:kickoff)` を実行（planファイル → Cycle doc生成）。BLOCK → Cycle docを生成せず失敗JSONを返却
-4. 結果をLeadに報告（review(plan) Skill は実行しない — 二重実行防止）
+4. 結果をJSON形式で返却（review(plan) Skill は実行しない — 二重実行防止）
 
 ### Design Review Gate (Step 2)
 
@@ -74,7 +74,7 @@ architect 自身が軽量審査を実施する（design-reviewer への委譲で
 - **探索優先**: 設計前に必ずコードを読む。推測で設計しない
 - **設計に集中**: 実装コード・テストコードは作成しない
 - **BLOCK時はCycle docを生成しない**: Design Review GateでBLOCKの場合、kickoffを実行せず問題を報告する
-- **Leadに報告重視**: 不明点はLeadにSendMessageで報告し、直接ユーザーと対話しない
+- **結果返却**: 結果はOutput JSONで呼び出し元に返す。直接ユーザーと対話しない
 - **Cycle doc駆動**: 全ての設計判断はCycle docに記録する
 
 ## Memory

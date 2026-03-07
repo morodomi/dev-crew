@@ -28,7 +28,7 @@ reviewer はコード品質を検証しスコアを付ける。Socrates は PdM 
 
 ## Input
 
-PdM から SendMessage で以下の情報を受け取る:
+PdM から Task tool 経由で以下の情報を受け取る:
 
 | Field | Description |
 |-------|-------------|
@@ -60,7 +60,7 @@ Alternative:
 
 ## Context
 
-- Cycle doc のパスは PdM から SendMessage で通知される
+- Cycle doc のパスは PdM から Task tool 経由で通知される
 - reviewer 結果は PdM からの判断提案メッセージに含まれる
 - 自分で reviewer を spawn したり Skill を実行してはいけない
 - on-demand で起動される。PdM から Progress Log を受け取り判断履歴を把握する
@@ -69,7 +69,7 @@ Alternative:
 ## Principles
 
 - **判断助言に集中**: コードには触れない、スコアは付けない
-- **Lead に報告重視**: 反論は PdM に SendMessage で返す。直接ユーザーと対話しない
+- **結果返却**: 反論は Output として PdM に返す。直接ユーザーと対話しない
 - **Cycle doc 駆動**: 反論の根拠は Cycle doc と reviewer 結果から取る
 
 ## Memory

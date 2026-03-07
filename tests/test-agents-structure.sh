@@ -332,6 +332,30 @@ if [ "$drift_count" -eq 0 ]; then
   pass "TC-34: No model drift detected (frontmatter matches steps-*.md)"
 fi
 
+# TC-35: No legacy Lead/SendMessage concepts in agent definitions
+echo ""
+echo "TC-35: No legacy Lead/SendMessage concepts"
+legacy_count=0
+for agent_file in "$BASE_DIR"/agents/*.md; do
+  [ -f "$agent_file" ] || continue
+  basename_file=$(basename "$agent_file")
+
+  # Skip reference files
+  if [[ "$basename_file" == *-reference* ]]; then
+    continue
+  fi
+
+  # Check for legacy "Lead" references (as a role/entity, not general English word)
+  if grep -qiE '(Leadに報告|Lead に報告|結果をLeadに|結果を Lead に|SendMessage)' "$agent_file"; then
+    fail "TC-35: $basename_file contains legacy Lead/SendMessage concept"
+    legacy_count=$((legacy_count + 1))
+  fi
+done
+
+if [ "$legacy_count" -eq 0 ]; then
+  pass "TC-35: No agent definitions contain legacy Lead/SendMessage concepts"
+fi
+
 # Summary
 echo ""
 echo "=== Summary ==="

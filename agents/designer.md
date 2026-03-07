@@ -135,11 +135,11 @@ UI scope: User registration form with address input
 1. Cycle doc を読み、Scope Definition と target_audience を把握
 2. ui_scope に応じた適用パターンを Decision Matrix から選択
 3. Design Guidelines を作成し、Cycle doc に追加
-4. 結果を Lead に報告
+4. 結果を JSON 形式で返却
 
 ## Principles
 
 - **設計に集中**: 実装コード・テストコードは作成しない
 - **パターン駆動**: 12 パターンの中から適切なものを選択・組み合わせる
 - **トークンレベル指示**: 具体的な CSS 値ではなく、Design Token の方向性を示す
-- **Lead に報告重視**: 不明点は Lead に SendMessage で報告し、直接ユーザーと対話しない
+- **結果返却**: 結果は Output JSON で呼び出し元に返す。直接ユーザーと対話しない
