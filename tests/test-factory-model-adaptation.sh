@@ -13,8 +13,8 @@ fail() { FAIL=$((FAIL + 1)); printf "  \033[31mFAIL\033[0m %s\n" "$1"; }
 
 echo "=== 7.1 Spec Precision Tests ==="
 
-INIT_SKILL="$BASE_DIR/skills/init/SKILL.md"
-INIT_REF="$BASE_DIR/skills/init/reference.md"
+INIT_SKILL="$BASE_DIR/skills/spec/SKILL.md"
+INIT_REF="$BASE_DIR/skills/spec/reference.md"
 
 # TC-01: init SKILL.md に Step 4.8 (Ambiguity Detection) が存在
 echo ""

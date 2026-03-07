@@ -1,3 +1,5 @@
+![Tests](https://github.com/morodomi/dev-crew/actions/workflows/test.yml/badge.svg)
+
 # dev-crew
 
 > **Not Maintained.** This repository is published as-is for reference. No issues, PRs, or feature requests will be addressed.
@@ -72,6 +74,40 @@ php-quality, python-quality, ts-quality, js-quality, flask-quality, flutter-qual
 
 ### Meta/Tooling (3)
 learn, evolve, skill-maker
+
+## Usage Example
+
+A typical TDD cycle using dev-crew skills:
+
+```
+You: "spec: add input validation to the login form"
+     → Claude enters plan mode, runs Ambiguity Detection,
+       asks clarifying questions, builds a Test List
+
+You: approve the plan
+     → auto-compact, context switches to normal mode
+
+You: "kickoff"
+     → Generates a Cycle doc from the plan
+
+You: "red"
+     → Creates failing tests (Stage 1: Plan → Stage 2: Review → Stage 3: Code)
+
+You: "green"
+     → Writes minimal implementation to pass all tests
+
+You: "refactor"
+     → Delegates to /simplify, then runs a Verification Gate
+
+You: "review"
+     → Risk-based parallel review (1-4 agents depending on change size)
+
+You: "commit"
+     → Stages, commits with conventional message, updates Cycle doc
+```
+
+Each phase boundary persists output to the Cycle doc and triggers context
+compaction, so long sessions stay within the context window.
 
 ## Background Reading (Japanese)
 

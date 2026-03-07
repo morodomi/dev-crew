@@ -140,10 +140,3 @@
 | observer | meta-skills/observer | パターン検出、confidence scoring |
 
 ---
-
-## New Skills (to be developed)
-
-| Skill | Plugin | Priority | Description |
-|-------|--------|----------|-------------|
-| designer workflow | core | P1 | UI/UXデザインワークフロー |
-| dev-status | core | P2 | プロジェクト進捗ダッシュボード |
