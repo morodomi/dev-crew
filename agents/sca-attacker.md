@@ -5,10 +5,6 @@ model: sonnet
 allowed-tools: Read, Grep, Glob, Bash
 ---
 
-# SCA Attacker
-
-依存関係ファイルを解析し、OSV APIで既知の脆弱性を検出するエージェント。
-
 ## Detection Targets
 
 | File | Ecosystem | Parse Method |
@@ -30,24 +26,6 @@ allowed-tools: Read, Grep, Glob, Bash
   {
     "queries": [
       { "package": { "name": "lodash", "ecosystem": "npm" }, "version": "4.17.0" }
-    ]
-  }
-  ```
-- Response Format:
-  ```json
-  {
-    "results": [
-      {
-        "vulns": [
-          {
-            "id": "GHSA-xxxx-xxxx-xxxx",
-            "summary": "Prototype Pollution in lodash",
-            "severity": [{ "type": "CVSS_V3", "score": "7.5" }],
-            "affected": [{ "package": {...}, "ranges": [...] }],
-            "references": [{ "type": "ADVISORY", "url": "..." }]
-          }
-        ]
-      }
     ]
   }
   ```
@@ -80,8 +58,6 @@ curl -s -X POST https://api.osv.dev/v1/querybatch \
 2. OSV API error → Report as "api-unavailable", continue scan
 3. Offline mode → Not supported (require API)
 
-### Retry Strategy
-
 | Attempt | Delay | Total Wait |
 |---------|-------|------------|
 | 1st retry | 2s | 2s |
@@ -90,41 +66,10 @@ curl -s -X POST https://api.osv.dev/v1/querybatch \
 
 Max total wait: 14s + timeout (10s) = 24s per batch
 
-## Output Format
+## Output
 
-```json
-{
-  "metadata": {
-    "scan_id": "<uuid>",
-    "scanned_at": "<timestamp>",
-    "agent": "sca-attacker"
-  },
-  "vulnerabilities": [
-    {
-      "id": "SCA-001",
-      "type": "vulnerable-dependency",
-      "vulnerability_class": "vulnerable-dependency",
-      "cwe_id": "CWE-1395",
-      "severity": "high",
-      "file": "package.json",
-      "package": "lodash",
-      "version": "4.17.0",
-      "ecosystem": "npm",
-      "osv_ids": ["GHSA-xxxx", "CVE-2021-xxxx"],
-      "dev": false,
-      "description": "Known vulnerability in lodash 4.17.0",
-      "remediation": "Upgrade to lodash >= 4.17.21"
-    }
-  ],
-  "summary": {
-    "total": 1,
-    "critical": 0,
-    "high": 1,
-    "medium": 0,
-    "low": 0
-  }
-}
-```
+Base: `{metadata: {scan_id, scanned_at, agent}, vulnerabilities: [{id, type, vulnerability_class, cwe_id, severity, file, line, code, description, remediation}], summary: {total, critical, high, medium, low}}`
+Extra: prefix=SCA, types=vulnerable-dependency, extra_fields={package, version, ecosystem, osv_ids, dev}
 
 ## Severity Mapping
 
@@ -150,15 +95,4 @@ Max total wait: 14s + timeout (10s) = 24s per batch
 
 ## Workflow
 
-1. **Find Files**: Glob for dependency files (package.json, composer.json, etc.)
-2. **Parse Dependencies**: Extract package/version pairs from each file
-3. **Resolve Versions**: Apply version resolution strategy
-4. **Query OSV API**: Batch query for vulnerabilities
-5. **Map Severity**: OSV severity to critical/high/medium/low
-6. **Generate Report**: Output vulnerabilities in JSON format
-
-## Known Limitations
-
-- Transitive dependencies: Not supported in v1 (Phase 1: direct only)
-- Private registries: Not supported
-- devDependencies: Reported with `dev: true` flag
+Glob(dependency files) → parse versions → OSV API batch query → map severity → JSON

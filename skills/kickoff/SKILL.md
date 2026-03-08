@@ -4,10 +4,6 @@ description: plan modeで承認されたplanファイルからCycle docを生成
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
 ---
 
-# TDD KICKOFF Phase
-
-plan modeで承認されたplanファイルを読み取り、Cycle docを生成する。
-
 ## Progress Checklist
 
 ```
@@ -78,22 +74,7 @@ planファイルのTest ListをCycle docのTest Listセクションに転記。
 ```
 
 ### Step 4: Complete
-
-```
-================================================================================
-KICKOFF完了
-================================================================================
-planファイルからCycle docを生成しました。
-
-Cycle doc: docs/cycles/YYYYMMDD_HHMM_feature-name.md
-
-Design Review Gate: architectにより事前実施済み
-
-次のステップ:
-- Orchestrate: 自動的にREDフェーズへ進行します
-- 手動: /review --plan で設計レビューを再実行可能
-================================================================================
-```
+Output: KICKOFF完了。Cycle doc: {path}。次: orchestrate→自動RED / 手動→ /review --plan
 
 ## Reference
 

@@ -4,10 +4,6 @@ description: セキュリティスキャンを実行。RECON→SCAN→REPORT→L
 allowed-tools: Task, Read, Write, Bash, Grep, Glob
 ---
 
-# Security Scan
-
-セキュリティスキャンを実行するスキル。エージェントを連携して脆弱性を検出し、JSON形式で結果を出力。
-
 ## Usage
 
 ```bash
@@ -50,18 +46,7 @@ allowed-tools: Task, Read, Write, Bash, Grep, Glob
 ```
 
 ## Completion
-
-```
-================================================================================
-SCAN完了
-================================================================================
-検出件数: Critical X, High Y, Medium Z
-
-次のステップ:
-- レポート生成: /attack-report
-- スキャン+レポート一括: /security-audit
-================================================================================
-```
+Output: SCAN完了。検出件数サマリ。次: /attack-report or /security-audit
 
 ## Agent Integration
 

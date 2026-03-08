@@ -5,10 +5,6 @@ model: sonnet
 allowed-tools: Read, Grep, Glob
 ---
 
-# API Attacker
-
-API固有の脆弱性を静的解析で検出するエージェント。
-
 ## Detection Targets
 
 | Type | Description | Pattern |
@@ -51,38 +47,10 @@ patterns:
   - 'SELECT\s+\*\s+FROM'
 ```
 
-## Output Format
+## Output
 
-```json
-{
-  "metadata": {
-    "scan_id": "<uuid>",
-    "scanned_at": "<timestamp>",
-    "agent": "api-attacker"
-  },
-  "vulnerabilities": [
-    {
-      "id": "API-001",
-      "type": "mass-assignment",
-      "vulnerability_class": "mass-assignment",
-      "cwe_id": "CWE-915",
-      "severity": "high",
-      "file": "app/Http/Controllers/UserController.php",
-      "line": 34,
-      "code": "User::create($request->all())",
-      "description": "Mass assignment vulnerability - all request data passed to create",
-      "remediation": "Use $request->only(['name', 'email']) or define $fillable"
-    }
-  ],
-  "summary": {
-    "total": 1,
-    "critical": 0,
-    "high": 1,
-    "medium": 0,
-    "low": 0
-  }
-}
-```
+Base: `{metadata: {scan_id, scanned_at, agent}, vulnerabilities: [{id, type, vulnerability_class, cwe_id, severity, file, line, code, description, remediation}], summary: {total, critical, high, medium, low}}`
+Extra: prefix=API, types=mass-assignment|bola|rate-limiting|excessive-data-exposure
 
 ## Severity Criteria
 
@@ -104,8 +72,4 @@ patterns:
 
 ## Workflow
 
-1. **Scan Files**: Use Glob to find controller/route/model files
-2. **Pattern Match**: Use Grep to find dangerous API patterns
-3. **Analyze Context**: Use Read to examine surrounding code
-4. **Determine Severity**: Score based on exposure and sensitivity
-5. **Generate Report**: Output vulnerabilities in JSON format
+Glob(controllers,routes,models) → Grep(patterns) → Read(context) → score → JSON

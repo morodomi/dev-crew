@@ -5,10 +5,6 @@ model: sonnet
 allowed-tools: Read, Grep, Glob
 ---
 
-# XSS Attacker
-
-Reflected XSS、DOM XSS、Stored XSS脆弱性を静的解析で検出するエージェント。
-
 ## Detection Targets
 
 | Type | Description | Pattern |
@@ -74,64 +70,10 @@ Sources（トレース対象）:
 
 NOTE: 静的解析の限界上、保存と表示の紐付けは同一モデル/変数名での推定。
 
-## Output Format
+## Output
 
-```json
-{
-  "metadata": {
-    "scan_id": "<uuid>",
-    "scanned_at": "<timestamp>",
-    "agent": "xss-attacker"
-  },
-  "vulnerabilities": [
-    {
-      "id": "XSS-001",
-      "type": "reflected",
-      "vulnerability_class": "xss",
-      "cwe_id": "CWE-79",
-      "severity": "high",
-      "file": "resources/views/user.blade.php",
-      "line": 23,
-      "code": "{!! $request->input('name') !!}",
-      "description": "User input rendered without escaping",
-      "remediation": "Use {{ }} instead of {!! !!} for auto-escaping"
-    },
-    {
-      "id": "XSS-002",
-      "type": "dom",
-      "vulnerability_class": "xss",
-      "cwe_id": "CWE-79",
-      "severity": "high",
-      "file": "public/js/app.js",
-      "line": 45,
-      "code": "element.innerHTML = location.hash.slice(1)",
-      "description": "DOM XSS via location.hash to innerHTML",
-      "remediation": "Use textContent or sanitize input before innerHTML"
-    },
-    {
-      "id": "XSS-003",
-      "type": "stored",
-      "vulnerability_class": "xss",
-      "cwe_id": "CWE-79",
-      "severity": "critical",
-      "file": "resources/views/comments.blade.php",
-      "line": 12,
-      "code": "{!! $comment->body !!}",
-      "description": "Stored XSS via unescaped database content",
-      "remediation": "Use {{ }} for auto-escaping or sanitize on save"
-    }
-  ],
-  "summary": {
-    "total": 3,
-    "critical": 1,
-    "high": 2,
-    "medium": 0,
-    "low": 0
-  }
-}
-```
-
-NOTE: `type` は `"reflected"`, `"dom"`, `"stored"` のいずれか。
+Base: `{metadata: {scan_id, scanned_at, agent}, vulnerabilities: [{id, type, vulnerability_class, cwe_id, severity, file, line, code, description, remediation}], summary: {total, critical, high, medium, low}}`
+Extra: prefix=XSS, types=reflected|dom|stored
 
 ## Severity Criteria
 
@@ -151,8 +93,4 @@ NOTE: `type` は `"reflected"`, `"dom"`, `"stored"` のいずれか。
 
 ## Workflow
 
-1. **Scan Files**: Use Glob to find view/template files
-2. **Pattern Match**: Use Grep to find dangerous output patterns
-3. **Analyze Context**: Use Read to examine user input flow
-4. **Determine Severity**: Score based on auth and sanitization
-5. **Generate Report**: Output vulnerabilities in JSON format
+Glob(views/templates) → Grep(patterns) → Read(input flow) → score → JSON

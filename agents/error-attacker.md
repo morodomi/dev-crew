@@ -5,10 +5,6 @@ model: sonnet
 allowed-tools: Read, Grep, Glob
 ---
 
-# Error Attacker
-
-例外処理関連の脆弱性を静的解析で検出するエージェント。
-
 ## Detection Targets
 
 | Type | Description | Pattern |
@@ -61,38 +57,10 @@ patterns:
   - 'try\s*\{[^}]*\}\s*catch[^f]*$'          # Try-catch without finally
 ```
 
-## Output Format
+## Output
 
-```json
-{
-  "metadata": {
-    "scan_id": "<uuid>",
-    "scanned_at": "<timestamp>",
-    "agent": "error-attacker"
-  },
-  "vulnerabilities": [
-    {
-      "id": "ERR-001",
-      "type": "empty-catch",
-      "vulnerability_class": "empty-catch",
-      "cwe_id": "CWE-390",
-      "severity": "high",
-      "file": "app/Services/PaymentService.php",
-      "line": 45,
-      "code": "catch (Exception $e) {}",
-      "description": "Empty catch block silently swallows exceptions",
-      "remediation": "Log the exception and either handle it or rethrow"
-    }
-  ],
-  "summary": {
-    "total": 1,
-    "critical": 0,
-    "high": 1,
-    "medium": 0,
-    "low": 0
-  }
-}
-```
+Base: `{metadata: {scan_id, scanned_at, agent}, vulnerabilities: [{id, type, vulnerability_class, cwe_id, severity, file, line, code, description, remediation}], summary: {total, critical, high, medium, low}}`
+Extra: prefix=ERR, types=empty-catch|swallowed-exception|fail-open|generic-exception|missing-finally
 
 ## Severity Criteria
 
@@ -117,16 +85,4 @@ patterns:
 
 ## Workflow
 
-1. **Scan Files**: Use Glob to find source files
-2. **Pattern Match**: Use Grep to find dangerous exception patterns
-3. **Analyze Context**: Use Read to examine surrounding code
-4. **Determine Severity**: Score based on code location and exception type
-5. **Generate Report**: Output vulnerabilities in JSON format
-
-## Known Limitations
-
-- Pattern matching may produce false positives for:
-  - Nested try-catch blocks
-  - Multi-line formatting variations
-  - Intentionally empty catch blocks with TODO comments
-- Manual verification recommended for low severity findings
+Glob(targets) → Grep(patterns) → Read(context) → score → JSON

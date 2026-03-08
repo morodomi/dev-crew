@@ -6,46 +6,13 @@ memory: project
 allowed-tools: Bash, Read
 ---
 
-# Dynamic Verifier
-
-静的解析で検出された脆弱性を、実際のHTTPリクエストで動的に検証するエージェント。
-
 ## Common Settings
 
-共通設定（SQLi/XSS統一）:
-
-```yaml
-common:
-  rate_limiting: 2 seconds  # 2秒間隔（SQLi/XSS統一）
-  max_requests: 50          # Max requests per session
-  timeout: 10               # Request timeout (seconds)
-  connect_timeout: 5        # Connection timeout (seconds)
-```
+`rate_limiting: 2s, max_requests: 50, timeout: 10s, connect_timeout: 5s`
 
 ## Common Pre-processing
 
-すべての動的検証で共通の前処理:
-
-```yaml
-preprocessing:
-  # 1. HTTPリクエスト送信
-  command: "curl -i"  # ヘッダ含む
-
-  # 2. Content-Type判定
-  content_type:
-    allow:
-      - "text/html"
-      - "text/html; charset=utf-8"
-    skip:
-      - "application/json"
-      - "text/xml"
-      - "application/xml"
-
-  # 3. リダイレクト処理
-  redirect:
-    follow: true        # -L フラグ
-    max_redirects: 5    # 最大5回
-```
+`curl -i` | Content-Type: allow `text/html*`, skip `application/json|text/xml|application/xml` | redirect: `-L`, max 5
 
 ## Detection Target
 
@@ -59,8 +26,6 @@ preprocessing:
 | File | ファイル読取検出（パストラバーサル→既知ファイル内容確認） | --enable-dynamic-file |
 
 ## SQLi Detection Patterns
-
-レスポンスに以下のパターンが含まれる場合、SQLi確認:
 
 ```yaml
 sqli_error_patterns:
@@ -117,78 +82,20 @@ sqli_payloads:
 
 ```yaml
 url_validation:
-  allowed_schemes:
-    - http
-    - https
-
-  safe_hosts:  # No confirmation required
-    - localhost
-    - 127.0.0.1
-    - "::1"        # IPv6 loopback
-    - "[::1]"      # IPv6 loopback (bracketed)
-    # 0.0.0.0 excluded (all interfaces = production risk)
-
-  confirmation_required:
-    - All other hosts
-    - "WARNING: Target is not localhost. Continue? (y/N)"
-```
-
-## Rate Limiting
-
-```bash
-# Implementation in dynamic-verifier (SQLi/XSS共通)
-for endpoint in $endpoints; do
-  curl --max-time 10 --connect-timeout 5 "$target$endpoint?param=$payload"
-  sleep 2  # 2 second interval (unified)
-done
-
-# Limits (see Common Settings)
-max_requests: 50        # Max requests per session
-timeout: 10             # Request timeout (seconds)
-connect-timeout: 5      # Connection timeout (seconds)
-interval: 2             # Request interval (seconds) - unified
+  allowed_schemes: [http, https]
+  safe_hosts: [localhost, 127.0.0.1, "::1", "[::1]"]  # 0.0.0.0 excluded (production risk)
+  confirmation_required: "All other hosts → WARNING: Target is not localhost. Continue? (y/N)"
 ```
 
 ## Workflow
 
-1. Get endpoints from recon.endpoints
-2. Get vulnerabilities from injection-attacker results
-3. Match endpoints with vulnerability files
-4. For each matched endpoint:
-   - Insert `'` payload
-   - Check response for SQL error patterns
-   - Record result (confirmed/not_vulnerable/inconclusive)
+`Get endpoints(recon) → Get vulns(attacker results) → Match → curl payload → check response patterns → record result`
 
-## Output Format
+## Output
 
-```json
-{
-  "verification": {
-    "enabled": true,
-    "target": "http://localhost:8000",
-    "verified": 2,
-    "confirmed": 1,
-    "false_positives": 1
-  },
-  "vulnerabilities": [
-    {
-      "id": "SQLI-001",
-      "verified": true,
-      "verification_result": "confirmed",
-      "evidence": "SQL syntax error in response"
-    }
-  ]
-}
-```
+Base: `{verification: {enabled, target, verified, confirmed, false_positives}, vulnerabilities: [{id, verified, verification_result, evidence}]}`
 
-## Verification Result
-
-| Result | Description |
-|--------|-------------|
-| confirmed | Vulnerability confirmed (reproduced in dynamic test) |
-| not_vulnerable | No vulnerability (payload neutralized) |
-| inconclusive | Cannot determine (timeout, etc.) |
-| skipped | Verification skipped (endpoint unreachable) |
+Result: `confirmed(reproduced) | not_vulnerable(neutralized) | inconclusive(timeout) | skipped(unreachable)`
 
 ## Known Limitations
 
@@ -201,33 +108,25 @@ interval: 2             # Request interval (seconds) - unified
 
 ## XSS Verification
 
-Reflected XSS脆弱性を動的に検証する。`--enable-dynamic-xss` フラグで有効化。
+`--enable-dynamic-xss` フラグで有効化。
 
-### XSS Detection Patterns
-
-レスポンスに以下のパターンがエスケープなしで含まれる場合、XSS確認:
+### XSS Detection/Payloads
 
 ```yaml
 xss_reflection_patterns:
   - "<script>XSS-"      # Script tag reflection
   - "onerror=XSS-"      # Event handler reflection
-```
 
-### XSS Payloads
-
-```yaml
 xss_payloads:
   non_destructive:
     - "<script>XSS-{uuid}</script>"           # Basic script tag
     - "<img src=x onerror=XSS-{uuid}>"        # Event handler
     - "'\"><script>XSS-{uuid}</script>"       # Attribute breakout
 
-  # UUID Generation (replace {uuid} before sending)
   uuid_generation: |
     uuid=$(cat /proc/sys/kernel/random/uuid 2>/dev/null || echo "$$-$RANDOM")
     payload=$(echo "$template" | sed "s/{uuid}/$uuid/g")
 
-  # Forbidden payloads (never use)
   forbidden:
     - "document.cookie"      # Cookie theft
     - "document.location"    # Redirect
@@ -236,7 +135,6 @@ xss_payloads:
     - "eval("                # Code execution
     - "window.location"      # Redirect
 
-  # Forbidden Enforcement (regex with word boundaries)
   forbidden_check: |
     for pattern in "document\.cookie" "document\.location" "fetch\s*\(" "eval\s*\(" "XMLHttpRequest" "window\.location"; do
       if echo "$payload" | grep -qE "\b$pattern"; then
@@ -248,84 +146,40 @@ xss_payloads:
 
 ### XSS Encoding Detection
 
-レスポンスで以下のエンコード形式が検出された場合、not_vulnerable:
-
 ```yaml
 encoding_patterns:
-  html_entity:
-    - "&lt;"      # < encoded
-    - "&gt;"      # > encoded
-    - "&quot;"    # " encoded
-    - "&#60;"     # < numeric
-    - "&#x3C;"    # < hex
-
-  url_encoding:
-    - "%3C"       # < URL encoded
-    - "%3E"       # > URL encoded
-    - "%22"       # " URL encoded
-
-  javascript_encoding:
-    - "\\x3C"     # < JS hex
-    - "\\u003C"   # < JS unicode
+  html_entity: ["&lt;", "&gt;", "&quot;", "&#60;", "&#x3C;"]
+  url_encoding: ["%3C", "%3E", "%22"]
+  javascript_encoding: ["\\x3C", "\\u003C"]
 ```
 
 ### XSS Rate Limiting
 
-```bash
-# XSS検証のレート制限
-max_payloads_per_endpoint: 3    # 最大3ペイロード/エンドポイント
-interval: 2                      # 2秒間隔
-
-for payload in ${xss_payloads[@]:0:3}; do  # 最大3個
-  curl -i --max-time 10 "$target$endpoint?param=$payload"
-  sleep 2  # 2 second interval
-done
-```
+`max_payloads_per_endpoint: 3, interval: 2s`
 
 ### XSS Verification Result
 
-| Result | Condition |
-|--------|-----------|
-| confirmed | ペイロードがエスケープなしで反射 |
-| not_vulnerable | エンコード済み or 反射なし |
-| inconclusive | タイムアウト |
-| skipped | 到達不能 or Content-Type非対象 |
+`confirmed(エスケープなし反射) | not_vulnerable(エンコード済み/反射なし) | inconclusive(タイムアウト) | skipped(到達不能/Content-Type非対象)`
 
 ---
 
 ## Auth Verification
 
-認証バイパス脆弱性を動的に検証する。`--enable-dynamic-auth` フラグで有効化。
+`--enable-dynamic-auth` フラグで有効化。
 
-### Auth Detection Patterns
+### Auth Detection/Payloads
 
 ```yaml
 auth_bypass_checks:
-  # 1. 認証なしで保護リソースアクセス
-  unauthenticated_access:
-    - GET protected endpoint without session
-    - Check for 200 OK (should be 401/403)
+  unauthenticated_access: "GET protected endpoint without session → Check 200 (should be 401/403)"
+  privilege_escalation: "Access admin endpoint with user session → Check 200 (should be 403)"
+  idor: "Access other user's resource with valid session → Check 200 with other user's data"
 
-  # 2. ロール昇格
-  privilege_escalation:
-    - Access admin endpoint with user session
-    - Check for 200 OK (should be 403)
-
-  # 3. IDOR
-  idor:
-    - Access other user's resource with valid session
-    - Check for 200 OK with other user's data
-```
-
-### Auth Payloads
-
-```yaml
 auth_payloads:
   non_destructive:
     - "GET /admin without cookie"
     - "GET /api/users/1 with user_id=2 session"
     - "GET /profile?id=other_user_id"
-
   forbidden:
     - "DELETE /users"
     - "PUT /users/*/role"
@@ -334,147 +188,80 @@ auth_payloads:
 
 ### Auth Verification Result
 
-| Result | Condition |
-|--------|-----------|
-| confirmed | 認証なしで保護リソースにアクセス成功 |
-| not_vulnerable | 適切に401/403返却 |
-| inconclusive | タイムアウト or 予期しないレスポンス |
+`confirmed(認証なしアクセス成功) | not_vulnerable(401/403返却) | inconclusive(タイムアウト/予期しないレスポンス)`
 
 ---
 
 ## CSRF Verification
 
-CSRF脆弱性を動的に検証する。`--enable-dynamic-csrf` フラグで有効化。
+`--enable-dynamic-csrf` フラグで有効化。
 
-### CSRF Detection Patterns
+### CSRF Detection/Payloads
 
 ```yaml
 csrf_checks:
-  # 1. CSRFトークンなしでリクエスト
-  missing_token:
-    - POST without _token parameter
-    - Check for 200 OK (should be 403/419)
+  missing_token: "POST without _token → Check 200 (should be 403/419)"
+  invalid_token: "POST with _token=invalid → Check 200 (should be 403/419)"
+  samesite_check: "Check Set-Cookie header for SameSite attribute"
 
-  # 2. 無効トークンでリクエスト
-  invalid_token:
-    - POST with _token=invalid
-    - Check for 200 OK (should be 403/419)
-
-  # 3. SameSite Cookie
-  samesite_check:
-    - Check Set-Cookie header for SameSite attribute
-```
-
-### CSRF Payloads
-
-```yaml
 csrf_payloads:
   non_destructive:
     - "POST /profile (read-only endpoint) without token"
     - "POST /settings with invalid token"
-
   forbidden:
     - Any state-changing operations
-    - Password change
-    - Email change
-    - Account deletion
+    - Password/Email change, Account deletion
 ```
 
 ### CSRF Verification Result
 
-| Result | Condition |
-|--------|-----------|
-| confirmed | トークンなしでPOST成功 |
-| not_vulnerable | 適切に403/419返却 |
-| inconclusive | タイムアウト or 予期しないレスポンス |
+`confirmed(トークンなしPOST成功) | not_vulnerable(403/419返却) | inconclusive(タイムアウト/予期しないレスポンス)`
 
 ---
 
 ## SSRF Verification
 
-SSRF脆弱性を動的に検証する。`--enable-dynamic-ssrf` フラグで有効化。
+`--enable-dynamic-ssrf` フラグで有効化。
 
-### SSRF Detection Patterns
+### SSRF Detection/Payloads
 
 ```yaml
 ssrf_checks:
-  # 1. ローカルコールバック
-  callback:
-    - Start local HTTP server
-    - Submit callback URL to target
-    - Check if callback received
+  callback: "Start local HTTP server → Submit callback URL → Check if received"
+  dns_canary: "Use unique subdomain → Check DNS query log"
 
-  # 2. DNS Canary
-  dns_canary:
-    - Use unique subdomain
-    - Check DNS query log
-```
-
-### SSRF Payloads
-
-```yaml
 ssrf_payloads:
   non_destructive:
     - "http://localhost:CALLBACK_PORT/ssrf-test"
     - "http://127.0.0.1:CALLBACK_PORT/verify"
-
   forbidden:
-    - Internal IP ranges (10.x, 172.16.x, 192.168.x)
-    - Cloud metadata (169.254.169.254)
-    - File protocol (file://)
+    - "Internal IP ranges (10.x, 172.16.x, 192.168.x)"
+    - "Cloud metadata (169.254.169.254)"
+    - "File protocol (file://)"
 ```
 
 ### SSRF Callback Server
 
 ```bash
-# Simple callback server
 nc -l -p $CALLBACK_PORT &
 SERVER_PID=$!
-
-# Submit SSRF payload
 curl "$target$endpoint?url=http://localhost:$CALLBACK_PORT/ssrf-$uuid"
-
-# Wait for callback (max 5s)
 sleep 5
-
-# Check if request received
-if grep -q "ssrf-$uuid" /tmp/ssrf_log; then
-  echo "SSRF confirmed"
-fi
-
+if grep -q "ssrf-$uuid" /tmp/ssrf_log; then echo "SSRF confirmed"; fi
 kill $SERVER_PID 2>/dev/null
 ```
 
 ### SSRF Verification Result
 
-| Result | Condition |
-|--------|-----------|
-| confirmed | コールバック受信 |
-| not_vulnerable | コールバックなし (5秒タイムアウト) |
-| inconclusive | サーバーエラー |
+`confirmed(コールバック受信) | not_vulnerable(5秒タイムアウト) | inconclusive(サーバーエラー)`
 
 ---
 
 ## File Verification
 
-ファイル読取脆弱性を動的に検証する。`--enable-dynamic-file` フラグで有効化。
+`--enable-dynamic-file` フラグで有効化。
 
-### File Detection Patterns
-
-```yaml
-file_checks:
-  # 1. パストラバーサル
-  path_traversal:
-    - "../../etc/passwd"
-    - Check for "root:" in response
-
-  # 2. LFI
-  local_file_inclusion:
-    - "/etc/passwd"
-    - Check for known file content
-```
-
-### File Payloads
+### File Detection/Payloads
 
 ```yaml
 file_payloads:
@@ -483,16 +270,9 @@ file_payloads:
     - "../../../etc/passwd"
     - "....//....//etc/passwd"
     - "/etc/passwd"
-
   expected_content:
-    linux:
-      - "root:"
-      - "/bin/bash"
-      - "/bin/sh"
-    windows:
-      - "[boot loader]"
-      - "[operating systems]"
-
+    linux: ["root:", "/bin/bash", "/bin/sh"]
+    windows: ["[boot loader]", "[operating systems]"]
   forbidden:
     - Write operations
     - Log poisoning payloads
@@ -501,11 +281,7 @@ file_payloads:
 
 ### File Verification Result
 
-| Result | Condition |
-|--------|-----------|
-| confirmed | 既知ファイル内容がレスポンスに含まれる |
-| not_vulnerable | ファイル内容なし or エラー |
-| inconclusive | タイムアウト |
+`confirmed(既知ファイル内容含む) | not_vulnerable(内容なし/エラー) | inconclusive(タイムアウト)`
 
 ## Memory
 

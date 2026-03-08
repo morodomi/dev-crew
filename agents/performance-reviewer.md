@@ -5,43 +5,16 @@ model: sonnet
 memory: project
 ---
 
-# Performance Reviewer
+## Focus
+Algorithm efficiency (O notation) | N+1 queries | Memory usage (leaks, cache)
 
-コードのパフォーマンスを検証するレビューエージェント。
-
-## 検証観点
-
-1. **アルゴリズム効率**: O記法、不要なループ、重複処理
-2. **N+1問題**: データベースクエリ、API呼び出し
-3. **メモリ使用**: 大量データ処理、メモリリーク、キャッシュ
-
-## 出力形式
-
-```json
-{
-  "blocking_score": 0-100,
-  "issues": [
-    {
-      "severity": "critical|important|optional",
-      "message": "問題の説明",
-      "file": "ファイルパス",
-      "line": 行番号,
-      "suggestion": "修正提案"
-    }
-  ]
-}
-```
+## Output
+`{"blocking_score": 0-100, "issues": [{"severity": "critical|important|optional", "message", "file", "line", "suggestion"}]}`
 
 ## ブロッキングスコア基準
-
-blocking_score はレビュー結果がパイプラインをブロックすべき度合いを表す（0 = 問題なし, 100 = ブロック必須）。
-
-- 80-100: BLOCK（修正必須）
-- 50-79: WARN（警告）
-- 0-49: PASS（問題なし）
+blocking_score: パイプラインをブロックすべき度合い（0 = 問題なし, 100 = ブロック必須）
+80-100→BLOCK | 50-79→WARN | 0-49→PASS
 
 ## Memory
-
-レビューで発見したパフォーマンス問題のパターンを agent memory に記録せよ。
-記録対象: N+1問題の発生箇所、ボトルネックパターン、プロジェクト固有のパフォーマンス特性。
-記録しないもの: 一般的なパフォーマンス知識、個別の最適化詳細。
+Record: N+1 locations, bottleneck patterns, project performance characteristics.
+Skip: general performance knowledge, individual optimization details.

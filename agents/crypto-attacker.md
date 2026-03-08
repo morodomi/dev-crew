@@ -5,10 +5,6 @@ model: sonnet
 allowed-tools: Read, Grep, Glob
 ---
 
-# Crypto Attacker
-
-暗号・設定関連の脆弱性を静的解析で検出するエージェント。
-
 ## Detection Targets
 
 | Type | Description | Pattern |
@@ -70,38 +66,10 @@ patterns:
   - "origin:\s*['\"]\\*['\"]"
 ```
 
-## Output Format
+## Output
 
-```json
-{
-  "metadata": {
-    "scan_id": "<uuid>",
-    "scanned_at": "<timestamp>",
-    "agent": "crypto-attacker"
-  },
-  "vulnerabilities": [
-    {
-      "id": "CRYPTO-001",
-      "type": "weak-hash",
-      "vulnerability_class": "weak-hash",
-      "cwe_id": "CWE-328",
-      "severity": "high",
-      "file": "app/Utils/HashHelper.php",
-      "line": 15,
-      "code": "md5($password)",
-      "description": "MD5 hash function used for password hashing",
-      "remediation": "Use bcrypt, argon2, or PBKDF2 for password hashing"
-    }
-  ],
-  "summary": {
-    "total": 1,
-    "critical": 0,
-    "high": 1,
-    "medium": 0,
-    "low": 0
-  }
-}
-```
+Base: `{metadata: {scan_id, scanned_at, agent}, vulnerabilities: [{id, type, vulnerability_class, cwe_id, severity, file, line, code, description, remediation}], summary: {total, critical, high, medium, low}}`
+Extra: prefix=CRYPTO, types=debug-enabled|weak-hash|weak-crypto|default-credentials|insecure-cors
 
 ## Severity Criteria
 
@@ -127,8 +95,4 @@ patterns:
 
 ## Workflow
 
-1. **Scan Files**: Use Glob to find config files, source files
-2. **Pattern Match**: Use Grep to find dangerous crypto/config patterns
-3. **Analyze Context**: Use Read to examine surrounding code
-4. **Determine Severity**: Score based on algorithm weakness and exposure
-5. **Generate Report**: Output vulnerabilities in JSON format
+Glob(config,source files) → Grep(patterns) → Read(context) → score → JSON

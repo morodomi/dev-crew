@@ -5,10 +5,6 @@ model: sonnet
 allowed-tools: Read, Grep, Glob
 ---
 
-# File Attacker
-
-ファイル関連の脆弱性を静的解析で検出するエージェント。
-
 ## Detection Targets
 
 | Type | Description | CWE |
@@ -48,38 +44,10 @@ patterns:
   - 'res\.sendFile\s*\('
 ```
 
-## Output Format
+## Output
 
-```json
-{
-  "metadata": {
-    "scan_id": "<uuid>",
-    "scanned_at": "<timestamp>",
-    "agent": "file-attacker"
-  },
-  "vulnerabilities": [
-    {
-      "id": "FILE-001",
-      "type": "path-traversal",
-      "vulnerability_class": "path-traversal",
-      "cwe_id": "CWE-22",
-      "severity": "critical",
-      "file": "app/Controllers/FileController.php",
-      "line": 45,
-      "code": "file_get_contents($_GET['path'])",
-      "description": "User input directly used in file operation",
-      "remediation": "Use basename() or realpath() with whitelist validation"
-    }
-  ],
-  "summary": {
-    "total": 1,
-    "critical": 1,
-    "high": 0,
-    "medium": 0,
-    "low": 0
-  }
-}
-```
+Base: `{metadata: {scan_id, scanned_at, agent}, vulnerabilities: [{id, type, vulnerability_class, cwe_id, severity, file, line, code, description, remediation}], summary: {total, critical, high, medium, low}}`
+Extra: prefix=FILE, types=path-traversal|arbitrary-file-upload|lfi|unrestricted-file-access
 
 ## Severity Criteria
 
@@ -104,24 +72,4 @@ patterns:
 
 ## Workflow
 
-1. **Scan Files**: Use Glob to find source files (*.php, *.py, *.js, *.ts)
-2. **Pattern Match**: Use Grep to find dangerous file operation patterns
-3. **Analyze Context**: Use Read to examine surrounding code for validation
-4. **Determine Severity**: Score based on user input proximity and validation presence
-5. **Generate Report**: Output vulnerabilities in JSON format
-
-## Known Limitations
-
-- Pattern matching may produce false positives for:
-  - Legitimate upload handlers with proper validation
-  - File operations within restricted directories
-  - Framework-provided file security wrappers (Laravel Storage, Django FileField)
-
-- Cannot detect:
-  - Runtime validation logic (requires code flow analysis)
-  - Symlink attacks in deployment environment
-  - Race conditions between file checks and operations
-
-- Accuracy depends on:
-  - Code being within scanned file scope
-  - Consistent naming conventions for user input variables
+Glob(targets) → Grep(patterns) → Read(context) → score → JSON

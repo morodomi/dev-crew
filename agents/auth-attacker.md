@@ -5,10 +5,6 @@ model: sonnet
 allowed-tools: Read, Grep, Glob
 ---
 
-# Auth Attacker
-
-認証・認可脆弱性を静的解析で検出するエージェント。
-
 ## Detection Targets
 
 | Type | Description | Pattern |
@@ -52,38 +48,10 @@ patterns:
   - 'cookie:\s*\{\s*secure:\s*false'
 ```
 
-## Output Format
+## Output
 
-```json
-{
-  "metadata": {
-    "scan_id": "<uuid>",
-    "scanned_at": "<timestamp>",
-    "agent": "auth-attacker"
-  },
-  "vulnerabilities": [
-    {
-      "id": "AUTH-001",
-      "type": "hardcoded-credentials",
-      "vulnerability_class": "hardcoded-credentials",
-      "cwe_id": "CWE-798",
-      "severity": "critical",
-      "file": "config/database.php",
-      "line": 23,
-      "code": "password => 'admin123'",
-      "description": "Hardcoded database password",
-      "remediation": "Use environment variables"
-    }
-  ],
-  "summary": {
-    "total": 1,
-    "critical": 1,
-    "high": 0,
-    "medium": 0,
-    "low": 0
-  }
-}
-```
+Base: `{metadata: {scan_id, scanned_at, agent}, vulnerabilities: [{id, type, vulnerability_class, cwe_id, severity, file, line, code, description, remediation}], summary: {total, critical, high, medium, low}}`
+Extra: prefix=AUTH, types=hardcoded-credentials|missing-auth|broken-access-control|weak-session
 
 ## Severity Criteria
 
@@ -105,8 +73,4 @@ patterns:
 
 ## Workflow
 
-1. **Scan Files**: Use Glob to find config/route/view files
-2. **Pattern Match**: Use Grep to find dangerous auth patterns
-3. **Analyze Context**: Use Read to examine surrounding code
-4. **Determine Severity**: Score based on exposure and sensitivity
-5. **Generate Report**: Output vulnerabilities in JSON format
+Glob(config,routes,views) → Grep(patterns) → Read(context) → score → JSON

@@ -5,10 +5,6 @@ model: sonnet
 allowed-tools: Read, Grep, Glob
 ---
 
-# SSTI Attacker
-
-Server-Side Template Injection (SSTI) 脆弱性を静的解析で検出するエージェント。
-
 ## Detection Targets
 
 | Engine | Framework | Description |
@@ -84,50 +80,10 @@ safe_patterns:
   - 'res\.render\s*\(\s*["\']'
 ```
 
-## Output Format
+## Output
 
-```json
-{
-  "metadata": {
-    "scan_id": "<uuid>",
-    "scanned_at": "<timestamp>",
-    "agent": "ssti-attacker"
-  },
-  "vulnerabilities": [
-    {
-      "id": "SSTI-001",
-      "type": "blade-ssti",
-      "vulnerability_class": "ssti",
-      "cwe_id": "CWE-1336",
-      "severity": "critical",
-      "file": "app/Http/Controllers/TemplateController.php",
-      "line": 28,
-      "code": "Blade::compileString($request->input('template'))",
-      "description": "User input directly passed to Blade::compileString()",
-      "remediation": "Use view() with data binding instead of compileString()"
-    },
-    {
-      "id": "SSTI-002",
-      "type": "jinja2-ssti",
-      "vulnerability_class": "ssti",
-      "cwe_id": "CWE-1336",
-      "severity": "critical",
-      "file": "app/routes.py",
-      "line": 15,
-      "code": "render_template_string(request.form['template'])",
-      "description": "User input directly passed to render_template_string()",
-      "remediation": "Use render_template() with a file-based template"
-    }
-  ],
-  "summary": {
-    "total": 2,
-    "critical": 2,
-    "high": 0,
-    "medium": 0,
-    "low": 0
-  }
-}
-```
+Base: `{metadata: {scan_id, scanned_at, agent}, vulnerabilities: [{id, type, vulnerability_class, cwe_id, severity, file, line, code, description, remediation}], summary: {total, critical, high, medium, low}}`
+Extra: prefix=SSTI, types=blade-ssti|jinja2-ssti|twig-ssti|erb-ssti|ejs-ssti
 
 ## Severity Criteria
 
@@ -147,8 +103,4 @@ safe_patterns:
 
 ## Workflow
 
-1. **Scan Files**: Use Glob to find source files (controllers, routes, views)
-2. **Pattern Match**: Use Grep to find dangerous template patterns
-3. **Analyze Context**: Use Read to examine user input flow
-4. **Determine Severity**: Score based on auth and input validation
-5. **Generate Report**: Output vulnerabilities in JSON format
+Glob(controllers,routes,views) → Grep(template patterns) → Read(input flow) → score → JSON

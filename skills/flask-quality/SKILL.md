@@ -4,18 +4,8 @@ description: Flaskプロジェクトの品質チェック。pytest-flask/mypy(st
 allowed-tools: Bash, Read, Grep, Glob
 ---
 
-# Flask Quality Check
-
-Flask プロジェクトの品質チェックツール。
-
-## Commands
-
-| ツール | コマンド | 用途 |
-|--------|---------|------|
-| pytest | `pytest` | テスト実行（pytest-flask） |
-| mypy | `mypy --strict` | 型チェック |
-| Black | `black .` | コードフォーマット |
-| isort | `isort .` | import整理 |
+## Tools
+test: `pytest` (pytest-flask) | types: `mypy --strict` | format: `black` + `isort`
 
 ## Flask-specific Fixtures
 
@@ -25,21 +15,7 @@ Flask プロジェクトの品質チェックツール。
 | `app` | Flask アプリケーション |
 | `app_context` | アプリケーションコンテキスト |
 
-## Usage
-
-```bash
-# テスト実行
-pytest -v
-pytest tests/test_routes.py
-pytest --cov=src --cov-report=html
-
-# 静的解析
-mypy --strict src/
-black .
-isort .
-```
-
-## Quality Standards
+## Standards
 
 | 項目 | 目標 |
 |------|------|
@@ -48,5 +24,4 @@ isort .
 | black/isort | エラー0 |
 
 ## Reference
-
-- App Factory Pattern、conftest.py例: [reference.md](reference.md)
+- [reference.md](reference.md)

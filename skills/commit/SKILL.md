@@ -4,22 +4,10 @@ description: 変更をGitコミットしてTDDサイクルを完了する。REVI
 allowed-tools: Read, Write, Edit, Bash
 ---
 
-# TDD COMMIT Phase
-
-変更をGitコミットしてTDDサイクルを完了する。
-
 ## Workflow
 
-### Step 1: Cycle doc確認（Hard Gate）
-
-```bash
-CYCLE_DOC=$(grep -L 'phase: DONE' docs/cycles/*.md 2>/dev/null | head -1)
-```
-
-| 結果 | アクション |
-|------|-----------|
-| 見つかった | Cycle doc を読み込んで続行 |
-| 見つからない | BLOCK: 「進行中の Cycle doc がありません。kickoff を実行してください」で中断 |
+### Cycle Doc Gate
+`grep -L 'phase: DONE' docs/cycles/*.md | head -1` → found: continue / not found: BLOCK(run kickoff)
 
 **Phase Ordering Gate**: Progress Log に `REVIEW` の `Phase completed` 記録があるか確認。なければ BLOCK: 「先に review を実行してください」
 
@@ -47,13 +35,7 @@ ls .husky/pre-commit .git/hooks/pre-commit 2>/dev/null
 git diff --name-only HEAD | grep -qE '^(skills|agents)/' && echo "UPDATE" || echo "SKIP"
 ```
 
-Progress Log に追記し、frontmatter の `phase` を `DONE`、`updated` を現在時刻に更新:
-
-```markdown
-### YYYY-MM-DD HH:MM - COMMIT
-- Committed: [hash]
-- Phase completed
-```
+Progress Log追記(`### {date} - COMMIT\n- {summary}\n- Phase completed`) + frontmatter更新(phase/updated)
 
 ### Step 4: コミットメッセージ生成 + 実行
 
