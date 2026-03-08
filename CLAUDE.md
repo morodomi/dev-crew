@@ -68,11 +68,12 @@ plan mode (常にここから開始)
   ├─ spec: TDDコンテキスト + 仕様曖昧性検出（Questioning Protocol）
   ├─ 探索・設計
   ├─ Test List定義
-  └─ QAチェック
-  ↓ approve → auto-compact
+  ├─ QAチェック
+  └─ review --plan: 設計レビュー（approve前に必須）
+  ↓ approve → "Yes, clear context + auto-accept edits" → compact
 
-normal mode (実行フェーズ)
-  ├─ kickoff: planファイル → Cycle doc生成
+normal mode (実行フェーズ - compact直後に自動開始)
+  ├─ kickoff: planファイル → Cycle doc生成（orchestrate経由で自動実行）
   ├─ red: テスト計画検証 + 失敗テスト作成（Stage 1-3）
   ├─ green: 最小実装
   ├─ /simplify: コード品質改善（refactorスキルが委譲）
@@ -85,12 +86,14 @@ Claude Code組み込み機能との連携:
 - /simplify: refactorスキルが実行を委譲
 - /compact: phase-compactスキルがCycle doc更新後に案内
 
+**plan approve後の自動orchestrate**: planファイルの `## Post-Approve Action` セクションがcompact後の圧縮コンテキストに残る。これを読んでcompact + accept edits on遷移直後に /orchestrate を自動実行する。orchestrateがkickoff→RED→GREEN→/simplify→REVIEW→COMMITを自動管理する。（注: このCLAUDE.mdはプラグインディレクトリ内でのみロードされるため、他プロジェクトではplanファイルのPost-Approve Actionが唯一のトリガー）
+
 ## Token Optimization
 
 Phase-boundary compaction:
 - Phase output persisted to Cycle doc before compaction
 - Context restored from files, not conversation history
-- plan mode → approve → auto-compact で自然なコンテキスト圧縮
+- plan approve → compact + accept edits on → 自動orchestrate でシームレスに実行フェーズへ
 
 ## Hooks
 
@@ -165,7 +168,7 @@ feat | fix | docs | refactor | test | chore
 | シナリオ | モード | Context管理 |
 |---------|--------|------------|
 | タスク探し | plan mode | search-task → strategy |
-| 小〜中規模 | plan mode → accept edits on | spec(plan mode) → kickoff → red → green → /simplify → review → commit |
+| 小〜中規模 | plan mode → accept edits on | spec → review --plan → approve → 自動orchestrate |
 | 中規模 + 圧縮 | plan mode → accept edits on | phase-compact → /compact → /reload を各フェーズ間で |
 | 大規模 (自動) | plan mode → accept edits on (AGENT_TEAMS=1) | spec → orchestrate（Task()で自動分離）|
 | セッション再開 | accept edits on | /reload → 現在フェーズから継続 |

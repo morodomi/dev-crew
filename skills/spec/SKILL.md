@@ -83,6 +83,8 @@ Use AskUserQuestion to confirm scope. Details: [reference.md](reference.md)
 
 planファイルにTDDコンテキストを記録。テンプレート: [reference.md](reference.md#plan-file-template)
 
+**必須**: planファイル末尾に `## Post-Approve Action` セクションを含めること。これがcompact後のauto-orchestrateトリガーになる。
+
 ### Step 7: Continue in Plan Mode
 
 specの記録後、plan mode内で以下を続行（specスキルの範囲外）:
@@ -92,7 +94,7 @@ specの記録後、plan mode内で以下を続行（specスキルの範囲外）
 3. **Test List**: Given/When/Then形式
 4. **QAチェック**: カバレッジ・粒度・セキュリティ・独立性
 
-→ approve → kickoff でCycle doc生成
+→ review --plan → approve → 自動orchestrate（kickoff→RED→GREEN→...）
 
 ## Reference
 

@@ -464,6 +464,14 @@ planファイルに記録するTDDコンテキストのテンプレート:
 
 ### Risk Details (BLOCK only)
 - [risk interview answers]
+
+### Ambiguity Resolution (if any)
+- [category]: [resolution]
+
+## Post-Approve Action
+
+approve後、compact + accept edits on に遷移したら、最初のアクションとして以下を実行:
+1. `/dev-crew:orchestrate` を実行してTDDサイクルを開始する（orchestrateがkickoff→RED→GREEN→...を自動管理）
 ```
 
 この後、plan mode内で探索・設計・Test List定義・QAチェックを続行する。

@@ -1,6 +1,6 @@
 ---
 name: kickoff
-description: plan modeで承認されたplanファイルからCycle docを生成する。plan mode承認後の最初のフェーズ。「kickoff」「キックオフ」で起動。
+description: plan modeで承認されたplanファイルからCycle docを生成する。plan approve後にPost-Approve Actionで自動実行される。手動起動も可:「kickoff」「キックオフ」。
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
 ---
 
