@@ -9,6 +9,9 @@ Copy and create `docs/cycles/YYYYMMDD_HHMM_<feature-name>.md`.
 feature: [feature-area]
 cycle: [cycle-identifier]
 phase: INIT
+complexity: [trivial|standard|complex]
+test_count: [number]
+risk_level: [low|medium|high]
 created: YYYY-MM-DD HH:MM
 updated: YYYY-MM-DD HH:MM
 ---

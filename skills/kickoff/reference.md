@@ -27,6 +27,24 @@ planファイルから以下の情報をCycle docに転記する:
 | Riskフィールドなし | WARN（標準）として扱う |
 | Test Listが空 | エラー: plan modeでTest Listを作成してください |
 
+## フロントマター初期化
+
+KICKOFFフェーズでCycle docを作成する際、全フロントマターフィールドを初期化する。
+
+| フィールド | 設定値 | 参照元 |
+|-----------|--------|--------|
+| feature | フィーチャー名 | planファイル |
+| cycle | YYYYMMDD_HHMM | ファイル名から |
+| phase | KICKOFF | 固定 |
+| complexity | trivial/standard/complex | planのRiskスコア・規模から仮設定（REDが正式値で上書き） |
+| test_count | テスト数 | Test Listのカウント |
+| risk_level | low/medium/high | planのRiskフィールドから判断 |
+| created | 現在日時 | `date` コマンドで取得 |
+| updated | 現在日時 | createdと同値で初期化 |
+
+complexity判断基準（仮値）: Risk 0-20 → trivial, 21-50 → standard, 51+ → complex。REDフェーズでTest List item数ベースの正式分類に上書きされる。
+risk_level判断基準: Risk 0-29 → low, 30-59 → medium, 60+ → high。
+
 ## タスク粒度
 
 ### 基準: 2-5分で完了する1アクション
