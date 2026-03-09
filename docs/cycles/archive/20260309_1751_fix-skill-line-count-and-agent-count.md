@@ -1,7 +1,7 @@
 ---
 feature: fix-skill-line-count-and-agent-count
 cycle: 20260309_1751
-phase: GREEN
+phase: DONE
 created: 2026-03-09 17:51
 updated: 2026-03-09 17:51
 ---
