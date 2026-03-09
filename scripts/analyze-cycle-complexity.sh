@@ -78,13 +78,13 @@ fi
 echo ""
 
 # --- Recent N Cycles (sorted by filename descending = timestamp descending) ---
-RECENT_FILES=()
+RECENT_INDICES=()
 if [ "$TOTAL" -gt 0 ]; then
-  while IFS= read -r f; do
-    RECENT_FILES+=("$f")
-  done < <(for f in "${ALL_FILES[@]}"; do echo "$(basename "$f")|$f"; done | sort -t'|' -k1 -r | head -10 | cut -d'|' -f2)
+  while IFS= read -r idx; do
+    RECENT_INDICES+=("$idx")
+  done < <(for i in $(seq 0 $((TOTAL - 1))); do echo "$(basename "${ALL_FILES[$i]}")|$i"; done | sort -t'|' -k1 -r | head -10 | cut -d'|' -f2)
 fi
-RECENT_N=${#RECENT_FILES[@]}
+RECENT_N=${#RECENT_INDICES[@]}
 echo "## Recent $RECENT_N Cycles"
 echo ""
 if [ "$RECENT_N" -eq 0 ]; then
@@ -92,14 +92,33 @@ if [ "$RECENT_N" -eq 0 ]; then
 else
   echo "| File | Complexity | Phase |"
   echo "|------|------------|-------|"
-  for f in "${RECENT_FILES[@]}"; do
-    fname=$(basename "$f")
-    c=$(fm_val "$f" complexity)
-    p=$(fm_val "$f" phase)
+  for i in "${RECENT_INDICES[@]}"; do
+    fname=$(basename "${ALL_FILES[$i]}")
+    c="${COMPLEXITIES[$i]}"
+    p="${PHASES[$i]}"
     echo "| $fname | ${c:-missing} | ${p:-unknown} |"
   done
 fi
 echo ""
+
+# --- Single-pass: accumulate phase:complexity pairs and test_count stats ---
+# Stored as newline-delimited "phase:complexity" entries for bash 3 compat
+PXC_DATA=""
+TC_DATA_trivial="" TC_DATA_standard="" TC_DATA_complex=""
+if [ "$TOTAL" -gt 0 ]; then
+  for i in $(seq 0 $((TOTAL - 1))); do
+    p="${PHASES[$i]}"; c="${COMPLEXITIES[$i]:-missing}"
+    PXC_DATA="${PXC_DATA}${p}:${c}"$'\n'
+    tc="${TEST_COUNTS[$i]}"
+    if [ -n "$tc" ] && [ "$tc" -gt 0 ] 2>/dev/null; then
+      case "$c" in
+        trivial)  TC_DATA_trivial="${TC_DATA_trivial}${tc} " ;;
+        standard) TC_DATA_standard="${TC_DATA_standard}${tc} " ;;
+        complex)  TC_DATA_complex="${TC_DATA_complex}${tc} " ;;
+      esac
+    fi
+  done
+fi
 
 # --- Phase x Complexity ---
 echo "## Phase x Complexity"
@@ -107,20 +126,11 @@ echo ""
 echo "| Phase | trivial | standard | complex | missing |"
 echo "|-------|---------|----------|---------|---------|"
 for phase in INIT KICKOFF RED GREEN REFACTOR REVIEW COMMIT DONE; do
-  pt=0; ps=0; pc=0; pm=0
-  if [ "$TOTAL" -gt 0 ]; then
-    for i in $(seq 0 $((TOTAL - 1))); do
-      [ "${PHASES[$i]}" = "$phase" ] || continue
-      case "${COMPLEXITIES[$i]}" in
-        trivial)  pt=$((pt+1)) ;;
-        standard) ps=$((ps+1)) ;;
-        complex)  pc=$((pc+1)) ;;
-        *)        pm=$((pm+1)) ;;
-      esac
-    done
-  fi
-  HAS=$((pt+ps+pc+pm))
-  [ "$HAS" -eq 0 ] && continue
+  pt=$(echo "$PXC_DATA" | grep -c "^${phase}:trivial$" || true)
+  ps=$(echo "$PXC_DATA" | grep -c "^${phase}:standard$" || true)
+  pc=$(echo "$PXC_DATA" | grep -c "^${phase}:complex$" || true)
+  pm=$(echo "$PXC_DATA" | grep -c "^${phase}:missing$" || true)
+  [ $((pt+ps+pc+pm)) -eq 0 ] && continue
   echo "| $phase | $pt | $ps | $pc | $pm |"
 done
 echo ""
@@ -130,26 +140,21 @@ echo "## test_count by Complexity"
 echo ""
 echo "| Complexity | Count | Avg | Min | Max |"
 echo "|------------|-------|-----|-----|-----|"
+tc_stats() {
+  local data="$1"
+  if [ -z "$data" ]; then echo "0 - - -"; return; fi
+  local n=0 sum=0 min=999999 max=0
+  for v in $data; do
+    n=$((n+1)); sum=$((sum+v))
+    [ "$v" -lt "$min" ] && min=$v
+    [ "$v" -gt "$max" ] && max=$v
+  done
+  [ "$n" -eq 0 ] && echo "0 - - -" || echo "$n $((sum/n)) $min $max"
+}
 for ctype in trivial standard complex; do
-  tc_count=0; tc_sum=0; tc_min=999999; tc_max=0
-  if [ "$TOTAL" -gt 0 ]; then
-    for i in $(seq 0 $((TOTAL - 1))); do
-      [ "${COMPLEXITIES[$i]}" = "$ctype" ] || continue
-      tc="${TEST_COUNTS[$i]}"
-      if [ -n "$tc" ] && echo "$tc" | grep -qE '^[0-9]+$' && [ "$tc" -ge 1 ]; then
-        tc_count=$((tc_count+1))
-        tc_sum=$((tc_sum+tc))
-        [ "$tc" -lt "$tc_min" ] && tc_min=$tc
-        [ "$tc" -gt "$tc_max" ] && tc_max=$tc
-      fi
-    done
-  fi
-  if [ "$tc_count" -eq 0 ]; then
-    echo "| $ctype | 0 | - | - | - |"
-  else
-    tc_avg=$((tc_sum / tc_count))
-    echo "| $ctype | $tc_count | $tc_avg | $tc_min | $tc_max |"
-  fi
+  eval "data=\$TC_DATA_${ctype}"
+  read -r n avg min max <<< "$(tc_stats "$data")"
+  echo "| $ctype | $n | $avg | $min | $max |"
 done
 echo ""
 

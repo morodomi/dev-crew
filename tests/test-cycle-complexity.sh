@@ -156,8 +156,8 @@ FM
 )"
 CC5_OUT=$(bash "$SCRIPT" "$CC5_BASE")
 CC5_OK=true
-echo "$CC5_OUT" | grep -q "RED.*|.*0.*|.*1.*|.*0.*|.*0" || CC5_OK=false
-echo "$CC5_OUT" | grep -q "DONE.*|.*1.*|.*0.*|.*0.*|.*0" || CC5_OK=false
+echo "$CC5_OUT" | grep -qF "| RED | 0 | 1 | 0 | 0 |" || CC5_OK=false
+echo "$CC5_OUT" | grep -qF "| DONE | 1 | 0 | 0 | 0 |" || CC5_OK=false
 if [ "$CC5_OK" = true ]; then pass "CC5: phase x complexity correct"; else fail "CC5: cross tabulation incorrect"; fi
 
 # CC6: test_count statistics (avg/min/max)
