@@ -2,6 +2,31 @@
 
 SKILL.mdの詳細情報。必要時のみ参照。
 
+## Complexity Classification {#complexity-classification}
+
+RED フェーズ開始時に Test List を評価し、処理パスを決定する。
+
+| Class | Criteria | Stages |
+|-------|----------|--------|
+| trivial | 1-2 items, Example paradigm only, no escalation triggers | Stage 1 as 1-line GWT in test header; Stage 2 skipped; Stage 3 |
+| standard | 3-5 items, Example paradigm only | Stage 1 simplified; Stage 2 Review skipped; Stage 3 |
+| complex | 6+ items OR any non-Example paradigm | Full 3-stage unchanged |
+
+### Escalation Conditions
+
+以下の条件に1つでも該当する場合、item数に関わらず自動アップグレード:
+
+| Condition | Escalates to |
+|-----------|-------------|
+| External I/O dependency (DB, API, file) | standard or above |
+| Async / concurrency | standard or above |
+| State transitions | complex |
+| Property / Metamorphic paradigm | complex |
+
+### Rationale
+
+Fast-path は「要件緩和」であり「省略」ではない。thinking trace は常に保持される。trivial/standard では ceremony を軽くするだけで、本質的なテスト品質は維持する。
+
 ## Test Plan Stage {#test-plan-stage}
 
 Stage 1 でテスト計画を正式化する手順。

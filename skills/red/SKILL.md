@@ -16,6 +16,16 @@ allowed-tools: Task, Read, Write, Edit, Bash, Grep, Glob
 
 Test ListのTODOからテストケースを選択してWIPに移動。
 
+### Complexity Gate
+
+Test List に対してREDフェーズ開始時に評価する。詳細: [reference.md](reference.md#complexity-classification)
+
+| Class | Criteria | Stages |
+|-------|----------|--------|
+| trivial | 1-2 items, Example only, no escalation triggers | Stage 1 as 1-line GWT; Stage 2 skip; Stage 3 |
+| standard | 3-5 items, Example only, no complex escalation triggers | Stage 1 simplified; Stage 2 Review skip; Stage 3 |
+| complex | 6+ items OR any non-Example paradigm | Full 3-stage (all stages) |
+
 ### Stage 1: Test Plan
 
 Cycle doc の Test List を Given/When/Then + 具体テストデータに展開。詳細: [reference.md](reference.md#test-plan-stage)
