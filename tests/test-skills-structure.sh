@@ -97,6 +97,52 @@ else
 fi
 rm -rf "$tmpdir"
 
+# TC-B1: CLAUDE.md agent count comment matches actual agent count
+echo ""
+echo "TC-B1: CLAUDE.md agent count comment matches actual agent count"
+actual_agent_count=0
+for f in "$BASE_DIR"/agents/*.md; do
+  [ -f "$f" ] || continue
+  first_line=$(head -1 "$f")
+  [ "$first_line" = "---" ] && actual_agent_count=$((actual_agent_count + 1))
+done
+# Extract number from "# XX agents (flat)" comment in CLAUDE.md
+declared_agent_count=$(grep -o '[0-9]\+ agents (flat)' "$BASE_DIR/CLAUDE.md" | grep -o '^[0-9]\+' | head -1)
+if [ "$declared_agent_count" = "$actual_agent_count" ]; then
+  pass "TC-B1: CLAUDE.md declares $declared_agent_count agents, actual is $actual_agent_count"
+else
+  fail "TC-B1: CLAUDE.md declares $declared_agent_count agents, actual is $actual_agent_count"
+fi
+
+# TC-B2: CLAUDE.md security agent count comment matches actual security specialist count
+echo ""
+echo "TC-B2: CLAUDE.md security agent count comment matches actual security specialist count"
+core_agents="architect.md red-worker.md green-worker.md refactorer.md socrates.md observer.md review-briefer.md designer.md"
+actual_security_count=0
+for f in "$BASE_DIR"/agents/*.md; do
+  [ -f "$f" ] || continue
+  name=$(basename "$f")
+  first_line=$(head -1 "$f")
+  # Must have frontmatter
+  [ "$first_line" = "---" ] || continue
+  # Skip *-reviewer.md
+  case "$name" in *-reviewer.md) continue ;; esac
+  # Skip core agents
+  is_core=false
+  for core in $core_agents; do
+    [ "$name" = "$core" ] && is_core=true && break
+  done
+  $is_core && continue
+  actual_security_count=$((actual_security_count + 1))
+done
+# Extract number from "# XX security agents" comment in CLAUDE.md
+declared_security_count=$(grep -o '[0-9]\+ security agents' "$BASE_DIR/CLAUDE.md" | grep -o '^[0-9]\+' | head -1)
+if [ "$declared_security_count" = "$actual_security_count" ]; then
+  pass "TC-B2: CLAUDE.md declares $declared_security_count security agents, actual is $actual_security_count"
+else
+  fail "TC-B2: CLAUDE.md declares $declared_security_count security agents, actual is $actual_security_count"
+fi
+
 # Summary
 echo ""
 echo "=== Summary ==="

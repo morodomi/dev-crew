@@ -63,11 +63,9 @@ Calculate risk score (0-100). Keyword scores: [reference.md](reference.md)
 | 30-59 | WARN | Quick questions ([reference.md](reference.md#warn-questions-30-59)) |
 | 60-100 | BLOCK | Brainstorm ([reference.md](reference.md#brainstorm-questions-block-60-1)) |
 
-### Step 4.8: Ambiguity Detection
+### Step 4.8: Ambiguity Detection ([reference.md](reference.md#ambiguity-detection))
 
-ユーザーの回答から仕様の曖昧さを検出し、Questioning Protocolで解消。
-カテゴリ: Data, API, UI/UX, Scope, Edge cases
-詳細: [reference.md](reference.md#ambiguity-detection)
+ユーザーの回答から仕様の曖昧さを検出し、Questioning Protocolで解消。カテゴリ: Data, API, UI/UX, Scope, Edge cases
 
 ### Step 5: Scope (Layer) Confirmation
 

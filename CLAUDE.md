@@ -14,7 +14,7 @@ AI development team environment as a single Claude Code Plugin.
 dev-crew/
 ├── .claude-plugin/
 │   └── plugin.json        # Single plugin metadata
-├── agents/                # 33 agents (flat)
+├── agents/                # 32 agents (flat)
 │   ├── architect.md       # KICKOFF phase (plan→Cycle doc)
 │   ├── red-worker.md      # RED test creation
 │   ├── green-worker.md    # GREEN implementation
@@ -24,7 +24,7 @@ dev-crew/
 │   ├── review-briefer.md  # Review Brief generation (haiku)
 │   ├── designer.md        # UI/UX design guidance
 │   ├── *-reviewer.md      # 6 review agents
-│   └── *-attacker.md +    # 19 security agents
+│   └── *-attacker.md +    # 18 security agents
 │       security specialists   (attackers, recon, DAST, etc.)
 ├── skills/                # 29 skills (flat)
 │   ├── spec/              # TDD context + Ambiguity Detection (plan mode)
