@@ -1,6 +1,6 @@
 ---
 name: refactor
-description: /simplifyにコード品質改善を委譲し、Verification Gateで品質を確認する。GREENの次フェーズ。「リファクタして」「refactor」で起動。
+description: Skill("simplify")を呼び出してコード品質改善を実行し、Verification Gateで品質を確認する。GREENの次フェーズ。「リファクタして」「refactor」で起動。
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
 ---
 
@@ -19,16 +19,11 @@ allowed-tools: Read, Write, Edit, Bash, Grep, Glob
 
 全テストがPASSすることを確認してから開始。
 
-### Step 3: /simplify 実行
+### Step 3: Skill("simplify") 実行
 
-Claude Code組み込みの `/simplify` にコード品質改善を委譲する。
-
-```
-/simplify を実行してください。
-対象: 今回のサイクルで変更・作成したファイル
-```
-
-/simplify が3エージェント並列でコードをレビュー・改善する。完了後、Verification Gateに進む。
+Skill("simplify") を呼び出してコード品質改善を実行する。
+対象: 今回のサイクルで変更・作成したファイル。
+Skill("simplify") 完了後、必ず Verification Gate に進むこと。
 
 ### Verification Gate
 `Tests PASS + lint 0 + format OK → PASS(→REVIEW) | fail → fix & retry`

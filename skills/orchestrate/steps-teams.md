@@ -135,7 +135,7 @@ Task(subagent_type: "dev-crew:green-worker", team_name: "dev-cycle", name: "gree
 
 PdM が全テスト成功（GREEN 状態）を確認。
 
-### Phase Summary 永続化 (GREEN→/simplify)
+### Phase Summary 永続化 (GREEN→REFACTOR)
 
 ```markdown
 ### Phase: GREEN - Completed at HH:MM
@@ -147,11 +147,11 @@ PdM が全テスト成功（GREEN 状態）を確認。
 
 ### /simplify + Verification Gate
 
-コード品質改善を `/simplify` に委譲し、Verification Gateで品質確認:
+Skill(dev-crew:refactor) を呼び出し、内部で Skill("simplify") を実行後、Verification Gate で品質確認:
 
 ```
 Skill(dev-crew:refactor)
-→ /simplify 実行案内 + Verification Gate（テスト全PASS + 静的解析0件 + フォーマット適用）
+→ Skill("simplify") 実行 + Verification Gate（テスト全PASS + 静的解析0件 + フォーマット適用）
 ```
 
 ### Phase Summary 永続化 (/simplify→REVIEW)
@@ -161,7 +161,7 @@ Skill(dev-crew:refactor)
 **Artifacts**: [refactored file paths]
 **Decisions**: /simplify=[changes made or "no changes needed"]
 **Next Phase Input**: source files on disk, run review
-**Subagent**: PdM direct (/simplify delegation)
+**Subagent**: PdM direct (Skill(dev-crew:refactor))
 ```
 
 ### REVIEW (review code)
