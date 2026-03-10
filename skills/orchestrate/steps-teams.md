@@ -5,26 +5,37 @@
 
 ## Block 0: Prerequisite Check
 
-### Cycle Doc Validation
+planファイルを起点に開始地点を決定する:
 
-orchestrate 開始前に、既存の成果物を確認して開始地点を決定する:
+### 1. planファイルの存在確認
 
-1. **Cycle doc の存在確認**:
-   - ```bash
-     find docs/cycles -name '*.md' ! -path '*/archive/*' | head -1
-     ```
-   - cycle doc が存在 → path を確定し、Progress Log の最終完了 Phase の次から再開
-   - cycle doc が存在しない → 2. へ
+planファイルに `## TDD Context` セクションがあるか確認する。
 
-2. **Plan ファイルの存在確認** (cycle doc なしの場合):
-   - plan ファイルが存在し、`## TDD Context` セクションを含む → Phase 1 (Team 作成) → Phase 2 (kickoff) へ直行
-   - plan ファイルが存在しない → plan mode で開始:
-     1. `Skill(dev-crew:spec)` でTDDコンテキスト設定（planファイルに記録）
-     2. 探索・設計・Test List・QAチェックをplan mode内で実施
-     3. approve → auto-compact → normal modeへ → Phase 1 へ
+- **あり** → 1a. へ
+- **なし** → 2. へ
 
-**典型的フロー**: spec → approve → compact → orchestrate 自動起動時は、
-cycle doc はまだなく plan ファイルが存在するため Phase 1 (Team 作成) → Phase 2 (kickoff) に直行する。
+### 1a. 未完了 Cycle doc の確認
+
+frontmatter のみを対象に `phase: DONE` でないファイルを抽出（本文中の文字列に影響されない）:
+
+```bash
+for f in docs/cycles/*.md; do awk '/^---$/{c++;next} c==1{print}' "$f" | grep -q 'phase: DONE' || echo "$f"; done 2>/dev/null | head -1
+```
+
+- **未完了 cycle doc あり** → path を確定し、Progress Log の最終完了 Phase の次から再開
+- **なし (DONE のみ or cycle doc なし)** → Phase 1 (Team 作成) → Phase 2 (kickoff) へ直行
+
+**典型的フロー**: spec → review --plan → approve → compact → orchestrate 自動起動時は、
+plan ファイルが存在し cycle doc はまだないため Phase 1 (Team 作成) → Phase 2 (kickoff) に直行する。
+
+### 2. 新規開始 (plan mode)
+
+plan ファイルが存在しない場合、plan mode で新規開始:
+
+1. `Skill(dev-crew:spec)` でTDDコンテキスト設定（planファイルに記録）
+2. 探索・設計・Test List・QAチェックをplan mode内で実施
+3. `Skill(dev-crew:review, args: "--plan")` で設計レビュー
+4. approve → auto-compact → normal modeへ → Phase 1 へ
 
 ## Phase 1: Team 作成
 

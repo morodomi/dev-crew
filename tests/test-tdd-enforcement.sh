@@ -42,14 +42,14 @@ else
   fail "steps-subagent.md missing Block 0 or Prerequisite Check"
 fi
 
-# TC-03: steps-*.md has branching when no cycle doc → execute INIT
+# TC-03: steps-*.md has branching when no plan file → new start (spec)
 echo ""
-echo "TC-03: steps-*.md branch to INIT when no cycle doc"
-if grep -q "cycle doc.*存在しない\|cycle doc.*not found\|Skill(dev-crew:init)\|Skill(init)" "$TEAMS_FILE" 2>/dev/null || \
-   grep -q "cycle doc.*存在しない\|cycle doc.*not found\|Skill(dev-crew:init)\|Skill(init)" "$SUBAGENT_FILE" 2>/dev/null; then
-  pass "INIT branch found when no cycle doc"
+echo "TC-03: steps-*.md branch to new start when no plan file"
+if grep -q "新規開始\|plan mode.*新規\|Skill(dev-crew:spec)" "$TEAMS_FILE" 2>/dev/null || \
+   grep -q "新規開始\|plan mode.*新規\|Skill(dev-crew:spec)" "$SUBAGENT_FILE" 2>/dev/null; then
+  pass "New start branch found when no plan file"
 else
-  fail "INIT branch not found in steps-*.md"
+  fail "New start branch not found in steps-*.md"
 fi
 
 # TC-04: steps-*.md has branching when cycle doc exists → proceed to PLAN

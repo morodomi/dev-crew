@@ -25,13 +25,12 @@ MAX_SKILL_LINES=100
 pass() { PASS=$((PASS + 1)); printf "  \033[32mPASS\033[0m %s\n" "$1"; }
 fail() { FAIL=$((FAIL + 1)); printf "  \033[31mFAIL\033[0m %s\n" "$1"; }
 
-# Check if Block 0 (TDD enforcement) is preserved in a file
+# Check if Block 0 (Prerequisite Check) essential structure is preserved
 check_block0_preserved() {
   local file="$1"
   grep -q "Block 0: Prerequisite Check" "$file" 2>/dev/null && \
-  grep -q "Cycle Doc Validation" "$file" 2>/dev/null && \
-  grep -q "Issue 番号の特定" "$file" 2>/dev/null && \
-  grep -q 'issue:.*#\${ISSUE_NUM}' "$file" 2>/dev/null
+  grep -qi "Plan ファイル\|Plan file\|planファイル" "$file" 2>/dev/null && \
+  grep -q "phase: DONE\|frontmatter" "$file" 2>/dev/null
 }
 
 echo "=== Cycle doc SSOT + Hybrid Delegation Tests ==="
