@@ -20,7 +20,7 @@ A single Claude Code plugin that provides an autonomous AI development team:
 ## Installation
 
 ```bash
-/plugin install dev-crew
+/plugin install dev-crew@dev-crew
 ```
 
 One command. All 33 agents, 29 skills, rules, and hooks are available.
@@ -32,9 +32,10 @@ plan mode (design phase)
   spec (+ Ambiguity Detection) → explore → design → Test List → QA → approve
 
 normal mode (execution phase)
-  kickoff → red (Plan → Review → Code) → green → /simplify → review → commit
+  kickoff → red (Plan → Review → Code) → green → refactor → review → commit
 ```
 
+The `refactor` skill delegates to Claude Code's built-in `/simplify` internally.
 Integrates with Claude Code built-in features (plan mode, /simplify, /compact),
 performing automatic context compaction at each phase boundary.
 

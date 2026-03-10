@@ -2,6 +2,8 @@
 
 AI development team environment as a single Claude Code Plugin.
 
+> Terminology conventions: see [docs/terminology.md](docs/terminology.md)
+
 ## Tech Stack
 
 - **Distribution**: Claude Code Plugin (single plugin, user-level install)
@@ -31,7 +33,7 @@ dev-crew/
 │   ├── kickoff/           # Plan file → Cycle doc
 │   ├── red/               # Test Plan → Review → Code (Stage 1-3)
 │   ├── green/             # Minimal implementation
-│   ├── refactor/          # /simplify delegation + Verification Gate
+│   ├── refactor/          # refactor (delegates to /simplify) + Verification Gate
 │   ├── review/            # Quality check
 │   ├── commit/            # Git commit
 │   ├── orchestrate/       # PdM orchestration (plan mode起点)
@@ -76,7 +78,7 @@ normal mode (実行フェーズ - compact直後に自動開始)
   ├─ kickoff: planファイル → Cycle doc生成（orchestrate経由で自動実行）
   ├─ red: テスト計画検証 + 失敗テスト作成（Stage 1-3）
   ├─ green: 最小実装
-  ├─ /simplify: コード品質改善（refactorスキルが委譲）
+  ├─ refactor: コード品質改善（内部で/simplifyに委譲）
   ├─ review: リスクベースコードレビュー
   └─ commit: Git commit + auto-learn
 ```
@@ -86,7 +88,7 @@ Claude Code組み込み機能との連携:
 - /simplify: refactorスキルが実行を委譲
 - /compact: phase-compactスキルがCycle doc更新後に案内
 
-**plan approve後の自動orchestrate**: planファイルの `## Post-Approve Action` セクションがcompact後の圧縮コンテキストに残る。これを読んでcompact + accept edits on遷移直後に /orchestrate を自動実行する。orchestrateがkickoff→RED→GREEN→/simplify→REVIEW→COMMITを自動管理する。（注: このCLAUDE.mdはプラグインディレクトリ内でのみロードされるため、他プロジェクトではplanファイルのPost-Approve Actionが唯一のトリガー）
+**plan approve後の自動orchestrate**: planファイルの `## Post-Approve Action` セクションがcompact後の圧縮コンテキストに残る。これを読んでcompact + accept edits on遷移直後に /orchestrate を自動実行する。orchestrateがkickoff→RED→GREEN→REFACTOR→REVIEW→COMMITを自動管理する。（注: このCLAUDE.mdはプラグインディレクトリ内でのみロードされるため、他プロジェクトではplanファイルのPost-Approve Actionが唯一のトリガー）
 
 ## Token Optimization
 

@@ -1,6 +1,6 @@
 ---
 name: orchestrate
-description: TDDサイクル全体をPdM（Product Manager）として自律管理。plan mode起点でワークフロー制御。kickoff→RED→GREEN→/simplify→REVIEW→COMMITを専門エージェントに委譲・判断する。Manual trigger: 「orchestrate」「全体管理」「PdMモード」。Do NOT use for 個別フェーズのみの実行（→ 各フェーズスキル）。
+description: TDDサイクル全体をPdM（Product Manager）として自律管理。plan mode起点でワークフロー制御。kickoff→RED→GREEN→REFACTOR→REVIEW→COMMITを専門エージェントに委譲・判断する。Manual trigger: 「orchestrate」「全体管理」「PdMモード」。Do NOT use for 個別フェーズのみの実行（→ 各フェーズスキル）。
 allowed-tools: Task, Read, Write, Bash, Grep, Glob, AskUserQuestion
 ---
 
@@ -15,7 +15,7 @@ plan mode起点でワークフロー制御を行う。
 orchestrate Progress:
 - [ ] Block 0: plan mode → SPEC → 探索・設計 → Test List → QA → approve
 - [ ] Block 1: kickoff (with Design Review) → 自律判断
-- [ ] Block 2: RED → GREEN → /simplify → review(code) → 自律判断 → DISCOVERED
+- [ ] Block 2: RED → GREEN → REFACTOR → REVIEW → 自律判断 → DISCOVERED
 - [ ] Block 3: COMMIT → 完了
 ```
 
@@ -48,10 +48,10 @@ plan modeで開始し、以下を実行:
 
 1. **RED**: red-worker にテスト作成を委譲
 2. **GREEN**: green-worker に実装を委譲
-3. **/simplify**: コード品質改善（refactorの代替）+ Verification Gate
-4. **review(code)**: 統一レビュー (mode: code) でコードレビュー
+3. **REFACTOR**: コード品質改善（内部で/simplifyに委譲）+ Verification Gate
+4. **REVIEW**: 統一レビュー (mode: code) でコードレビュー
 5. **自律判断**: PASS/WARN → DISCOVERED判断 → Block 3 へ、BLOCK → GREEN再実行
-6. **DISCOVERED**: スコープ外項目をGitHub issueに起票（ユーザー確認後）
+6. **DISCOVERED**: スコープ外項目をCycle docに記録し、GitHub issueに起票（起票→ `issue #N` 参照、reject→ 理由記載）
 
 ### Block 3: Finalization
 

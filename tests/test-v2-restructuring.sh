@@ -257,7 +257,7 @@ echo "TC-12: orchestrate/SKILL.md new flow"
 ORCH_SKILL="$BASE_DIR/skills/orchestrate/SKILL.md"
 if [ -f "$ORCH_SKILL" ]; then
   old_refs=$(grep -c 'plan-review\|quality-gate' "$ORCH_SKILL" 2>/dev/null || true)
-  new_refs=$(grep -c 'review' "$ORCH_SKILL" 2>/dev/null || true)
+  new_refs=$(grep -ci 'review' "$ORCH_SKILL" 2>/dev/null || true)
   if [ "$old_refs" -eq 0 ] && [ "$new_refs" -gt 0 ]; then
     pass "TC-12: orchestrate/SKILL.md uses unified review flow"
   else

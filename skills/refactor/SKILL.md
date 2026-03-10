@@ -1,8 +1,14 @@
 ---
 name: refactor
-description: Skill("simplify")を呼び出してコード品質改善を実行し、Verification Gateで品質を確認する。GREENの次フェーズ。「リファクタして」「refactor」で起動。
+description: refactorフェーズを実行し、内部でClaude Code built-in `/simplify` に委譲してコード品質改善を行う。Verification Gateで品質確認。GREENの次フェーズ。「リファクタして」「refactor」で起動。
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
 ---
+
+## Naming
+
+- **Skill**: refactor (lowercase)
+- **Phase**: REFACTOR (uppercase)
+- **Implementation**: delegates to Claude Code built-in `/simplify`
 
 ## 禁止事項
 
