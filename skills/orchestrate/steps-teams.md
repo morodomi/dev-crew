@@ -7,23 +7,24 @@
 
 ### Cycle Doc Validation
 
-orchestrate 開始前に、Issue 番号と cycle doc の対応を確認する:
+orchestrate 開始前に、既存の成果物を確認して開始地点を決定する:
 
-1. Issue 番号の特定:
-   - ユーザー指定がある場合はそれを使用
-   - 指定がない場合は AskUserQuestion で確認
+1. **Cycle doc の存在確認**:
+   - ```bash
+     find docs/cycles -name '*.md' ! -path '*/archive/*' | head -1
+     ```
+   - cycle doc が存在 → path を確定し、Progress Log の最終完了 Phase の次から再開
+   - cycle doc が存在しない → 2. へ
 
-2. Cycle doc の存在確認:
-   ```bash
-   find docs/cycles -name '*.md' -exec grep -l "issue:.*#${ISSUE_NUM}" {} +
-   ```
-
-3. 分岐処理:
-   - cycle doc が存在 → path を確定し、Phase 1 (Team 作成) へ
-   - cycle doc が存在しない → plan mode で開始:
+2. **Plan ファイルの存在確認** (cycle doc なしの場合):
+   - plan ファイルが存在し、`## TDD Context` セクションを含む → Phase 1 (Team 作成) → Phase 2 (kickoff) へ直行
+   - plan ファイルが存在しない → plan mode で開始:
      1. `Skill(dev-crew:spec)` でTDDコンテキスト設定（planファイルに記録）
      2. 探索・設計・Test List・QAチェックをplan mode内で実施
      3. approve → auto-compact → normal modeへ → Phase 1 へ
+
+**典型的フロー**: spec → approve → compact → orchestrate 自動起動時は、
+cycle doc はまだなく plan ファイルが存在するため Phase 1 (Team 作成) → Phase 2 (kickoff) に直行する。
 
 ## Phase 1: Team 作成
 
