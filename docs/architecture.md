@@ -34,7 +34,7 @@ User
 │  │  Classify→Plan→Review→Code │               │
 │  └──────────┬───────────┘                      │
 │  ┌──────────▼──┐  ┌───────────┐                │
-│  │ GREEN       │→│ /simplify │                │
+│  │ GREEN       │→│ REFACTOR  │                │
 │  └─────────────┘  └───────────┘                │
 │       │              │              │         │
 │  ┌───────────────┐  ┌─────────┐               │
@@ -105,8 +105,8 @@ Phase N 完了
 | KICKOFF -> RED | Cycle doc (Test List) | Cycle doc + Test List |
 | RED Stage 1-2 | Formal Test Plan in Cycle doc | Cycle doc + Test Plan |
 | RED Stage 3 -> GREEN | Test files (on disk) | Cycle doc + test files |
-| GREEN -> /simplify | Implementation (on disk) | Cycle doc + source files |
-| /simplify -> REVIEW | Refactored code (on disk) | Cycle doc + source files |
+| GREEN -> REFACTOR | Implementation (on disk) | Cycle doc + source files |
+| REFACTOR -> REVIEW | Refactored code (on disk) | Cycle doc + source files |
 | REVIEW -> COMMIT | Review report | Cycle doc + review |
 
 ### Additional Token Savings

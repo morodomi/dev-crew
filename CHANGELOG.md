@@ -20,7 +20,7 @@ Initial public release. 33 agents, 29 skills, 3 rules, hook-based automation.
 ### Phase 5.5: Orchestrator Redesign
 
 - Plan mode-driven workflow unification
-- /simplify delegation pattern (refactor skill)
+- refactor skill with /simplify delegation
 - Phase-compact + /compact natural context compression
 
 ### Phase 5: v2 Restructuring

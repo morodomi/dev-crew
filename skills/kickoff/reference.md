@@ -109,7 +109,7 @@ TC-01: ユーザーが有効な認証情報でログインできる
 検出時: AskUserQuestion で「parallel（並列開発）を利用しますか？」と提案。
 
 ユーザーが承認 → Cycle doc に記録。review(plan) 後、RED の代わりに `Skill(dev-crew:parallel)` を実行。
-ユーザーが拒否 → 通常の red → green → /simplify。
+ユーザーが拒否 → 通常の red → green → refactor。
 
 ## Phase Completion
 

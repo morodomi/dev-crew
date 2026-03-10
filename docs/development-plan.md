@@ -94,7 +94,7 @@ self-contained型からオーケストレータ型ワークフローへ再設計
 ### 完了事項
 
 - plan mode起点のワークフロー統一
-- /simplify委譲パターン導入（refactorスキル）
+- refactor skill導入（内部で/simplifyに委譲）
 - phase-compact + /compact 自然なコンテキスト圧縮
 - CLAUDE.md スキル/エージェント数更新
 

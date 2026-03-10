@@ -106,7 +106,7 @@ Task(subagent_type: "dev-crew:green-worker", model: "sonnet", prompt: "Cycle doc
 
 PdM が全テスト成功（GREEN 状態）を確認。
 
-### /simplify + Verification Gate
+### REFACTOR + Verification Gate
 
 > NOTE: refactor 内部で Skill("simplify") を呼び出し済みのため、Skill() 直接呼び出しが正しい。
 

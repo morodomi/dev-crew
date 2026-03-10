@@ -14,8 +14,8 @@ phase-compactはTDDフェーズ境界でコンテキストを永続化し、
 | plan mode -> KICKOFF | scope, environment, goal | planファイル |
 | KICKOFF -> RED | Test List, design decisions | Cycle doc + Test List section |
 | RED -> GREEN | test file paths, failure descriptions | Cycle doc + test files on disk |
-| GREEN -> /simplify | impl file paths, test results | Cycle doc + source files on disk |
-| /simplify -> REVIEW | refactored file list, changes summary | Cycle doc + source files on disk |
+| GREEN -> REFACTOR | impl file paths, test results | Cycle doc + source files on disk |
+| REFACTOR -> REVIEW | refactored file list, changes summary | Cycle doc + source files on disk |
 | REVIEW -> COMMIT | review score, issues found | Cycle doc + review summary |
 
 **Note**: COMMIT はサイクルの終端。COMMIT後のphase-compactは不要（次サイクルは新しいINITで開始）。
@@ -52,22 +52,22 @@ phase-compactはTDDフェーズ境界でコンテキストを永続化し、
 **Next Phase Input**: test files on disk, implement to make them pass
 ```
 
-### GREEN -> /simplify
+### GREEN -> REFACTOR
 
 ```markdown
 ### Phase: GREEN - Completed at HH:MM
 **Artifacts**: [implementation file paths]
 **Decisions**: N/N tests passing
 **Metrics**: line_count=[N], file_count=[N], test_count=[N]
-**Next Phase Input**: source files on disk, run /simplify for quality
+**Next Phase Input**: source files on disk, run refactor for quality
 ```
 
-### /simplify -> REVIEW
+### REFACTOR -> REVIEW
 
 ```markdown
 ### Phase: REFACTOR - Completed at HH:MM
 **Artifacts**: [refactored file paths]
-**Decisions**: /simplify=[changes made or "no changes needed"]
+**Decisions**: refactor=[changes made or "no changes needed"]
 **Metrics**: line_count=[N], file_count=[N], test_count=[N]
 **Next Phase Input**: source files on disk, run review
 ```

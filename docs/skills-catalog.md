@@ -10,7 +10,7 @@
 | kickoff | tdd-plan | Yes (plan→kickoff) | planファイル→Cycle doc生成 |
 | red | tdd-red | Yes | テスト計画検証(Stage 1-3) + テストコード作成。red-workerを並列spawn |
 | green | tdd-green | Yes | テストを通す最小実装。green-workerを並列spawn |
-| refactor | tdd-refactor | Yes | /simplify委譲 + Verification Gate |
+| refactor | tdd-refactor | Yes | delegates to /simplify + Verification Gate |
 | review | tdd-review | Yes | 品質チェック: tests + coverage + static analysis + unified review (risk-based) |
 | commit | tdd-commit | Yes | git add/commit + STATUS.md更新 |
 

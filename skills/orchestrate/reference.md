@@ -24,7 +24,7 @@ PdM (Product Manager) オーケストレータの詳細ガイド。
 | テストコード作成 | red-worker |
 | Cycle doc生成 | architect (kickoff) |
 | コードレビュー | reviewer |
-| コード品質改善 | /simplify |
+| コード品質改善 | refactor (delegates to /simplify) |
 | 推測で進む | AskUserQuestion |
 
 ## Phase Ownership
@@ -35,7 +35,7 @@ PdM (Product Manager) オーケストレータの詳細ガイド。
 | KICKOFF (Design Review Gate) | PdM → architect | Skill(kickoff) + Design Review Gate |
 | RED | PdM → N red-worker | 並列テスト作成 |
 | GREEN | PdM → N green-worker | 並列実装 |
-| /simplify | PdM → /simplify委譲 | Skill(refactor) |
+| REFACTOR | PdM → refactor (内部で/simplify委譲) | Skill(refactor) |
 | REVIEW | PdM → risk-based reviewer | 討論/並列 review(code) |
 | COMMIT | PdM (Lead) 直接実行 | - |
 
@@ -111,7 +111,7 @@ Phase: [Phase名]
 orchestrate Progress:
 - [x] Block 0: plan mode → INIT → 探索・設計 → Test List → QA → approve
 - [x] Block 1: kickoff (with Design Review) → PASS
-- [ ] Block 2: RED (実行中) → GREEN → /simplify → REVIEW
+- [ ] Block 2: RED (実行中) → GREEN → REFACTOR → REVIEW
 - [ ] Block 3: COMMIT
 ```
 

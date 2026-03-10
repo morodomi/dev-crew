@@ -60,7 +60,7 @@
 ```
 User: 「ログイン機能を追加して」
   -> plan mode: INIT -> 探索 -> 設計 -> Test List -> QA -> approve
-  -> normal mode: KICKOFF -> review(plan) -> RED -> GREEN -> /simplify -> review(code) -> COMMIT
+  -> normal mode: KICKOFF -> review(plan) -> RED -> GREEN -> REFACTOR -> review(code) -> COMMIT
   -> PdM: 「完了しました。PRを作成しますか？」
 ```
 

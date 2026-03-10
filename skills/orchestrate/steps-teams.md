@@ -141,11 +141,11 @@ PdM が全テスト成功（GREEN 状態）を確認。
 ### Phase: GREEN - Completed at HH:MM
 **Artifacts**: [implementation file paths]
 **Decisions**: N/N tests passing
-**Next Phase Input**: source files on disk, run /simplify for quality
+**Next Phase Input**: source files on disk, run refactor for quality
 **Subagent**: agent_id={green_worker_agent_id}, tokens={total_tokens}
 ```
 
-### /simplify + Verification Gate
+### REFACTOR + Verification Gate
 
 Skill(dev-crew:refactor) を呼び出し、内部で Skill("simplify") を実行後、Verification Gate で品質確認:
 
@@ -154,12 +154,12 @@ Skill(dev-crew:refactor)
 → Skill("simplify") 実行 + Verification Gate（テスト全PASS + 静的解析0件 + フォーマット適用）
 ```
 
-### Phase Summary 永続化 (/simplify→REVIEW)
+### Phase Summary 永続化 (REFACTOR→REVIEW)
 
 ```markdown
 ### Phase: REFACTOR - Completed at HH:MM
 **Artifacts**: [refactored file paths]
-**Decisions**: /simplify=[changes made or "no changes needed"]
+**Decisions**: refactor=[changes made or "no changes needed"]
 **Next Phase Input**: source files on disk, run review
 **Subagent**: PdM direct (Skill(dev-crew:refactor))
 ```

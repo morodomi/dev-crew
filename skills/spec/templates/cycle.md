@@ -101,7 +101,7 @@ Phase-specific content:
 - KICKOFF: `Cycle doc created`
 - RED: `Test code created, N tests failing`
 - GREEN: `Implementation complete, all tests passing`
-- REFACTOR: `/simplify + Verification Gate passed`
+- REFACTOR: `refactor (delegates to /simplify) + Verification Gate passed`
 - REVIEW: `review(code) score:NN verdict:PASS/WARN/BLOCK`
 - COMMIT: `Committed: [hash]`
 

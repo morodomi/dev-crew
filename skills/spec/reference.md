@@ -451,7 +451,7 @@ planファイルに記録するTDDコンテキストのテンプレート:
 ```markdown
 ## TDD Context
 
-- Workflow: TDD (kickoff → RED → GREEN → /simplify → REVIEW → COMMIT)
+- Workflow: TDD (kickoff → RED → GREEN → REFACTOR → REVIEW → COMMIT)
 - Cycle doc: kickoff フェーズで docs/cycles/ に作成
 - Feature: [feature name (3-5 words)]
 

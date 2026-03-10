@@ -49,23 +49,23 @@ else
   fail "RED->GREEN Phase Summary not found"
 fi
 
-# TC-03: GREEN->/simplify Phase Summary
+# TC-03: GREEN->REFACTOR Phase Summary
 echo ""
-echo "TC-03: GREEN->/simplify Phase Summary persistence"
-if between_sections "$TEAMS_FILE" "### GREEN" "### .simplify" "Phase Summary" 2>/dev/null || \
-   between_sections "$TEAMS_FILE" "### GREEN" "simplify" "Phase Summary" 2>/dev/null; then
-  pass "GREEN->/simplify Phase Summary found"
+echo "TC-03: GREEN->REFACTOR Phase Summary persistence"
+if between_sections "$TEAMS_FILE" "### GREEN" "### .*REFACTOR" "Phase Summary" 2>/dev/null || \
+   between_sections "$TEAMS_FILE" "### GREEN" "REFACTOR" "Phase Summary" 2>/dev/null; then
+  pass "GREEN->REFACTOR Phase Summary found"
 else
-  fail "GREEN->/simplify Phase Summary not found"
+  fail "GREEN->REFACTOR Phase Summary not found"
 fi
 
-# TC-04: /simplify->REVIEW Phase Summary
+# TC-04: REFACTOR->REVIEW Phase Summary
 echo ""
-echo "TC-04: /simplify->REVIEW Phase Summary persistence"
-if grep -q "Phase Summary.*simplify.*REVIEW\|simplify→REVIEW" "$TEAMS_FILE" 2>/dev/null; then
-  pass "/simplify->REVIEW Phase Summary found"
+echo "TC-04: REFACTOR->REVIEW Phase Summary persistence"
+if grep -q "Phase Summary.*REFACTOR.*REVIEW\|REFACTOR→REVIEW" "$TEAMS_FILE" 2>/dev/null; then
+  pass "REFACTOR->REVIEW Phase Summary found"
 else
-  fail "/simplify->REVIEW Phase Summary not found"
+  fail "REFACTOR->REVIEW Phase Summary not found"
 fi
 
 # TC-05: REVIEW->COMMIT Phase Summary

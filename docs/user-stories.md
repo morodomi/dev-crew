@@ -82,7 +82,7 @@
 **So that** 私はINITで要件を伝えるだけで開発が進む
 
 **Acceptance Criteria:**
-- [ ] plan mode(INIT→設計→Test List→QA) → KICKOFF → review(plan) → RED → GREEN → /simplify → review(code) → COMMIT が自動遷移
+- [ ] plan mode(INIT→設計→Test List→QA) → KICKOFF → review(plan) → RED → GREEN → REFACTOR → review(code) → COMMIT が自動遷移
 - [ ] WARN/BLOCKでSocrates Protocolが発動
 - [ ] BLOCK時は人間にエスカレーション
 - [ ] 各フェーズ間でphase-compactが実行される
