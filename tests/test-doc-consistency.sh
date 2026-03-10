@@ -171,6 +171,46 @@ else
 fi
 
 ########################################
+# Terminology consistency (docs/terminology.md)
+########################################
+
+echo ""
+echo "--- Terminology Consistency ---"
+
+# TC-14: /simplify not used as phase/workflow name (must have delegation context)
+echo ""
+echo "TC-14: /simplify always in delegation context"
+TERM_FAIL=0
+for rel_file in README.md skills/orchestrate/SKILL.md skills/refactor/SKILL.md; do
+  file="$BASE_DIR/$rel_file"
+  [ -f "$file" ] || continue
+  violations=$(grep '/simplify' "$file" | grep -v -iE 'delegate|built-in|委譲|internal' || true)
+  if [ -n "$violations" ]; then
+    fail "/simplify without delegation context in $rel_file"
+    TERM_FAIL=1
+  fi
+done
+if [ "$TERM_FAIL" -eq 0 ]; then
+  pass "/simplify always used in delegation context"
+fi
+
+# TC-15: Phase names UPPERCASE in orchestrate SKILL.md workflow steps
+echo ""
+echo "TC-15: Phase names UPPERCASE in orchestrate SKILL.md"
+PHASE_FAIL=0
+for phase in RED GREEN REFACTOR REVIEW COMMIT; do
+  lower=$(echo "$phase" | tr '[:upper:]' '[:lower:]')
+  # Block 2 numbered steps use "N. **PHASE**:" pattern
+  if grep -qE "^[0-9]+\. \*\*${lower}\*\*" "$BASE_DIR/skills/orchestrate/SKILL.md"; then
+    fail "orchestrate SKILL.md uses lowercase '$lower' instead of '$phase'"
+    PHASE_FAIL=1
+  fi
+done
+if [ "$PHASE_FAIL" -eq 0 ]; then
+  pass "Phase names UPPERCASE in orchestrate SKILL.md"
+fi
+
+########################################
 # Regression
 ########################################
 

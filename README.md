@@ -6,6 +6,8 @@
 
 AI development team environment for Claude Code. Install once, use across all projects.
 
+> Terminology conventions: see [docs/terminology.md](docs/terminology.md)
+
 ## What is this?
 
 A single Claude Code plugin that provides an autonomous AI development team:
@@ -20,10 +22,11 @@ A single Claude Code plugin that provides an autonomous AI development team:
 ## Installation
 
 ```bash
+/plugin marketplace add morodomi/dev-crew
 /plugin install dev-crew@dev-crew
 ```
 
-One command. All 33 agents, 29 skills, rules, and hooks are available.
+All 33 agents, 29 skills, rules, and hooks are available.
 
 ## Core Workflow
 
