@@ -1,6 +1,6 @@
 ---
 name: orchestrate
-description: TDDサイクル全体をPdM（Product Manager）として自律管理。plan mode起点でワークフロー制御。kickoff→RED→GREEN→REFACTOR→REVIEW→COMMITを専門エージェントに委譲・判断する。Manual trigger: 「orchestrate」「全体管理」「PdMモード」。Do NOT use for 個別フェーズのみの実行（→ 各フェーズスキル）。
+description: "TDDサイクル全体をPdM（Product Manager）として自律管理。plan mode起点でワークフロー制御。kickoff→RED→GREEN→REFACTOR→REVIEW→COMMITを専門エージェントに委譲・判断する。Manual trigger: 「orchestrate」「全体管理」「PdMモード」。Do NOT use for 個別フェーズのみの実行（→ 各フェーズスキル）。"
 allowed-tools: Task, Read, Write, Bash, Grep, Glob, AskUserQuestion
 ---
 
