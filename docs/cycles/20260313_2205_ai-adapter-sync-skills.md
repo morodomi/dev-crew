@@ -1,7 +1,7 @@
 ---
 feature: ai-adapter-sync-skills
 cycle: 20260313_2205
-phase: COMMIT
+phase: DONE
 complexity: standard
 test_count: 0
 risk_level: low
@@ -135,4 +135,4 @@ ROADMAP.md Phase 1の実装。既存の手動symlink実績: note/.agents/skills/
 2. [Done] RED/GREEN/REFACTOR/REVIEW (initial - adapter + script approach)
 3. [Done] SCOPE REVISION (adapter削除、SKILL.md方式に変更)
 4. [Done] Codex review (5 findings → fixed)
-5. [Next] COMMIT
+5. [Done] COMMIT (58ad8e7)
