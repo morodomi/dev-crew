@@ -286,7 +286,7 @@ orchestrate スキルを拡張し、フェーズごとにSub AIへ委譲。
 | REVIEW | 実行 | review --uncommitted | Claude Codeが代行 |
 | COMMIT | 実行 | - | - |
 
-### Phase 5: Decision Records
+### Phase 5: Decision Records (DONE)
 
 `docs/decisions/` ディレクトリにADR (Architecture Decision Record) を蓄積。
 

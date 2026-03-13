@@ -186,6 +186,20 @@ GitHub issue を作成しますか? (Y/n)
 
 `→ #` が付いている項目は起票をスキップする。
 
+## ADR Reference
+
+orchestrate中にアーキテクチャ判断が発生した場合、`docs/decisions/` のADRを参照・作成する。
+
+### 参照タイミング
+- REVIEW: 設計変更が必要な場合、既存ADRとの整合性を確認
+- NOTE: KICKOFF時のADR作成はkickoff skill内で自律処理されるため、orchestrateは関与しない
+
+### 作成条件
+kickoff/reference.mdのADR作成条件に準拠:
+- 複数サイクルに影響する判断
+- 過去のADRを上書きする判断
+- 人間に委ねた判断（deferred）
+
 ## Auto-Learn トリガー条件
 
 COMMIT 後に learn を自動実行するための条件テーブル:

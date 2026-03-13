@@ -53,7 +53,7 @@ dev-crew/
 │   ├── git-conventions.md
 │   └── security.md
 ├── tests/                 # Structure validation scripts
-└── docs/                  # Design docs + cycle docs
+└── docs/                  # Design docs + cycle docs + decisions (ADR)
 ```
 
 ## Workflow

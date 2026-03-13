@@ -191,36 +191,8 @@ Cycle doc Implementation Notes に追記:
 - 過去のADRを覆す判断
 - 人間がDeferred判断を下した場合
 
-ADRテンプレート:
-
-```markdown
-# ADR-NNN: タイトル
-
-## Status: accepted | rejected | deferred
-
-## Context
-何が問題だったか
-
-## Decision Scorecard
-| 項目 | 評価 | 理由 |
-|------|------|------|
-| Requirements Fit | ... | ... |
-| Security | ... | ... |
-| Operability | ... | ... |
-| Complexity | ... | ... |
-| Testability | ... | ... |
-
-## Arguments
-### Accepted
-### Rejected
-### Deferred
-
-## Decision
-何を決めたか
-
-## Consequences
-その結果どうなるか
-```
+ADRは `docs/decisions/TEMPLATE.md` をコピーして作成する。
+ファイル名: `ADR-NNN-short-title.md`（NNNは既存ADRの最大番号+1）
 
 ## Error Handling
 
