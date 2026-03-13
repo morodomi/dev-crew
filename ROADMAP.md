@@ -259,13 +259,13 @@ Claude Codeプラグインのスキルを `.agents/skills/` にsymlinkし、Code
 Claude Codeがスキル実行時にBash toolで直接操作する。
 情報源: `~/.claude/plugins/installed_plugins.json` 一択。
 
-### Phase 2: Debate Skill
+### Phase 2: Kickoff Debate Integration (DONE)
 
-反論プロトコルをdev-crewスキルとして実装。
+kickoffスキルにdebateステップ(Step 3.5)を統合。Cycle doc作成後にCodexと反論ラリーを実行。
 
-- 入力: 提案ファイル (Markdown)
-- 処理: 利用可能なSub AIに反論を求める（並列可）
-- 出力: Decision Scorecardを含むADRをdocs/decisions/に作成
+- 統合先: skills/kickoff/SKILL.md (Step 3.5) + reference.md (Debate Workflow)
+- 処理: Codexに反論を求め、Accepted/Rejected/Deferredで分類（max 3ラウンド）
+- 出力: Cycle doc Implementation NotesにDebate Summary追記。cross-cycle判断のみADR作成
 - 収束判断: Claude Code が行う
 - フォールバック: Sub AI不在 → 既存plan-review（Claude Code単体）
 

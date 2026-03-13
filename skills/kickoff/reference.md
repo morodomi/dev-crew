@@ -122,6 +122,106 @@ KICKOFFフェーズ完了後の確認事項。
 - [ ] Test List が Cycle doc に転記済み
 - [ ] Design Approach が Cycle doc に記録済み
 
+## Debate Workflow
+
+### Pre-check
+
+`which codex` で存在確認。不在 → "Codex not available, falling back to review --plan" をProgress Logに記録し、既存plan-reviewを実行。
+
+### Round Loop (max 3)
+
+1. Cycle docをCodexに渡す:
+   ```bash
+   codex exec --full-auto -o /tmp/codex_debate_r{N}.md -C <project-dir> \
+     "Review this Cycle doc and provide counter-arguments: <cycle-doc-path>"
+   ```
+   初回は新規セッション。session IDをCycle docに記録。
+   2回目以降は resume --last（cwdフィルタで同ディレクトリの最新セッションを選択。debate中に別のcodex execを同一ディレクトリで実行しないこと）:
+   ```bash
+   codex exec resume --last --full-auto -o /tmp/codex_debate_r{N}.md \
+     "Response to your counter-arguments: <response-content>"
+   ```
+
+2. 反論を読み取り、分類:
+   - **Accepted**: 設計変更が必要な具体的指摘 → 設計に反映
+   - **Rejected**: 理解したがスコープ外 or リスク受容 → 理由を記録
+   - **Deferred**: 人間判断に委ねる → Human Clarificationへ
+
+3. 収束判断:
+   - 新しいAccepted指摘がない → 収束
+   - 全指摘がRejected → 収束
+   - 3ラウンド到達 → 強制収束
+   - Deferred残り → 人間に確認してから収束判断
+
+4. Critical/Importantは必ず議論。OptionalはPdMが必要と判断したらCycle docに取り入れる。
+
+### Human Clarification
+
+Deferred項目は選択方式で人間に確認:
+
+```
+Q: "<曖昧な仕様>" について:
+1. <Option A>
+2. <Option B>
+3. <Option C (スコープ外にする)>
+4. 上記以外（自由記述）
+```
+
+選択肢4（フリーフォーム）を常に含め、事前フレーミングに縛られない逃げ道を確保する。
+
+回答後、未収束の指摘が残る場合はRound Loopに戻る（残りラウンド上限を消費する）。
+
+### Result Recording
+
+Cycle doc Implementation Notes に追記:
+
+```markdown
+### Debate Summary
+- Rounds: N
+- Codex Session: <session-id>
+- Accepted: [採用した指摘と対応]
+- Rejected: [却下した指摘と理由]
+- Deferred: [人間判断に委ねた項目と結果]
+```
+
+### ADR (cross-cycle判断のみ)
+
+通常のサイクルではCycle doc記録で十分。以下の場合のみ `docs/decisions/ADR-NNN.md` を作成:
+- 複数サイクルに影響する設計判断
+- 過去のADRを覆す判断
+- 人間がDeferred判断を下した場合
+
+ADRテンプレート:
+
+```markdown
+# ADR-NNN: タイトル
+
+## Status: accepted | rejected | deferred
+
+## Context
+何が問題だったか
+
+## Decision Scorecard
+| 項目 | 評価 | 理由 |
+|------|------|------|
+| Requirements Fit | ... | ... |
+| Security | ... | ... |
+| Operability | ... | ... |
+| Complexity | ... | ... |
+| Testability | ... | ... |
+
+## Arguments
+### Accepted
+### Rejected
+### Deferred
+
+## Decision
+何を決めたか
+
+## Consequences
+その結果どうなるか
+```
+
 ## Error Handling
 
 ### planファイルが見つからない

@@ -27,7 +27,7 @@ dev-crew/
 │       security specialists   (attackers, recon, DAST, etc.)
 ├── skills/                # 29 skills (flat)
 │   ├── spec/              # TDD context + Ambiguity Detection
-│   ├── kickoff/           # Plan file → Cycle doc
+│   ├── kickoff/           # Plan file → Cycle doc (+ Codex debate)
 │   ├── red/               # Test Plan → Review → Code (Stage 1-3)
 │   ├── green/             # Minimal implementation
 │   ├── refactor/          # Code quality improvement
@@ -68,7 +68,7 @@ Design phase
   ↓ approve
 
 Execution phase
-  ├─ kickoff: plan → Cycle doc
+  ├─ kickoff: plan → Cycle doc (+ optional Codex debate)
   ├─ red: test plan verification + failing tests (Stage 1-3)
   ├─ green: minimal implementation
   ├─ refactor: code quality improvement

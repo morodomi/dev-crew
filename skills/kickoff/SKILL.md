@@ -73,6 +73,13 @@ planファイルのTest ListをCycle docのTest Listセクションに転記。
 (none)
 ```
 
+### Step 3.5: Codex Debate (optional)
+
+1. `which codex` でCodex利用可能か確認
+2. 利用不可 → 既存 review --plan にフォールバック（結果をProgress Logに記録）、Step 4へ
+3. 利用可能 → reference.mdのDebate Workflowを実行
+4. 結果をCycle docのImplementation Notesに追記（Accepted/Rejected/Deferred）
+
 ### Step 4: Complete
 Output: KICKOFF完了。Cycle doc: {path}。次: orchestrate→自動RED / 手動→ /review --plan
 

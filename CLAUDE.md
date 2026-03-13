@@ -37,7 +37,7 @@ Phase-boundary compaction:
 | Skill | Trigger | Phase |
 |-------|---------|-------|
 | spec | "spec", "new feature" | SPEC (plan mode) |
-| kickoff | "kickoff" | KICKOFF |
+| kickoff | "kickoff" | KICKOFF (+ optional Codex debate) |
 | red | "write test", "red" | RED |
 | green | "implement", "green" | GREEN |
 | refactor | "refactor" | REFACTOR (/simplify delegation) |
