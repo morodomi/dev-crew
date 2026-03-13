@@ -269,9 +269,9 @@ kickoffスキルにdebateステップ(Step 3.5)を統合。Cycle doc作成後に
 - 収束判断: Claude Code が行う
 - フォールバック: Sub AI不在 → 既存plan-review（Claude Code単体）
 
-### Phase 3: AGENTS.md Migration
+### Phase 3: AGENTS.md Migration (DONE)
 
-Migration Strategyセクション参照。
+Migration Strategyセクション参照。ステップ1,2完了済み。ステップ3（Claude CodeのAGENTS.mdネイティブ対応後に`@AGENTS.md`行を削除）は外部依存待ち。
 
 ### Phase 4: Workflow Integration
 
@@ -321,6 +321,14 @@ orchestrate スキルを拡張し、フェーズごとにSub AIへ委譲。
 ## Consequences
 その結果どうなるか
 ```
+
+### Phase 6: AGENTS.md Skill Propagation
+
+dev-crew内の既存スキルをAGENTS.md正本に対応させる。
+
+- onboard: CLAUDE.md生成ロジックをAGENTS.md前提に更新（`@AGENTS.md` importパターン、Claude固有拡張の分離）
+- 各スキルのドキュメント・テンプレート: CLAUDE.md前提の記述をAGENTS.md正本に更新
+- 影響範囲の調査が先行タスク
 
 ## Resolved Questions
 
