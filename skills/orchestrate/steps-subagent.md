@@ -3,6 +3,8 @@
 環境変数 `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` が無効時の手順。
 各フェーズを Task() で subagent に委譲し、コンテキスト分離を実現する。
 
+> **NOTE**: Codex利用可能時は [steps-codex.md](steps-codex.md) が優先される。
+
 注: 各 Phase は独立した subagent で実行される。重い作業は subagent 内で完結し、
 PdM には結果サマリーのみ返却されるため、コンテキストが自然に圧縮される。
 

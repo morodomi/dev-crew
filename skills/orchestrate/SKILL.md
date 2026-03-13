@@ -63,11 +63,12 @@ planファイルを起点に開始地点を決定する:
 
 ## Mode Selection
 
-`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` 環境変数でモードを選択:
+`which codex` でCodex利用可能ならCodex Delegationを優先。不在時は既存モードにフォールバック。
 
-| 環境変数 | モード | 手順 |
-|----------|--------|------|
-| 有効 (`1`) | Agent Teams (PdM Hub) | [steps-teams.md](steps-teams.md) |
+| 条件 | モード | 手順 |
+|------|--------|------|
+| Codex利用可能 | Codex Delegation | [steps-codex.md](steps-codex.md) |
+| Agent Teams有効 (`1`) | Agent Teams (PdM Hub) | [steps-teams.md](steps-teams.md) |
 | 無効 / 未設定 | Subagent Chain | [steps-subagent.md](steps-subagent.md) |
 
 ## Judgment Criteria
@@ -84,5 +85,6 @@ Socrates Protocol 詳細: [reference.md](reference.md)
 ## Reference
 
 - PdM 責務・判断基準: [reference.md](reference.md)
+- Codex 委譲手順: [steps-codex.md](steps-codex.md)
 - Agent Teams 手順: [steps-teams.md](steps-teams.md)
 - Subagent 手順: [steps-subagent.md](steps-subagent.md)

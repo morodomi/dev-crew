@@ -273,7 +273,7 @@ kickoffスキルにdebateステップ(Step 3.5)を統合。Cycle doc作成後に
 
 Migration Strategyセクション参照。ステップ1,2完了済み。ステップ3（Claude CodeのAGENTS.mdネイティブ対応後に`@AGENTS.md`行を削除）は外部依存待ち。
 
-### Phase 4: Workflow Integration
+### Phase 4: Workflow Integration (DONE)
 
 orchestrate スキルを拡張し、フェーズごとにSub AIへ委譲。
 

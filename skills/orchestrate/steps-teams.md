@@ -3,6 +3,8 @@
 環境変数 `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` が有効時の手順。
 1つのチームが全 Phase を通して存続し、Phase ごとに Teammate を spawn/shutdown する。
 
+> **NOTE**: Codex利用可能時は [steps-codex.md](steps-codex.md) が優先される。
+
 ## Block 0: Prerequisite Check
 
 planファイルを起点に開始地点を決定する:

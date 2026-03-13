@@ -43,7 +43,7 @@ Phase-boundary compaction:
 | refactor | "refactor" | REFACTOR (/simplify delegation) |
 | review | "review" | REVIEW |
 | commit | "commit" | COMMIT |
-| orchestrate | (auto from spec) | META |
+| orchestrate | (auto from spec) | META (Codex委譲対応) |
 | phase-compact | (auto between phases) | META |
 | reload | "reload" | META |
 | strategy | "strategy" | PHASE A |

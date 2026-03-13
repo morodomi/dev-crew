@@ -33,7 +33,7 @@ dev-crew/
 │   ├── refactor/          # Code quality improvement
 │   ├── review/            # Quality check
 │   ├── commit/            # Git commit
-│   ├── orchestrate/       # PdM orchestration
+│   ├── orchestrate/       # PdM orchestration (+ Codex delegation)
 │   ├── strategy/          # Planning phase
 │   ├── diagnose/          # Parallel bug investigation
 │   ├── parallel/          # Cross-layer parallel dev
