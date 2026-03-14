@@ -6,8 +6,6 @@
 
 AI development team environment for Claude Code. Install once, use across all projects.
 
-> Terminology conventions: see [docs/terminology.md](docs/terminology.md)
-
 ## What is this?
 
 A single Claude Code plugin that provides an autonomous AI development team:
@@ -19,6 +17,23 @@ A single Claude Code plugin that provides an autonomous AI development team:
 - **Reviewers**: Parallel code review (correctness, performance, security, architecture, etc.)
 - **Meta Learner**: Session pattern extraction and skill evolution
 
+## Philosophy
+
+> Human laziness as a design principle.
+
+AI generates 90% correct code. The remaining 10% is caught by tests, multi-perspective reviews, and static analysis. Humans only provide goals and approve/reject at key gates. See [docs/PHILOSOPHY.md](docs/PHILOSOPHY.md).
+
+### Claude + Codex Integration
+
+Claude and Codex have different personalities. dev-crew uses that as a feature:
+
+| AI | Role | Personality |
+|----|------|-------------|
+| Claude | Planner/Orchestrator | Agreeable, lenient reviews |
+| Codex | Implementer/Reviewer | Blunt, thorough reviews |
+
+When Codex is available, RED/GREEN/REVIEW are delegated to it. When not, Claude handles everything (fallback).
+
 ## Installation
 
 ```bash
@@ -26,73 +41,37 @@ A single Claude Code plugin that provides an autonomous AI development team:
 /plugin install dev-crew@dev-crew
 ```
 
-All 33 agents, 29 skills, rules, and hooks are available.
+## Quick Start
+
+1. Enter plan mode
+2. `spec: <your task>` (e.g. "spec: add input validation to the login form")
+3. Approve the design
+4. Let orchestrate continue automatically, or run phases manually (`red` → `green` → `refactor` → `review` → `commit`)
 
 ## Core Workflow
 
 ```
-plan mode (design phase)
-  spec (+ Ambiguity Detection) → explore → design → Test List → QA → approve
+spec (design phase)
+  plan mode → Ambiguity Detection → explore → design → Test List → QA
+  → Codex plan review → approve → sync-plan (Cycle doc)
 
-normal mode (execution phase)
-  kickoff → red (Plan → Review → Code) → green → refactor → review → commit
+RED → GREEN → REFACTOR → REVIEW → COMMIT (execution phase)
 ```
 
-The `refactor` skill delegates to Claude Code's built-in `/simplify` internally.
 Integrates with Claude Code built-in features (plan mode, /simplify, /compact),
 performing automatic context compaction at each phase boundary.
 
-## Token Optimization
-
-Phase-boundary compaction inspired by [OpenClaw](https://github.com/openclaw/openclaw):
-
-1. Phase output persisted to Cycle doc
-2. `/compact` triggers at phase boundary
-3. Next phase loads context from Cycle doc (not conversation history)
-4. plan mode → approve → auto-compact for natural context compaction
-
-## Structure
-
-```
-dev-crew/
-├── .claude-plugin/plugin.json   # Single plugin
-├── agents/                      # 33 agents
-├── skills/                      # 29 skills
-├── rules/                       # Git safety, conventions, security
-├── hooks/hooks.json             # Phase-boundary compaction hooks
-├── scripts/hooks/               # Shell scripts for hooks
-├── tests/                       # Structure validation
-└── docs/                        # Architecture, design, user stories
-```
-
-## Skills
-
-### Development Workflow (14)
-spec, kickoff, red, green, refactor, review, commit, orchestrate, strategy, diagnose, parallel, onboard, phase-compact, reload
-
-### Security (5)
-security-scan, attack-report, context-review, generate-e2e, security-audit
-
-### Language Quality (7)
-php-quality, python-quality, ts-quality, js-quality, flask-quality, flutter-quality, hugo-quality
-
-### Meta/Tooling (3)
-learn, evolve, skill-maker
-
 ## Usage Example
-
-A typical TDD cycle using dev-crew skills:
 
 ```
 You: "spec: add input validation to the login form"
      → Claude enters plan mode, runs Ambiguity Detection,
        asks clarifying questions, builds a Test List
 
-You: approve the plan
-     → auto-compact, context switches to normal mode
-
-You: "kickoff"
-     → Generates a Cycle doc from the plan
+You: approve the plan (exits plan mode)
+     → Codex reviews the plan, findings are resolved
+     → You approve the design
+     → sync-plan generates Cycle doc
 
 You: "red"
      → Creates failing tests (Stage 1: Plan → Stage 2: Review → Stage 3: Code)
@@ -105,6 +84,7 @@ You: "refactor"
 
 You: "review"
      → Risk-based parallel review (1-4 agents depending on change size)
+     → Codex also reviews (competitive review)
 
 You: "commit"
      → Stages, commits with conventional message, updates Cycle doc
@@ -112,6 +92,34 @@ You: "commit"
 
 Each phase boundary persists output to the Cycle doc and triggers context
 compaction, so long sessions stay within the context window.
+
+## Structure
+
+```
+dev-crew/
+├── .claude-plugin/plugin.json   # Single plugin
+├── agents/                      # 33 agents
+├── skills/                      # 30 skills
+├── rules/                       # Git safety, conventions, security
+├── hooks/hooks.json             # Phase-boundary compaction hooks
+├── scripts/hooks/               # Shell scripts for hooks
+├── tests/                       # Structure validation
+└── docs/                        # See docs/README.md
+```
+
+## Skills
+
+### Development Workflow (15)
+spec, red, green, refactor, review, commit, orchestrate, strategy, diagnose, parallel, onboard, phase-compact, reload, sync-skills, skill-maker
+
+### Security (5)
+security-scan, attack-report, context-review, generate-e2e, security-audit
+
+### Language Quality (7)
+php-quality, python-quality, ts-quality, js-quality, flask-quality, flutter-quality, hugo-quality
+
+### Meta (2)
+learn, evolve
 
 ## Background Reading (Japanese)
 
