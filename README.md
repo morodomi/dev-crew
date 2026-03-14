@@ -98,8 +98,8 @@ compaction, so long sessions stay within the context window.
 ```
 dev-crew/
 ├── .claude-plugin/plugin.json   # Single plugin
-├── agents/                      # 33 agents
-├── skills/                      # 30 skills
+├── agents/                      # 34 agents
+├── skills/                      # 29 skills
 ├── rules/                       # Git safety, conventions, security
 ├── hooks/hooks.json             # Phase-boundary compaction hooks
 ├── scripts/hooks/               # Shell scripts for hooks

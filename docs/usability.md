@@ -43,7 +43,7 @@
 | Intent | Japanese | English | Skill |
 |--------|----------|---------|-------|
 | 新機能開発 | 「機能追加」「新しい機能」 | "new feature", "spec" | spec |
-| キックオフ | 「キックオフ」 | "kickoff" | kickoff |
+| Cycle doc生成 | (自動実行) | (auto via sync-plan) | sync-plan (agent) |
 | テスト作成 | 「テスト書いて」 | "red", "write test" | red |
 | 実装 | 「実装して」 | "green", "implement" | green |
 | リファクタ | 「リファクタして」 | "refactor" | refactor |
@@ -60,7 +60,7 @@
 ```
 User: 「ログイン機能を追加して」
   -> plan mode: INIT -> 探索 -> 設計 -> Test List -> QA -> approve
-  -> normal mode: KICKOFF -> review(plan) -> RED -> GREEN -> REFACTOR -> review(code) -> COMMIT
+  -> normal mode: SYNC-PLAN -> RED -> GREEN -> REFACTOR -> review(code) -> COMMIT
   -> PdM: 「完了しました。PRを作成しますか？」
 ```
 

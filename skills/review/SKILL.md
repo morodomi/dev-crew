@@ -19,7 +19,7 @@ allowed-tools: Task, Read, Edit, Bash, Grep, Glob
 **plan mode**: planファイルの存在確認。なければ BLOCK: 「先に spec を実行してください」
 
 **code mode only**:
-- Cycle Doc Gate (frontmatter のみ): `for f in docs/cycles/*.md; do awk '/^---$/{c++;next} c==1{print}' "$f" | grep -q 'phase: DONE' || echo "$f"; done | head -1` → found: continue / not found: BLOCK(run kickoff)
+- Cycle Doc Gate (frontmatter のみ): `for f in docs/cycles/*.md; do awk '/^---$/{c++;next} c==1{print}' "$f" | grep -q 'phase: DONE' || echo "$f"; done | head -1` → found: continue / not found: BLOCK(run spec)
 - Phase Ordering Gate: Progress Log に `REFACTOR` の `Phase completed` 記録があるか確認。なければ BLOCK: 「先に refactor を実行してください」
 
 Mode を判定し出力: `[REVIEW] Mode: plan` or `[REVIEW] Mode: code`

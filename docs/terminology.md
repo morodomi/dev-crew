@@ -6,8 +6,9 @@ Source of truth for naming conventions in dev-crew.
 
 | Layer | Convention | Examples |
 |-------|-----------|----------|
-| Phase names | UPPERCASE | SPEC, KICKOFF, RED, GREEN, REFACTOR, REVIEW, COMMIT, DONE |
-| Skill names | lowercase | spec, kickoff, red, green, refactor, review, commit |
+| Phase names | UPPERCASE | SPEC, RED, GREEN, REFACTOR, REVIEW, COMMIT, DONE |
+| Skill names | lowercase | spec, red, green, refactor, review, commit |
+| Agent names | lowercase | sync-plan, architect, red-worker, green-worker, etc. |
 | Claude Code built-in commands | slash-prefixed | /simplify, /compact, /plan |
 
 ## Canonical Rules

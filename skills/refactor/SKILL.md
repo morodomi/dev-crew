@@ -19,7 +19,7 @@ allowed-tools: Read, Write, Edit, Bash, Grep, Glob
 ## Workflow
 
 ### Cycle Doc Gate
-`grep -L 'phase: DONE' docs/cycles/*.md | head -1` → found: continue / not found: BLOCK(run kickoff)
+`grep -L 'phase: DONE' docs/cycles/*.md | head -1` → found: continue / not found: BLOCK(run spec)
 
 ### Step 2: テスト確認
 

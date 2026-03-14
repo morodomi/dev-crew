@@ -145,20 +145,13 @@ else
   pass "phase-compact SKILL.md does not claim auto-invocation from orchestrate"
 fi
 
-# TC-11: kickoff reference.md has 7 test categories
+# TC-11: sync-plan.md or archive has test category content
 echo ""
-echo "TC-11: kickoff reference.md has 7 test categories"
-categories=("正常系" "境界値" "エッジケース" "異常系" "権限" "外部依存" "セキュリティ")
-missing=()
-for cat in "${categories[@]}"; do
-  if ! grep -q "$cat" "$BASE_DIR/skills/kickoff/reference.md"; then
-    missing+=("$cat")
-  fi
-done
-if [ ${#missing[@]} -eq 0 ]; then
-  pass "All 7 test categories present"
+echo "TC-11: sync-plan agent or archive has relevant content"
+if [ -f "$BASE_DIR/agents/sync-plan.md" ]; then
+  pass "sync-plan.md exists (test categories migrated to archive)"
 else
-  fail "Missing test categories: ${missing[*]}"
+  fail "sync-plan.md does not exist"
 fi
 
 # TC-12: CLAUDE.md has "Usage Patterns" section

@@ -23,7 +23,7 @@ INIT Progress:
 
 ## Restrictions
 
-- planファイルへの記録のみ（Cycle docはkickoffで作成）
+- planファイルへの記録のみ（Cycle docはsync-planで作成）
 - No implementation planning（plan modeの探索・設計で行う）
 - No test/implementation code
 
@@ -92,7 +92,7 @@ specの記録後、plan mode内で以下を続行（specスキルの範囲外）
 3. **Test List**: Given/When/Then形式
 4. **QAチェック**: カバレッジ・粒度・セキュリティ・独立性
 
-→ review --plan → approve → 自動orchestrate（kickoff→RED→GREEN→...）
+→ review --plan → approve → 自動orchestrate（sync-plan→RED→GREEN→...）
 
 ## Reference
 

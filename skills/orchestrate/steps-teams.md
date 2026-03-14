@@ -25,10 +25,10 @@ for f in docs/cycles/*.md; do awk '/^---$/{c++;next} c==1{print}' "$f" | grep -q
 ```
 
 - **未完了 cycle doc あり** → path を確定し、Progress Log の最終完了 Phase の次から再開
-- **なし (DONE のみ or cycle doc なし)** → Phase 1 (Team 作成) → Phase 2 (kickoff) へ直行
+- **なし (DONE のみ or cycle doc なし)** → Phase 1 (Team 作成) → Phase 2 (sync-plan) へ直行
 
 **典型的フロー**: spec → review --plan → approve → compact → orchestrate 自動起動時は、
-plan ファイルが存在し cycle doc はまだないため Phase 1 (Team 作成) → Phase 2 (kickoff) に直行する。
+plan ファイルが存在し cycle doc はまだないため Phase 1 (Team 作成) → Phase 2 (sync-plan) に直行する。
 
 ### 2. 新規開始 (plan mode)
 
@@ -52,26 +52,26 @@ Teammate(operation: "spawnTeam", team_name: "dev-cycle")
 socrates は WARN/BLOCK 時のみ on-demand で起動する。PASS サイクル (~80%) では spawn しない。
 詳細: [../../agents/socrates.md](../../agents/socrates.md)
 
-## Phase 2: Block 1 - Kickoff (with Design Review)
+## Phase 2: Block 1 - Sync-Plan (with Design Review)
 
-### KICKOFF
+### SYNC-PLAN
 
 architect teammate を起動し、Design Review Gate + Cycle doc 生成を委譲:
 
 ```
-Task(subagent_type: "dev-crew:architect", team_name: "dev-cycle", name: "architect", model: "sonnet", prompt: "planファイルを読み取り、Design Review Gate を実施した後、PASS/WARN なら Skill(dev-crew:kickoff) を実行して Cycle doc を生成せよ。BLOCK の場合は Cycle doc を生成せず、問題点を報告せよ。")
+Task(subagent_type: "dev-crew:architect", team_name: "dev-cycle", name: "architect", model: "sonnet", prompt: "planファイルを読み取り、Design Review Gate を実施した後、PASS/WARN なら Task(dev-crew:sync-plan) を実行して Cycle doc を生成せよ。BLOCK の場合は Cycle doc を生成せず、問題点を報告せよ。")
 → Design Review Gate 実施
-→ PASS/WARN: Skill(kickoff) 実行 → 結果報告
+→ PASS/WARN: Task(sync-plan) 実行 → 結果報告
 → BLOCK: 失敗報告
 → SendMessage(type: "shutdown_request", recipient: "architect")
 ```
 
-### Phase Summary 永続化 (KICKOFF→RED)
+### Phase Summary 永続化 (sync-plan→RED)
 
 architect 完了後、PdM が Cycle doc に Phase Summary を追記:
 
 ```markdown
-### Phase: KICKOFF - Completed at HH:MM
+### Phase: SYNC-PLAN - Completed at HH:MM
 **Artifacts**: Cycle doc updated with PLAN section, Test List (N items)
 **Decisions**: architecture=[approach], test strategy=[approach]
 **Pre-Review**: verdict=[PASS/WARN/BLOCK], score=[N], issues=[summary]
@@ -99,7 +99,7 @@ architect の `pre_review.verdict` でスコアベース判定:
 初回発動時のみユーザー案内を表示（[reference.md](reference.md#初回発動時のユーザー案内) 参照）。
 
 - proceed → Block 2 へ進行
-- fix → architect を再起動して KICKOFF 再実行（max 1回再試行）
+- fix → architect を再起動して sync-plan 再実行（max 1回再試行）
 - abort → サイクル中断
 
 ### Delegation Decision

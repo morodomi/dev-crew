@@ -1,6 +1,6 @@
 #!/bin/bash
-# test-auto-kickoff.sh - verify Post-Approve Action documentation in 4 files
-# TC-03 ~ TC-06
+# test-auto-sync-plan.sh - verify Post-Approve Action documentation in 3 files
+# TC-03 ~ TC-05 (migrated from test-auto-kickoff.sh)
 
 set -euo pipefail
 
@@ -11,7 +11,7 @@ FAIL=0
 pass() { PASS=$((PASS + 1)); printf "  \033[32mPASS\033[0m %s\n" "$1"; }
 fail() { FAIL=$((FAIL + 1)); printf "  \033[31mFAIL\033[0m %s\n" "$1"; }
 
-echo "=== Auto-Kickoff After Plan Approve Tests ==="
+echo "=== Auto-Sync-Plan After Plan Approve Tests ==="
 
 # TC-03: CLAUDE.md contains Post-Approve Action in Workflow section
 echo ""
@@ -45,16 +45,6 @@ if grep -q "Post-Approve Action" "$BASE_DIR/skills/spec/SKILL.md"; then
   pass "TC-05: spec/SKILL.md contains Post-Approve Action"
 else
   fail "TC-05: spec/SKILL.md missing Post-Approve Action"
-fi
-
-# TC-06: kickoff/SKILL.md description reflects auto-execution
-echo ""
-echo "TC-06: kickoff/SKILL.md description reflects auto-execution"
-description=$(awk '/^description:/{print; exit}' "$BASE_DIR/skills/kickoff/SKILL.md")
-if echo "$description" | grep -qi "auto\|Post-Approve"; then
-  pass "TC-06: kickoff/SKILL.md description mentions auto-execution"
-else
-  fail "TC-06: kickoff/SKILL.md description missing auto-execution mention"
 fi
 
 # Summary

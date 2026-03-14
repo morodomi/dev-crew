@@ -33,7 +33,7 @@ echo "--- Hard Gate ---"
 # TC-01: red/SKILL.md has Hard Gate (grep -L 'phase: DONE' pattern)
 echo ""
 echo "TC-01: red/SKILL.md has Hard Gate"
-if grep -q "phase: DONE" "$RED" && grep -q "BLOCK\|kickoff" "$RED"; then
+if grep -q "phase: DONE" "$RED" && grep -q "BLOCK\|spec" "$RED"; then
   pass "red/SKILL.md has Hard Gate"
 else
   fail "red/SKILL.md missing Hard Gate"
@@ -42,7 +42,7 @@ fi
 # TC-02: green/SKILL.md has Hard Gate
 echo ""
 echo "TC-02: green/SKILL.md has Hard Gate"
-if grep -q "phase: DONE" "$GREEN" && grep -q "BLOCK\|kickoff" "$GREEN"; then
+if grep -q "phase: DONE" "$GREEN" && grep -q "BLOCK\|spec" "$GREEN"; then
   pass "green/SKILL.md has Hard Gate"
 else
   fail "green/SKILL.md missing Hard Gate"
@@ -51,7 +51,7 @@ fi
 # TC-03: refactor/SKILL.md has Hard Gate
 echo ""
 echo "TC-03: refactor/SKILL.md has Hard Gate"
-if grep -q "phase: DONE" "$REFACTOR" && grep -q "BLOCK\|kickoff" "$REFACTOR"; then
+if grep -q "phase: DONE" "$REFACTOR" && grep -q "BLOCK\|spec" "$REFACTOR"; then
   pass "refactor/SKILL.md has Hard Gate"
 else
   fail "refactor/SKILL.md missing Hard Gate"
@@ -60,7 +60,7 @@ fi
 # TC-04: review/SKILL.md has Hard Gate
 echo ""
 echo "TC-04: review/SKILL.md has Hard Gate"
-if grep -q "phase: DONE" "$REVIEW" && grep -q "BLOCK\|kickoff" "$REVIEW"; then
+if grep -q "phase: DONE" "$REVIEW" && grep -q "BLOCK\|spec" "$REVIEW"; then
   pass "review/SKILL.md has Hard Gate"
 else
   fail "review/SKILL.md missing Hard Gate"
@@ -69,7 +69,7 @@ fi
 # TC-05: commit/SKILL.md has Hard Gate
 echo ""
 echo "TC-05: commit/SKILL.md has Hard Gate"
-if grep -q "phase: DONE" "$COMMIT" && grep -q "BLOCK\|kickoff" "$COMMIT"; then
+if grep -q "phase: DONE" "$COMMIT" && grep -q "BLOCK\|spec" "$COMMIT"; then
   pass "commit/SKILL.md has Hard Gate"
 else
   fail "commit/SKILL.md missing Hard Gate"
@@ -279,7 +279,7 @@ fi
 # TC-21: commit/SKILL.md has Progress Log Completeness Gate
 echo ""
 echo "TC-21: commit/SKILL.md has Progress Log Completeness Gate"
-if grep -q "Progress Log Completeness" "$COMMIT" && grep -q "KICKOFF.*RED.*GREEN.*REFACTOR.*REVIEW\|5.*Phase completed\|5フェーズ\|全フェーズ" "$COMMIT"; then
+if grep -q "Progress Log Completeness" "$COMMIT" && grep -q "RED.*GREEN.*REFACTOR.*REVIEW\|4.*Phase completed\|4フェーズ\|全フェーズ" "$COMMIT"; then
   pass "commit/SKILL.md has Progress Log Completeness Gate"
 else
   fail "commit/SKILL.md missing Progress Log Completeness Gate"
@@ -288,7 +288,7 @@ fi
 # TC-22: commit/reference.md has Progress Log Completeness Gate details
 echo ""
 echo "TC-22: commit/reference.md has Progress Log Completeness Gate details"
-if grep -q "Progress Log Completeness" "$COMMIT_REF" && grep -q "KICKOFF" "$COMMIT_REF" && grep -q "RED" "$COMMIT_REF" && grep -q "GREEN" "$COMMIT_REF" && grep -q "REFACTOR" "$COMMIT_REF" && grep -q "REVIEW" "$COMMIT_REF"; then
+if grep -q "Progress Log Completeness" "$COMMIT_REF" && grep -q "RED" "$COMMIT_REF" && grep -q "GREEN" "$COMMIT_REF" && grep -q "REFACTOR" "$COMMIT_REF" && grep -q "REVIEW" "$COMMIT_REF"; then
   pass "commit/reference.md has Progress Log Completeness Gate details"
 else
   fail "commit/reference.md missing Progress Log Completeness Gate details"

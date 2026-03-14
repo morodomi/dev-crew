@@ -13,12 +13,12 @@ which codex
 
 ## Session Management
 
-- kickoff debateでCodexセッション作成済み（Cycle docにsession ID記録済み）→ `resume --last` で継続
+- sync-plan debateでCodexセッション作成済み（Cycle docにsession ID記録済み）→ `resume --last` で継続
 - debateなし → REDで新規セッション作成、session IDをCycle doc Progress Logに記録
 - `resume --last` はcwdフィルタ済みのため同ディレクトリ内の最新セッションが選ばれる
 - 同一ディレクトリで並行Codex実行禁止（1 cycle = 1 session）
 
-## Block 0-1: Prerequisite & Kickoff
+## Block 0-1: Prerequisite & Sync-Plan
 
 既存フロー（steps-subagent.md / steps-teams.md）と同一。Codex委譲はBlock 2から。
 

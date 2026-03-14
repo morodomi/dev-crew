@@ -11,8 +11,8 @@ phase-compactはTDDフェーズ境界でコンテキストを永続化し、
 
 | Transition | Persist to Cycle Doc | Restore From |
 |------------|---------------------|--------------|
-| plan mode -> KICKOFF | scope, environment, goal | planファイル |
-| KICKOFF -> RED | Test List, design decisions | Cycle doc + Test List section |
+| plan mode -> sync-plan | scope, environment, goal | planファイル |
+| sync-plan -> RED | Test List, design decisions | Cycle doc + Test List section |
 | RED -> GREEN | test file paths, failure descriptions | Cycle doc + test files on disk |
 | GREEN -> REFACTOR | impl file paths, test results | Cycle doc + source files on disk |
 | REFACTOR -> REVIEW | refactored file list, changes summary | Cycle doc + source files on disk |
@@ -22,20 +22,20 @@ phase-compactはTDDフェーズ境界でコンテキストを永続化し、
 
 ## Phase Summary Details
 
-### plan mode -> KICKOFF
+### plan mode -> sync-plan
 
 ```markdown
 ### Phase: INIT - Completed at HH:MM
 **Artifacts**: planファイル (TDDコンテキスト, Test List)
 **Decisions**: scope=[layer], risk=[score]([verdict])
 **Metrics**: line_count=[N], file_count=[N], test_count=0
-**Next Phase Input**: planファイル ready for KICKOFF phase
+**Next Phase Input**: planファイル ready for sync-plan
 ```
 
-### KICKOFF -> RED
+### sync-plan -> RED
 
 ```markdown
-### Phase: KICKOFF - Completed at HH:MM
+### Phase: SYNC-PLAN - Completed at HH:MM
 **Artifacts**: Cycle doc updated with PLAN section, Test List (N items)
 **Decisions**: architecture=[approach], test strategy=[approach]
 **Metrics**: line_count=[N], file_count=[N], test_count=[N]

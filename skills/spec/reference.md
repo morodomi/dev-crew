@@ -451,8 +451,8 @@ planファイルに記録するTDDコンテキストのテンプレート:
 ```markdown
 ## TDD Context
 
-- Workflow: TDD (kickoff → RED → GREEN → REFACTOR → REVIEW → COMMIT)
-- Cycle doc: kickoff フェーズで docs/cycles/ に作成
+- Workflow: TDD (sync-plan → RED → GREEN → REFACTOR → REVIEW → COMMIT)
+- Cycle doc: sync-plan エージェントが docs/cycles/ に作成
 - Feature: [feature name (3-5 words)]
 
 ### Environment
@@ -471,7 +471,7 @@ planファイルに記録するTDDコンテキストのテンプレート:
 ## Post-Approve Action
 
 approve後、compact + accept edits on に遷移したら、最初のアクションとして以下を実行:
-1. `/dev-crew:orchestrate` を実行してTDDサイクルを開始する（orchestrateがkickoff→RED→GREEN→...を自動管理）
+1. `/dev-crew:orchestrate` を実行してTDDサイクルを開始する（orchestrateがsync-plan→RED→GREEN→...を自動管理）
 ```
 
 この後、plan mode内で探索・設計・Test List定義・QAチェックを続行する。

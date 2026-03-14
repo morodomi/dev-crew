@@ -127,7 +127,7 @@ fi
 # TC-09: review/SKILL.md still has Cycle Doc Gate (for code mode backward compat)
 echo ""
 echo "TC-09: review/SKILL.md still has Cycle Doc Gate"
-if grep -q "phase: DONE" "$REVIEW" && grep -q "BLOCK\|kickoff" "$REVIEW"; then
+if grep -q "phase: DONE" "$REVIEW" && grep -q "BLOCK\|spec" "$REVIEW"; then
   pass "TC-09: review/SKILL.md has Cycle Doc Gate"
 else
   fail "TC-09: review/SKILL.md missing Cycle Doc Gate"

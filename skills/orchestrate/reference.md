@@ -22,7 +22,7 @@ PdM (Product Manager) オーケストレータの詳細ガイド。
 |------|--------|
 | 実装コード作成 | green-worker |
 | テストコード作成 | red-worker |
-| Cycle doc生成 | architect (kickoff) |
+| Cycle doc生成 | architect (sync-plan) |
 | コードレビュー | reviewer |
 | コード品質改善 | refactor (delegates to /simplify) |
 | 推測で進む | AskUserQuestion |
@@ -32,7 +32,7 @@ PdM (Product Manager) オーケストレータの詳細ガイド。
 | Phase | Owner | 委譲先 |
 |-------|-------|--------|
 | SPEC (plan mode) | PdM (Lead) 直接実行 | Skill(spec) |
-| KICKOFF (Design Review Gate) | PdM → architect | Skill(kickoff) + Design Review Gate |
+| SYNC-PLAN (Design Review Gate) | PdM → architect | Task(sync-plan) + Design Review Gate |
 | RED | PdM → N red-worker | 並列テスト作成 |
 | GREEN | PdM → N green-worker | 並列実装 |
 | REFACTOR | PdM → refactor (内部で/simplify委譲) | Skill(refactor) |
@@ -99,7 +99,7 @@ Codex に RED/GREEN を委譲する際のゲート検証。
 
 | 場面 | 再試行上限 | 超過時のアクション |
 |------|-----------|-------------------|
-| KICKOFF (Design Review BLOCK) | max 1回再試行 | ユーザーに報告、architect 再実行を依頼 |
+| SYNC-PLAN (Design Review BLOCK) | max 1回再試行 | ユーザーに報告、architect 再実行を依頼 |
 | review(code) BLOCK | max 1回再試行 | ユーザーに報告、GREEN 修正を依頼 |
 
 ### テスト失敗時の再試行
@@ -131,7 +131,7 @@ Phase: [Phase名]
 ```
 orchestrate Progress:
 - [x] Block 0: plan mode → INIT → 探索・設計 → Test List → QA → approve
-- [x] Block 1: kickoff (with Design Review) → PASS
+- [x] Block 1: sync-plan (with Design Review) → PASS
 - [ ] Block 2: RED (実行中) → GREEN → REFACTOR → REVIEW
 - [ ] Block 3: COMMIT
 ```
@@ -192,10 +192,10 @@ orchestrate中にアーキテクチャ判断が発生した場合、`docs/decisi
 
 ### 参照タイミング
 - REVIEW: 設計変更が必要な場合、既存ADRとの整合性を確認
-- NOTE: KICKOFF時のADR作成はkickoff skill内で自律処理されるため、orchestrateは関与しない
+- NOTE: sync-plan時のADR作成はsync-plan agent内で自律処理されるため、orchestrateは関与しない
 
 ### 作成条件
-kickoff/reference.mdのADR作成条件に準拠:
+agents/sync-plan.mdのADR作成条件に準拠:
 - 複数サイクルに影響する判断
 - 過去のADRを上書きする判断
 - 人間に委ねた判断（deferred）

@@ -52,12 +52,12 @@ echo ""
 echo "--- MUST Marker Validation (Layer 2) ---"
 
 # TC-01 ~ TC-03: Each phase section contains MUST marker for Task() delegation
-# Given: steps-subagent.md has ### KICKOFF/RED/GREEN sections
+# Given: steps-subagent.md has ### SYNC-PLAN/RED/GREEN sections
 # When: checking for MUST marker in each section
 # Then: should find the exact MUST string requiring Task() delegation
 
 MUST_MARKER_CASES=(
-  "KICKOFF:Delegation"
+  "SYNC-PLAN:Delegation"
   "RED:GREEN"
   "GREEN:REVIEW"
 )

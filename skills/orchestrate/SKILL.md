@@ -1,6 +1,6 @@
 ---
 name: orchestrate
-description: "TDDサイクル全体をPdM（Product Manager）として自律管理。plan mode起点でワークフロー制御。kickoff→RED→GREEN→REFACTOR→REVIEW→COMMITを専門エージェントに委譲・判断する。Manual trigger: 「orchestrate」「全体管理」「PdMモード」。Do NOT use for 個別フェーズのみの実行（→ 各フェーズスキル）。"
+description: "TDDサイクル全体をPdM（Product Manager）として自律管理。plan mode起点でワークフロー制御。sync-plan→RED→GREEN→REFACTOR→REVIEW→COMMITを専門エージェントに委譲・判断する。Manual trigger: 「orchestrate」「全体管理」「PdMモード」。Do NOT use for 個別フェーズのみの実行（→ 各フェーズスキル）。"
 allowed-tools: Task, Read, Write, Bash, Grep, Glob, AskUserQuestion
 ---
 
@@ -14,7 +14,7 @@ plan mode起点でワークフロー制御を行う。
 ```
 orchestrate Progress:
 - [ ] Block 0: planファイル / Cycle doc 確認 → 開始地点決定
-- [ ] Block 1: kickoff (with Design Review) → 自律判断
+- [ ] Block 1: sync-plan (with Design Review) → 自律判断
 - [ ] Block 2: RED → GREEN → REFACTOR → REVIEW → 自律判断 → DISCOVERED
 - [ ] Block 3: COMMIT → 完了
 ```
@@ -34,7 +34,7 @@ planファイルを起点に開始地点を決定する:
 1. **planファイルあり?**
    → YES:
      a. 未完了 cycle doc あり (`phase: DONE` 以外)? → Progress Log から再開
-     b. なし → Block 1 (kickoff) へ
+     b. なし → Block 1 (sync-plan) へ
    → NO:
      → 新規開始 (plan mode):
      1. `Skill(dev-crew:spec)` でTDDコンテキスト設定
@@ -42,10 +42,10 @@ planファイルを起点に開始地点を決定する:
      3. `Skill(dev-crew:review, args: "--plan")` で設計レビュー
      4. approve → compact → Block 1 へ
 
-### Block 1: Kickoff (with Design Review)
+### Block 1: Sync-Plan (with Design Review)
 
-1. **kickoff**: architect が Design Review Gate を実施後、PASS/WARN なら Cycle doc 生成
-2. **自律判断**: PASS/WARN → Block 2 へ、BLOCK → kickoff再実行
+1. **sync-plan**: architect が Design Review Gate を実施後、PASS/WARN なら Cycle doc 生成
+2. **自律判断**: PASS/WARN → Block 2 へ、BLOCK → sync-plan再実行
 
 ### Block 2: Implementation
 

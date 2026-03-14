@@ -69,7 +69,6 @@ Next action: [フェーズに応じた次のアクション]
 | Phase | Next Action |
 |-------|-------------|
 | INIT | plan modeで設計を継続（EnterPlanMode） |
-| KICKOFF | /red でテスト作成を開始 |
 | RED | /green で実装を開始 |
 | GREEN | /refactor で品質改善（delegates to /simplify） |
 | REFACTOR | /review でレビュー |

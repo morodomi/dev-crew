@@ -41,10 +41,10 @@ echo ""
 echo "TC-S3: rules/state-ownership.md contains frontmatter update permissions table"
 if [ ! -f "$OWNERSHIP_FILE" ]; then
   fail "TC-S3: rules/state-ownership.md does not exist"
-elif grep -qi "kickoff" "$OWNERSHIP_FILE" && grep -qi "green" "$OWNERSHIP_FILE"; then
-  pass "TC-S3: rules/state-ownership.md contains permissions table with kickoff and green entries"
+elif grep -qi "sync-plan" "$OWNERSHIP_FILE" && grep -qi "green" "$OWNERSHIP_FILE"; then
+  pass "TC-S3: rules/state-ownership.md contains permissions table with sync-plan and green entries"
 else
-  fail "TC-S3: rules/state-ownership.md missing permissions table (kickoff and/or green entries not found)"
+  fail "TC-S3: rules/state-ownership.md missing permissions table (sync-plan and/or green entries not found)"
 fi
 
 # TC-S4: Cycle doc template contains complexity field in frontmatter

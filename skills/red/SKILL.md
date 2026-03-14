@@ -12,7 +12,7 @@ allowed-tools: Task, Read, Write, Edit, Bash, Grep, Glob
 ## Workflow
 
 ### Cycle Doc Gate
-`grep -L 'phase: DONE' docs/cycles/*.md | head -1` → found: continue / not found: BLOCK(run kickoff)
+`grep -L 'phase: DONE' docs/cycles/*.md | head -1` → found: continue / not found: BLOCK(run spec)
 
 Test ListのTODOからテストケースを選択してWIPに移動。
 

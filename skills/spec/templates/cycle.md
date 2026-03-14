@@ -98,7 +98,6 @@ Format for each phase entry:
 ```
 
 Phase-specific content:
-- KICKOFF: `Cycle doc created`
 - RED: `Test code created, N tests failing`
 - GREEN: `Implementation complete, all tests passing`
 - REFACTOR: `refactor (delegates to /simplify) + Verification Gate passed`

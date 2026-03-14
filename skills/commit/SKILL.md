@@ -7,13 +7,13 @@ allowed-tools: Read, Write, Edit, Bash
 ## Workflow
 
 ### Cycle Doc Gate
-`grep -L 'phase: DONE' docs/cycles/*.md | head -1` → found: continue / not found: BLOCK(run kickoff)
+`grep -L 'phase: DONE' docs/cycles/*.md | head -1` → found: continue / not found: BLOCK(run spec)
 
 **Phase Ordering Gate**: Progress Log に `REVIEW` の `Phase completed` 記録があるか確認。なければ BLOCK: 「先に review を実行してください」
 
 **Test List Completion Gate**: Test List の TODO/WIP/DISCOVERED に未完了項目（`- [ ] TC-`）が残っていれば BLOCK。DISCOVERED残項目は review の DISCOVERED→Issue 処理に戻す。詳細: [reference.md](reference.md#test-list-completion-gate)
 
-**Progress Log Completeness Gate**: Progress Log に KICKOFF/RED/GREEN/REFACTOR/REVIEW の全5フェーズの `Phase completed` 記録があるか確認。不足フェーズがあれば BLOCK。詳細: [reference.md](reference.md#progress-log-completeness-gate)
+**Progress Log Completeness Gate**: Progress Log に RED/GREEN/REFACTOR/REVIEW の全4フェーズの `Phase completed` 記録があるか確認。不足フェーズがあれば BLOCK。詳細: [reference.md](reference.md#progress-log-completeness-gate)
 
 ### Step 2: 変更確認 + Pre-commit Hook
 
