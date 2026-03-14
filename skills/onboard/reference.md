@@ -39,7 +39,29 @@ ls composer.json package.json pyproject.toml 2>/dev/null
 | Django | pytest | `pytest --cov` | mypy | black |
 | WordPress | PHPUnit | `phpunit --coverage-text` | PHPStan | WPCS |
 
-### 1.4 プロジェクト状態判定
+### 1.4 symlink 検出
+
+AGENTS.md / CLAUDE.md が symlink の場合、Write で symlink 先を破壊する危険がある。ファイル操作の前に検出する。
+
+```bash
+# symlink チェック
+[ -L AGENTS.md ] && echo "AGENTS.md is symlink -> $(readlink AGENTS.md)"
+[ -L CLAUDE.md ] && echo "CLAUDE.md is symlink -> $(readlink CLAUDE.md)"
+```
+
+#### symlink 検出時のユーザー確認フロー
+
+symlink を検出した場合、AskUserQuestion で以下を確認:
+
+1. **symlink 先を表示**: `readlink -f <file>` でリンク先の絶対パスを提示
+2. **選択肢を提示**:
+   - (A) symlink を解除してローカルコピーに変換: `cp --remove-destination "$(readlink AGENTS.md)" AGENTS.md`
+   - (B) symlink 先を直接編集（リンク先の他プロジェクトにも影響する旨を警告）
+   - (C) onboard を中止
+
+> sync-skills の Case 4 (Conflict → Ask user) パターンと同様。ユーザー判断なしに symlink を操作しない。
+
+### 1.5 プロジェクト状態判定
 
 #### 検出シグナル
 
@@ -106,10 +128,23 @@ grep -q "TDD Workflow" CLAUDE.md AGENTS.md 2>/dev/null || MISSING+=("TDD Workflo
 #### dev-crew-installed モード
 
 - 検出結果サマリー（存在/不足アーティファクト一覧）
+- **セクション差分検出**: 現在のファイル内容とテンプレートをセクション単位で比較し、差分を表示
 - 更新範囲の確認:
   - TDDセクションのリフレッシュ（テンプレート最新化）
   - 不足アーティファクトの補完
   - rules/ ファイルの更新
+
+##### セクション差分検出チェック項目
+
+以下のセクションをテンプレートと比較し、差分の有無を報告:
+
+| # | 対象ファイル | セクション | 比較内容 |
+|---|-------------|-----------|---------|
+| 1 | AGENTS.md | TDD Workflow | Workflow 行に Codex plan review の記述があるか |
+| 2 | AGENTS.md | Quick Commands | テスト・カバレッジコマンドが最新か |
+| 3 | CLAUDE.md | AI Behavior Principles | テンプレートとの内容差分 |
+| 4 | CLAUDE.md | Codex Integration | Codex Integration セクションの有無チェック（不在なら追加候補） |
+| 5 | CLAUDE.md | Post-Approve Action | Post-Approve Action 形式が plan ファイルに含まれているか |
 
 ---
 
@@ -181,6 +216,19 @@ AGENTS.md + CLAUDE.md をテンプレートから生成。
 4. 差分ありのセクションのみ更新提案を表示
 5. 各セクション個別に承認/スキップを確認
 6. 不足アーティファクト（rules, hooks, STATUS.md）を補完
+
+##### 更新提案の具体的チェック項目
+
+Step 2 のセクション差分検出結果に基づき、以下を具体的にチェック:
+
+| # | チェック項目 | 対象 | 判定基準 |
+|---|-------------|------|---------|
+| 1 | Post-Approve Action 形式チェック | CLAUDE.md / plan テンプレート | `## Post-Approve Action` セクションが plan テンプレートに存在し、compact-safe 注記があるか |
+| 2 | Workflow 行の Codex plan review 有無 | AGENTS.md TDD Workflow | `Codex plan review` が Workflow 行に含まれているか。含まれていなければ追加提案 |
+| 3 | Codex Integration セクション有無チェック | CLAUDE.md | `## Codex Integration` セクションが存在するか。不在なら追加提案（テンプレートから生成） |
+| 4 | sync-skills ガイダンス有無 | CLAUDE.md / AGENTS.md | Codex 連携時の sync-skills 実行案内があるか |
+
+差分がないセクションは更新提案を出さない（不要な変更を避ける）。差分があるセクションのみユーザーに提示し、個別に承認を得る。
 
 ### AGENTS.md 必須セクション
 
