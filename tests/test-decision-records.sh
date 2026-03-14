@@ -1,6 +1,6 @@
 #!/bin/bash
 # test-decision-records.sh - Decision Records (Phase 5) validation
-# TC-01 through TC-11
+# TC-01 through TC-12
 
 set -euo pipefail
 
@@ -122,6 +122,15 @@ if bash "$BASE_DIR/tests/test-kickoff-debate.sh" > /dev/null 2>&1; then
   pass "TC-11: test-kickoff-debate.sh passes (regression OK)"
 else
   fail "TC-11: test-kickoff-debate.sh failed (regression)"
+fi
+
+# TC-12: AGENTS.md mentions decisions (ADR) in Project Structure
+echo ""
+echo "TC-12: AGENTS.md Project Structure mentions decisions"
+if grep -q "decisions (ADR)" "$AGENTS_MD"; then
+  pass "TC-12: AGENTS.md Project Structure mentions decisions (ADR)"
+else
+  fail "TC-12: AGENTS.md Project Structure missing decisions (ADR)"
 fi
 
 # Summary

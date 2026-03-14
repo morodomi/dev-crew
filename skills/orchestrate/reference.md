@@ -188,7 +188,7 @@ GitHub issue を作成しますか? (Y/n)
 
 ## ADR Reference
 
-orchestrate中にアーキテクチャ判断が発生した場合、`docs/decisions/` のADRを参照・作成する。
+orchestrate中にアーキテクチャ判断が発生した場合、`docs/decisions/` の既存ADRを参照する。
 
 ### 参照タイミング
 - REVIEW: 設計変更が必要な場合、既存ADRとの整合性を確認
