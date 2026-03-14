@@ -165,11 +165,11 @@ AGENTS.md + CLAUDE.md をテンプレートから生成。
 
 #### existing-no-tdd モード
 
-1. `cp CLAUDE.md CLAUDE.md.bak` でバックアップ
+1. `cp CLAUDE.md CLAUDE.md.bak` でバックアップ（CLAUDE.md存在時）
 2. `cp AGENTS.md AGENTS.md.bak` でバックアップ（AGENTS.md存在時）
-3. 既存ファイルの H2 セクション一覧を列挙
-4. AGENTS.md: cross-tool必須セクション（Quick Commands, TDD Workflow, Quality Standards）を追加
-5. CLAUDE.md: `@AGENTS.md` import + AI Behavior Principlesを追加
+3. 既存ファイルの H2 セクション一覧を列挙（存在するファイルのみ）
+4. AGENTS.md: cross-tool必須セクション（Quick Commands, TDD Workflow, Quality Standards）を追加（不在時は新規生成）
+5. CLAUDE.md: `@AGENTS.md` import + AI Behavior Principlesを追加（不在時は新規生成）
 6. セクション数チェック: AGENTS.md > 5 の場合は統合を提案（警告表示）
 7. Deletion Test を実施
 

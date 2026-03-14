@@ -53,7 +53,9 @@ mkdir -p docs/cycles
 
 テンプレートは [reference.md](reference.md) を参照。
 
-### Step 4: AGENTS.md + CLAUDE.md 生成
+### Step 4: AGENTS.md + CLAUDE.md 生成 (Two-File Model)
+
+AGENTS.md = cross-tool情報（他AIツールも利用可）、CLAUDE.md = Claude固有設定（`@AGENTS.md` importで連携）。
 
 #### AGENTS.md (cross-tool、最大5セクション)
 
@@ -93,7 +95,6 @@ hookなし → セットアップ推奨。詳細は [reference.md](reference.md)
 
 ### Step 9: 完了
 
-セットアップ完了メッセージを表示。次: spec で開発開始。
-CLAUDE.md のメンテナンス（定期レビュー・Feedback Loop）について [reference.md](reference.md) を案内。
+セットアップ完了メッセージを表示。次: spec で開発開始。メンテナンス案内は [reference.md](reference.md) 参照。
 
 ## Reference: [reference.md](reference.md)

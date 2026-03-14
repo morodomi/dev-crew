@@ -18,6 +18,7 @@ REFERENCE_FILE="$BASE_DIR/skills/onboard/reference.md"
 [ -f "$REFERENCE_FILE" ] || { echo "ERROR: $REFERENCE_FILE not found"; exit 1; }
 
 REF_CONTENT=$(cat "$REFERENCE_FILE")
+SKILL_CONTENT=$(cat "$SKILL_FILE")
 
 echo "=== Onboard Discovered Items Tests ==="
 echo ""
@@ -66,14 +67,17 @@ fi
 
 # --- Sub-task 2: Two-File mental model ---
 
-# TC-05: Given reference.md Step 4, When reading intro, Then two-file model explanation exists
+# TC-05: Given reference.md Step 4 + SKILL.md Step 4, When reading, Then two-file model explanation exists in both
 echo ""
-echo "TC-05: Two-File Model explanation in reference.md Step 4"
+echo "TC-05: Two-File Model explanation in reference.md and SKILL.md Step 4"
 STEP4=$(echo "$REF_CONTENT" | sed -n '/^## Step 4/,/^## Step [5-9]/p')
-if echo "$STEP4" | grep -qi "two-file\|2ファイル"; then
-  pass "TC-05: Two-File Model explanation found in Step 4"
+SKILL_STEP4=$(echo "$SKILL_CONTENT" | sed -n '/^### Step 4/,/^### Step [5-9]/p')
+REF_HAS_TF=$(echo "$STEP4" | grep -qi "two-file\|2ファイル" && echo "yes" || echo "no")
+SKILL_HAS_TF=$(echo "$SKILL_STEP4" | grep -qi "two-file\|cross-tool" && echo "yes" || echo "no")
+if [ "$REF_HAS_TF" = "yes" ] && [ "$SKILL_HAS_TF" = "yes" ]; then
+  pass "TC-05: Two-File Model found in both reference.md and SKILL.md"
 else
-  fail "TC-05: Two-File Model explanation not found in Step 4"
+  fail "TC-05: Two-File Model missing (reference.md=$REF_HAS_TF, SKILL.md=$SKILL_HAS_TF)"
 fi
 
 # TC-06: Given reference.md Step 4, When reading, Then cross-tool purpose is stated for AGENTS.md
