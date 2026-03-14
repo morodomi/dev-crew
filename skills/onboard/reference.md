@@ -188,6 +188,13 @@ ${PROJECT_NAME}, Overview (Tech Stack含む), Quick Commands (${TEST_COMMAND}, $
 TDD Workflow, Quality Standards。
 Project Structure は自動検出成功時のみ追加 (最大5セクション)。
 
+#### AGENTS.md テンプレートガイダンス
+
+- **Start Here セクション**: AGENTS.md 冒頭に「Start Here」セクションを配置し、新規参入者が最初に読むべきドキュメント（PHILOSOPHY.md等）と、STATUS.md/cycles/ での現在の作業状況確認を案内する。
+- **テストコマンド**: Quick Commands には具体的な実行コマンドを記載する。シェルテストの場合は `for f in tests/test-*.sh; do bash "$f"; done` パターンを推奨。フレームワーク固有のコマンド（`php artisan test`, `pytest` 等）と併記する。
+- **数値カウントは STATUS.md へ**: AGENTS.md にスキル数・エージェント数等の数値カウントを書かない。変更のたびに更新が必要になる。カウントは STATUS.md に記載し、AGENTS.md からは「STATUS.md を参照」と案内する。
+- **Migration note**: ドキュメントが移行中の場合、冒頭に migration note を記載する。例: `> docs are in migration. [docs/PHILOSOPHY.md](docs/PHILOSOPHY.md) is authoritative when other docs disagree.`
+
 ### CLAUDE.md 必須セクション
 
 `@AGENTS.md` import, AI Behavior Principles (最大2セクション)。
@@ -245,6 +252,16 @@ CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 → Agent Teams、それ以外 → 並行
 
 生成後、各行について「この行を削除したら Claude が間違うか?」を確認。No なら削除候補。
 ```
+
+#### CLAUDE.md テンプレートガイダンス
+
+- **Codex Integration セクション**: Codex が利用可能なプロジェクトでは、CLAUDE.md に Codex Integration セクションを追加する。`codex exec --full-auto` でのplan review、`codex exec resume --last --full-auto` でのセッション継続パターンを記載する。
+- **Skills trigger table は不要**: CLAUDE.md にスキルのトリガーワード一覧テーブルを書かない。スキルの `SKILL.md` に `description` フィールドがあり、Claude Code のプラグインシステムが自動でマッチングする。trigger table は陳腐化しやすく、メンテナンスコストが高い。
+
+#### Codex セットアップガイダンス
+
+- **sync-skills**: プロジェクトで dev-crew プラグインを使用している場合、Codex が dev-crew のスキル定義を参照できるよう、`sync-skills` でスキル情報を AGENTS.md に同期する。Codex は Claude Code プラグインを直接読めないため、この同期が必要。
+- **Codex セッション作成**: 初回は `codex exec --full-auto "review plan <planファイルパス>"` で新規セッションを作成する。以降は `codex exec resume --last --full-auto "指示"` でセッションを継続し、Context Cache を活用する。
 
 ### Migration from Single-CLAUDE.md
 

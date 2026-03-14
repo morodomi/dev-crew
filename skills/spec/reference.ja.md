@@ -401,6 +401,40 @@ questions:
 - Edge cases: 空ファイル時はエラーメッセージ表示
 ```
 
+## Plan File Template {#plan-file-template}
+
+planファイルに記録するTDDコンテキストのテンプレート:
+
+```markdown
+## TDD Context
+
+- Workflow: TDD (Codex plan review → sync-plan → RED → GREEN → REFACTOR → REVIEW → COMMIT)
+- Cycle doc: sync-plan エージェントが docs/cycles/ に作成
+- Feature: [機能名 (3-5語)]
+
+### Environment
+- Layer: [Backend / Frontend / Both]
+- Plugin: [php / flask / python / js / ts]
+- Risk: [0-100] ([PASS / WARN / BLOCK])
+- Language: [バージョン情報]
+- Dependencies: [主要パッケージ]
+
+### Risk Details (BLOCK時のみ)
+- [リスク質問の回答]
+
+### Ambiguity Resolution (該当時)
+- [カテゴリ]: [解決内容]
+
+## Post-Approve Action
+
+approve後、compact + accept edits on に遷移したら、最初のアクションとして以下を実行:
+1. Cycle doc を作成する（sync-plan エージェントが docs/cycles/ に生成）
+2. Plan review を実施する（Codex が利用可能なら `codex exec --full-auto` で委譲）
+3. `/dev-crew:orchestrate` を実行してREDからTDDサイクルを開始する
+```
+
+この後、plan mode内で探索・設計・Test List定義・QAチェックを続行する。
+
 ## プロジェクト固有のカスタマイズ
 
 ### 検証の追加例
