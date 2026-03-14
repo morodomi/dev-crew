@@ -104,11 +104,12 @@ orchestrate
 - RED 最終ステップに exspec 実行を追加
 - exspec 未インストール時はスキップ（既存パターン踏襲）
 
-### 11.5 マイグレーション検証
+### 11.5 マイグレーション検証 (完了)
 
-- kickoff → sync-plan の grep ベース参照チェックテスト追加
-- 既存テストの kickoff 参照を sync-plan に更新
-- マイグレーション完了条件: live docs の kickoff 参照が 0 件（11.1 の完了条件チェックコマンド参照）
+- ~~kickoff → sync-plan の grep ベース参照チェックテスト追加~~
+- ~~既存テストの kickoff 参照を sync-plan に更新~~
+- ~~マイグレーション完了条件: live docs の kickoff 参照が 0 件（11.1 の完了条件チェックコマンド参照）~~
+- 11.1 実施時に既存テスト・参照を全て更新済み。live docs の kickoff 参照 0 件を確認。
 
 ### 11.6 onboard スキル改善
 
