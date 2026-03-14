@@ -1,16 +1,12 @@
 ---
 name: onboard
-description: 既存プロジェクトにTDD環境をセットアップする。フレームワーク検出、CLAUDE.md生成、docs/STATUS.md作成を行う。「TDDセットアップ」「onboard」「プロジェクト初期化」で起動。
+description: 既存プロジェクトにTDD環境をセットアップする。フレームワーク検出、AGENTS.md + CLAUDE.md生成、docs/STATUS.md作成を行う。「TDDセットアップ」「onboard」「プロジェクト初期化」で起動。
 allowed-tools: Read, Write, Bash, Grep, Glob
 ---
 
 # TDD Onboard
 
-既存プロジェクトにTDD環境をセットアップする。
-
 ## Progress Checklist
-
-コピーして進捗を追跡:
 
 ```
 Onboard Progress:
@@ -18,7 +14,8 @@ Onboard Progress:
 - [ ] プロジェクト状態判定（fresh/existing-no-tdd/dev-crew-installed）
 - [ ] 検出結果をユーザーに確認
 - [ ] docs/ 構造作成（cycles/, README.md, STATUS.md）
-- [ ] CLAUDE.md 生成（既存あればマージ）
+- [ ] AGENTS.md 生成（cross-tool情報、最大5セクション）
+- [ ] CLAUDE.md 生成（@AGENTS.md import + AI Behavior、既存あればマージ）
 - [ ] 階層CLAUDE.md推奨（任意）
 - [ ] .claude/ 構造生成（rules/, hooks/）
 - [ ] Pre-commit Hook確認（推奨）
@@ -56,12 +53,20 @@ mkdir -p docs/cycles
 
 テンプレートは [reference.md](reference.md) を参照。
 
-### Step 4: CLAUDE.md 生成
+### Step 4: AGENTS.md + CLAUDE.md 生成
+
+#### AGENTS.md (cross-tool、最大5セクション)
 
 - `fresh` → テンプレートから生成
-- `existing-no-tdd` → TDDセクションをマージ（カスタム保持、6セクション上限警告）
-- `dev-crew-installed` → TDDセクション更新/リフレッシュ確認
-- Project Structure は自動検出成功時のみ追加
+- `existing-no-tdd` / `dev-crew-installed` → 既存あればバックアップ後マージ
+- Content: Overview, Quick Commands, TDD Workflow, Quality Standards, Project Structure(条件付き)
+
+#### CLAUDE.md (Claude固有)
+
+- 先頭に `@AGENTS.md` import を配置
+- `fresh` → テンプレートから生成
+- `existing-no-tdd` → AI Behavior Principlesをマージ（カスタム保持）
+- `dev-crew-installed` → AI Behavior更新/リフレッシュ確認
 
 テンプレートとマージ戦略は [reference.md](reference.md) を参照。
 生成後に Deletion Test（各行を削除してもClaude が困らないなら削除）を実施。詳細は [reference.md](reference.md)。

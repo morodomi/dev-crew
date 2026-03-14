@@ -45,8 +45,9 @@ ls composer.json package.json pyproject.toml 2>/dev/null
 
 | # | シグナル | チェック方法 |
 |---|---------|-------------|
+| 0 | AGENTS.md 存在 | `[ -f AGENTS.md ]` |
 | 1 | CLAUDE.md 存在 | `[ -f CLAUDE.md ]` |
-| 2 | TDD セクション | CLAUDE.md 内に `## TDD Workflow` or `## Quick Commands` |
+| 2 | TDD セクション | CLAUDE.md/AGENTS.md 内に `## TDD Workflow` or `## Quick Commands` |
 | 3 | .claude/rules/ | `[ -d .claude/rules ]` |
 | 4 | .claude/hooks/ | `[ -d .claude/hooks ]` |
 | 5 | docs/STATUS.md | `[ -f docs/STATUS.md ]` |
@@ -115,9 +116,9 @@ grep -q "TDD Workflow" CLAUDE.md || MISSING+=("TDD Workflow section")
 
 ---
 
-## Step 4: CLAUDE.md 生成
+## Step 4: AGENTS.md + CLAUDE.md 生成
 
-### マージ戦略
+### AGENTS.md マージ戦略 (最大5セクション)
 
 | セクション | 戦略 |
 |-----------|------|
@@ -125,37 +126,59 @@ grep -q "TDD Workflow" CLAUDE.md || MISSING+=("TDD Workflow section")
 | Quick Commands | 新規で上書き |
 | TDD Workflow | 新規で上書き |
 | Quality Standards | 新規で上書き |
-| AI Behavior Principles | 新規で上書き |
 | Project Structure | 条件付き: 自動検出成功時のみ生成 |
 | カスタムセクション | 既存を保持 |
+
+### CLAUDE.md マージ戦略 (最大2セクション)
+
+| セクション | 戦略 |
+|-----------|------|
+| `@AGENTS.md` import | 先頭行に配置（必須） |
+| AI Behavior Principles | 新規で上書き |
+| カスタムセクション | 既存を保持 |
+
+CLAUDE.md テンプレート先頭:
+
+```markdown
+@AGENTS.md
+
+# ${PROJECT_NAME} (Claude Code Extensions)
+```
 
 ### モード別マージ詳細
 
 #### fresh モード
 
-従来どおりテンプレートから生成。
+AGENTS.md + CLAUDE.md をテンプレートから生成。
 
 #### existing-no-tdd モード
 
 1. `cp CLAUDE.md CLAUDE.md.bak` でバックアップ
-2. 既存 CLAUDE.md の H2 セクション一覧を列挙
-3. TDD 必須セクション（Quick Commands, TDD Workflow, Quality Standards, AI Behavior Principles）を追加
-4. セクション数チェック: 合計 > 6 の場合は統合を提案（警告表示）
-5. Deletion Test を実施
+2. `cp AGENTS.md AGENTS.md.bak` でバックアップ（AGENTS.md存在時）
+3. 既存ファイルの H2 セクション一覧を列挙
+4. AGENTS.md: cross-tool必須セクション（Quick Commands, TDD Workflow, Quality Standards）を追加
+5. CLAUDE.md: `@AGENTS.md` import + AI Behavior Principlesを追加
+6. セクション数チェック: AGENTS.md > 5 の場合は統合を提案（警告表示）
+7. Deletion Test を実施
 
 #### dev-crew-installed モード
 
 1. `cp CLAUDE.md CLAUDE.md.bak` でバックアップ
-2. テンプレートとの差分チェック（各 TDD セクション単位）
-3. 差分ありのセクションのみ更新提案を表示
-4. 各セクション個別に承認/スキップを確認
-5. 不足アーティファクト（rules, hooks, STATUS.md）を補完
+2. `cp AGENTS.md AGENTS.md.bak` でバックアップ（AGENTS.md存在時）
+3. テンプレートとの差分チェック（各セクション単位）
+4. 差分ありのセクションのみ更新提案を表示
+5. 各セクション個別に承認/スキップを確認
+6. 不足アーティファクト（rules, hooks, STATUS.md）を補完
+
+### AGENTS.md 必須セクション
+
+${PROJECT_NAME}, Overview (Tech Stack含む), Quick Commands (${TEST_COMMAND}, ${COVERAGE_COMMAND}),
+TDD Workflow, Quality Standards。
+Project Structure は自動検出成功時のみ追加 (最大5セクション)。
 
 ### CLAUDE.md 必須セクション
 
-${PROJECT_NAME}, Overview (Tech Stack含む), Quick Commands (${TEST_COMMAND}, ${COVERAGE_COMMAND}),
-TDD Workflow, Quality Standards, AI Behavior Principles。
-Project Structure は自動検出成功時のみ追加 (最大6セクション)。
+`@AGENTS.md` import, AI Behavior Principles (最大2セクション)。
 
 以下は AI Behavior Principles テンプレート:
 

@@ -29,6 +29,7 @@ ls .husky/pre-commit .git/hooks/pre-commit 2>/dev/null
 | Cycle doc | 常に | phase: DONE, Progress Log に COMMIT 記録 |
 | STATUS.md | 常に | 完了タスクを Completed に移動 |
 | README.md | skills/ or agents/ 変更時 | スキル一覧・構成の更新 |
+| AGENTS.md | skills/ or agents/ 変更時 | cross-toolセクションの更新 |
 | CLAUDE.md | skills/ or agents/ 変更時 | Skills セクションの更新 |
 
 ```bash

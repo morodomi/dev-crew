@@ -91,7 +91,7 @@ Execution phase
 
 ## Tests
 
-33 shell scripts in `tests/`. Run: `bash tests/test-*.sh`
+50 shell scripts in `tests/`. Run: `bash tests/test-*.sh`
 Covers: plugin structure, agent/skill structure, cross-references, TDD enforcement, hooks.
 
 ## File Naming

@@ -101,13 +101,13 @@ else
   fail "TC-08: maintenance guidance not found in Step 9"
 fi
 
-# TC-09: reference.md 必須セクション定義に「6」の上限が明記されていること
+# TC-09: reference.md 必須セクション定義にセクション上限が明記されていること
 echo ""
-echo "TC-09: reference.md states max 6 sections"
-if echo "$REF_CONTENT" | grep -q "6セクション\|最大6"; then
-  pass "TC-09: max 6 sections limit found"
+echo "TC-09: reference.md states max sections limit"
+if echo "$REF_CONTENT" | grep -q "最大5セクション\|最大5\|5セクション"; then
+  pass "TC-09: max 5 sections limit found"
 else
-  fail "TC-09: max 6 sections limit not found"
+  fail "TC-09: max 5 sections limit not found"
 fi
 
 # TC-10: reference.md に Project Structure が「条件付き」と明記されていること

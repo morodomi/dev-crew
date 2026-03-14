@@ -34,7 +34,7 @@
 
 | Skill | Origin | Rename | Description |
 |-------|--------|--------|-------------|
-| onboard | tdd-onboard | Yes | プロジェクト初期セットアップ。CLAUDE.md生成 |
+| onboard | tdd-onboard | Yes | プロジェクト初期セットアップ。AGENTS.md + CLAUDE.md生成 |
 | skill-maker | NEW | - | Anthropic公式ガイド準拠の対話型スキル作成・レビュー支援 |
 
 ---

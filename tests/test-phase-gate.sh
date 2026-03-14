@@ -159,13 +159,13 @@ fi
 echo ""
 echo "--- Commit Doc Updates ---"
 
-# TC-13: commit/SKILL.md has README.md/CLAUDE.md update step
+# TC-13: commit/SKILL.md has README.md/AGENTS.md/CLAUDE.md update step
 echo ""
-echo "TC-13: commit/SKILL.md has README.md/CLAUDE.md update step"
-if grep -q "README.md" "$COMMIT" && grep -q "CLAUDE.md" "$COMMIT"; then
-  pass "commit/SKILL.md has README.md/CLAUDE.md update"
+echo "TC-13: commit/SKILL.md has README.md/AGENTS.md/CLAUDE.md update step"
+if grep -q "README.md" "$COMMIT" && grep -q "CLAUDE.md" "$COMMIT" && grep -q "AGENTS.md" "$COMMIT"; then
+  pass "commit/SKILL.md has README.md/AGENTS.md/CLAUDE.md update"
 else
-  fail "commit/SKILL.md missing README.md/CLAUDE.md update"
+  fail "commit/SKILL.md missing README.md/AGENTS.md/CLAUDE.md update"
 fi
 
 ########################################
