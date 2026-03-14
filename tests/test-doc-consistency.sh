@@ -170,21 +170,20 @@ fi
 echo ""
 echo "--- Terminology Consistency ---"
 
-# TC-14: /simplify not used as phase/workflow name (must have delegation context)
+# TC-14: /simplify not present in key skill/doc files (fully removed)
 echo ""
-echo "TC-14: /simplify always in delegation context"
+echo "TC-14: /simplify absent from key files"
 TERM_FAIL=0
-for rel_file in README.md skills/orchestrate/SKILL.md skills/refactor/SKILL.md; do
+for rel_file in README.md skills/orchestrate/SKILL.md skills/refactor/SKILL.md CLAUDE.md docs/terminology.md; do
   file="$BASE_DIR/$rel_file"
   [ -f "$file" ] || continue
-  violations=$(grep '/simplify' "$file" | grep -v -iE 'delegate|built-in|委譲|internal' || true)
-  if [ -n "$violations" ]; then
-    fail "/simplify without delegation context in $rel_file"
+  if grep -q '/simplify' "$file"; then
+    fail "/simplify found in $rel_file"
     TERM_FAIL=1
   fi
 done
 if [ "$TERM_FAIL" -eq 0 ]; then
-  pass "/simplify always used in delegation context"
+  pass "/simplify absent from key files"
 fi
 
 # TC-15: Phase names UPPERCASE in orchestrate SKILL.md workflow steps

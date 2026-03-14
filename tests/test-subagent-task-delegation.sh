@@ -81,19 +81,19 @@ for case in "${MUST_MARKER_CASES[@]}"; do
 done
 
 ########################################
-# /simplify delegation (Layer 2)
+# REFACTOR delegation (Layer 2)
 ########################################
 
 echo ""
-echo "--- /simplify Delegation (Layer 2) ---"
+echo "--- REFACTOR Delegation (Layer 2) ---"
 
-# TC-04: /simplify section references refactor skill
+# TC-04: REFACTOR section references refactor skill
 echo ""
-echo "TC-04: /simplify section references Skill(refactor)"
+echo "TC-04: REFACTOR section references Skill(refactor)"
 if grep -q "Skill(dev-crew:refactor)" "$TARGET_FILE"; then
-  pass "/simplify section references Skill(refactor)"
+  pass "REFACTOR section references Skill(refactor)"
 else
-  fail "/simplify section missing Skill(refactor) reference"
+  fail "REFACTOR section missing Skill(refactor) reference"
 fi
 
 ########################################

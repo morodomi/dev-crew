@@ -24,7 +24,7 @@ PdM (Product Manager) オーケストレータの詳細ガイド。
 | テストコード作成 | red-worker |
 | Cycle doc生成 | architect (sync-plan) |
 | コードレビュー | reviewer |
-| コード品質改善 | refactor (delegates to /simplify) |
+| コード品質改善 | refactor (checklist-driven) |
 | 推測で進む | AskUserQuestion |
 
 ## Phase Ownership
@@ -35,7 +35,7 @@ PdM (Product Manager) オーケストレータの詳細ガイド。
 | SYNC-PLAN (Design Review Gate) | PdM → architect | Task(sync-plan) + Design Review Gate |
 | RED | PdM → N red-worker | 並列テスト作成 |
 | GREEN | PdM → N green-worker | 並列実装 |
-| REFACTOR | PdM → refactor (内部で/simplify委譲) | Skill(refactor) |
+| REFACTOR | PdM → refactor (checklist-driven) | Skill(refactor) |
 | REVIEW | PdM → risk-based reviewer | 討論/並列 review(code) |
 | COMMIT | PdM (Lead) 直接実行 | - |
 

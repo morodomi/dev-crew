@@ -1,6 +1,6 @@
 ---
 name: refactor
-description: refactorフェーズを実行し、内部でClaude Code built-in `/simplify` に委譲してコード品質改善を行う。Verification Gateで品質確認。GREENの次フェーズ。「リファクタして」「refactor」で起動。
+description: refactorフェーズを実行し、チェックリスト駆動でコード品質改善を行う。Verification Gateで品質確認。GREENの次フェーズ。「リファクタして」「refactor」で起動。
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
 ---
 
@@ -8,7 +8,6 @@ allowed-tools: Read, Write, Edit, Bash, Grep, Glob
 
 - **Skill**: refactor (lowercase)
 - **Phase**: REFACTOR (uppercase)
-- **Implementation**: delegates to Claude Code built-in `/simplify`
 
 ## 禁止事項
 
@@ -25,11 +24,22 @@ allowed-tools: Read, Write, Edit, Bash, Grep, Glob
 
 全テストがPASSすることを確認してから開始。
 
-### Step 3: Skill("simplify") 実行
+### Step 3: チェックリスト駆動リファクタリング
 
-Skill("simplify") を呼び出してコード品質改善を実行する。
-対象: 今回のサイクルで変更・作成したファイル。
-Skill("simplify") 完了後、必ず Verification Gate に進むこと。
+今回のサイクルで変更・作成したファイルを対象に、以下のチェックリストを順に確認する。
+1改善→テスト実行→次改善 のインクリメンタルアプローチで進める。
+
+| # | 項目 | 確認観点 |
+|---|------|---------|
+| 1 | 重複コード | 同一・類似ロジックの共通化 (DRY) |
+| 2 | 定数化 | マジックナンバー・マジックストリングの定数抽出 |
+| 3 | 未使用import | 不要なimport/require/useの削除 |
+| 4 | let→const | 再代入のないletをconstに変更 |
+| 5 | メソッド分割 | 長いメソッドの責務分割 |
+| 6 | N+1クエリ | ループ内のDB/APIクエリを一括取得に変換 |
+| 7 | 命名一貫性 | プロジェクト規約に沿った命名統一 |
+
+各項目で改善が不要なら次へ進む。全項目確認後、Verification Gate に進むこと。
 
 ### Verification Gate
 `Tests PASS + lint 0 + format OK → PASS(→REVIEW) | fail → fix & retry`

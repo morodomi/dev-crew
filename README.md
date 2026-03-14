@@ -58,7 +58,7 @@ spec (design phase)
 RED → GREEN → REFACTOR → REVIEW → COMMIT (execution phase)
 ```
 
-Integrates with Claude Code built-in features (plan mode, /simplify, /compact),
+Integrates with Claude Code built-in features (plan mode, /compact),
 performing automatic context compaction at each phase boundary.
 
 ## Usage Example
@@ -80,7 +80,7 @@ You: "green"
      → Writes minimal implementation to pass all tests
 
 You: "refactor"
-     → Delegates to /simplify, then runs a Verification Gate
+     → Runs checklist-driven quality improvements, then a Verification Gate
 
 You: "review"
      → Risk-based parallel review (1-4 agents depending on change size)

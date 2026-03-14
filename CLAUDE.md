@@ -5,7 +5,6 @@
 ## Claude Code Integration
 
 - plan mode: spec + design consolidated in plan file
-- /simplify: refactor skill delegates execution
 - /compact: phase-compact skill updates Cycle doc before compaction
 
 **Auto-orchestrate after plan approve**: The `## Post-Approve Action` section in plan files persists in compressed context after compact. This triggers /orchestrate automatically after compact + accept edits on transition.

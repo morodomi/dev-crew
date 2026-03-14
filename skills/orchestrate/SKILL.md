@@ -51,7 +51,7 @@ planファイルを起点に開始地点を決定する:
 
 1. **RED**: red-worker にテスト作成を委譲
 2. **GREEN**: green-worker に実装を委譲
-3. **REFACTOR**: コード品質改善（内部で/simplifyに委譲）+ Verification Gate
+3. **REFACTOR**: コード品質改善（チェックリスト駆動）+ Verification Gate
 4. **REVIEW**: 統一レビュー (mode: code) でコードレビュー
 5. **自律判断**: PASS/WARN → DISCOVERED判断 → Block 3 へ、BLOCK → GREEN再実行
 6. **DISCOVERED**: スコープ外項目をCycle docに記録し、GitHub issueに起票（起票→ `issue #N` 参照、reject→ 理由記載）

@@ -100,7 +100,7 @@ Format for each phase entry:
 Phase-specific content:
 - RED: `Test code created, N tests failing`
 - GREEN: `Implementation complete, all tests passing`
-- REFACTOR: `refactor (delegates to /simplify) + Verification Gate passed`
+- REFACTOR: `refactor (checklist) + Verification Gate passed`
 - REVIEW: `review(code) score:NN verdict:PASS/WARN/BLOCK`
 - COMMIT: `Committed: [hash]`
 

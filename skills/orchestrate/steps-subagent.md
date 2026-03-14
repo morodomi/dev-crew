@@ -122,13 +122,13 @@ PdM が全テスト成功（GREEN 状態）を確認。
 
 ### REFACTOR + Verification Gate
 
-> NOTE: refactor 内部で Skill("simplify") を呼び出し済みのため、Skill() 直接呼び出しが正しい。
+> NOTE: refactor は独自チェックリストで実行するため、Skill() 直接呼び出しが正しい。
 
-Skill(dev-crew:refactor) を呼び出し、内部で Skill("simplify") を実行後、Verification Gate で品質確認:
+Skill(dev-crew:refactor) を呼び出し、チェックリスト駆動でコード品質改善後、Verification Gate で品質確認:
 
 ```
 Skill(dev-crew:refactor)
-→ Skill("simplify") 実行 + Verification Gate（テスト全PASS + 静的解析0件 + フォーマット適用）
+→ チェックリスト駆動リファクタリング + Verification Gate（テスト全PASS + 静的解析0件 + フォーマット適用）
 ```
 
 ### REVIEW

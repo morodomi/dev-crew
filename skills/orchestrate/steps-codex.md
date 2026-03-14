@@ -61,9 +61,9 @@ Subagent Chainモードと同様、Block境界でPhase Summaryを永続化する
 
 GREEN/REVIEW完了後も同様に永続化。
 
-### REFACTOR (unchanged)
+### REFACTOR (checklist-driven)
 
-Codex委譲なし。Claude Code直接実行:
+Claude/Codex どちらでも実行可能。チェックリスト駆動のため外部依存なし:
 
 ```
 Skill(dev-crew:refactor)

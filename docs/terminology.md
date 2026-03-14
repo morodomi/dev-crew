@@ -9,16 +9,15 @@ Source of truth for naming conventions in dev-crew.
 | Phase names | UPPERCASE | SPEC, RED, GREEN, REFACTOR, REVIEW, COMMIT, DONE |
 | Skill names | lowercase | spec, red, green, refactor, review, commit |
 | Agent names | lowercase | sync-plan, architect, red-worker, green-worker, etc. |
-| Claude Code built-in commands | slash-prefixed | /simplify, /compact, /plan |
+| Claude Code built-in commands | slash-prefixed | /compact, /plan |
 
 ## Canonical Rules
 
-### refactor vs /simplify
+### refactor
 
 - `refactor` is the **skill name** and **phase name** (REFACTOR)
-- `/simplify` is the **Claude Code built-in command** that refactor delegates to internally
+- Implementation: checklist-driven independent logic (no external dependency)
 - In workflow diagrams and documentation, use `refactor` (the skill/phase)
-- Reference `/simplify` only when describing the internal delegation mechanism
 
 ### Phase vs Skill
 

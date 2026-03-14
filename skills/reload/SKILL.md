@@ -70,6 +70,6 @@ Next action: [フェーズに応じた次のアクション]
 |-------|-------------|
 | INIT | plan modeで設計を継続（EnterPlanMode） |
 | RED | /green で実装を開始 |
-| GREEN | /refactor で品質改善（delegates to /simplify） |
+| GREEN | /refactor で品質改善 |
 | REFACTOR | /review でレビュー |
 | REVIEW | /commit でコミット |
