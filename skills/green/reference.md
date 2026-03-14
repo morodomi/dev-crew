@@ -141,3 +141,11 @@ GREENフェーズ完了後の圧縮ガイダンス。
 GREENフェーズでは、テストを通す最小限の実装のみ行ってください。
 追加機能はREFACTORフェーズまたは次のサイクルで実装します。
 ```
+
+## Codex Delegation
+
+GREEN フェーズは Codex 利用可能時に Codex 優先で実行される。Claude は fallback として機能する。
+
+- **実行権限**: orchestrate が制御（[steps-codex.md](../orchestrate/steps-codex.md) 参照）
+- **Gate 2**: PdM がテストコマンドを実行し、全テスト PASS を確認
+- **Codex 不在時**: Claude が green-worker として直接実装（既存フロー）

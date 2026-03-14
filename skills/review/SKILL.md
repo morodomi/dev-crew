@@ -39,6 +39,10 @@ Progress Log追記(`### {date} - REVIEW\n- {summary}\n- Phase completed`) + fron
 
 Cycle doc の DISCOVERED セクション未起票項目を `gh issue create` で起票。詳細: [reference.md](reference.md#discovered-issue-起票)
 
+## Codex Integration
+
+Codex 利用可能時、orchestrate が本スキルと Codex レビューを並行実行し、findings を統合する（competitive review）。単体 `/review` 実行時は Claude-side pipeline のみ動作する。詳細: [steps-codex.md](../orchestrate/steps-codex.md)
+
 ## Reference
 
 - 詳細: [reference.md](reference.md)

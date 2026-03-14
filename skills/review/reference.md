@@ -182,6 +182,22 @@ EOF
 起票済みの項目は Cycle doc で `→ #<issue番号>` マークが付く。
 `→ #` が付いている項目は起票をスキップする。
 
+## Competitive Review (via Orchestrate)
+
+Codex 利用可能時、orchestrate が Claude レビュー（本スキル）と Codex レビューを並行実行し、PdM が findings を裁定する。
+
+### Findings Judgment
+
+| 判断 | 条件 |
+|------|------|
+| Accept | 指摘が妥当 → 即修正 |
+| Reject | 明確な理由を説明でき、Codex が納得できる |
+| AskUserQuestion | ビジネス判断が必要、または debate が発生 |
+| DISCOVERED | 今回のスコープ外 → 次回タスクへ |
+| ADR | アーキテクチャ上の重要決定 → 記録 |
+
+本スキルの責務は Claude-side レビューパイプライン。Codex 実行と findings 統合は orchestrate（[steps-codex.md](../orchestrate/steps-codex.md)）が制御する。
+
 ## コスト比較
 
 | Scenario | v1 (Current) | v2 (Proposed) | Savings |

@@ -282,3 +282,11 @@ PBTライブラリが未導入 or 未成熟の場合:
 - **Contract**: 型定義 + バリデーション関数で代替
 - **Property**: パラメタライズドテスト（境界値を人間/AIが網羅した配列で検証）
 - **精神は同じ**: 「具体例の羅列」ではなく「不変量の検証」を意識する
+
+## Codex Delegation
+
+RED フェーズは Codex 利用可能時に Codex 優先で実行される。Claude は fallback として機能する。
+
+- **実行権限**: orchestrate が制御（[steps-codex.md](../orchestrate/steps-codex.md) 参照）
+- **Gate 1**: PdM がテストコマンドを実行し、新規テストが FAIL することを確認
+- **Codex 不在時**: Claude が red-worker として直接テスト作成（既存フロー）

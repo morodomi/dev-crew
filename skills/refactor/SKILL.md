@@ -50,6 +50,10 @@ Progress Log追記(`### {date} - REFACTOR\n- {summary}\n- Phase completed`) + fr
 ### 完了
 Output: REFACTOR完了。次: orchestrate→自動REVIEW / 手動→ /review
 
+## Codex Execution
+
+チェックリスト駆動のため Claude/Codex どちらでも実行可能（cross-tool compatible）。
+
 ## Reference
 
 - 詳細: [reference.md](reference.md)

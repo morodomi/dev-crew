@@ -2,6 +2,8 @@
 
 常に Subagent モードで実行する（環境変数に関わらず）。
 
+> **NOTE**: Codex 利用可能時、orchestrate が本スキルと並行して Codex レビューを実行し、findings を統合する。Codex 側の手順は [steps-codex.md](../orchestrate/steps-codex.md) を参照。
+
 ## Step 0: Mode Notification
 
 mode 決定後、ユーザーに明示出力する:
