@@ -14,6 +14,8 @@ AIがコードを生成する時代、人間は「やりたいこと」と「OK/
 
 AIは確率的に90%正しいコードを出力する。だがプログラムは残り10%が間違っていてはいけない。この10%を埋めるのがテスト、レビュー、静的解析（linter, exspec）の役割であり、dev-crewが存在する理由。
 
+この問題はコード品質だけでなく**ワークフロー遵守**にも適用される。LLMは手順を確率的にスキップする。sync-planを飛ばしてREDに入る、code reviewなしでCOMMITする、といった手順違反は実運用で繰り返し観測された。「手順を守れ」という指示は確率的依存であり、信頼できない。
+
 ## 原則
 
 ### 1. AI-first
@@ -41,6 +43,17 @@ AIの確率的出力を、複数の視点で検証する。同じコードを異
 
 人間なら1-2ヶ月かかる実装を2時間で終わらせることが理想。レビューに1日使えばバグは減るが、AIなら3-5分で終わる。完璧を求めて速度を犠牲にしない。
 
+### 6. 決定論的プロセス保証
+
+プロセスの強制は決定論的コード（シェルスクリプト）が担い、品質の検出はLLM（レビューエージェント）が担う。この責務分離が90/10問題のワークフロー版への解答。
+
+| 責務 | 担当 | 例 |
+|------|------|-----|
+| プロセス強制 | 決定論的コード | pre-red-gate.sh, pre-commit-gate.sh |
+| 品質検出 | LLM | security-reviewer, correctness-reviewer |
+
+LLMに「手順を守れ」と指示するのではなく、ゲートスクリプトが `exit 1` でBLOCKする。Cycle docの状態が要件を満たすまで次フェーズに進めない。
+
 ## 開発フロー
 
 ```
@@ -55,6 +68,11 @@ spec (Claude)
   │  → (Codex plan-review → findings → Claude判断)  ← Codex利用可能時
   │  → (Codex委譲確認: full/no)                      ← Codex利用可能時
   │  → compact
+  │
+  ▼
+■ pre-red-gate.sh                          ← 決定論的ゲート(1)
+  │  Cycle doc存在? sync-plan完了? Plan Review記録?
+  │  exit 1 → BLOCK（不足ステップに戻す）
   │
   ▼
 RED (Codex: full時)                        [fallback: Claude]
@@ -77,6 +95,11 @@ REVIEW (Claude + Codex)                    [fallback: Claude のみ]
   │  debate → AskUserQuestion             ← 承認ゲート(2)
   │
   ▼
+■ pre-commit-gate.sh                       ← 決定論的ゲート(2)
+  │  REVIEW完了? Codex review記録? STATUS.md同期?
+  │  exit 1 → BLOCK（不足ステップに戻す）
+  │
+  ▼
 COMMIT (Claude)
 ```
 
@@ -88,6 +111,15 @@ COMMIT (Claude)
 2. **REVIEW後（debate時のみ）**: Claude/Codexのレビューで意見が割れた場合の最終判断。軽微な修正（エラー修正、try catch等）は両者ACCEPTで自動進行。
 
 ※ spec中の曖昧性検出では AskUserQuestion による追加確認が入る。これは承認ではなく、誤実装を防ぐための仕様確定プロセス。
+
+### 決定論的ゲート
+
+LLMの手順スキップを機械的に防止するゲートは2箇所:
+
+1. **pre-red-gate.sh**: RED開始前。Cycle doc存在・sync-plan完了・Plan Review記録を検証
+2. **pre-commit-gate.sh**: COMMIT開始前。REVIEW完了・Codex review記録・STATUS.md同期を検証
+
+承認ゲートは「人間が判断する」場所。決定論的ゲートは「LLMが忘れる」場所。両者は補完関係にある。
 
 ### Findings判断
 
@@ -126,6 +158,15 @@ Cycle docがフェーズ間の状態引き継ぎの単一ソース:
 | GREEN → REFACTOR | 実装ファイル |
 | REFACTOR → REVIEW | リファクタ結果 |
 | REVIEW → COMMIT | レビュー結果、findings |
+
+### 決定論的ゲートによるプロセス保証
+
+LLMがPdMとしてフローを制御する以上、手順スキップは避けられない。ゲートスクリプトが `exit 1` でBLOCKすることで、Cycle docの状態が要件を満たすまで次フェーズに進めない。これはLLMへの指示（確率的）ではなく、シェルスクリプトの終了コード（決定論的）による保証。
+
+| ゲート | チェック内容 | 防ぐ問題 |
+|--------|-------------|---------|
+| pre-red-gate.sh | Cycle doc, sync-plan, Plan Review | sync-plan飛ばし、レビューなし開発 |
+| pre-commit-gate.sh | REVIEW, Codex review, STATUS.md | レビューなしコミット、ドキュメント乖離 |
 
 ## なぜこの体制か
 
