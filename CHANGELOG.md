@@ -1,5 +1,21 @@
 # Changelog
 
+## [2.0.2] - 2026-03-15
+
+Codex セッション分離と onboard テンプレート品質強化。
+
+### Added
+
+- Codex session isolation: Cycle ID ベースのセッションバインディング (#55)
+- onboard reference.md に TDD Workflow リテラルテンプレート追加（表記ブレ防止）
+- onboard reference.md に Codex Integration リテラルテンプレート追加（Auto-orchestrate トリガー行含む）
+- CLAUDE.md マージ戦略を最大3セクション（Codex Integration 追加）に更新
+
+### Fixed
+
+- onboard テンプレートの plan-review 記述を Codex 非依存に修正
+- Migration セクションに Codex Integration を追加（整合性修正）
+
 ## [2.0.1] - 2026-03-15
 
 Codex 統合の整理と委譲スコープの明確化。

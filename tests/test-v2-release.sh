@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# test-v2-release.sh - v2.0.1 release validation tests
+# test-v2-release.sh - v2.0.2 release validation tests
 set -euo pipefail
 
 DIR="$(cd "$(dirname "$0")/.." && pwd)"
@@ -8,26 +8,26 @@ FAIL=0
 fail() { echo "FAIL: $1"; FAIL=1; }
 pass() { echo "PASS: $1"; }
 
-# TC-01: plugin.json の version が "2.0.1"
+# TC-01: plugin.json の version が "2.0.2"
 VERSION=$(grep -o '"version": "[^"]*"' "$DIR/.claude-plugin/plugin.json" | grep -o '[0-9]\.[0-9]\.[0-9]')
-if [ "$VERSION" = "2.0.1" ]; then
-  pass "TC-01: plugin.json version is 2.0.1"
+if [ "$VERSION" = "2.0.2" ]; then
+  pass "TC-01: plugin.json version is 2.0.2"
 else
-  fail "TC-01: plugin.json version is '$VERSION', expected '2.0.1'"
+  fail "TC-01: plugin.json version is '$VERSION', expected '2.0.2'"
 fi
 
-# TC-02: CHANGELOG.md に "## [2.0.1]" セクションが存在
+# TC-02: CHANGELOG.md に "## [2.0.2]" セクションが存在
 if grep -q '## \[2\.0\.1\]' "$DIR/CHANGELOG.md"; then
-  pass "TC-02: CHANGELOG.md has [2.0.1] section"
+  pass "TC-02: CHANGELOG.md has [2.0.2] section"
 else
-  fail "TC-02: CHANGELOG.md missing [2.0.1] section"
+  fail "TC-02: CHANGELOG.md missing [2.0.2] section"
 fi
 
-# TC-03: CHANGELOG.md の v2.0.1 に Changed セクションが含まれる
+# TC-03: CHANGELOG.md の v2.0.2 に Changed セクションが含まれる
 if grep -A 20 '## \[2\.0\.1\]' "$DIR/CHANGELOG.md" | grep -q 'Changed'; then
-  pass "TC-03: CHANGELOG.md v2.0.1 has Changed section"
+  pass "TC-03: CHANGELOG.md v2.0.2 has Changed section"
 else
-  fail "TC-03: CHANGELOG.md v2.0.1 missing Changed section"
+  fail "TC-03: CHANGELOG.md v2.0.2 missing Changed section"
 fi
 
 # TC-04: STATUS.md のテスト数が実際のテスト数と一致
