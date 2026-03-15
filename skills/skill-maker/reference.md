@@ -300,6 +300,7 @@ allowed-tools: "Bash(python:*) Bash(npm:*) WebFetch"
 - [ ] Identified 2-3 concrete use cases
 - [ ] Tools identified (built-in or MCP)
 - [ ] Planned folder structure
+- [ ] File placement follows document hierarchy (docs/document-hierarchy.md)
 
 ### During Development
 

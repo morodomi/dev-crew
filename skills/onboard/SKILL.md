@@ -35,9 +35,8 @@ Onboard Progress:
 ### Step 2: 検出結果確認
 
 AskUserQuestion で確認:
-- フレームワーク、パッケージマネージャ
-- プロジェクト状態（モード）と対応方針
-- `dev-crew-installed` → 更新/リフレッシュ範囲の確認
+- **プロジェクト目的**（fresh/existing-no-tdd）: 何を実現するプロジェクトか
+- フレームワーク、パッケージマネージャ、プロジェクト状態
 
 モード別確認項目は [reference.md](reference.md) 参照。
 
@@ -95,6 +94,6 @@ hookなし → セットアップ推奨。詳細は [reference.md](reference.md)
 
 ### Step 9: 完了
 
-セットアップ完了メッセージと**コミット案内**を表示。次: spec で開発開始。メンテナンス案内は [reference.md](reference.md) 参照。
+セットアップ完了メッセージと**コミット案内**を表示。Codex連携の案内は [reference.md](reference.md#sync-skills-prompt) 参照。次: spec で開発開始。メンテナンス案内は [reference.md](reference.md) 参照。
 
 ## Reference: [reference.md](reference.md)
