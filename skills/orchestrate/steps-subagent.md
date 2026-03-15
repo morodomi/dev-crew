@@ -98,11 +98,11 @@ PdM が Cycle doc に Phase Summary を追記:
 
 ### Pre-RED Gate (deterministic)
 
-```bash
-bash scripts/gates/pre-red-gate.sh
-```
+Cycle doc Progress Log を確認:
+1. sync-plan: `awk '/SYNC.PLAN|sync-plan/,/Phase completed/' "$CYCLE_DOC" | grep -qi 'Phase completed'`
+2. Plan Review: `grep -qiE 'Plan Review|plan-review' "$CYCLE_DOC"`
 
-exit 0 → RED へ / exit 1 → BLOCK（メッセージに従い不足ステップを実行）
+いずれか失敗 → BLOCK（不足ステップを案内）。全PASS → RED へ。
 
 ### RED
 

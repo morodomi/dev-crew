@@ -209,7 +209,7 @@ onboard がプロジェクトに生成するディレクトリ構成を、どこ
 
 ## Phase 12: ドキュメント体系整備
 
-> Phase 11.1（sync-plan 移行）完了後に開始。用語・フローが確定してからドキュメントを更新する。
+> 前提: Phase 11.10-11.12（決定論的ゲート + Review品質改善）完了済み。ゲートの存在を前提としてドキュメントを更新する。
 
 ### 12.1 既存ドキュメント整理
 
@@ -220,27 +220,29 @@ onboard がプロジェクトに生成するディレクトリ構成を、どこ
 
 ### 12.2 AGENTS.md / CLAUDE.md 更新
 
-- AGENTS.md: Codex Integration セクション
-- CLAUDE.md: PHILOSOPHY.md との整合、sync-plan 反映
-- architecture.md: PHILOSOPHY.md の開発フロー + Codex 並列モデルとの整合
+- AGENTS.md: Codex Integration セクション、決定論的ゲートの記述
+- CLAUDE.md: PHILOSOPHY.md との整合、sync-plan 反映、ゲート前提のワークフロー記述
+- architecture.md: PHILOSOPHY.md の開発フロー + Codex 並列モデル + 決定論的ゲートとの整合
 
 ## Phase 13: スキルマップ
 
-各スキルが開発フローのどこで、誰（Claude/Codex）が使うかを明示する。
+各スキルが開発フローのどこで、誰（Claude/Codex）が使うかを明示する。決定論的ゲートをフロー上の位置に含める。
 
 ```
-フロー上の位置          スキル                  主担当        fallback
+フロー上の位置          スキル/ゲート            主担当        fallback
 ─────────────────────────────────────────────────────────────────
 企画                    strategy                Claude        -
 設計                    spec                    Claude        -
   曖昧性検出            (spec内蔵)              Claude        -
   plan review           review --plan           Codex         Claude
   Cycle doc生成         sync-plan               Claude        -
+■ pre-red-gate.sh       (決定論的)              script        -
 テスト作成              red                     Codex         Claude
   テスト静的解析        exspec                  (tool)        skip
 実装                    green                   Codex         Claude
 品質改善                refactor                Claude        Codex
 レビュー                review                  Claude+Codex  Claude
+■ pre-commit-gate.sh    (決定論的)              script        -
 コミット                commit                  Claude        -
 ───────────────────────────────────────────────────────────────
 コンテキスト管理        phase-compact, reload   Claude        -

@@ -15,7 +15,21 @@ allowed-tools: Task, Read, Write, Edit, Bash, Grep, Glob
 `grep -L 'phase: DONE' docs/cycles/*.md | head -1` → found: continue / not found: BLOCK(run spec)
 
 ### Pre-RED Gate (deterministic)
-`bash scripts/gates/pre-red-gate.sh` → exit 0: continue / exit 1: BLOCK(message indicates missing step)
+
+Cycle doc の Progress Log を確認し、以下が全て満たされなければ BLOCK:
+
+1. **sync-plan完了**: Progress Log に `SYNC-PLAN` または `sync-plan` セクションがあり、`Phase completed` 記録がある
+2. **Plan Review完了**: Progress Log に `Plan Review` または `plan-review` の記録がある
+
+```bash
+# Cycle doc を取得（Cycle Doc Gate で既に特定済み）
+# 1. sync-plan チェック
+awk '/SYNC.PLAN|sync-plan/,/Phase completed/' "$CYCLE_DOC" | grep -qi 'Phase completed'
+# 2. Plan Review チェック
+grep -qiE 'Plan Review|plan-review' "$CYCLE_DOC"
+```
+
+いずれか失敗 → BLOCK（不足ステップを案内）
 
 Test ListのTODOからテストケースを選択してWIPに移動。
 
