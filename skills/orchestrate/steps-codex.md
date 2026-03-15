@@ -13,10 +13,10 @@ which codex
 
 ## Session Management
 
-- sync-plan debateでCodexセッション作成済み（Cycle docにsession ID記録済み）→ `resume --last` で継続
-- debateなし → REDで新規セッション作成、session IDをCycle doc Progress Logに記録
-- `resume --last` はcwdフィルタ済みのため同ディレクトリ内の最新セッションが選ばれる
-- 同一ディレクトリで並行Codex実行禁止（1 cycle = 1 session）
+- spec の plan review で Codex セッション作成済み → 全フェーズ `resume --last` で継続
+- session ID は Cycle doc Progress Log に記録
+- `resume --last` は cwd フィルタ済みのため同ディレクトリ内の最新セッションが選ばれる
+- 同一ディレクトリで並行 Codex 実行禁止（1 cycle = 1 session）
 
 ## Block 0-1: Prerequisite & Sync-Plan
 
@@ -30,10 +30,6 @@ which codex
 2. 実行:
    ```bash
    codex exec resume --last --full-auto -o /tmp/codex_red.md "Cycle doc: [path]. Test List: [items]. テストを作成し、失敗を確認せよ。"
-   ```
-   セッションなければ:
-   ```bash
-   codex exec --full-auto -o /tmp/codex_red.md -C <dir> "Cycle doc: [path]. Test List: [items]. テストを作成し、失敗を確認せよ。"
    ```
 3. **Gate 1**: PdMがプロジェクトのテストコマンドを実行 → 新規テストがFAILし、テストコマンドが非ゼロexit codeを返すことを確認
 4. Test Plan整合性: テストがCycle doc Test Listと対応しているか確認
