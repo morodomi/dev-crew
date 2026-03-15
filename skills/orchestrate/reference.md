@@ -78,12 +78,12 @@ Codex に RED/GREEN を委譲する際のゲート検証。
 
 ### 委譲モード (codex_mode)
 
-Cycle doc frontmatter の `codex_mode` フィールドで Gate の挙動が変わる:
+`codex_mode` は RED/GREEN の委譲先のみ制御する。Plan Review と Code Review は codex_mode に関わらず Codex 利用可能なら常時実行。
 
-| codex_mode | Gate 1/2 | Test Plan整合性 | 説明 |
-|------------|----------|-----------------|------|
-| `full` | スキップ | 常時実行 | Codex を全面信頼。Gate 省略で高速化 |
-| `no` | N/A | N/A | Codex 不使用。Claude fallback |
+| codex_mode | RED/GREEN | Gate 1/2 | Test Plan整合性 | Plan/Code Review |
+|------------|-----------|----------|-----------------|------------------|
+| `full` | Codex (codex exec) | スキップ | 常時実行 | 常時実行 (Codex利用可能時) |
+| `no` | Claude (Task(worker)) | N/A | N/A | 常時実行 (Codex利用可能時) |
 
 `codex_mode` は Post-Approve Action で AskUserQuestion により決定され、Cycle doc frontmatter に記録される。compact 後も復元可能。
 

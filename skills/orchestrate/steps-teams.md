@@ -180,13 +180,25 @@ Skill(dev-crew:refactor)
 
 ### REVIEW (review code)
 
-統一レビュー (mode: code) でコードレビュー:
+#### Claude レビュー
 
 ```
 Skill(dev-crew:review, args: "--code")
 → review(code) が Risk Classification + Brief + Specialist Panel を実行
 → security-reviewer + correctness-reviewer は常時起動 (NON-NEGOTIABLE)
 ```
+
+#### Codex competitive review（Codex 利用可能時）
+
+`which codex` で Codex が利用可能なら、Claude レビューに加えて Codex レビューを実行する。
+codex_mode に関わらず常時実行（codex_mode は RED/GREEN 委譲のみ制御）。
+
+```bash
+codex exec resume --last --full-auto -o /tmp/codex_review.md \
+  "Review uncommitted changes. セキュリティ・正確性・パフォーマンスの観点で問題を指摘せよ。"
+```
+
+Codex 失敗 → Claude レビューのみで続行。findings 裁定は steps-codex.md の Findings Judgment テーブルに準拠。
 
 ### Phase Summary 永続化 (REVIEW→COMMIT)
 

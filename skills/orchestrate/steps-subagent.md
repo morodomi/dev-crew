@@ -135,13 +135,30 @@ Skill(dev-crew:refactor)
 
 > NOTE: review 内部で subagent 化済みのため、Skill() 直接呼び出しが正しい。
 
+#### Claude レビュー
+
 ```
 Skill(dev-crew:review, args: "--code")
 → review(code) が Risk Classification + Brief + Specialist Panel を実行
 → security-reviewer + correctness-reviewer は常時起動 (NON-NEGOTIABLE)
 ```
 
-PdM がスコアを判定:
+#### Codex competitive review（Codex 利用可能時）
+
+`which codex` で Codex が利用可能なら、Claude レビューに加えて Codex レビューを実行する。
+codex_mode に関わらず常時実行（codex_mode は RED/GREEN 委譲のみ制御）。
+
+```bash
+codex exec resume --last --full-auto -o /tmp/codex_review.md \
+  "Review uncommitted changes. セキュリティ・正確性・パフォーマンスの観点で問題を指摘せよ。"
+```
+
+Codex 失敗 → Claude レビューのみで続行（品質バー維持）。
+findings の裁定は steps-codex.md の Findings Judgment テーブルに準拠。
+
+#### PdM 判定
+
+PdM が Claude + Codex（利用可能時）の結果を統合してスコアを判定:
 - PASS/WARN → DISCOVERED 判断へ
 - BLOCK → GREEN の Task() を再起動して修正（max 1回）
 

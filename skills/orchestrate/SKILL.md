@@ -63,15 +63,15 @@ planファイルを起点に開始地点を決定する:
 
 ## Mode Selection
 
-Cycle doc frontmatter の `codex_mode` を最優先で参照する。ユーザー選択は `which codex` による自動検出より常に優先される。
+`codex_mode` は RED/GREEN の委譲先のみ制御する。Plan Review と Code Review は Codex 利用可能なら codex_mode に関わらず常時実行。
 
-| 条件 | モード | 手順 |
-|------|--------|------|
-| `codex_mode: full` | Codex Delegation | [steps-codex.md](steps-codex.md) |
-| `codex_mode: no` | 既存モード | 下記フォールバック |
-| 未設定 + `which codex` 成功 | Codex Delegation | [steps-codex.md](steps-codex.md) |
-| Agent Teams有効 (`1`) | Agent Teams (PdM Hub) | [steps-teams.md](steps-teams.md) |
-| 無効 / 未設定 | Subagent Chain | [steps-subagent.md](steps-subagent.md) |
+| 条件 | RED/GREEN モード | 手順 |
+|------|-----------------|------|
+| `codex_mode: full` | Codex (codex exec) | [steps-codex.md](steps-codex.md) |
+| `codex_mode: no` | Claude (Task(worker)) | [steps-subagent.md](steps-subagent.md) |
+| 未設定 + `which codex` 成功 | Codex (codex exec) | [steps-codex.md](steps-codex.md) |
+| Agent Teams有効 (`1`) | Claude (Agent Teams) | [steps-teams.md](steps-teams.md) |
+| 無効 / 未設定 | Claude (Subagent Chain) | [steps-subagent.md](steps-subagent.md) |
 
 ## Judgment Criteria
 

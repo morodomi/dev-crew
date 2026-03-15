@@ -13,10 +13,11 @@ which codex
 
 ### 委譲モード確認
 
-Cycle doc frontmatter の `codex_mode` を読み取る:
+Cycle doc frontmatter の `codex_mode` を読み取る。
+**codex_mode は RED/GREEN の委譲先のみ制御する**。Plan Review と Code Review は codex_mode に関わらず Codex が利用可能なら常時実行。
 
-- `codex_mode: full` → Gate 1/2 をスキップし、Codex に全委譲
-- `codex_mode: no` → Codex を使わず Claude fallback（本手順を中止し steps-subagent.md へ）
+- `codex_mode: full` → RED/GREEN を Codex に委譲、Gate 1/2 をスキップ
+- `codex_mode: no` → RED/GREEN を Claude fallback（Task(red-worker)/Task(green-worker)）
 
 未記録の場合のみ AskUserQuestion で確認し、結果を Cycle doc frontmatter に記録する。
 ユーザー選択は環境検出（`which codex`）より常に優先される。
@@ -69,7 +70,7 @@ GREEN/REVIEW完了後も同様に永続化。
 
 ### REFACTOR (checklist-driven)
 
-Claude/Codex どちらでも実行可能。チェックリスト駆動のため外部依存なし:
+Claude が主担当（PHILOSOPHY.md 準拠）。チェックリスト駆動のため外部依存なし:
 
 ```
 Skill(dev-crew:refactor)

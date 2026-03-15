@@ -84,83 +84,12 @@ planファイルのTest ListをCycle docのTest Listセクションに転記。
 (none)
 ```
 
-### Step 4: Codex Debate (optional)
-
-1. `which codex` でCodex利用可能か確認
-2. 利用不可 → Progress Logに記録、Step 5へ
-3. 利用可能 → Debate Workflowを実行
-4. 結果をCycle docのImplementation Notesに追記（Accepted/Rejected/Deferred）
-
-### Step 5: Complete
+### Step 4: Complete
 
 Output: Cycle doc生成完了。結果JSONを返却。
 
-## Debate Workflow
-
-### Pre-check
-
-`which codex` で存在確認。不在 → "Codex not available" をProgress Logに記録しスキップ。
-
-### Round Loop (max 3)
-
-1. Cycle docをCodexに渡す:
-   ```bash
-   codex exec --full-auto -o /tmp/codex_debate_r{N}.md -C <project-dir> \
-     "Review this Cycle doc and provide counter-arguments: <cycle-doc-path>"
-   ```
-   初回は新規セッション。session IDをCycle docに記録。
-   2回目以降は resume --last:
-   ```bash
-   codex exec resume --last --full-auto -o /tmp/codex_debate_r{N}.md \
-     "Response to your counter-arguments: <response-content>"
-   ```
-
-2. 反論を読み取り、分類:
-   - **Accepted**: 設計変更が必要な具体的指摘 → 設計に反映
-   - **Rejected**: 理解したがスコープ外 or リスク受容 → 理由を記録
-   - **Deferred**: 人間判断に委ねる → Human Clarificationへ
-
-3. 収束判断:
-   - 新しいAccepted指摘がない → 収束
-   - 全指摘がRejected → 収束
-   - 3ラウンド到達 → 強制収束
-   - Deferred残り → 人間に確認してから収束判断
-
-4. Critical/Importantは必ず議論。OptionalはPdMが必要と判断したらCycle docに取り入れる。
-
-### Human Clarification
-
-Deferred項目は選択方式で人間に確認:
-
-```
-Q: "<曖昧な仕様>" について:
-1. <Option A>
-2. <Option B>
-3. <Option C (スコープ外にする)>
-4. 上記以外（自由記述）
-```
-
-選択肢4（フリーフォーム）を常に含め、事前フレーミングに縛られない逃げ道を確保する。
-
-### Result Recording
-
-Cycle doc Implementation Notes に追記:
-
-```markdown
-### Debate Summary
-- Rounds: N
-- Codex Session: <session-id>
-- Accepted: [採用した指摘と対応]
-- Rejected: [却下した指摘と理由]
-- Deferred: [人間判断に委ねた項目と結果]
-```
-
-### ADR (cross-cycle判断のみ)
-
-通常のサイクルではCycle doc記録で十分。以下の場合のみ `docs/decisions/ADR-NNN.md` を作成:
-- 複数サイクルに影響する設計判断
-- 過去のADRを覆す判断
-- 人間がDeferred判断を下した場合
+> Note: Codex Plan Review は sync-plan ではなく Post-Approve Action で実行される。
+> sync-plan は Cycle doc 生成に専念する。
 
 ## Frontmatter Initialization
 
