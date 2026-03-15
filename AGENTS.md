@@ -28,17 +28,19 @@ bash tests/test-plugin-structure.sh
 ## TDD Workflow
 
 ```
-spec → sync-plan → plan-review → RED → GREEN → REFACTOR → REVIEW → COMMIT
+spec → sync-plan → plan-review → [pre-red-gate] → RED → GREEN → REFACTOR → REVIEW → [pre-commit-gate] → COMMIT
 ```
 
 1. `spec`: plan mode で要件定義・設計
 2. `sync-plan`: plan file から Cycle doc 生成
 3. `plan-review`: Codex competitive review（利用可能時）
-4. `RED`: 失敗するテストを書く
-5. `GREEN`: テストを通す最小実装
-6. `REFACTOR`: コード品質改善
-7. `REVIEW`: コードレビュー
-8. `COMMIT`: テスト通過 + 静的解析 + コミット
+4. `[pre-red-gate]`: 決定論的ゲート。Cycle doc・sync-plan・Plan Review を検証
+5. `RED`: 失敗するテストを書く
+6. `GREEN`: テストを通す最小実装
+7. `REFACTOR`: コード品質改善（Claude 主担当）
+8. `REVIEW`: コードレビュー（Claude + Codex competitive）
+9. `[pre-commit-gate]`: 決定論的ゲート。REVIEW・Codex review・STATUS.md を検証
+10. `COMMIT`: テスト通過 + 静的解析 + コミット
 
 ## Quality Standards
 
