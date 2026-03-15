@@ -1,7 +1,7 @@
 ---
 feature: spec-version-gate
 cycle: 20260315_1122
-phase: RED
+phase: DONE
 complexity: standard
 test_count: 7
 risk_level: low
