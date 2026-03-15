@@ -4,17 +4,18 @@
 
 | Metric | Value |
 |--------|-------|
-| In-Progress Cycles | 1 (docs-reorganization) |
-| Done (unarchived) | 7 |
+| In-Progress Cycles | 0 |
+| Done (unarchived) | 8 |
 | Archived Cycles | 37 |
-| Test Scripts | 51 |
+| Test Scripts | 58 |
 
-Last updated: 2026-03-14
+Last updated: 2026-03-15
 
 ## Completed (Recent)
 
 | Date | Cycle | Type |
 |------|-------|------|
+| 2026-03-15 | v2.0.0 Release (Phase 11 完了) | docs |
 | 2026-03-14 | Onboard reference hardening (Phase 6 DISCOVERED) | fix |
 | 2026-03-14 | AGENTS.md skill propagation to onboard (Phase 6) | feat |
 | 2026-03-14 | ADR template and decision records (Phase 5) | feat |
@@ -28,11 +29,11 @@ Last updated: 2026-03-14
 
 ## In Progress
 
-- docs-reorganization: PHILOSOPHY.md, ROADMAP.md, README.md 作成済み。残りドキュメント整備中
+None
 
 ## TODO
 
-Phase 11 (Claude + Codex 統合開発フロー) の実装タスクは [ROADMAP.md](ROADMAP.md) 参照。
+Phase 12+ のタスクは [ROADMAP.md](ROADMAP.md) 参照。
 
 ## Cycle Doc Lifecycle
 

@@ -1,5 +1,38 @@
 # Changelog
 
+## [2.0.0] - 2026-03-15
+
+Claude + Codex 統合開発フロー。60+ commits since v1.0.0.
+
+### Phase 11: Claude + Codex 統合開発フロー
+
+- 11.1: kickoff → sync-plan 移行（完全置換、エイリアスなし）
+- 11.2: Codex 委譲インターフェース（orchestrate に Codex パス追加）
+- 11.3: 競争的レビュー（Claude + Codex 並行レビュー、findings 集約）
+- 11.5: マイグレーション検証（kickoff 参照 0 件確認）
+- 11.6: onboard スキル改善（AGENTS.md/CLAUDE.md テンプレート、symlink/commit ガイダンス）
+- 11.7: refactor スキル再構築（/simplify 依存解消、チェックリスト駆動）
+
+### Phase 10: docs-reorganization
+
+- PHILOSOPHY.md 作成（target philosophy 定義）
+- ROADMAP.md 作成（Phase 11+ 計画）
+- README.md 刷新（Claude + Codex Integration セクション）
+- development-plan.md / skills-catalog.md アーカイブ化
+
+### Phase 9: Codex 環境整備
+
+- sync-skills スキル（Codex 用 symlink 生成）
+- AGENTS.md / CLAUDE.md 分離
+- YAML frontmatter validation (yamllint)
+
+### Phase 8: State Ownership + RED Fast-path
+
+- State ownership rules + frontmatter enrichment
+- RED skill complexity-based fast-path
+- Auto-kickoff after plan approve
+- ADR template and decision records
+
 ## [1.0.0] - 2026-03-03
 
 Initial public release. 33 agents, 29 skills, 3 rules, hook-based automation.

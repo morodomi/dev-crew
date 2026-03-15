@@ -4,13 +4,13 @@
 
 ## 現在地
 
-Phase 10 まで完了。TDDサイクル（spec→RED→GREEN→REFACTOR→REVIEW→COMMIT）は動作する。PHILOSOPHY.md で定義した target philosophy への移行が次の課題。
+Phase 11 主要完了（11.1-11.3, 11.5-11.7）。v2.0.0 リリース済み。残りは 11.4, 11.8, 11.9（低優先度）。
 
 ## Phase 11: Claude + Codex 統合開発フロー
 
 PHILOSOPHY.md の target philosophy を既存スキルに反映する。
 
-### 11.1 kickoff → sync-plan 移行
+### 11.1 kickoff → sync-plan 移行 (完了)
 
 kickoff スキルを sync-plan agent に置き換え、spec 内部から呼ぶ軽量エージェント化。
 
@@ -49,7 +49,7 @@ rg "kickoff" skills/ CLAUDE.md AGENTS.md docs/ \
 # → 0 件で完了
 ```
 
-### 11.2 Codex 委譲インターフェース
+### 11.2 Codex 委譲インターフェース (完了)
 
 orchestrate スキルに Codex 委譲パスを追加。各実行フェーズのスキルにもCodex委譲情報を反映。
 
@@ -93,7 +93,7 @@ orchestrate
 | skills/refactor/SKILL.md | Codex fallback 記述追加。`/simplify` は Claude 専用だが、Codex には独自 refactor を実行させる |
 | skills/orchestrate/steps-codex.md | REVIEW の「supplementary」を「competitive」に修正 |
 
-### 11.3 競争的レビュー
+### 11.3 競争的レビュー (完了)
 
 - review スキルに Codex レビュー統合
 - Claude review + Codex review の findings 集約フロー
@@ -111,7 +111,7 @@ orchestrate
 - ~~マイグレーション完了条件: live docs の kickoff 参照が 0 件（11.1 の完了条件チェックコマンド参照）~~
 - 11.1 実施時に既存テスト・参照を全て更新済み。live docs の kickoff 参照 0 件を確認。
 
-### 11.6 onboard スキル改善
+### 11.6 onboard スキル改善 (完了)
 
 今回のdev-crew自身のドキュメント整備で得た知見を、onboard skillが他プロジェクトで生成するドキュメントに反映する:
 
@@ -131,7 +131,7 @@ orchestrate
 
 対象: skills/onboard/reference.md
 
-### 11.7 refactor スキル再構築
+### 11.7 refactor スキル再構築 (完了)
 
 現状 refactor は Claude Code の `/simplify` に完全委譲しているが、Codex には `/simplify` がない。cross-tool で動作する独自 refactor ロジックを復活させる。
 
