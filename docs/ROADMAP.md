@@ -101,7 +101,7 @@ orchestrate
 - Claude review + Codex review の findings 集約フロー
 - findings 判断ロジック: Accept / Reject / AskUserQuestion / DISCOVERED / ADR
 
-### 11.4 exspec 統合
+### 11.4 exspec 統合 (完了)
 
 - RED 最終ステップに exspec 実行を追加
 - exspec 未インストール時はスキップ（既存パターン踏襲）

@@ -314,3 +314,50 @@ bash テストでは個別grepカウンタ + 合計チェック。
 
 ### 動的取得推奨（R2-8対応）
 テスト内の固定数値は `grep -c` 等で動的取得を推奨。ハードコード時はコメントで波及先を記載。
+
+## exspec
+
+RED フェーズ Stage 3 完了後、Verification Gate 前に実行するオプショナルなテスト静的解析チェック。
+
+### 概要
+
+exspec（テスト静的解析ツール）でテストコードの品質問題を早期検出する。assertion-free テスト等の重大問題（BLOCK severity）を RED フェーズ内で修正させる。
+
+### ゲートスクリプト
+
+```bash
+bash scripts/gates/exspec-check.sh <test_path> <lang>
+```
+
+- Exit 0 = PASS or SKIP（exspec未インストール or 非対応言語）
+- Exit 1 = BLOCK検出（修正→再実行が必要）
+
+### セバリティ判定
+
+| exspec severity | RED判定 | 理由 |
+|----------------|---------|------|
+| BLOCK | 失敗 | テスト設計の重大問題（assertion-free等） |
+| WARN  | 通過 | 改善推奨、v0.1.xのFP率を考慮し強制しない |
+| INFO  | 通過 | 情報提供のみ |
+
+### 言語マッピング
+
+red-worker が `--lang` に渡す値。dev-crew の quality スキル名からの対応:
+
+| dev-crew quality | exspec --lang | 備考 |
+|-----------------|---------------|------|
+| python-quality  | python        | |
+| ts-quality      | typescript    | |
+| php-quality     | php           | |
+| flask-quality   | python        | Flask も Python |
+| (N/A)            | rust          | rust-qualityスキルなし。直接 `rust` を渡す |
+| js-quality      | (SKIP)        | 非対応 |
+| flutter-quality | (SKIP)        | 非対応 |
+| hugo-quality    | (SKIP)        | 非対応 |
+
+### BLOCK時の対応
+
+1. exspec 出力から問題箇所を特定
+2. テストコードを修正（assertion追加等）
+3. `exspec-check.sh` を再実行して PASS を確認
+4. Verification Gate に進む
