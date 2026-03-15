@@ -41,8 +41,8 @@ None
 
 - [x] #55 Codex session isolation with cycle id-based binding
 - [x] #56 Codex competitive review を REVIEW フェーズで確実に実行させる (v2.1.0 ゲート強化で吸収)
-- [ ] 11.4 exspec 統合（P2）
-- [ ] 11.8 付属スキルの差し込み位置整理（P2）
+- [x] 11.4 exspec 統合（P2）
+- [x] 11.8 付属スキルの差し込み位置整理（P2）
 - [ ] 11.9 ディレクトリ構成の AI-Driven 標準化（P3）
 - [ ] Phase 12 ドキュメント体系整備（P2）
 - [ ] Phase 13 スキルマップ確定（P2）

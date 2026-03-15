@@ -182,7 +182,7 @@ orchestrate
 | codex-patterns.md | Codex高確率検出パターン集 |
 | known-gotchas.md | macOS symlink canonicalize等の既知問題集 |
 
-### 11.8 付属スキルの差し込み位置整理
+### 11.8 付属スキルの差し込み位置整理 (完了)
 
 dev-crew のフロー外で動作するスキル群の位置づけとCodex対応を整理。
 

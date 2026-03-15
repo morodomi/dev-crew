@@ -95,6 +95,6 @@ hookなし → セットアップ推奨。詳細は [reference.md](reference.md)
 
 ### Step 9: 完了
 
-セットアップ完了メッセージと**コミット案内**を表示。次: spec で開発開始。メンテナンス案内は [reference.md](reference.md) 参照。
+セットアップ完了メッセージと**コミット案内**を表示。Codex連携の案内は [reference.md](reference.md#sync-skills-prompt) 参照。次: spec で開発開始。メンテナンス案内は [reference.md](reference.md) 参照。
 
 ## Reference: [reference.md](reference.md)
