@@ -78,7 +78,9 @@ updated: 2026-03-15 01:59
 (none)
 
 ### DISCOVERED
-(none)
+- [ ] D1: SKILL.md Step 1 に symlink 検出時の reference.md 1.4 参照を明記する。現状 reference.md のみにガイダンスがあり、スキル実行時に確認フロー（A/B/C選択）が発動しない。SKILL.md 100行制限があるため1行追加で対応。
+- [ ] D2: onboard 完了時の Step 9 に「変更をコミットしてください」の案内を追加。AGENTS.md/CLAUDE.md/.claude/rules/ 等の設定ファイル変更がコミットされずに放置されるリスクがある。
+- [ ] D3: dev-crew-installed モードで AGENTS.md TDD Workflow 行の内容更新が実行されない。差分検出チェック項目に「Workflow 行に Codex plan review があるか」「KICKOFF → sync-plan に更新されているか」を入れたが、onboard 実行時に AGENTS.md の TDD Workflow セクション自体を書き換える動作が不足。差分を検出しても「提案」止まりではなく、承認後に実際にセクション内容を更新するフローが必要。
 
 ### DONE
 (none)

@@ -30,7 +30,7 @@ Onboard Progress:
 フレームワークとツールを検出。加えてプロジェクト状態を判定:
 - `fresh` / `existing-no-tdd` / `dev-crew-installed`
 
-状態判定ロジックと検出コマンドは [reference.md](reference.md) 参照。
+状態判定ロジック、**symlink 検出**、検出コマンドは [reference.md](reference.md) 参照。
 
 ### Step 2: 検出結果確認
 
@@ -95,6 +95,6 @@ hookなし → セットアップ推奨。詳細は [reference.md](reference.md)
 
 ### Step 9: 完了
 
-セットアップ完了メッセージを表示。次: spec で開発開始。メンテナンス案内は [reference.md](reference.md) 参照。
+セットアップ完了メッセージと**コミット案内**を表示。次: spec で開発開始。メンテナンス案内は [reference.md](reference.md) 参照。
 
 ## Reference: [reference.md](reference.md)
