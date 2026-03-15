@@ -487,8 +487,8 @@ planファイルに記録するTDDコンテキストのテンプレート:
 ## Post-Approve Action
 
 approve後、compact + accept edits on に遷移したら、最初のアクションとして以下を実行:
-1. Cycle doc を作成する（sync-plan エージェントが docs/cycles/ に生成）
-2. Plan review を実施する（Codex が利用可能なら `codex exec --full-auto` で委譲）
+1. Plan review を実施する（Codex が利用可能なら `codex exec --full-auto` で委譲）
+2. Cycle doc を作成する（sync-plan エージェントが docs/cycles/ に生成）
 3. `/dev-crew:orchestrate` を実行してREDからTDDサイクルを開始する
 ```
 
