@@ -12,6 +12,7 @@ phase: INIT
 complexity: [trivial|standard|complex]
 test_count: [number]
 risk_level: [low|medium|high]
+codex_session_id: ""
 created: YYYY-MM-DD HH:MM
 updated: YYYY-MM-DD HH:MM
 ---

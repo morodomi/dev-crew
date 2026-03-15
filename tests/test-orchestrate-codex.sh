@@ -79,13 +79,13 @@ else
   fail "steps-codex.md missing Gate 2"
 fi
 
-# TC-07: steps-codex.md has `codex exec resume --last` pattern
+# TC-07: steps-codex.md has `codex exec resume` pattern (--last or <session-id>)
 echo ""
-echo "TC-07: steps-codex.md has codex exec resume --last"
-if grep -q 'codex exec resume --last' "$BASE_DIR/skills/orchestrate/steps-codex.md"; then
-  pass "steps-codex.md has codex exec resume --last"
+echo "TC-07: steps-codex.md has codex exec resume pattern"
+if grep -q 'codex exec resume' "$BASE_DIR/skills/orchestrate/steps-codex.md"; then
+  pass "steps-codex.md has codex exec resume pattern"
 else
-  fail "steps-codex.md missing codex exec resume --last"
+  fail "steps-codex.md missing codex exec resume pattern"
 fi
 
 # TC-08: all codex exec commands have --full-auto

@@ -14,13 +14,13 @@
 Codex が利用可能な場合、Plan Review と Code Review は常時 competitive に実行。RED/GREEN の委譲は codex_mode (full/no) で制御。詳細は [docs/PHILOSOPHY.md](docs/PHILOSOPHY.md) 参照。
 
 ```bash
-# plan review（planファイルに対して実行）
+# plan review（planファイルに対して実行）→ session ID を Cycle doc frontmatter codex_session_id に記録
 codex exec --full-auto "review plan <planファイルパス>"
 
-# RED/GREEN/REVIEW 委譲（同一セッション継続、--lastでcwdフィルタ）
-codex exec resume --last --full-auto "red docs/cycles/xxx.md"
-codex exec resume --last --full-auto "green docs/cycles/xxx.md"
-codex exec resume --last --full-auto "review code docs/cycles/xxx.md"
+# RED/GREEN/REVIEW 委譲（codex_session_id があれば resume <session-id>、なければ resume --last）
+codex exec resume <session-id> --full-auto "red docs/cycles/xxx.md"
+codex exec resume <session-id> --full-auto "green docs/cycles/xxx.md"
+codex exec resume <session-id> --full-auto "review code docs/cycles/xxx.md"
 ```
 
 Codex 不在時は Claude fallback（既存スキルそのまま）。

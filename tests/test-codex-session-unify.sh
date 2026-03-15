@@ -64,13 +64,13 @@ else
   pass "RED section has no new session pattern"
 fi
 
-# TC-04: RED section has `codex exec resume --last`
+# TC-04: RED section has `codex exec resume` pattern (--last or <session-id>)
 echo ""
-echo "TC-04: RED section has codex exec resume --last"
-if echo "$red_section" | grep -q 'codex exec resume --last'; then
-  pass "RED section has codex exec resume --last"
+echo "TC-04: RED section has codex exec resume pattern"
+if echo "$red_section" | grep -q 'codex exec resume'; then
+  pass "RED section has codex exec resume pattern"
 else
-  fail "RED section missing codex exec resume --last"
+  fail "RED section missing codex exec resume pattern"
 fi
 
 # TC-05: all codex exec commands have --full-auto
@@ -83,12 +83,12 @@ else
   fail "codex exec without --full-auto found: $bad_lines"
 fi
 
-# TC-06: CLAUDE.md RED pattern uses resume --last (consistent with steps-codex.md)
+# TC-06: CLAUDE.md RED pattern uses resume (--last or <session-id>, consistent with steps-codex.md)
 echo ""
-echo "TC-06: CLAUDE.md RED pattern uses resume --last"
-if grep -q 'resume --last.*red\|red.*resume --last' "$CLAUDE_MD" || \
-   grep -A1 'RED.*GREEN.*REVIEW' "$CLAUDE_MD" | grep -q 'resume --last'; then
-  pass "CLAUDE.md RED pattern uses resume --last"
+echo "TC-06: CLAUDE.md RED pattern uses resume"
+if grep -q 'codex exec resume.*red\|red.*codex exec resume' "$CLAUDE_MD" || \
+   grep -A1 'RED.*GREEN.*REVIEW' "$CLAUDE_MD" | grep -q 'resume'; then
+  pass "CLAUDE.md RED pattern uses resume"
 else
   fail "CLAUDE.md RED pattern inconsistent"
 fi

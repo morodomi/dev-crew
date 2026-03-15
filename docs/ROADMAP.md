@@ -5,7 +5,7 @@
 ## 現在地
 
 Phase 11 主要完了（11.1-11.3, 11.5-11.7）。v2.0.1 リリース済み。
-Open Issues: #55（Codex session isolation）。#52, #53 はクローズ済み。
+Open Issues: なし。#52, #53, #55 はクローズ済み。
 残り: 11.4, 11.8, 11.9（低優先度）→ Phase 12, 13 へ。
 
 ## Phase 11: Claude + Codex 統合開発フロー

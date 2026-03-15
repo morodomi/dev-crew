@@ -101,6 +101,7 @@ Output: Cycle doc生成完了。結果JSONを返却。
 | complexity | trivial/standard/complex (planのRiskから仮設定) |
 | test_count | Test Listのカウント |
 | risk_level | low/medium/high |
+| codex_session_id | "" (空文字。plan review 時に記録) |
 | created | 現在日時 |
 | updated | 現在日時 |
 

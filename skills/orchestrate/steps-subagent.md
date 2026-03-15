@@ -149,11 +149,12 @@ Skill(dev-crew:review, args: "--code")
 codex_mode に関わらず常時実行（codex_mode は RED/GREEN 委譲のみ制御）。
 
 ```bash
-codex exec resume --last --full-auto -o /tmp/codex_review.md \
+# codex_session_id があれば resume <session-id>、なければ resume --last にフォールバック
+codex exec resume ${codex_session_id:-"--last"} --full-auto -o /tmp/codex_review.md \
   "Review uncommitted changes. セキュリティ・正確性・パフォーマンスの観点で問題を指摘せよ。"
 ```
 
-Codex 失敗 → Claude レビューのみで続行（品質バー維持）。
+`codex_session_id` は Cycle doc frontmatter から読み取る。Codex 失敗 → Claude レビューのみで続行（品質バー維持）。
 findings の裁定は steps-codex.md の Findings Judgment テーブルに準拠。
 
 #### PdM 判定
