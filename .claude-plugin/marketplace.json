@@ -3,10 +3,10 @@
   "owner": {
     "name": "morodomi"
   },
-  "description": "AI development team environment. TDD workflow, security audit, pattern learning, and phase-boundary compaction.",
   "plugins": [
     {
       "name": "dev-crew",
+      "version": "2.1.0",
       "source": "./",
       "description": "AI development team environment. TDD workflow, security audit, pattern learning, and phase-boundary compaction."
     }
