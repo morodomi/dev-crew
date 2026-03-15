@@ -1,7 +1,7 @@
 ---
 feature: onboard-mode-detection
 cycle: 20260315_0159
-phase: COMMIT
+phase: DONE
 complexity: standard
 test_count: 11
 risk_level: low
