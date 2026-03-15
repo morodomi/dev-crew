@@ -5,9 +5,9 @@
 | Metric | Value |
 |--------|-------|
 | In-Progress Cycles | 0 |
-| Done (unarchived) | 9 |
+| Done (unarchived) | 10 |
 | Archived Cycles | 37 |
-| Test Scripts | 58 |
+| Test Scripts | 63 |
 
 Last updated: 2026-03-15
 
@@ -15,6 +15,8 @@ Last updated: 2026-03-15
 
 | Date | Cycle | Type |
 |------|-------|------|
+| 2026-03-15 | v2.0.1 Release (Codex integration fixes) | docs |
+| 2026-03-15 | Codex delegation preference (#53) | feat |
 | 2026-03-15 | Post-Approve Action ordering (#54) | fix |
 | 2026-03-15 | v2.0.0 Release (Phase 11 完了) | docs |
 | 2026-03-14 | Onboard reference hardening (Phase 6 DISCOVERED) | fix |

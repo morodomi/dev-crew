@@ -1,6 +1,6 @@
 {
   "name": "dev-crew",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "AI development team environment. TDD workflow, security audit, pattern learning, and phase-boundary compaction.",
   "author": {
     "name": "morodomi"

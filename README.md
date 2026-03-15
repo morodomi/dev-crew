@@ -32,7 +32,7 @@ Claude and Codex have different personalities. dev-crew uses that as a feature:
 | Claude | Planner/Orchestrator | Agreeable, lenient reviews |
 | Codex | Implementer/Reviewer | Blunt, thorough reviews |
 
-When Codex is available, RED/GREEN/REVIEW are delegated to it. When not, Claude handles everything (fallback).
+When Codex is available, Plan Review and Code Review always run competitively (Claude + Codex). RED/GREEN delegation is user's choice (`full`: Codex, `no`: Claude). When Codex is unavailable, Claude handles everything (fallback).
 
 ## Installation
 
@@ -53,7 +53,8 @@ When Codex is available, RED/GREEN/REVIEW are delegated to it. When not, Claude 
 ```
 spec (design phase)
   plan mode → Ambiguity Detection → explore → design → Test List → QA
-  → Codex plan review → approve → sync-plan (Cycle doc)
+  → approve → sync-plan (Cycle doc) → Claude plan-review
+  → (Codex plan-review) → (Codex delegation: full/no)
 
 RED → GREEN → REFACTOR → REVIEW → COMMIT (execution phase)
 ```
@@ -69,9 +70,10 @@ You: "spec: add input validation to the login form"
        asks clarifying questions, builds a Test List
 
 You: approve the plan (exits plan mode)
-     → Codex reviews the plan, findings are resolved
-     → You approve the design
      → sync-plan generates Cycle doc
+     → Claude reviews the plan
+     → Codex reviews the plan (if available), findings are resolved
+     → Choose Codex delegation for RED/GREEN (full/no)
 
 You: "red"
      → Creates failing tests (Stage 1: Plan → Stage 2: Review → Stage 3: Code)

@@ -1,5 +1,23 @@
 # Changelog
 
+## [2.0.1] - 2026-03-15
+
+Codex 統合の整理と委譲スコープの明確化。
+
+### Changed
+
+- P0: sync-plan から Codex Debate を削除。Codex Plan Review は Post-Approve Action に一本化
+- P1: commit 後に Review Findings サマリーを表示（指摘内容・修正内容の可視化）
+- P2: codex_mode (full/no) は RED/GREEN 委譲のみ制御。Plan Review と Code Review は Codex 利用可能なら常時 competitive に実行
+- P2: steps-subagent.md / steps-teams.md の REVIEW に Codex competitive review を追加
+- REFACTOR のワーディングを PHILOSOPHY.md に合わせて Claude 主担当に修正
+- Post-Approve Action の Codex plan review を codex_mode から分離
+
+### Fixed
+
+- #53: Codex 委譲確認を plan-review 時に実施
+- #54: Post-Approve Action の順序修正 (sync-plan → plan-review)
+
 ## [2.0.0] - 2026-03-15
 
 Claude + Codex 統合開発フロー。60+ commits since v1.0.0.

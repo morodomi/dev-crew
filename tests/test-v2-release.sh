@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# test-v2-release.sh - v2.0.0 release validation tests
+# test-v2-release.sh - v2.0.1 release validation tests
 set -euo pipefail
 
 DIR="$(cd "$(dirname "$0")/.." && pwd)"
@@ -8,26 +8,26 @@ FAIL=0
 fail() { echo "FAIL: $1"; FAIL=1; }
 pass() { echo "PASS: $1"; }
 
-# TC-01: plugin.json の version が "2.0.0"
+# TC-01: plugin.json の version が "2.0.1"
 VERSION=$(grep -o '"version": "[^"]*"' "$DIR/.claude-plugin/plugin.json" | grep -o '[0-9]\.[0-9]\.[0-9]')
-if [ "$VERSION" = "2.0.0" ]; then
-  pass "TC-01: plugin.json version is 2.0.0"
+if [ "$VERSION" = "2.0.1" ]; then
+  pass "TC-01: plugin.json version is 2.0.1"
 else
-  fail "TC-01: plugin.json version is '$VERSION', expected '2.0.0'"
+  fail "TC-01: plugin.json version is '$VERSION', expected '2.0.1'"
 fi
 
-# TC-02: CHANGELOG.md に "## [2.0.0]" セクションが存在
+# TC-02: CHANGELOG.md に "## [2.0.1]" セクションが存在
 if grep -q '## \[2\.0\.0\]' "$DIR/CHANGELOG.md"; then
-  pass "TC-02: CHANGELOG.md has [2.0.0] section"
+  pass "TC-02: CHANGELOG.md has [2.0.1] section"
 else
-  fail "TC-02: CHANGELOG.md missing [2.0.0] section"
+  fail "TC-02: CHANGELOG.md missing [2.0.1] section"
 fi
 
-# TC-03: CHANGELOG.md の v2.0.0 に Phase 11 の主要項目が含まれる
+# TC-03: CHANGELOG.md の v2.0.1 に Phase 11 の主要項目が含まれる
 if grep -A 50 '## \[2\.0\.0\]' "$DIR/CHANGELOG.md" | grep -q 'Phase 11'; then
-  pass "TC-03: CHANGELOG.md v2.0.0 mentions Phase 11"
+  pass "TC-03: CHANGELOG.md v2.0.1 mentions Phase 11"
 else
-  fail "TC-03: CHANGELOG.md v2.0.0 missing Phase 11 reference"
+  fail "TC-03: CHANGELOG.md v2.0.1 missing Phase 11 reference"
 fi
 
 # TC-04: STATUS.md のテスト数が実際のテスト数と一致
