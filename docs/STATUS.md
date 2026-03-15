@@ -7,7 +7,7 @@
 | In-Progress Cycles | 0 |
 | Done (unarchived) | 17 |
 | Archived Cycles | 37 |
-| Test Scripts | 72 |
+| Test Scripts | 73 |
 
 Last updated: 2026-03-15
 
@@ -43,7 +43,7 @@ None
 - [x] #56 Codex competitive review を REVIEW フェーズで確実に実行させる (v2.1.0 ゲート強化で吸収)
 - [x] 11.4 exspec 統合（P2）
 - [x] 11.8 付属スキルの差し込み位置整理（P2）
-- [ ] 11.9 ディレクトリ構成の AI-Driven 標準化（P3）
+- [x] 11.9 ディレクトリ構成の AI-Driven 標準化（P3）
 - [ ] Phase 12 ドキュメント体系整備（P2）
 - [ ] Phase 13 スキルマップ確定（P2）
 

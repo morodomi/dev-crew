@@ -35,9 +35,8 @@ Onboard Progress:
 ### Step 2: 検出結果確認
 
 AskUserQuestion で確認:
-- フレームワーク、パッケージマネージャ
-- プロジェクト状態（モード）と対応方針
-- `dev-crew-installed` → 更新/リフレッシュ範囲の確認
+- **プロジェクト目的**（fresh/existing-no-tdd）: 何を実現するプロジェクトか
+- フレームワーク、パッケージマネージャ、プロジェクト状態
 
 モード別確認項目は [reference.md](reference.md) 参照。
 
