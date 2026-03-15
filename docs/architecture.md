@@ -24,23 +24,32 @@ User
 ├──────────────────────────────────────────────┤
 │  normal mode (実行フェーズ)                   │
 │  ┌──────────────────────────┐                 │
-│  ┌──────────────────────────┐                 │
 │  │ SYNC-PLAN                │                 │
-│  │  Design Review Gate      │                 │
-│  │  → PASS/WARN: Cycle doc  │                 │
+│  │  → Cycle doc 生成        │                 │
 │  └──────────────────────────┘                 │
 │       │                                       │
+│  ┌──────────────────────────┐                 │
+│  │ plan-review (Codex competitive) │          │
+│  └──────────────────────────┘                 │
+│       │                                       │
+│  ■ pre-red-gate.sh (決定論的ゲート)           │
+│       │                                       │
 │  ┌──────────────────────┐                      │
-│  │ RED (Step 0 + Stage 1-3) │                  │
-│  │  Classify→Plan→Review→Code │               │
+│  │ RED (テスト作成)       │                    │
 │  └──────────┬───────────┘                      │
 │  ┌──────────▼──┐  ┌───────────┐                │
 │  │ GREEN       │→│ REFACTOR  │                │
 │  └─────────────┘  └───────────┘                │
-│       │              │              │         │
-│  ┌───────────────┐  ┌─────────┐               │
-│  │ review(code) │→│ COMMIT  │               │
-│  └───────────────┘  └─────────┘               │
+│       │                                       │
+│  ┌───────────────┐                             │
+│  │ review(code)  │ (Claude + Codex competitive)│
+│  └───────────────┘                             │
+│       │                                       │
+│  ■ pre-commit-gate.sh (決定論的ゲート)         │
+│       │                                       │
+│  ┌─────────┐                                   │
+│  │ COMMIT  │                                   │
+│  └─────────┘                                   │
 └─────────────────────────────────────────────┘
 ```
 
@@ -53,20 +62,20 @@ dev-crewは単一のClaude Code Plugin。1回のinstallで全機能が有効化�
 ```
 dev-crew/
 ├── .claude-plugin/plugin.json    # Single plugin metadata
-├── agents/                       # 34 agents (flat)
+├── agents/                       # Agents (flat, see STATUS.md for counts)
 │   ├── Orchestration: socrates.md
 │   ├── Implementation: architect.md, sync-plan.md, red-worker.md, green-worker.md, refactorer.md
-│   ├── Review (7): *-reviewer.md + review-briefer.md
-│   ├── Security (18): *-attacker.md, recon-agent.md, etc.
+│   ├── Review: *-reviewer.md + review-briefer.md
+│   ├── Security: *-attacker.md, recon-agent.md, etc.
 │   └── Meta: observer.md
-├── skills/                       # 29 skills (flat)
-│   ├── Workflow (7): spec/, red/, green/, refactor/, review/, commit/, reload/
-│   ├── Orchestration (3): orchestrate/, phase-compact/, strategy/
-│   ├── Diagnostic (2): diagnose/, parallel/
-│   ├── Setup (2): onboard/, skill-maker/
-│   ├── Security (5): security-scan/, attack-report/, context-review/, generate-e2e/, security-audit/
-│   ├── Language Quality (7): php-quality/, python-quality/, ts-quality/, etc.
-│   └── Meta (2): learn/, evolve/
+├── skills/                       # Skills (flat, see STATUS.md for counts)
+│   ├── Workflow: spec/, red/, green/, refactor/, review/, commit/, reload/
+│   ├── Orchestration: orchestrate/, phase-compact/, strategy/
+│   ├── Diagnostic: diagnose/, parallel/
+│   ├── Setup: onboard/, skill-maker/
+│   ├── Security: security-scan/, attack-report/, context-review/, generate-e2e/, security-audit/
+│   ├── Language Quality: php-quality/, python-quality/, ts-quality/, etc.
+│   └── Meta: learn/, evolve/
 ├── rules/                        # Always-applied rules
 ├── hooks/hooks.json              # Auto-loaded hooks
 └── scripts/hooks/                # Shell scripts for hooks
@@ -79,7 +88,7 @@ dev-crew/
 Agent Teams + review(code: 3-6並行) により、
 1セッションで5時間windowを使い切る。
 主因は会話履歴の累積。v2ではRisk-Based Scalingで改善。
-review(plan) は廃止し、architect 内部の Design Review Gate に置き換え済み。
+review(plan) は廃止し、plan-review + pre-red-gate.sh に置き換え済み。
 
 ### Solution: Phase-Boundary Compaction
 

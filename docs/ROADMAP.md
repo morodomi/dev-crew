@@ -218,11 +218,11 @@ onboard がプロジェクトに生成するディレクトリ構成を、どこ
 - development-plan.md アーカイブ化（完了）
 - skills-catalog.md アーカイブ化（完了。Phase 13 スキルマップで後継）
 
-### 12.2 AGENTS.md / CLAUDE.md 更新
+### 12.2 AGENTS.md / CLAUDE.md 更新 (完了)
 
-- AGENTS.md: Codex Integration セクション、決定論的ゲートの記述
-- CLAUDE.md: PHILOSOPHY.md との整合、sync-plan 反映、ゲート前提のワークフロー記述
-- architecture.md: PHILOSOPHY.md の開発フロー + Codex 並列モデル + 決定論的ゲートとの整合
+- AGENTS.md: 決定論的ゲート（pre-red-gate, pre-commit-gate）をTDD Workflowに追記
+- CLAUDE.md: REFACTOR主従明記、Usage Patterns整合
+- architecture.md: フロー図にゲート追加、ハードコード数値削除
 
 ## Phase 13: スキルマップ
 
