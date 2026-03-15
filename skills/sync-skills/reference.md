@@ -8,8 +8,8 @@
   "plugins": {
     "dev-crew@dev-crew": [{
       "scope": "user",
-      "installPath": "~/.claude/plugins/cache/dev-crew/dev-crew/1.1.0",
-      "version": "1.1.0"
+      "installPath": "~/.claude/plugins/cache/dev-crew/dev-crew/2.0.0",
+      "version": "2.0.0"
     }],
     "novel-skills@novel-skills": [{
       "scope": "local",

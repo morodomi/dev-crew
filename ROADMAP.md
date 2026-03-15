@@ -161,7 +161,7 @@ Claude Codeのプラグインとしてインストールされたスキルは `~
 └── ...
 ```
 
-**課題**: pluginバージョン更新でキャッシュパスが変わる（`1.1.0` → `1.2.0`）ためsymlinkが壊れる。
+**課題**: pluginバージョン更新でキャッシュパスが変わる（例: `2.0.0` → `2.1.0`）ためsymlinkが壊れる。
 
 **対策**: `/sync-skills` で `~/.claude/plugins/installed_plugins.json` と `.agents/skills/` を比較し、差分を検出・修復する。
 

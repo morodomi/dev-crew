@@ -77,33 +77,6 @@ else
   fail "README.md does not list security-audit"
 fi
 
-# TC-06: skills-catalog.md lists "reload"
-echo ""
-echo "TC-06: skills-catalog.md lists 'reload'"
-if grep -q "reload" "$BASE_DIR/docs/skills-catalog.md"; then
-  pass "skills-catalog.md lists reload"
-else
-  fail "skills-catalog.md does not list reload"
-fi
-
-# TC-07: skills-catalog.md lists "skill-maker"
-echo ""
-echo "TC-07: skills-catalog.md lists 'skill-maker'"
-if grep -q "skill-maker" "$BASE_DIR/docs/skills-catalog.md"; then
-  pass "skills-catalog.md lists skill-maker"
-else
-  fail "skills-catalog.md does not list skill-maker"
-fi
-
-# TC-08: skills-catalog.md lists "security-audit"
-echo ""
-echo "TC-08: skills-catalog.md lists 'security-audit'"
-if grep -q "security-audit" "$BASE_DIR/docs/skills-catalog.md"; then
-  pass "skills-catalog.md lists security-audit"
-else
-  fail "skills-catalog.md does not list security-audit"
-fi
-
 ########################################
 # Content accuracy
 ########################################

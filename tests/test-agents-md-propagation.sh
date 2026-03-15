@@ -12,11 +12,10 @@ pass() { PASS=$((PASS + 1)); printf "  \033[32mPASS\033[0m %s\n" "$1"; }
 fail() { FAIL=$((FAIL + 1)); printf "  \033[31mFAIL\033[0m %s\n" "$1"; }
 
 COMMIT_SKILL="$BASE_DIR/skills/commit/SKILL.md"
-CATALOG="$BASE_DIR/docs/skills-catalog.md"
 STALENESS_HOOK="$BASE_DIR/scripts/hooks/check-claude-md-staleness.sh"
 SKILLS_STRUCTURE_TEST="$BASE_DIR/tests/test-skills-structure.sh"
 
-for f in "$COMMIT_SKILL" "$CATALOG" "$STALENESS_HOOK" "$SKILLS_STRUCTURE_TEST"; do
+for f in "$COMMIT_SKILL" "$STALENESS_HOOK" "$SKILLS_STRUCTURE_TEST"; do
   [ -f "$f" ] || { echo "ERROR: $f not found"; exit 1; }
 done
 
@@ -29,16 +28,6 @@ if grep -q "AGENTS.md" "$COMMIT_SKILL"; then
   pass "TC-08: AGENTS.md found in commit/SKILL.md"
 else
   fail "TC-08: AGENTS.md not found in commit/SKILL.md"
-fi
-
-# TC-09: Given skills-catalog.md, When reading onboard entry, Then AGENTS.md is mentioned
-echo ""
-echo "TC-09: skills-catalog.md onboard entry mentions AGENTS.md"
-ONBOARD_LINE=$(grep -i "onboard" "$CATALOG" | head -1)
-if echo "$ONBOARD_LINE" | grep -q "AGENTS.md"; then
-  pass "TC-09: AGENTS.md mentioned in onboard catalog entry"
-else
-  fail "TC-09: AGENTS.md not mentioned in onboard catalog entry"
 fi
 
 # TC-10: Given staleness hook, When AGENTS.md exists, Then both AGENTS.md and CLAUDE.md are checked
