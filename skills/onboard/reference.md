@@ -346,12 +346,26 @@ core の `.claude/` から Read してコピー: `.claude/rules/security.md`, `.
 
 | ファイル | 不在時 | 存在時 |
 |---------|--------|--------|
+| `.claude/dev-crew.json` | 作成 | バージョン差分あれば更新確認 |
 | `.claude/rules/git-safety.md` | 作成 | 内容差分あれば更新確認 |
 | `.claude/rules/security.md` | 作成 | 内容差分あれば更新確認 |
 | `.claude/rules/git-conventions.md` | 作成 | 内容差分あれば更新確認 |
 | `.claude/hooks/recommended.md` | 作成 | 内容差分あれば更新確認 |
 
 既存ファイルの更新時は差分を表示し、個別に承認を得る。
+
+### dev-crew.json 生成手順
+
+`.claude/dev-crew.json` を生成し、`dev_crew_version` を記録する。
+
+```bash
+PLUGIN_VERSION=$(jq -r '.plugins["dev-crew@dev-crew"][0].version // "unknown"' ~/.claude/plugins/installed_plugins.json 2>/dev/null)
+cat > .claude/dev-crew.json << EOF
+{
+  "dev_crew_version": "${PLUGIN_VERSION:-unknown}"
+}
+EOF
+```
 
 ### path targeting rules
 

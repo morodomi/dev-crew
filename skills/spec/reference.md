@@ -2,6 +2,22 @@
 
 Detailed information for SKILL.md. Refer only when needed.
 
+## Version comparison
+
+Step 1 の version comparison では、`.claude/dev-crew.json` の `dev_crew_version` と `~/.claude/plugins/installed_plugins.json` の dev-crew バージョンを比較する。
+
+```bash
+RECORDED_VERSION=$(jq -r '.dev_crew_version // "unknown"' .claude/dev-crew.json 2>/dev/null)
+PLUGIN_VERSION=$(jq -r '.plugins["dev-crew@dev-crew"][0].version // "unknown"' ~/.claude/plugins/installed_plugins.json 2>/dev/null)
+```
+
+判定手順:
+
+1. `.claude/dev-crew.json` がなければ warning を表示して停止する。
+2. `RECORDED_VERSION` または `PLUGIN_VERSION` が `unknown` なら warning を表示して停止する。
+3. 両者が一致すれば続行する。
+4. 不一致なら version mismatch warning を表示して停止する。
+
 ## Risk Score Assessment Details
 
 ### Score Thresholds (unified with review)

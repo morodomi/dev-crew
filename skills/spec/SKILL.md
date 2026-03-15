@@ -37,6 +37,12 @@ cat docs/STATUS.md 2>/dev/null
 
 If not found, recommend `onboard`. Also check hooks: [reference.md](reference.md#hooks-check)
 
+#### Version Gate
+
+1. `.claude/dev-crew.json` を読む。`.claude/dev-crew.json missing` なら警告して停止。
+2. `installed_plugins.json` から現在の dev-crew バージョンを取得して比較する。
+3. 記録済みバージョンと不一致なら警告して停止する。
+
 ### Step 2: Collect Environment Info
 
 Collect language versions and key packages. Details: [reference.md](reference.md)
