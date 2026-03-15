@@ -33,8 +33,10 @@ planファイルを起点に開始地点を決定する:
 
 1. **planファイルあり?**
    → YES:
-     a. 未完了 cycle doc あり (`phase: DONE` 以外)? → Progress Log から再開
-     b. なし → Block 1 (sync-plan) へ
+     a. 未完了 cycle doc あり (`phase: DONE` 以外)?
+        - plan-review 記録あり (Cycle doc に `plan_review` セクション存在)? → Block 1 スキップ → Block 2 (RED) へ
+        - plan-review 記録なし? → Progress Log から再開
+     b. cycle doc なし → Block 1 (sync-plan) へ
    → NO:
      → 新規開始 (plan mode):
      1. `Skill(dev-crew:spec)` でTDDコンテキスト設定
