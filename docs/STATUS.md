@@ -5,9 +5,9 @@
 | Metric | Value |
 |--------|-------|
 | In-Progress Cycles | 0 |
-| Done (unarchived) | 17 |
+| Done (unarchived) | 18 |
 | Archived Cycles | 37 |
-| Test Scripts | 76 |
+| Test Scripts | 77 |
 
 Last updated: 2026-03-16
 
@@ -45,7 +45,7 @@ None
 - [x] 11.8 付属スキルの差し込み位置整理（P2）
 - [x] 11.9 ディレクトリ構成の AI-Driven 標準化（P3）
 - [ ] Phase 12 ドキュメント体系整備（P2）
-- [ ] Phase 13 スキルマップ確定（P2）
+- [x] Phase 13 スキルマップ確定（P2）
 
 詳細は [ROADMAP.md](ROADMAP.md) 参照。
 
