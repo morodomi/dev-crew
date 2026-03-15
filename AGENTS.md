@@ -25,6 +25,30 @@ for f in tests/test-*.sh; do bash "$f"; done
 bash tests/test-plugin-structure.sh
 ```
 
+## TDD Workflow
+
+```
+spec → sync-plan → plan-review → RED → GREEN → REFACTOR → REVIEW → COMMIT
+```
+
+1. `spec`: plan mode で要件定義・設計
+2. `sync-plan`: plan file から Cycle doc 生成
+3. `plan-review`: Codex competitive review（利用可能時）
+4. `RED`: 失敗するテストを書く
+5. `GREEN`: テストを通す最小実装
+6. `REFACTOR`: コード品質改善
+7. `REVIEW`: コードレビュー
+8. `COMMIT`: テスト通過 + 静的解析 + コミット
+
+## Quality Standards
+
+| Metric | Target |
+|--------|--------|
+| Test coverage | 90%+ (min 80%) |
+| Static analysis | 0 errors |
+| Test design | Given/When/Then |
+| SKILL.md | < 100 lines |
+
 ## Key Constraints
 
 | Constraint | Rule |
