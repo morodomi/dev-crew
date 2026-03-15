@@ -224,7 +224,7 @@ onboard がプロジェクトに生成するディレクトリ構成を、どこ
 - CLAUDE.md: REFACTOR主従明記、Usage Patterns整合
 - architecture.md: フロー図にゲート追加、ハードコード数値削除
 
-## Phase 13: スキルマップ
+## Phase 13: スキルマップ (完了)
 
 各スキルが開発フローのどこで、誰（Claude/Codex）が使うかを明示する。決定論的ゲートをフロー上の位置に含める。
 
