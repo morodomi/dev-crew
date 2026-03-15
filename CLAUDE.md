@@ -11,7 +11,7 @@
 
 ## Codex Integration
 
-Codex が利用可能な場合、RED/GREEN/REVIEW を Codex に委譲する。詳細は [docs/PHILOSOPHY.md](docs/PHILOSOPHY.md) 参照。
+Codex が利用可能な場合、Plan Review と Code Review は常時 competitive に実行。RED/GREEN の委譲は codex_mode (full/no) で制御。詳細は [docs/PHILOSOPHY.md](docs/PHILOSOPHY.md) 参照。
 
 ```bash
 # plan review（planファイルに対して実行）
@@ -44,7 +44,7 @@ Phase-boundary compaction:
 | Scenario | Mode | Context Management |
 |---------|--------|------------|
 | Task search | plan mode | search-task → strategy |
-| Small-Medium | plan mode → accept edits on | spec → Codex plan review → approve → sync-plan → auto-orchestrate |
+| Small-Medium | plan mode → accept edits on | spec → approve → sync-plan → plan-review → auto-orchestrate |
 | Medium + compact | plan mode → accept edits on | phase-compact → /compact → /reload between phases |
 | Large (auto) | plan mode → accept edits on (AGENT_TEAMS=1) | spec → orchestrate (Task() for isolation) |
 | Session resume | accept edits on | /reload → continue from current phase |

@@ -46,7 +46,7 @@ When Codex is available, Plan Review and Code Review always run competitively (C
 1. Enter plan mode
 2. `spec: <your task>` (e.g. "spec: add input validation to the login form")
 3. Approve the design
-4. Let orchestrate continue automatically, or run phases manually (`red` → `green` → `refactor` → `review` → `commit`)
+4. Orchestrate runs automatically (sync-plan → plan-review → RED → GREEN → REFACTOR → REVIEW → COMMIT)
 
 ## Core Workflow
 
@@ -75,21 +75,10 @@ You: approve the plan (exits plan mode)
      → Codex reviews the plan (if available), findings are resolved
      → Choose Codex delegation for RED/GREEN (full/no)
 
-You: "red"
-     → Creates failing tests (Stage 1: Plan → Stage 2: Review → Stage 3: Code)
-
-You: "green"
-     → Writes minimal implementation to pass all tests
-
-You: "refactor"
-     → Runs checklist-driven quality improvements, then a Verification Gate
-
-You: "review"
-     → Risk-based parallel review (1-4 agents depending on change size)
-     → Codex also reviews (competitive review)
-
-You: "commit"
-     → Stages, commits with conventional message, updates Cycle doc
+     → orchestrate auto-starts: RED → GREEN → REFACTOR → REVIEW → COMMIT
+     → Each phase delegated to specialist agents (Codex or Claude workers)
+     → Competitive review (Claude + Codex) at REVIEW phase
+     → Findings summary shown after commit
 ```
 
 Each phase boundary persists output to the Cycle doc and triggers context

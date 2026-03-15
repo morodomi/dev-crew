@@ -32,12 +32,12 @@ else
   fail "TC-02: agents/sync-plan.md missing Cycle doc generation workflow"
 fi
 
-# TC-03: agents/sync-plan.md contains Debate Workflow
-echo "TC-03: sync-plan.md Debate Workflow"
-if grep -qi 'debate' agents/sync-plan.md; then
-  pass "TC-03"
+# TC-03: agents/sync-plan.md does NOT contain Debate Workflow (removed in v2.0.1)
+echo "TC-03: sync-plan.md no Debate Workflow"
+if grep -q '## Debate Workflow' agents/sync-plan.md; then
+  fail "TC-03: agents/sync-plan.md still has Debate Workflow (removed in v2.0.1)"
 else
-  fail "TC-03: agents/sync-plan.md missing Debate Workflow"
+  pass "TC-03"
 fi
 
 # TC-04: skills/kickoff/ does not exist; old test files do not exist

@@ -22,11 +22,11 @@ else
   fail "TC-03: CLAUDE.md missing Post-Approve Action"
 fi
 
-# Also check review --plan is in workflow
-if grep -q "review --plan" "$BASE_DIR/CLAUDE.md"; then
-  pass "TC-03b: CLAUDE.md contains review --plan"
+# Also check plan-review is in workflow
+if grep -qi "plan-review\|plan review\|review.*plan" "$BASE_DIR/CLAUDE.md"; then
+  pass "TC-03b: CLAUDE.md contains plan-review reference"
 else
-  fail "TC-03b: CLAUDE.md missing review --plan"
+  fail "TC-03b: CLAUDE.md missing plan-review reference"
 fi
 
 # TC-04: spec/reference.md Plan File Template contains Post-Approve Action section

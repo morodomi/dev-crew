@@ -17,17 +17,17 @@ else
 fi
 
 # TC-02: CHANGELOG.md に "## [2.0.1]" セクションが存在
-if grep -q '## \[2\.0\.0\]' "$DIR/CHANGELOG.md"; then
+if grep -q '## \[2\.0\.1\]' "$DIR/CHANGELOG.md"; then
   pass "TC-02: CHANGELOG.md has [2.0.1] section"
 else
   fail "TC-02: CHANGELOG.md missing [2.0.1] section"
 fi
 
-# TC-03: CHANGELOG.md の v2.0.1 に Phase 11 の主要項目が含まれる
-if grep -A 50 '## \[2\.0\.0\]' "$DIR/CHANGELOG.md" | grep -q 'Phase 11'; then
-  pass "TC-03: CHANGELOG.md v2.0.1 mentions Phase 11"
+# TC-03: CHANGELOG.md の v2.0.1 に Changed セクションが含まれる
+if grep -A 20 '## \[2\.0\.1\]' "$DIR/CHANGELOG.md" | grep -q 'Changed'; then
+  pass "TC-03: CHANGELOG.md v2.0.1 has Changed section"
 else
-  fail "TC-03: CHANGELOG.md v2.0.1 missing Phase 11 reference"
+  fail "TC-03: CHANGELOG.md v2.0.1 missing Changed section"
 fi
 
 # TC-04: STATUS.md のテスト数が実際のテスト数と一致

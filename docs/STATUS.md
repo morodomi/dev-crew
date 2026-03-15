@@ -5,7 +5,7 @@
 | Metric | Value |
 |--------|-------|
 | In-Progress Cycles | 0 |
-| Done (unarchived) | 10 |
+| Done (unarchived) | 17 |
 | Archived Cycles | 37 |
 | Test Scripts | 63 |
 

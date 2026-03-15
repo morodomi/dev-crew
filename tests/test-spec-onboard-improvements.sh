@@ -28,15 +28,13 @@ ONBOARD_SKILL="skills/onboard/SKILL.md"
 
 echo "=== Sub-task 1: spec template ==="
 
-# TC-01: reference.md Workflow行に "plan review" が "sync-plan" より前にある
-WORKFLOW_LINE=$(grep -n "Workflow:.*TDD" "$SPEC_REF" | grep -i "plan.file.template" -A5 2>/dev/null || grep "Workflow:.*sync-plan" "$SPEC_REF" 2>/dev/null || echo "")
-# More precise: find the Workflow line in Plan File Template section and check order
-PLAN_REVIEW_POS=$(grep "Workflow:.*TDD" "$SPEC_REF" | grep -ob "plan review" 2>/dev/null | head -1 | cut -d: -f1 || echo "999")
-SYNC_PLAN_POS=$(grep "Workflow:.*TDD" "$SPEC_REF" | grep -ob "sync-plan" 2>/dev/null | head -1 | cut -d: -f1 || echo "0")
-if [ "$PLAN_REVIEW_POS" != "999" ] && [ "$PLAN_REVIEW_POS" -lt "$SYNC_PLAN_POS" ] 2>/dev/null; then
-  assert "TC-01: Workflow has 'plan review' before 'sync-plan'" "true"
+# TC-01: reference.md Workflow行に "sync-plan" が "plan-review" より前にある (v2.0.1)
+SYNC_PLAN_POS=$(grep "Workflow:.*TDD" "$SPEC_REF" | grep -ob "sync-plan" 2>/dev/null | head -1 | cut -d: -f1 || echo "999")
+PLAN_REVIEW_POS=$(grep "Workflow:.*TDD" "$SPEC_REF" | grep -ob "plan-review" 2>/dev/null | head -1 | cut -d: -f1 || echo "0")
+if [ "$SYNC_PLAN_POS" != "999" ] && [ "$SYNC_PLAN_POS" -lt "$PLAN_REVIEW_POS" ] 2>/dev/null; then
+  assert "TC-01: Workflow has 'sync-plan' before 'plan-review'" "true"
 else
-  assert "TC-01: Workflow has 'plan review' before 'sync-plan'" "false"
+  assert "TC-01: Workflow has 'sync-plan' before 'plan-review'" "false"
 fi
 
 # TC-02: reference.ja.md に Plan File Template セクションが存在する
@@ -46,8 +44,8 @@ else
   assert "TC-02: reference.ja.md has Plan File Template section" "false"
 fi
 
-# TC-03: reference.ja.md Workflow行に "plan review" or "レビュー" が含まれる
-if grep "Workflow:" "$SPEC_JA" | grep -qE "plan review|Codex.*review|レビュー"; then
+# TC-03: reference.ja.md Workflow行に "plan-review" が含まれる
+if grep "Workflow:" "$SPEC_JA" | grep -qE "plan-review|plan review|Codex.*review|レビュー"; then
   assert "TC-03: reference.ja.md Workflow has plan review reference" "true"
 else
   assert "TC-03: reference.ja.md Workflow has plan review reference" "false"
