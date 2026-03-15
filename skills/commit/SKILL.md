@@ -16,7 +16,22 @@ allowed-tools: Read, Write, Edit, Bash
 **Progress Log Completeness Gate**: Progress Log に RED/GREEN/REFACTOR/REVIEW の全4フェーズの `Phase completed` 記録があるか確認。不足フェーズがあれば BLOCK。詳細: [reference.md](reference.md#progress-log-completeness-gate)
 
 ### Pre-COMMIT Gate (deterministic)
-`bash scripts/gates/pre-commit-gate.sh` → exit 0: continue / exit 1: BLOCK(message indicates missing step)
+
+Cycle doc の Progress Log を確認し、以下が全て満たされなければ BLOCK:
+
+1. **REVIEW完了**: Progress Log に `### ... - REVIEW` セクションがあり、`Phase completed` 記録がある
+2. **Codex review記録** (`which codex` 成功時のみ): Progress Log に `Codex` + `review` の記録がある
+
+```bash
+# 1. REVIEW チェック（phaseヘッダーにアンカー）
+awk '/^### .* - REVIEW/,/Phase completed/' "$CYCLE_DOC" | grep -qi 'Phase completed'
+# 2. Codex review チェック（codex利用可能時のみ）
+which codex && grep -qiE 'Codex.*review|codex.*Review' "$CYCLE_DOC"
+```
+
+いずれか失敗 → BLOCK（不足ステップを案内）
+
+**STATUS.md同期警告** (非BLOCK): `ls tests/test-*.sh | wc -l` と STATUS.md の Test Scripts 値を比較。不一致なら警告表示。
 
 ### Step 2: 変更確認 + Pre-commit Hook
 
