@@ -1,7 +1,7 @@
 ---
 feature: codex-delegation-interface
 cycle: 20260315_1200
-phase: INIT
+phase: DONE
 complexity: standard
 test_count: 18
 risk_level: medium
@@ -91,8 +91,8 @@ updated: 2026-03-15 12:00
 (none)
 
 ### DISCOVERED
-- Post-Approve Action ordering: plan テンプレートで毎回 TDD サイクルを Codex plan review の前に書いてしまう。正しい順序は Codex plan review → approve → sync-plan → TDD（PHILOSOPHY.md準拠）。結構害がある（plan review の findings が RED に反映されない）。
-- Codex session isolation: `resume --last` + cwd フィルタだけでは cycle 間のセッション混入を防げない。cycle id ベースの明示的バインドが必要（Codex plan review finding #4）。
+- [x] Post-Approve Action ordering → issue #54
+- [x] Codex session isolation → issue #55
 
 ### DONE
 (none)
