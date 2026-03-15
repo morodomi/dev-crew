@@ -11,6 +11,16 @@ which codex
 - 存在する → 本手順で進行
 - 存在しない → [steps-subagent.md](steps-subagent.md) or [steps-teams.md](steps-teams.md) にフォールバック
 
+### 委譲モード確認
+
+Cycle doc frontmatter の `codex_mode` を読み取る:
+
+- `codex_mode: full` → Gate 1/2 をスキップし、Codex に全委譲
+- `codex_mode: no` → Codex を使わず Claude fallback（本手順を中止し steps-subagent.md へ）
+
+未記録の場合のみ AskUserQuestion で確認し、結果を Cycle doc frontmatter に記録する。
+ユーザー選択は環境検出（`which codex`）より常に優先される。
+
 ## Session Management
 
 - spec の plan review で Codex セッション作成済み → 全フェーズ `resume --last` で継続
@@ -31,8 +41,8 @@ which codex
    ```bash
    codex exec resume --last --full-auto -o /tmp/codex_red.md "Cycle doc: [path]. Test List: [items]. テストを作成し、失敗を確認せよ。"
    ```
-3. **Gate 1**: PdMがプロジェクトのテストコマンドを実行 → 新規テストがFAILし、テストコマンドが非ゼロexit codeを返すことを確認
-4. Test Plan整合性: テストがCycle doc Test Listと対応しているか確認
+3. **Gate 1**: `codex_mode: full` 時はスキップ。それ以外はPdMがプロジェクトのテストコマンドを実行 → 新規テストがFAILし、テストコマンドが非ゼロexit codeを返すことを確認
+4. Test Plan整合性（常時実行・全モード無条件）: テストがCycle doc Test Listと対応しているか確認
 5. PASS → GREEN / FAIL → retry 1回 → fallback to Task(red-worker)
 
 ### GREEN via Codex
@@ -41,7 +51,7 @@ which codex
    ```bash
    codex exec resume --last --full-auto -o /tmp/codex_green.md "Cycle doc: [path]. テストを通す最小限の実装を行え。"
    ```
-2. **Gate 2**: PdMがテストコマンドを実行 → 全テストPASS（ゼロexit code）確認（新規テスト含む）
+2. **Gate 2**: `codex_mode: full` 時はスキップ。それ以外はPdMがテストコマンドを実行 → 全テストPASS（ゼロexit code）確認（新規テスト含む）
 3. PASS → REFACTOR / FAIL → retry 2回 → fallback to Task(green-worker)
 
 ### Phase Summary 永続化 (Block2 境界)

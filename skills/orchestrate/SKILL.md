@@ -63,11 +63,13 @@ planファイルを起点に開始地点を決定する:
 
 ## Mode Selection
 
-`which codex` でCodex利用可能ならCodex Delegationを優先。不在時は既存モードにフォールバック。
+Cycle doc frontmatter の `codex_mode` を最優先で参照する。ユーザー選択は `which codex` による自動検出より常に優先される。
 
 | 条件 | モード | 手順 |
 |------|--------|------|
-| Codex利用可能 | Codex Delegation | [steps-codex.md](steps-codex.md) |
+| `codex_mode: full` | Codex Delegation | [steps-codex.md](steps-codex.md) |
+| `codex_mode: no` | 既存モード | 下記フォールバック |
+| 未設定 + `which codex` 成功 | Codex Delegation | [steps-codex.md](steps-codex.md) |
 | Agent Teams有効 (`1`) | Agent Teams (PdM Hub) | [steps-teams.md](steps-teams.md) |
 | 無効 / 未設定 | Subagent Chain | [steps-subagent.md](steps-subagent.md) |
 

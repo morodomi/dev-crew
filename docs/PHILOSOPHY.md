@@ -49,18 +49,20 @@ User: 「ログイン機能追加して」
   ▼
 spec (Claude)
   │  plan mode → 設計・曖昧性検出(※)
-  │  → approve(plan mode終了、操作上の都合)
-  │  → Codex plan review → findings → Claude判断
   │  → approve(設計承認)                  ← 承認ゲート(1)
   │  → sync-plan(承認済みplanをCycle docへ昇格)
+  │  → Claude plan-review → findings判断
+  │  → (Codex plan-review → findings → Claude判断)  ← Codex利用可能時
+  │  → (Codex委譲確認: full/no)                      ← Codex利用可能時
+  │  → compact
   │
   ▼
-RED (Codex)                                [fallback: Claude]
+RED (Codex: full時)                        [fallback: Claude]
   │  テスト作成（正常系/異常系を忖度なしでカバー）
   │  → exspec（テスト静的解析）
   │
   ▼
-GREEN (Codex)                              [fallback: Claude]
+GREEN (Codex: full時)                      [fallback: Claude]
   │  最小実装（テストを「通すだけ」の忖度をしない）
   │
   ▼
