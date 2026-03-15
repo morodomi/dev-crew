@@ -6,7 +6,7 @@ memory: project
 ---
 
 ## Focus
-Logic errors | Edge cases (null/empty/boundary) | Exception handling
+Logic errors | Edge cases (null/empty/boundary) | Exception handling | Test assertion quality (AND vs OR conditions, verification granularity, design spec coverage)
 
 ## Output
 `{"blocking_score": 0-100, "issues": [{"severity": "critical|important|optional", "message", "file", "line", "suggestion"}]}`

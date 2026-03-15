@@ -15,6 +15,9 @@ allowed-tools: Read, Write, Edit, Bash
 
 **Progress Log Completeness Gate**: Progress Log に RED/GREEN/REFACTOR/REVIEW の全4フェーズの `Phase completed` 記録があるか確認。不足フェーズがあれば BLOCK。詳細: [reference.md](reference.md#progress-log-completeness-gate)
 
+### Pre-COMMIT Gate (deterministic)
+`bash scripts/gates/pre-commit-gate.sh` → exit 0: continue / exit 1: BLOCK(message indicates missing step)
+
 ### Step 2: 変更確認 + Pre-commit Hook
 
 ```bash

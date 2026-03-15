@@ -290,3 +290,27 @@ RED フェーズは Codex 利用可能時に Codex 優先で実行される。Cl
 - **実行権限**: orchestrate が制御（[steps-codex.md](../orchestrate/steps-codex.md) 参照）
 - **Gate 1**: PdM がテストコマンドを実行し、新規テストが FAIL することを確認
 - **Codex 不在時**: Claude が red-worker として直接テスト作成（既存フロー）
+
+## Test Design Quality Rules {#test-design-quality}
+
+### Design Spec照合
+Stage 2 (Test Plan Review) で追加実行:
+1. Plan の Design Approach から数値・固有名詞・列挙値・閾値を抽出
+2. 各項目にTest List対応エントリがあるか確認
+3. 対応なし → Gap追加
+
+### AND条件ルール
+「AかつB」が要件なら A と B を個別assertで検証。1つのassertにOR条件で書かない。
+bash テストでは個別grepカウンタ + 合計チェック。
+
+### 検証粒度ルール
+| レベル | 内容 | 使用場面 |
+|--------|------|---------|
+| 存在 | キーワード存在確認 | 構造確認のみ |
+| 構造 | 順序・数量・閾値の正規表現/カウンタ | ロジック検証 |
+| セマンティック | 出力の意味的正確性 | ビジネスロジック |
+
+可能な限り「構造」以上で書く。「存在」のみの場合はコメントで理由明記。
+
+### 動的取得推奨（R2-8対応）
+テスト内の固定数値は `grep -c` 等で動的取得を推奨。ハードコード時はコメントで波及先を記載。

@@ -4,8 +4,8 @@
 
 ## 現在地
 
-Phase 11 主要完了（11.1-11.3, 11.5-11.7）。v2.0.2 リリース準備中。
-Open Issues: #56（Codex competitive review 強制）。
+Phase 11 主要完了（11.1-11.3, 11.5-11.7, 11.10-11.12）。v2.1.0 リリース済み。
+#56 は v2.1.0 ゲート強化で吸収済み。
 残り: 11.4, 11.8, 11.9（低優先度）→ Phase 12, 13 へ。
 
 ## Phase 11: Claude + Codex 統合開発フロー
@@ -155,6 +155,32 @@ orchestrate
 | skills/reload/reference.md | REFACTOR 復元時の参照更新 |
 | CLAUDE.md | `/simplify` 参照の更新 |
 | docs/terminology.md | refactor 用語説明の更新 |
+
+### 11.10 決定論的ゲート基盤 (v2.1.0, 完了)
+
+「プロセス強制は決定論的コード、品質検出はLLM」の責務分離原則に基づく。
+
+| 項目 | 内容 |
+|------|------|
+| pre-red-gate.sh | RED開始前にCycle doc存在・sync-plan完了・Plan Review記録を検証 |
+| pre-commit-gate.sh | COMMIT前にCode Review記録・Codex competitive review記録・STATUS.md同期を検証 |
+
+### 11.11 Review品質改善 (v2.1.0, 完了)
+
+| 項目 | 内容 |
+|------|------|
+| spec上流整合性チェック | requirements/ROADMAPとの整合確認、design-reviewerにupstream観点追加 |
+| steps-codex.md改善 | REVIEWプロンプトのスコープ制限、Why Competitive Review Works文書化、Open Questions追跡 |
+| correctness-reviewer拡張 | テストアサーション品質観点追加 |
+| red reference品質ルール | Design Spec照合、AND条件ルール、検証粒度ルール、動的取得推奨 |
+
+### 11.12 テスト設計品質 + ツール改善 (v2.1.0, 完了)
+
+| 項目 | 内容 |
+|------|------|
+| risk-classifier.sh | 低リスクファイルタイプ除外、新規ファイルのみbonus skip |
+| codex-patterns.md | Codex高確率検出パターン集 |
+| known-gotchas.md | macOS symlink canonicalize等の既知問題集 |
 
 ### 11.8 付属スキルの差し込み位置整理
 

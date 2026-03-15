@@ -67,6 +67,106 @@ else
   pass "steps-subagent.md does not reference /tmp/review-files.txt"
 fi
 
+# T-05: Fixture-only changes don't inflate file count
+echo ""
+echo "T-05: Fixture-only files excluded from file count"
+
+TMPFILES5=$(mktemp)
+TMPDIFF5=$(mktemp)
+
+# 6 fixture files + 1 real file = should count as 1 real file (not > 5)
+cat > "$TMPFILES5" <<'FILES'
+tests/fixtures/data1.fixture
+tests/fixtures/data2.fixture
+tests/__snapshots__/snap1.snap
+tests/__snapshots__/snap2.snap
+src/queries/test.scm
+src/mocks/mock1.mock
+src/app.ts
+FILES
+echo "+ some change" > "$TMPDIFF5"
+
+output=$(bash "$SCRIPT" "$TMPFILES5" "$TMPDIFF5" 2>&1)
+score5=$(echo "$output" | grep -oE 'score:[0-9]+' | grep -oE '[0-9]+')
+# 7 files total but only 1 non-fixture, so file_count bonus (+15) should NOT apply
+if [ "$score5" -lt 15 ]; then
+  pass "Fixture-only files excluded from count (score: $score5)"
+else
+  fail "Fixture files not excluded: expected score<15, got score:$score5"
+fi
+rm -f "$TMPFILES5" "$TMPDIFF5"
+
+# T-06: New-file-only changes skip file count bonus
+echo ""
+echo "T-06: New-file-only changes skip file count bonus"
+
+TMPFILES6=$(mktemp)
+TMPDIFF6=$(mktemp)
+
+# 6 real files, all new (only --- /dev/null, no --- a/)
+cat > "$TMPFILES6" <<'FILES'
+src/new1.ts
+src/new2.ts
+src/new3.ts
+src/new4.ts
+src/new5.ts
+src/new6.ts
+FILES
+
+cat > "$TMPDIFF6" <<'DIFF'
+--- /dev/null
++++ b/src/new1.ts
++export const a = 1;
+--- /dev/null
++++ b/src/new2.ts
++export const b = 2;
+DIFF
+
+output=$(bash "$SCRIPT" "$TMPFILES6" "$TMPDIFF6" 2>&1)
+score6=$(echo "$output" | grep -oE 'score:[0-9]+' | grep -oE '[0-9]+')
+# 6 files but all new → file_count bonus should be skipped
+if [ "$score6" -eq 0 ]; then
+  pass "New-file-only changes: file count bonus skipped"
+else
+  fail "New-file-only changes: expected score:0, got score:$score6"
+fi
+rm -f "$TMPFILES6" "$TMPDIFF6"
+
+# T-07: Mixed changes (new + modified) keep file count bonus
+echo ""
+echo "T-07: Mixed changes keep file count bonus"
+
+TMPFILES7=$(mktemp)
+TMPDIFF7=$(mktemp)
+
+cat > "$TMPFILES7" <<'FILES'
+src/new1.ts
+src/new2.ts
+src/new3.ts
+src/new4.ts
+src/new5.ts
+src/existing.ts
+FILES
+
+cat > "$TMPDIFF7" <<'DIFF'
+--- /dev/null
++++ b/src/new1.ts
++export const a = 1;
+--- a/src/existing.ts
++++ b/src/existing.ts
++modified line
+DIFF
+
+output=$(bash "$SCRIPT" "$TMPFILES7" "$TMPDIFF7" 2>&1)
+score7=$(echo "$output" | grep -oE 'score:[0-9]+' | grep -oE '[0-9]+')
+# Has modified file → file count bonus should apply (+15)
+if [ "$score7" -ge 15 ]; then
+  pass "Mixed changes: file count bonus applied (score: $score7)"
+else
+  fail "Mixed changes: expected score >= 15, got score:$score7"
+fi
+rm -f "$TMPFILES7" "$TMPDIFF7"
+
 # Summary
 echo ""
 echo "=== Summary ==="

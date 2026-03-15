@@ -91,6 +91,14 @@ planファイルにTDDコンテキストを記録。テンプレート: [referen
 
 ### Step 7: Continue in Plan Mode
 
+### Step 7.1: Upstream Consistency Check
+
+```bash
+ls *requirements*.md docs/*requirements*.md ROADMAP.md docs/ROADMAP.md 2>/dev/null
+```
+
+Existing upstream docs found → read and compare with plan's design. Differences → record reasons in plan's `## Upstream References` section.
+
 specの記録後、plan mode内で以下を続行（specスキルの範囲外）:
 
 1. **探索**: コードベース調査（最低5ファイル読む）

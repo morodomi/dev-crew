@@ -14,6 +14,9 @@ allowed-tools: Task, Read, Write, Edit, Bash, Grep, Glob
 ### Cycle Doc Gate
 `grep -L 'phase: DONE' docs/cycles/*.md | head -1` → found: continue / not found: BLOCK(run spec)
 
+### Pre-RED Gate (deterministic)
+`bash scripts/gates/pre-red-gate.sh` → exit 0: continue / exit 1: BLOCK(message indicates missing step)
+
 Test ListのTODOからテストケースを選択してWIPに移動。
 
 ### Complexity Gate

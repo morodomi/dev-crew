@@ -7,7 +7,7 @@
 | In-Progress Cycles | 0 |
 | Done (unarchived) | 17 |
 | Archived Cycles | 37 |
-| Test Scripts | 65 |
+| Test Scripts | 72 |
 
 Last updated: 2026-03-15
 
@@ -15,6 +15,7 @@ Last updated: 2026-03-15
 
 | Date | Cycle | Type |
 |------|-------|------|
+| 2026-03-15 | v2.1.0 決定論的ゲート強化 + Review品質改善 (#58-#66) | feat |
 | 2026-03-15 | Onboard TDD Workflow + Codex Integration template hardening | feat |
 | 2026-03-15 | Codex session isolation with Cycle ID-based binding (#55) | feat |
 | 2026-03-15 | v2.0.1 Release (Codex integration fixes) | docs |
@@ -39,7 +40,7 @@ None
 ## TODO
 
 - [x] #55 Codex session isolation with cycle id-based binding
-- [ ] #56 Codex competitive review を REVIEW フェーズで確実に実行させる
+- [x] #56 Codex competitive review を REVIEW フェーズで確実に実行させる (v2.1.0 ゲート強化で吸収)
 - [ ] 11.4 exspec 統合（P2）
 - [ ] 11.8 付属スキルの差し込み位置整理（P2）
 - [ ] 11.9 ディレクトリ構成の AI-Driven 標準化（P3）
