@@ -42,6 +42,12 @@ spec → sync-plan → plan-review → [pre-red-gate] → RED → GREEN → REFA
 9. `[pre-commit-gate]`: 決定論的ゲート。REVIEW・Codex review・STATUS.md を検証
 10. `COMMIT`: テスト通過 + 静的解析 + コミット
 
+### Post-Approve Action (plan approve後)
+
+1. sync-plan: plan fileからCycle doc生成
+2. plan-review: 設計レビュー（Codex利用可能時はcompetitive review）
+3. orchestrate: ゲート含む全サイクル実行 (RED → GREEN → REFACTOR → REVIEW → COMMIT)
+
 ## Quality Standards
 
 | Metric | Target |

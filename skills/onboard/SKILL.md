@@ -20,6 +20,7 @@ Onboard Progress:
 - [ ] .claude/ 構造生成（rules/, hooks/）
 - [ ] Pre-commit Hook確認（推奨）
 - [ ] 初期Cycle doc作成
+- [ ] Generated Files Validation
 - [ ] Next Steps 表示
 ```
 
@@ -42,15 +43,7 @@ AskUserQuestion で確認:
 
 ### Step 3: docs/ 構造作成
 
-```bash
-mkdir -p docs/cycles
-```
-
-作成ファイル:
-- `docs/README.md` - ドキュメント索引
-- `docs/STATUS.md` - プロジェクト状況（commitで自動更新）
-
-テンプレートは [reference.md](reference.md) を参照。
+`mkdir -p docs/cycles` で作成。`docs/README.md` + `docs/STATUS.md` を生成。テンプレートは [reference.md](reference.md) 参照。
 
 ### Step 4: AGENTS.md + CLAUDE.md 生成 (Two-File Model)
 
@@ -79,10 +72,8 @@ tests/, src/, docs/ に CLAUDE.md 配置を推奨（各30-50行）。
 
 ### Step 6: .claude/ 構造生成
 
-ファイル単位で存在チェックし、不足分のみ作成。既存ファイルは更新確認。
-rules/: git-safety, security, git-conventions。hooks/: recommended。詳細は [reference.md](reference.md)。
-
-Hook設定の案内: `.claude/hooks/recommended.md` に推奨Hook設定が記載されている旨をユーザーに伝え、`~/.claude/settings.json` にコピーしてClaude Codeを再起動するよう案内する。
+不足分のみ作成、既存は更新確認。rules/: git-safety, security, git-conventions。hooks/: recommended。
+Hook設定は `~/.claude/settings.json` へコピー+再起動を案内。詳細は [reference.md](reference.md)。
 
 ### Step 7: Pre-commit Hook確認（推奨）
 
@@ -92,7 +83,12 @@ hookなし → セットアップ推奨。詳細は [reference.md](reference.md)
 
 `docs/cycles/YYYYMMDD_0000_project-setup.md` を作成。
 
-### Step 9: 完了
+### Step 9: Generated Files Validation
+
+生成されたファイルの健全性チェック。FAILは警告のみ（修正は強制しない）。
+詳細は [validation.md](validation.md) 参照。
+
+### Step 10: 完了
 
 セットアップ完了メッセージと**コミット案内**を表示。Codex連携の案内は [reference.md](reference.md#sync-skills-prompt) 参照。次: spec で開発開始。メンテナンス案内は [reference.md](reference.md) 参照。
 

@@ -264,6 +264,12 @@ spec → sync-plan → plan-review → RED → GREEN → REFACTOR → REVIEW →
 - GREEN: 最小限の実装 → テスト通過
 - REFACTOR: テスト維持しつつコード品質改善
 - REVIEW: 多角的コードレビュー
+
+### Post-Approve Action (plan approve後)
+
+1. sync-plan: plan fileからCycle doc生成
+2. plan-review: 設計レビュー（Codex利用可能時はcompetitive review）
+3. orchestrate: ゲート含む全サイクル実行 (RED → GREEN → REFACTOR → REVIEW → COMMIT)
 ```
 
 ### CLAUDE.md 必須セクション

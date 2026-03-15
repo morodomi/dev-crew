@@ -7,7 +7,7 @@
 - plan mode: spec + design consolidated in plan file
 - /compact: phase-compact skill updates Cycle doc before compaction
 
-**Auto-orchestrate after plan approve**: The `## Post-Approve Action` section in plan files persists in compressed context after compact. This triggers /orchestrate automatically after compact + accept edits on transition.
+**Auto-orchestrate after plan approve**: plan approve後は必ず sync-plan → plan-review → orchestrate の順序で実行する。`## Post-Approve Action` section が plan file と compressed context に残り、compact後もこの順序を維持する。
 
 ## Codex Integration
 
