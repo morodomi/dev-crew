@@ -5,10 +5,10 @@ model: sonnet
 ---
 
 ## Focus
-Scope validity (YAGNI, file count <=10) | Architecture consistency (patterns, layers) | Risk (impact, breaking changes, rollback)
+Scope validity (YAGNI, file count <=10) | Architecture consistency (patterns, layers) | Risk (impact, breaking changes, rollback) | Upstream consistency (requirements/ROADMAP alignment, term consistency)
 
 ## Output
-`{"blocking_score": 0-100, "issues": [{"severity": "critical|important|optional", "category": "scope|architecture|risk", "message", "suggestion"}]}`
+`{"blocking_score": 0-100, "issues": [{"severity": "critical|important|optional", "category": "scope|architecture|risk|upstream", "message", "suggestion"}]}`
 
 ## ブロッキングスコア基準
 blocking_score: パイプラインをブロックすべき度合い（0 = 問題なし, 100 = ブロック必須）

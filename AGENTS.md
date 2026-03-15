@@ -65,6 +65,7 @@ spec → sync-plan → plan-review → RED → GREEN → REFACTOR → REVIEW →
 dev-crew/
 ├── agents/          # Agents (flat markdown)
 ├── skills/          # Skills (each: SKILL.md + reference.md)
+├── scripts/gates/   # Deterministic gate scripts (pre-red, pre-commit)
 ├── rules/           # Always-applied rules (git-safety, security, git-conventions)
 ├── tests/           # Shell test scripts
 └── docs/            # See docs/README.md

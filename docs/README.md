@@ -18,6 +18,13 @@
 | [user-stories.md](user-stories.md) | ペルソナ、6 Epics、優先度マトリクス |
 | [usability.md](usability.md) | トリガーキーワード、フェーズ遷移、エラーハンドリング |
 
+## リファレンス
+
+| ドキュメント | 内容 |
+|-------------|------|
+| [codex-patterns.md](codex-patterns.md) | Codex が高確率で検出するパターン集（5件） |
+| [known-gotchas.md](known-gotchas.md) | macOS canonicalize等の既知問題と対策 |
+
 ## 規約
 
 | ドキュメント | 内容 |

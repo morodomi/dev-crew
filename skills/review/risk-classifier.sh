@@ -50,10 +50,18 @@ if [ -f "$FILES_LIST" ]; then
     score=$((score + 10))
   fi
 
-  # File count > 5 (+15)
-  file_count=$(wc -l < "$FILES_LIST" | tr -d ' ')
+  # File count > 5 (+15) - excluding low-risk file types
+  file_count=$(grep -vcE '\.(scm|fixture|snap|mock|seed)$|fixtures/|__snapshots__/' "$FILES_LIST" 2>/dev/null || echo "0")
   if [ "$file_count" -gt 5 ]; then
     score=$((score + 15))
+  fi
+
+  # Skip file_count bonus for new-file-only changes
+  if [ "$file_count" -gt 5 ] && [ -f "$DIFF_CONTENT" ]; then
+    has_modified=$(grep -c '^--- a/' "$DIFF_CONTENT" 2>/dev/null) || has_modified=0
+    if [ "$has_modified" -eq 0 ]; then
+      score=$((score - 15))
+    fi
   fi
 fi
 
