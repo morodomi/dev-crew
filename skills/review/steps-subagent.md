@@ -98,6 +98,26 @@ Task(subagent_type: "dev-crew:usability-reviewer", model: "haiku", prompt: "..."
 Task(subagent_type: "dev-crew:designer", model: "sonnet", prompt: "...")               # UI + UI tech stack
 ```
 
+## Step 4.5: Devil's Advocate (Socrates)
+
+Specialist Panel 完了後、Socrates を起動して reviewer の判定妥当性を検証する。Socrates は反論+選択肢を返すのみ（advisor 原則維持）。Escalation 判定は PdM が行う。
+
+```
+Task(subagent_type: "dev-crew:socrates", model: "opus", prompt: "
+phase: review:[plan|code]
+score: [max blocking_score]
+reviewer_summary: [各reviewerのスコアとissuesサマリ]
+pdm_proposal: [auto-verdictに基づく判断提案: PASS/WARN/BLOCK]
+cycle_doc: [cycle docパス]
+
+各 reviewer の判定が忖度で甘くなっていないか検証せよ。
+特に: important/critical の issue 数に対してスコアが不当に低い場合、
+変更の二次影響を reviewer が見逃している場合を指摘せよ。
+")
+```
+
+PdM は Socrates の反論を踏まえ、Score Escalation 基準（reference.md 参照）に基づき verdict の昇格を判断する。
+
 ## Step 5: Score Aggregation
 
 全エージェントの blocking_score を集計（designer はスコア対象外）:

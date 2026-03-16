@@ -130,6 +130,18 @@ RED フェーズの品質に直結。ROI 2番目。
 | CLI 層との連携 | exspec が RED 後のテストコード静的解析を担当（既存） |
 | モデル | Sonnet |
 
+#### 15.3 Socrates Devil's Advocate review pipeline 統合
+
+review pipeline の Step 4.5 に Socrates を組み込み、reviewer の忖度バイアスと二次影響の見逃しを構造的に検出する。
+
+| 項目 | 内容 |
+|------|------|
+| タイミング | Specialist Panel → **Socrates** → Score Aggregation |
+| 起動条件 | 全レビュー（PASS/WARN/BLOCK 問わず） |
+| モデル | Opus |
+| メカニズム | Socrates は反論+選択肢を返すのみ。PdM が Score Escalation 基準に基づき verdict 昇格を判断 |
+| 役割分担 | Reviewer = 広さ（専門ドメイン網羅）、Socrates = 深さ（変更の二次影響を掘る） |
+
 #### 15.2 test-reviewer Plan mode 拡張
 
 Phase 16 で Plan Review に統合する際に Plan mode を追加。Phase 15 では Code mode のみ先行実装。
