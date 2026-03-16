@@ -30,9 +30,9 @@ SKILL.mdの詳細情報。必要時のみ参照。
 
 | Points | Level | Plan Review Agents | Code Review Agents |
 |--------|-------|:------------------:|:------------------:|
-| 0-29 | LOW | 2 | 3 |
-| 30-59 | MEDIUM | 3-4 | 4-5 |
-| 60+ | HIGH | 5-6 | 5-6 |
+| 0-29 | LOW | 2 | 4 |
+| 30-59 | MEDIUM | 3-4 | 5-6 |
+| 60+ | HIGH | 5-6 | 6-7 |
 
 ## Review Brief 形式
 
@@ -68,6 +68,7 @@ SKILL.mdの詳細情報。必要時のみ参照。
 | review-briefer | Haiku | Always |
 | security-reviewer | Sonnet | **Always (NON-NEGOTIABLE)** |
 | correctness-reviewer | Sonnet | **Always (NON-NEGOTIABLE)** |
+| maintainability-reviewer | Sonnet | **Always (NON-NEGOTIABLE)** |
 | performance-reviewer | Sonnet | If DB/perf/large-data flags |
 | product-reviewer | Haiku | If API/user-facing flags |
 | usability-reviewer | Haiku | If UI flags |
