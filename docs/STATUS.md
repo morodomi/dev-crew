@@ -39,11 +39,11 @@ None
 
 ## TODO
 
-- [ ] #75 v3 Phase 1: CONSTITUTION 理想形設計（設計資料完了、Acceptance Criteria残り確認中）
-- [ ] v3 Phase 2: App 型適用検討
-- [ ] v3 Phase 3: CLI 型適用検討
-- [ ] v3 Phase 4: Data/ML 型適用検討
-- [ ] v3 Phase 5: 一般化 vs 個別最適化
+- [x] #75 v3 Phase 1: CONSTITUTION 理想形設計
+- [x] v3 Phase 2: App 型適用検討
+- [x] v3 Phase 3: CLI 型適用検討
+- [x] v3 Phase 4: Data/ML 型適用検討
+- [x] v3 Phase 5: 一般化 vs 個別最適化
 - [ ] v3 Phase 6: dev-crew authority migration 実装
 - [ ] v3 Phase 7: onboard CONSTITUTION 対応
 - [ ] v3 Phase 8: v3.0.0 リリース
