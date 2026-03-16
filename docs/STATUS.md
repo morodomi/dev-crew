@@ -39,13 +39,14 @@ None
 
 ## TODO
 
-- [x] #55 Codex session isolation with cycle id-based binding
-- [x] #56 Codex competitive review を REVIEW フェーズで確実に実行させる (v2.1.0 ゲート強化で吸収)
-- [x] 11.4 exspec 統合（P2）
-- [x] 11.8 付属スキルの差し込み位置整理（P2）
-- [x] 11.9 ディレクトリ構成の AI-Driven 標準化（P3）
-- [x] Phase 12 ドキュメント体系整備（P2）
-- [x] Phase 13 スキルマップ確定（P2）
+- [ ] #75 v3 Phase 1: CONSTITUTION 理想形設計（設計資料完了、Acceptance Criteria残り確認中）
+- [ ] v3 Phase 2: App 型適用検討
+- [ ] v3 Phase 3: CLI 型適用検討
+- [ ] v3 Phase 4: Data/ML 型適用検討
+- [ ] v3 Phase 5: 一般化 vs 個別最適化
+- [ ] v3 Phase 6: dev-crew authority migration 実装
+- [ ] v3 Phase 7: onboard CONSTITUTION 対応
+- [ ] v3 Phase 8: v3.0.0 リリース
 
 詳細は [ROADMAP.md](ROADMAP.md) 参照。
 

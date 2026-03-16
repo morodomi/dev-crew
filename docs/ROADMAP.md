@@ -1,12 +1,59 @@
 # Roadmap
 
 > Phase 1-10 の完了履歴は [archive/development-plan.md](archive/development-plan.md) を参照。
+> Phase 11-13 (v2) の詳細は本ファイル下部を参照。
 
 ## 現在地
 
-Phase 11 主要完了（11.1-11.3, 11.5-11.7, 11.10-11.12）。v2.1.0 リリース済み。
-#56 は v2.1.0 ゲート強化で吸収済み。
-残り: 11.4, 11.8, 11.9 完了。Phase 12, 13 へ。
+v2.2.0 リリース済み。Phase 11-13 全完了。
+v3 は Constitution-Driven Development への移行。設計資料: [v3-constitution-design.md](v3-constitution-design.md)
+
+## v3: Constitution-Driven Development
+
+CONSTITUTION.md を最上位規範（Layer 0）として導入し、PHILOSOPHY.md を分解・再構成する。
+詳細設計: [v3-constitution-design.md](v3-constitution-design.md) / Issue: #75
+
+### Phase 1: dev-crew CONSTITUTION 理想形 (設計完了)
+
+- CONSTITUTION.md の構成設計（8章、~50行）
+- PHILOSOPHY.md の分解マッピング
+- 5-Layer Authority 定義
+- 影響ファイル一覧の完全化
+
+### Phase 2: App 型適用検討
+
+一般化した適用ガイドを docs/ に資料化。プロジェクト固有情報は含めない。
+
+### Phase 3: CLI 型適用検討
+
+同上。
+
+### Phase 4: Data/ML 型適用検討
+
+同上。
+
+### Phase 5: 一般化 vs 個別最適化
+
+Phase 2-4 の検証結果を基に判断:
+- 一般化テンプレート 1 本で済むか
+- プロジェクト型別テンプレートが必要か
+- Layer 名は全型で共通か
+
+### Phase 6: dev-crew 自体を理想形に変更
+
+CONSTITUTION.md 新設、PHILOSOPHY.md 分解、参照移行（authority migration）。
+サブタスクに分割して TDD サイクルで実施。
+
+### Phase 7: 他プロジェクト向けスキル実装
+
+onboard スキルに CONSTITUTION.md 生成を追加（breaking change）。
+Phase 5 の判断結果に基づくテンプレート設計。
+
+### Phase 8: リリース (v3.0.0)
+
+---
+
+## v2 (完了): Claude + Codex 統合開発フロー
 
 ## Phase 11: Claude + Codex 統合開発フロー
 
@@ -294,5 +341,6 @@ onboard がプロジェクトに生成するディレクトリ構成を、どこ
 ## 方針
 
 - 各サブタスクは独立した TDD サイクルで実施
-- PHILOSOPHY.md を正（target philosophy）とし、既存ドキュメントを順次移行
-- security 系エージェント/スキルは現状維持（PHILOSOPHY 違反なし）
+- v3: CONSTITUTION.md を最上位規範とし、PHILOSOPHY.md から authority を移行
+- v2: PHILOSOPHY.md を正（target philosophy）とし、既存ドキュメントを順次移行（完了）
+- security 系エージェント/スキルは現状維持
