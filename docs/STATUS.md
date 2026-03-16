@@ -7,7 +7,7 @@
 | In-Progress Cycles | 0 |
 | Done (unarchived) | 18 |
 | Archived Cycles | 37 |
-| Test Scripts | 77 |
+| Test Scripts | 79 |
 
 Last updated: 2026-03-16
 

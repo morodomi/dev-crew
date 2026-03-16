@@ -71,12 +71,13 @@ spec → sync-plan → plan-review → [pre-red-gate] → RED → GREEN → REFA
 
 ```
 dev-crew/
-├── agents/          # Agents (flat markdown)
+├── agents/          # 33 agents (flat), 19 security agents
 ├── skills/          # Skills (each: SKILL.md + reference.md)
 ├── scripts/gates/   # Deterministic gate scripts (pre-red, pre-commit)
 ├── rules/           # Always-applied rules (git-safety, security, git-conventions)
 ├── tests/           # Shell test scripts
 └── docs/            # See docs/README.md
+    └── decisions/   # Architecture decisions (ADR)
 ```
 
 ## References

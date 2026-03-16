@@ -12,17 +12,18 @@ fail() { FAIL=$((FAIL+1)); echo "  FAIL: $1"; }
 echo "=== Post-Approve Action Ordering ==="
 
 # Helper: extract Post-Approve Action section and check ordering
+# Correct order: sync-plan (Cycle doc) BEFORE plan-review (matches AGENTS.md TDD Workflow)
 check_ordering() {
   local file="$1"
   local section
   section=$(sed -n '/^## Post-Approve Action/,/^```$/p' "$file")
-  local plan_line cycle_line
-  plan_line=$(echo "$section" | grep -n "Plan review" | head -1 | cut -d: -f1)
-  cycle_line=$(echo "$section" | grep -n "Cycle doc" | head -1 | cut -d: -f1)
-  if [ -n "$plan_line" ] && [ -n "$cycle_line" ] && [ "$plan_line" -lt "$cycle_line" ]; then
+  local sync_line review_line
+  sync_line=$(echo "$section" | grep -ni "sync-plan\|Cycle doc" | head -1 | cut -d: -f1)
+  review_line=$(echo "$section" | grep -ni "plan.review\|Plan review\|設計レビュー" | head -1 | cut -d: -f1)
+  if [ -n "$sync_line" ] && [ -n "$review_line" ] && [ "$sync_line" -lt "$review_line" ]; then
     return 0
   else
-    echo "    Plan review at line ${plan_line:-?}, Cycle doc at line ${cycle_line:-?} in section"
+    echo "    sync-plan at line ${sync_line:-?}, plan-review at line ${review_line:-?} in section"
     return 1
   fi
 }
@@ -33,9 +34,9 @@ check_three_steps() {
   local section
   section=$(sed -n '/^## Post-Approve Action/,/^```$/p' "$file")
   local missing=""
-  echo "$section" | grep -q "Plan review" || missing="$missing Plan_review"
-  echo "$section" | grep -q "Cycle doc" || missing="$missing Cycle_doc"
-  echo "$section" | grep -q "orchestrate" || missing="$missing orchestrate"
+  echo "$section" | grep -qi "sync-plan\|Cycle doc" || missing="$missing sync-plan"
+  echo "$section" | grep -qi "plan.review\|Plan review\|設計レビュー" || missing="$missing plan-review"
+  echo "$section" | grep -qi "orchestrate\|Codex" || missing="$missing orchestrate"
   if [ -z "$missing" ]; then
     return 0
   else
@@ -46,16 +47,16 @@ check_three_steps() {
 
 # TC-01: reference.md - Plan review before Cycle doc
 if check_ordering "$BASE/skills/spec/reference.md"; then
-  pass "TC-01: reference.md Plan review before Cycle doc"
+  pass "TC-01: reference.md sync-plan before plan-review"
 else
-  fail "TC-01: reference.md Plan review should be before Cycle doc"
+  fail "TC-01: reference.md sync-plan should be before plan-review"
 fi
 
 # TC-02: reference.ja.md - Plan review before Cycle doc
 if check_ordering "$BASE/skills/spec/reference.ja.md"; then
-  pass "TC-02: reference.ja.md Plan review before Cycle doc"
+  pass "TC-02: reference.ja.md sync-plan before plan-review"
 else
-  fail "TC-02: reference.ja.md Plan review should be before Cycle doc"
+  fail "TC-02: reference.ja.md sync-plan should be before plan-review"
 fi
 
 # TC-03: reference.md contains all three steps

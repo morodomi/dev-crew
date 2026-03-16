@@ -38,7 +38,7 @@ Cycle doc frontmatter の `codex_mode` を読み取る。
 
 Cycle doc Progress Log を確認:
 1. sync-plan: `awk '/SYNC.PLAN|sync-plan/,/Phase completed/' "$CYCLE_DOC" | grep -qi 'Phase completed'`
-2. Plan Review: `grep -qiE 'Plan Review|plan-review' "$CYCLE_DOC"`
+2. Plan Review: `grep -qiE 'Plan Review|review.*plan' "$CYCLE_DOC"`
 
 いずれか失敗 → BLOCK（不足ステップを案内）。全PASS → RED へ。
 

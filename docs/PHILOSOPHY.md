@@ -14,7 +14,8 @@ AIがコードを生成する時代、人間は「やりたいこと」と「OK/
 
 AIは確率的に90%正しいコードを出力する。だがプログラムは残り10%が間違っていてはいけない。この10%を埋めるのがテスト、レビュー、静的解析（linter, exspec）の役割であり、dev-crewが存在する理由。
 
-この問題はコード品質だけでなく**ワークフロー遵守**にも適用される。LLMは手順を確率的にスキップする。sync-planを飛ばしてREDに入る、code reviewなしでCOMMITする、といった手順違反は実運用で繰り返し観測された。「手順を守れ」という指示は確率的依存であり、信頼できない。
+この問題はコード品質だけでなく**ワークフロー遵守**にも適用される。LLMは手順を確率的にスキップする。Codex plan reviewを飛ばしてREDに入る、
+sync-planをスキップする、code reviewなしでCOMMITする、といった手順違反は実運用で繰り返し観測された。「手順を守れ」という指示は確率的依存であり、信頼できない。
 
 ## 原則
 
@@ -65,7 +66,7 @@ spec (Claude)
   │  → approve(設計承認)                  ← 承認ゲート(1)
   │  → sync-plan(承認済みplanをCycle docへ昇格)
   │  → Claude plan-review → findings判断
-  │  → (Codex plan-review → findings → Claude判断)  ← Codex利用可能時
+  │  → (Codex plan review → findings → Claude判断)  ← Codex利用可能時
   │  → (Codex委譲確認: full/no)                      ← Codex利用可能時
   │  → compact
   │

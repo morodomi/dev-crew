@@ -62,13 +62,13 @@ else
   fail "TC-04: AGENTS.md TDD Workflow overwrite instruction not found"
 fi
 
-# TC-05: Given reference.md dev-crew-installed Step 4, When reading update flow, Then KICKOFF -> sync-plan update check is described
+# TC-05: Given reference.md dev-crew-installed Step 4, When reading update flow, Then sync-plan update check is described
 echo ""
-echo "TC-05: reference.md dev-crew-installed Step 4 mentions KICKOFF to sync-plan update check"
-if echo "$DEV_CREW_SECTION" | grep -Eq "KICKOFF.*sync-plan|sync-plan.*KICKOFF"; then
-  pass "TC-05: KICKOFF -> sync-plan update check found in dev-crew-installed section"
+echo "TC-05: reference.md dev-crew-installed section mentions sync-plan update check"
+if echo "$DEV_CREW_SECTION" | grep -Eq "sync-plan.*更新チェック|sync-plan.*update"; then
+  pass "TC-05: sync-plan update check found in dev-crew-installed section"
 else
-  fail "TC-05: KICKOFF -> sync-plan update check not found in dev-crew-installed section"
+  fail "TC-05: sync-plan update check not found in dev-crew-installed section"
 fi
 
 # TC-06: Given reference.md, When reading AGENTS.md update instructions, Then explicit '新規で上書き' wording exists for AGENTS.md sections
