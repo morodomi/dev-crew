@@ -26,25 +26,25 @@ bash tests/test-plugin-structure.sh
 ## TDD Workflow
 
 ```
-spec → sync-plan → plan-review → [pre-red-gate] → RED → GREEN → REFACTOR → REVIEW → [pre-commit-gate] → COMMIT
+spec → sync-plan → plan-review → orchestrate(RED → GREEN → REFACTOR → REVIEW → COMMIT)
 ```
 
-1. `spec`: plan mode で要件定義・設計
-2. `sync-plan`: plan file から Cycle doc 生成
-3. `plan-review`: Codex competitive review（利用可能時）
-4. `[pre-red-gate]`: 決定論的ゲート。Cycle doc・sync-plan・Plan Review を検証
-5. `RED`: 失敗するテストを書く
-6. `GREEN`: テストを通す最小実装
-7. `REFACTOR`: コード品質改善（Claude 主担当）
-8. `REVIEW`: コードレビュー（Claude + Codex competitive）
-9. `[pre-commit-gate]`: 決定論的ゲート。REVIEW・Codex review・STATUS.md を検証
-10. `COMMIT`: テスト通過 + 静的解析 + コミット
+- spec: plan mode でスコープ定義
+- sync-plan: plan を Cycle doc へ昇格
+- plan-review: 設計検証（Codex 利用可能時は competitive review）
+- orchestrate: RED→GREEN→REFACTOR→REVIEW→COMMITを自律管理
 
-### Post-Approve Action (plan approve後)
+**orchestrate** (`dev-crew:orchestrate`): PdMとしてRED→GREEN→REFACTOR→REVIEW→COMMITを自律管理。PASS/WARN→自動進行、BLOCK→再試行→ユーザー報告。
 
-1. sync-plan: plan fileからCycle doc生成
-2. plan-review: 設計レビュー（Codex利用可能時はcompetitive review）
-3. orchestrate: ゲート含む全サイクル実行 (RED → GREEN → REFACTOR → REVIEW → COMMIT)
+### Post-Approve Action
+
+plan approve 後の実行順序:
+
+1. **sync-plan**: Cycle doc 作成
+2. **plan-review**: 設計レビュー (design-reviewer)
+3. **orchestrate**: RED → GREEN → REFACTOR → REVIEW → COMMIT
+
+Cycle docs: `docs/cycles/YYYYMMDD_HHMM_<topic>.md`
 
 ## Quality Standards
 
@@ -69,7 +69,7 @@ spec → sync-plan → plan-review → [pre-red-gate] → RED → GREEN → REFA
 
 ```
 dev-crew/
-├── agents/          # 35 agents (flat), 19 security agents
+├── agents/          # 36 agents (flat), 21 security agents
 ├── skills/          # Skills (each: SKILL.md + reference.md)
 ├── scripts/gates/   # Deterministic gate scripts (pre-red, pre-commit)
 ├── rules/           # Always-applied rules (git-safety, security, git-conventions)
