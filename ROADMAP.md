@@ -5,8 +5,8 @@
 
 ## 現在地
 
-v2.2.0 リリース済み。Phase 11-13 全完了。
-v3 は Constitution-Driven Development への移行。設計資料: [v3-constitution-design.md](docs/v3-constitution-design.md)
+v2.3.0 リリース済み。v3 (Constitution-Driven Development) Phase 1-7 完了。
+v4 は Review Taxonomy 体系化。セキュリティの OWASP アプローチを Plan/Test/Code Review に適用する。
 
 ## v3: Constitution-Driven Development
 
@@ -49,7 +49,263 @@ onboard スキルに CONSTITUTION.md 生成を追加。
 型検出（Skills/App/CLI/Data/ML/Generic/混合）+ 共通骨格5章 + 型別拡張章テンプレート。
 migration 支援（philosophy.md スキャン、CLAUDE.md 肥大化検出）。
 
-### Phase 8: リリース (v3.0.0)
+### Phase 8: リリース (v2.3.0, 完了)
+
+---
+
+## v4: Review Taxonomy 体系化
+
+セキュリティレビューが OWASP Top 10 / CWE Top 25 に基づく 19 attacker agent で体系化されているのに対し、Plan Review / Test Review / Code Review は汎用的な観点のみだった。権威ある参照元に基づき、専門 reviewer agent を体系的に追加する。
+
+設計原則:
+- **CLI（決定論）と Agent（意味論）の責務分離**: 既存の *-quality スキル / exspec / gate script が CLI 層を担い、新設 agent は意味論に集中する
+- **Risk-gated scaling**: 全 PR で全 agent を起動しない。リスク検出時のみ専門 agent を追加起動
+- **既存 review スキルに統合**: スキル数は増やさない。review スキルの内部で呼ぶ agent が増える
+- **段階的追加**: セキュリティ 19 agent の成功パターンを踏襲。1体ずつ追加→テスト→次へ
+
+Phase 順序は ROI 順（頻度 x 効果）。Code Review は毎サイクル実行で最も効果が高い。
+
+### Phase 14: Code Review 強化
+
+GREEN/REFACTOR 後の品質レビュー。既存の *-quality スキルが CLI 層を担い、agent は意味論に集中。毎サイクル Always-on で起動するため ROI が最も高い。
+
+#### 14.1 maintainability-reviewer 新設
+
+「読めるか・変更しやすいか」に特化。correctness（動くか）とは分離。
+
+| 項目 | 内容 |
+|------|------|
+| 参照元 | Fowler [Code Smells](https://refactoring.guru/refactoring/smells) (5カテゴリ22種) + [SonarQube Cognitive Complexity](https://www.sonarsource.com/resources/library/code-smells/) + [Google Engineering Practices](https://google.github.io/eng-practices/review/) |
+| 観点 | Bloaters, OO Abusers, Change Preventers, Dispensables, Couplers / SRP / ドメイン命名 |
+| 起動条件 | Always-on |
+| CLI 層 | 既存 *-quality (Linter/formatter) がカバー。agent は Linter が拾えない意味論を担当 |
+| モデル | Sonnet |
+
+#### 14.2 api-contract-reviewer 新設
+
+API の破壊的変更と設計品質。
+
+| 項目 | 内容 |
+|------|------|
+| 参照元 | [Google API Design Guide](https://cloud.google.com/apis/design) + [Microsoft REST API Guidelines](https://github.com/microsoft/api-guidelines) + [Azure Breaking Changes Guidelines](https://github.com/Azure/azure-rest-api-specs/blob/main/documentation/Breaking%20changes%20guidelines.md) |
+| 観点 | required field 後追い追加、enum 値削除、レスポンス型変更、URL パス変更、エラー構造、リソース命名 |
+| 起動条件 | Risk-gated: API/エンドポイントファイル変更時 |
+| モデル | Sonnet |
+
+#### 14.3 observability-reviewer 新設
+
+本番での可観測性。
+
+| 項目 | 内容 |
+|------|------|
+| 参照元 | Google [SRE Book](https://sre.google/sre-book/monitoring-distributed-systems/) (Four Golden Signals) + [OpenTelemetry Semantic Conventions](https://opentelemetry.io/docs/specs/semconv/) + [CNCF Observability Whitepaper](https://github.com/cncf/tag-observability/blob/main/whitepaper.md) |
+| 観点 | エラーパスのログ有無、構造化ログ(JSON)、trace ID 伝播、メトリクス計装、ハードコード閾値 |
+| 起動条件 | Risk-gated: エラーハンドリング/ログ変更時 |
+| モデル | Sonnet |
+| 注意 | correctness-reviewer の「例外処理」観点と重複しうる。agent 間 dedup ルールを定義すること |
+
+#### 14.4 performance-reviewer 強化
+
+既存 agent の rubric を参照元ベースで深化。
+
+| 項目 | 内容 |
+|------|------|
+| 追加参照元 | [SEI CERT Coding Standards](https://wiki.sei.cmu.edu/confluence/display/seccode) (並行性観点) |
+| 追加 rubric | N+1 クエリパターン、O(n²) ループ、shared mutable state、ロック順序不整合 |
+| 変更内容 | 既存の Algorithm efficiency / Memory usage に加え、並行性観点を吸収 |
+
+### Phase 15: Test Review 強化
+
+RED フェーズの品質に直結。ROI 2番目。
+
+#### 15.1 test-reviewer 新設 (Code mode)
+
+テストコード品質を見る。RED 後のレビューで起動。
+
+| 項目 | 内容 |
+|------|------|
+| 参照元 | [xUnit Test Patterns](http://xunitpatterns.com/) (Meszaros, 68パターン + 18テストスメル) + Google [SWE Book Ch11-12](https://abseil.io/resources/swe-book/html/ch11.html) |
+| Code mode 観点 | Fragile Test, Obscure Test, Mystery Guest, Conditional Test Logic, Test Code Duplication |
+| 起動条件 | Risk-gated: テストファイル変更時 |
+| CLI 層との連携 | exspec が RED 後のテストコード静的解析を担当（既存） |
+| モデル | Sonnet |
+
+#### 15.2 test-reviewer Plan mode 拡張
+
+Phase 16 で Plan Review に統合する際に Plan mode を追加。Phase 15 では Code mode のみ先行実装。
+
+| 項目 | 内容 |
+|------|------|
+| Plan mode 観点 | TC カバレッジ（Scope 項目あたり TC 数）、異常系 TC 有無、テスト独立性、Given/When/Then 形式 |
+| 起動条件 | Always-on (Plan mode) |
+| 依存 | Phase 16 の Plan Review 統合基盤 |
+
+### Phase 16: Plan Review 強化
+
+spec 時のみ起動。頻度は低いが設計レベルの問題を防ぐ。
+
+#### 16.1 change-safety-reviewer 新設
+
+ロールバック安全性 + マイグレーション安全性を統合した観点。
+
+| 項目 | 内容 |
+|------|------|
+| 参照元 | Fowler [Evolutionary DB Design](https://martinfowler.com/articles/evodb.html) + [Feature Toggles](https://martinfowler.com/articles/feature-toggles.html) + [Parallel Change](https://martinfowler.com/bliki/ParallelChange.html) |
+| サブ観点 | deploy rollback / schema migration / feature flag / blast radius / irreversible step detection |
+| 起動条件 | Risk-gated: risk-classifier.sh によるリスク判定（後述） |
+| モデル | Sonnet |
+| 注意 | design-reviewer の risk 観点は**移管しない**（scope と risk の相関判断を維持）。change-safety は design-reviewer が risk フラグを出した後の**追加深掘り**として起動 |
+
+#### 16.2 impact-reviewer 新設
+
+変更の連鎖影響と破壊範囲を分析する。
+
+| 項目 | 内容 |
+|------|------|
+| 参照元 | [C4 Model](https://c4model.com/) + SEI [ATAM](https://www.sei.cmu.edu/library/architecture-tradeoff-analysis-method-collection/) |
+| 観点 | 依存モジュール列挙、公開 API 変更有無、SPOF 生成、循環依存 |
+| 起動条件 | Risk-gated: risk-classifier.sh によるリスク判定 |
+| モデル | Sonnet |
+
+#### 16.3 resiliency-reviewer 新設
+
+耐障害性・カスケード障害防止の観点。Gemini/Grok/GPT 全員が独立観点として追加を推奨。
+
+| 項目 | 内容 |
+|------|------|
+| 参照元 | [AWS Well-Architected Reliability Pillar](https://docs.aws.amazon.com/wellarchitected/latest/reliability-pillar/) + Google [SRE Book](https://sre.google/sre-book/monitoring-distributed-systems/) |
+| 観点 | タイムアウト設定、リトライ戦略(backoff/jitter)、サーキットブレーカー、カスケード障害防止 |
+| 起動条件 | Risk-gated: 外部通信/非同期処理検出時 |
+| モデル | Sonnet |
+
+#### 16.4 design-reviewer 強化
+
+既存 agent の rubric に過剰設計検出を明示追加。**risk 観点は維持**（scope-risk 相関判断を保つ）。
+
+| 項目 | 内容 |
+|------|------|
+| 追加参照元 | Fowler Code Smells [Dispensables](https://refactoring.guru/refactoring/smells/dispensables) (Speculative Generality, Dead Code) |
+| 追加 rubric | 不要抽象化、1箇所からしか呼ばれない interface、未使用の設定パラメータ |
+| 変更内容 | risk 維持 + 過剰設計観点を追加 |
+
+#### 16.5 test-reviewer Plan mode 統合
+
+15.2 で設計した Plan mode を Plan Review に組み込む。
+
+#### 16.6 risk-classifier.sh 拡張
+
+Risk-gated agent の起動条件を決定論的に判定する。既存の risk-classifier.sh を拡張。
+
+| 新条件 | 判定方法 | 起動する agent |
+|--------|---------|---------------|
+| スキーマ変更 | migration ファイル検出、ORM model 定義変更 | change-safety-reviewer |
+| API 変更 | route/controller/endpoint ファイル変更 | api-contract-reviewer (Code) / change-safety (Plan) |
+| 外部通信 | HTTP client/SDK import、async/await パターン | resiliency-reviewer |
+| 広範囲変更 | 変更ファイルのディレクトリ分散度 | impact-reviewer |
+| エラーハンドリング | try/catch/except ブロック変更 | observability-reviewer |
+| テストファイル | test ディレクトリ内ファイル変更 | test-reviewer |
+
+### Phase 17: 統合・リリース
+
+#### 17.1 段階的統合テスト
+
+セキュリティ 19 agent の成功パターンを踏襲。1体ずつ追加→テスト→次へ。
+
+各 agent 追加時の検証:
+1. 既存 reviewer との重複指摘検出（deduplication テスト）
+2. Risk-gated 起動条件の精度検証（過去 10 サイクルで再現テスト）
+3. review スキル統合後のリグレッションテスト
+
+#### 17.2 review スキル Risk-gated scaling 拡張
+
+新設 agent を review スキルの選択ロジックに組み込む。
+
+```
+Always-on（全サイクル）:
+  Plan: design-reviewer, test-reviewer (Plan mode)
+  Code: correctness-reviewer, security-reviewer, maintainability-reviewer
+
+Risk-gated（risk-classifier.sh 判定時のみ）:
+  Plan: change-safety-reviewer, impact-reviewer, resiliency-reviewer, product-reviewer
+  Code: api-contract-reviewer, observability-reviewer, performance-reviewer,
+        test-reviewer (Code mode), usability-reviewer
+```
+
+#### 17.3 スキルマップ更新
+
+Phase 13 のスキルマップに新 agent の位置を追加。
+
+#### 17.4 リリース (v4.0.0)
+
+### 統廃合サマリ
+
+| Agent | 現状 | v4 後 | 変更 |
+|-------|------|-------|------|
+| design-reviewer | Plan: スコープ + アーキ + リスク | Plan: スコープ + アーキ + リスク + 過剰設計 | risk 維持、過剰設計追加 |
+| product-reviewer | Plan: ビジネス判断 | 維持 | - |
+| correctness-reviewer | Code: ロジック + エッジケース | 維持 | - |
+| performance-reviewer | Code: 効率 + メモリ | 強化: + 並行性 | 並行性を吸収 |
+| security-reviewer | Code: OWASP | 維持 | - |
+| usability-reviewer | Code: UX/UI | 維持 | - |
+| **maintainability-reviewer** | - | **新設**: Code: 保守性 (Always-on) | - |
+| **api-contract-reviewer** | - | **新設**: Code: API 契約 | - |
+| **observability-reviewer** | - | **新設**: Code: 可観測性 | - |
+| **test-reviewer** | - | **新設**: Plan+Code: TC 品質 + テストスメル (dual mode) | - |
+| **change-safety-reviewer** | - | **新設**: Plan: ロールバック + マイグレーション | design-reviewer の深掘り |
+| **impact-reviewer** | - | **新設**: Plan: 依存分析 + 影響範囲 | - |
+| **resiliency-reviewer** | - | **新設**: Plan: 耐障害性 | - |
+
+最終: 33 agents → 40 agents / 29 skills → 29 skills（変更なし）
+
+### 実装順序
+
+```
+Phase 14: Code Review（ROI 最大、毎サイクル起動）
+  14.1 maintainability-reviewer → テスト → 統合
+  14.2 api-contract-reviewer → テスト → 統合
+  14.3 observability-reviewer → テスト → 統合（correctness との dedup 確認）
+  14.4 performance-reviewer 強化 → テスト
+    ↓
+Phase 15: Test Review（ROI 2番目、RED 品質直結）
+  15.1 test-reviewer Code mode → テスト → 統合
+    ↓
+Phase 16: Plan Review（頻度低、設計レベル防御）
+  16.1 change-safety-reviewer → テスト → 統合
+  16.2 impact-reviewer → テスト → 統合
+  16.3 resiliency-reviewer → テスト → 統合
+  16.4 design-reviewer 強化 → テスト
+  16.5 test-reviewer Plan mode 統合
+  16.6 risk-classifier.sh 拡張
+    ↓
+Phase 17: 統合・リリース
+  17.1 段階的統合テスト（全 agent 横断）
+  17.2 review スキル統合
+  17.3 スキルマップ更新
+  17.4 v4.0.0 リリース
+```
+
+### 参照元一覧
+
+| 参照元 | 形式 | 対象 agent | URL |
+|--------|------|-----------|-----|
+| Fowler Code Smells | カタログ (22種) | maintainability | https://refactoring.guru/refactoring/smells |
+| SonarQube Cognitive Complexity | ルール集 | maintainability | https://www.sonarsource.com/resources/library/code-smells/ |
+| Google Engineering Practices | ガイドライン | maintainability | https://google.github.io/eng-practices/review/ |
+| Google API Design Guide | チェックリスト | api-contract | https://cloud.google.com/apis/design |
+| Microsoft REST API Guidelines | チェックリスト | api-contract | https://github.com/microsoft/api-guidelines |
+| Azure Breaking Changes | チェックリスト | api-contract | https://github.com/Azure/azure-rest-api-specs/blob/main/documentation/Breaking%20changes%20guidelines.md |
+| Google SRE Book | 章立て体系 | observability, resiliency | https://sre.google/sre-book/monitoring-distributed-systems/ |
+| OpenTelemetry Semantic Conventions | 仕様 | observability | https://opentelemetry.io/docs/specs/semconv/ |
+| CNCF Observability Whitepaper | ホワイトペーパー | observability | https://github.com/cncf/tag-observability/blob/main/whitepaper.md |
+| SEI CERT Coding Standards | ルール集 | performance (並行性) | https://wiki.sei.cmu.edu/confluence/display/seccode |
+| xUnit Test Patterns | パターン集 (68+18) | test-reviewer | http://xunitpatterns.com/ |
+| Google SWE Book Ch11-12 | ガイドライン | test-reviewer | https://abseil.io/resources/swe-book/html/ch11.html |
+| Fowler Evolutionary DB Design | 記事 | change-safety | https://martinfowler.com/articles/evodb.html |
+| Fowler Feature Toggles | 記事 | change-safety | https://martinfowler.com/articles/feature-toggles.html |
+| C4 Model | モデリング手法 | impact | https://c4model.com/ |
+| SEI ATAM | 評価手法 | impact | https://www.sei.cmu.edu/library/architecture-tradeoff-analysis-method-collection/ |
+| AWS Well-Architected Reliability | チェックリスト | resiliency | https://docs.aws.amazon.com/wellarchitected/latest/reliability-pillar/ |
+| Fowler Dispensables | カタログ (部分) | design-reviewer | https://refactoring.guru/refactoring/smells/dispensables |
 
 ---
 
