@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Test: Post-Approve Action ordering matches PHILOSOPHY.md
+# Test: Post-Approve Action ordering matches workflow.md
 # Plan review MUST come before Cycle doc (sync-plan)
 
 set -euo pipefail
@@ -73,15 +73,14 @@ else
   fail "TC-04: reference.ja.md missing steps"
 fi
 
-# TC-05: ordering matches PHILOSOPHY.md (authoritative source)
-# PHILOSOPHY.md L53: "Codex plan review", L55: "sync-plan" - plan review comes first
-philosophy="$BASE/docs/PHILOSOPHY.md"
-phil_review_line=$(grep -n "Codex plan review" "$philosophy" | head -1 | cut -d: -f1)
-phil_sync_line=$(grep -n "sync-plan" "$philosophy" | head -1 | cut -d: -f1)
-if [ -n "$phil_review_line" ] && [ -n "$phil_sync_line" ] && [ "$phil_review_line" -lt "$phil_sync_line" ]; then
-  pass "TC-05: PHILOSOPHY.md confirms plan review before sync-plan (L${phil_review_line} < L${phil_sync_line})"
+# TC-05: ordering matches workflow.md (authoritative source)
+workflow="$BASE/docs/workflow.md"
+wf_sync_line=$(grep -n "sync-plan" "$workflow" | head -1 | cut -d: -f1)
+wf_review_line=$(grep -n "plan.review\|plan-review" "$workflow" | head -1 | cut -d: -f1)
+if [ -n "$wf_sync_line" ] && [ -n "$wf_review_line" ] && [ "$wf_sync_line" -lt "$wf_review_line" ]; then
+  pass "TC-05: workflow.md confirms sync-plan before plan-review (L${wf_sync_line} < L${wf_review_line})"
 else
-  fail "TC-05: PHILOSOPHY.md ordering unexpected (review L${phil_review_line:-?}, sync-plan L${phil_sync_line:-?})"
+  fail "TC-05: workflow.md ordering unexpected (sync-plan L${wf_sync_line:-?}, review L${wf_review_line:-?})"
 fi
 
 # TC-06: existing test passes (regression)

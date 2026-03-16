@@ -106,25 +106,25 @@ else
   fail "Post-Approve Action missing Codex delegation confirmation"
 fi
 
-# TC-09: PHILOSOPHY.md flow diagram has sync-plan before plan-review
+# TC-09: workflow.md flow diagram has sync-plan before plan-review
 echo ""
-echo "TC-09: PHILOSOPHY.md sync-plan before plan-review"
-flow_section=$(sed -n '/^```$/,/^```$/p' "$BASE_DIR/docs/PHILOSOPHY.md" | head -40)
+echo "TC-09: workflow.md sync-plan before plan-review"
+flow_section=$(sed -n '/^```$/,/^```$/p' "$BASE_DIR/docs/workflow.md" | head -40)
 sync_line_p=$(echo "$flow_section" | grep -n -i 'sync-plan' | head -1 | cut -d: -f1)
 review_line_p=$(echo "$flow_section" | grep -n -i 'plan.review\|plan review' | head -1 | cut -d: -f1)
 if [ -n "$sync_line_p" ] && [ -n "$review_line_p" ] && [ "$sync_line_p" -lt "$review_line_p" ]; then
-  pass "sync-plan ($sync_line_p) before plan-review ($review_line_p) in PHILOSOPHY.md"
+  pass "sync-plan ($sync_line_p) before plan-review ($review_line_p) in workflow.md"
 else
-  fail "sync-plan ($sync_line_p) NOT before plan-review ($review_line_p) in PHILOSOPHY.md"
+  fail "sync-plan ($sync_line_p) NOT before plan-review ($review_line_p) in workflow.md"
 fi
 
-# TC-10: PHILOSOPHY.md flow diagram has Claude plan-review
+# TC-10: workflow.md flow diagram has Claude plan-review
 echo ""
-echo "TC-10: PHILOSOPHY.md has Claude plan-review"
-if grep -qi 'Claude.*plan.review\|plan.review.*(Claude)' "$BASE_DIR/docs/PHILOSOPHY.md"; then
-  pass "PHILOSOPHY.md has Claude plan-review"
+echo "TC-10: workflow.md has Claude plan-review"
+if grep -qi 'Claude.*plan.review\|plan.review.*(Claude)' "$BASE_DIR/docs/workflow.md"; then
+  pass "workflow.md has Claude plan-review"
 else
-  fail "PHILOSOPHY.md missing Claude plan-review"
+  fail "workflow.md missing Claude plan-review"
 fi
 
 # TC-11: Existing test-orchestrate-codex.sh passes (regression)

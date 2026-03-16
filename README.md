@@ -21,7 +21,7 @@ A single Claude Code plugin that provides an autonomous AI development team:
 
 > Human laziness as a design principle.
 
-AI generates 90% correct code. The remaining 10% is caught by tests, multi-perspective reviews, and static analysis. Humans only provide goals and approve/reject at key gates. See [docs/PHILOSOPHY.md](docs/PHILOSOPHY.md).
+AI generates 90% correct code. The remaining 10% is caught by tests, multi-perspective reviews, and static analysis. Humans only provide goals and approve/reject at key gates. See [CONSTITUTION.md](CONSTITUTION.md).
 
 ### Claude + Codex Integration
 

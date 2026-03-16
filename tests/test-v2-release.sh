@@ -49,9 +49,9 @@ fi
 # TC-06: ROADMAP.md に Phase 11 完了のマークがある (11.1, 11.2, 11.3, 11.5, 11.6, 11.7)
 ROADMAP_OK=true
 for phase in "11.1" "11.2" "11.3" "11.5" "11.6" "11.7"; do
-  if ! grep -q "### ${phase}.*完了\|### ${phase}.*(完了)" "$DIR/docs/ROADMAP.md" 2>/dev/null; then
+  if ! grep -q "### ${phase}.*完了\|### ${phase}.*(完了)" "$DIR/ROADMAP.md" 2>/dev/null; then
     # Also check for completion marker after the heading
-    SECTION=$(sed -n "/### ${phase}/,/### /p" "$DIR/docs/ROADMAP.md" | head -5)
+    SECTION=$(sed -n "/### ${phase}/,/### /p" "$DIR/ROADMAP.md" | head -5)
     if ! echo "$SECTION" | grep -qi "完了\|completed\|done"; then
       ROADMAP_OK=false
       fail "TC-06: ROADMAP.md missing completion mark for Phase ${phase}"

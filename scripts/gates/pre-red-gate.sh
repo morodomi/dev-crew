@@ -5,7 +5,7 @@
 #   LLMはワークフロー手順を確率的にスキップする（sync-plan飛ばし等）。
 #   このスクリプトはCycle docの状態を機械的に検証し、
 #   前提ステップが完了していなければREDフェーズへの遷移をBLOCKする。
-#   PHILOSOPHY.md 原則6「決定論的プロセス保証」の実装。
+#   CONSTITUTION.md 原則6「決定論的プロセス保証」の実装。
 #
 # Usage: pre-red-gate.sh [project_root]
 # Exit 0 = PASS, Exit 1 = BLOCK

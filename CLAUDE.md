@@ -11,7 +11,7 @@
 
 ## Codex Integration
 
-Codex が利用可能な場合、Plan Review と Code Review は常時 competitive に実行。RED/GREEN の委譲は codex_mode (full/no) で制御。REFACTOR は Claude が主担当（Codex fallback）。REVIEW は Claude + Codex competitive。詳細は [docs/PHILOSOPHY.md](docs/PHILOSOPHY.md) 参照。
+Codex が利用可能な場合、Plan Review と Code Review は常時 competitive に実行。RED/GREEN の委譲は codex_mode (full/no) で制御。REFACTOR は Claude が主担当（Codex fallback）。REVIEW は Claude + Codex competitive。詳細は [CONSTITUTION.md](CONSTITUTION.md) 参照。
 
 ```bash
 # plan review（planファイルに対して実行）→ session ID を Cycle doc frontmatter codex_session_id に記録

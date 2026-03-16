@@ -13,7 +13,7 @@ fail() { FAIL=$((FAIL + 1)); printf "  \033[31mFAIL\033[0m %s\n" "$1"; }
 
 SKILL_FILE="$BASE_DIR/skills/onboard/SKILL.md"
 REFERENCE_FILE="$BASE_DIR/skills/onboard/reference.md"
-ROADMAP_FILE="$BASE_DIR/docs/ROADMAP.md"
+ROADMAP_FILE="$BASE_DIR/ROADMAP.md"
 
 [ -f "$SKILL_FILE" ] || { echo "ERROR: $SKILL_FILE not found"; exit 1; }
 [ -f "$REFERENCE_FILE" ] || { echo "ERROR: $REFERENCE_FILE not found"; exit 1; }

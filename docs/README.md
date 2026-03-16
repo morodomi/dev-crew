@@ -1,13 +1,13 @@
 # docs/
 
-## 哲学・戦略
+## 原則・戦略
 
 | ドキュメント | 内容 |
 |-------------|------|
-| [PHILOSOPHY.md](PHILOSOPHY.md) | 開発フロー哲学。Claude + Codex 統合、承認ゲート、Findings判断 |
-| [ROADMAP.md](ROADMAP.md) | Phase 11+。sync-plan移行、Codex委譲、ドキュメント整備 |
+| [CONSTITUTION.md](../CONSTITUTION.md) | 最上位規範。原則、品質基準、5-Layer Authority |
+| [workflow.md](workflow.md) | 開発フロー。承認ゲート、決定論的ゲート、Findings判断 |
+| [ROADMAP.md](../ROADMAP.md) | Phase 11+。sync-plan移行、Codex委譲、ドキュメント整備 |
 | [skill-map.md](skill-map.md) | スキル/エージェント/ゲートの一元リファレンス。フロー上の位置と担当 |
-| [document-hierarchy.md](document-hierarchy.md) | 権威階層とファイル配置マップ |
 | [architecture.md](architecture.md) | システム設計。Phase-Boundary Compaction、Token最適化 |
 | [test-architecture-integration.md](test-architecture-integration.md) | テストアーキテクチャ統合の検討と採用方針 |
 

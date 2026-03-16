@@ -6,7 +6,7 @@
 #   このスクリプトはCycle docの状態を機械的に検証し、
 #   REVIEW（+ Codex competitive review）が完了していなければ
 #   COMMITフェーズへの遷移をBLOCKする。
-#   PHILOSOPHY.md 原則6「決定論的プロセス保証」の実装。
+#   CONSTITUTION.md 原則6「決定論的プロセス保証」の実装。
 #
 # Usage: pre-commit-gate.sh [project_root]
 # Exit 0 = PASS, Exit 1 = BLOCK

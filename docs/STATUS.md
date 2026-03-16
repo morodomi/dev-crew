@@ -48,7 +48,7 @@ None
 - [ ] v3 Phase 7: onboard CONSTITUTION 対応
 - [ ] v3 Phase 8: v3.0.0 リリース
 
-詳細は [ROADMAP.md](ROADMAP.md) 参照。
+詳細は [ROADMAP.md](../ROADMAP.md) 参照。
 
 ## Cycle Doc Lifecycle
 

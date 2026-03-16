@@ -1,5 +1,5 @@
 #!/bin/bash
-# test-doc-alignment.sh - PHILOSOPHY.md との整合テスト (ROADMAP 12.2)
+# test-doc-alignment.sh - CONSTITUTION.md / workflow.md との整合テスト (ROADMAP 12.2)
 # T-01 ~ T-08
 
 set -euo pipefail
@@ -14,7 +14,7 @@ fail() { FAIL=$((FAIL + 1)); printf "  \033[31mFAIL\033[0m %s\n" "$1"; }
 AGENTS_FILE="$BASE_DIR/AGENTS.md"
 CLAUDE_FILE="$BASE_DIR/CLAUDE.md"
 ARCH_FILE="$BASE_DIR/docs/architecture.md"
-ROADMAP_FILE="$BASE_DIR/docs/ROADMAP.md"
+ROADMAP_FILE="$BASE_DIR/ROADMAP.md"
 
 echo "=== Document Alignment Tests ==="
 echo ""

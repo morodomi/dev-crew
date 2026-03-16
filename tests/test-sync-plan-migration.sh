@@ -136,10 +136,10 @@ fi
 echo "TC-14: No kickoff references in active paths"
 kickoff_count=$(rg -ci "kickoff" skills/ CLAUDE.md AGENTS.md docs/ \
   --glob '!docs/cycles/**' \
-  --glob '!docs/ROADMAP.md' \
+  --glob '!ROADMAP.md' \
   --glob '!docs/STATUS.md' \
   --glob '!docs/archive/**' \
-  --glob '!docs/PHILOSOPHY.md' \
+  --glob '!docs/workflow.md' \
   --glob '!docs/metrics/**' 2>/dev/null | awk -F: '{s+=$NF} END {print s+0}')
 if [ "$kickoff_count" -eq 0 ]; then
   pass "TC-14"
@@ -147,10 +147,10 @@ else
   fail "TC-14: Found $kickoff_count 'kickoff' references in active paths"
   rg -i "kickoff" skills/ CLAUDE.md AGENTS.md docs/ \
     --glob '!docs/cycles/**' \
-    --glob '!docs/ROADMAP.md' \
+    --glob '!ROADMAP.md' \
     --glob '!docs/STATUS.md' \
     --glob '!docs/archive/**' \
-    --glob '!docs/PHILOSOPHY.md' \
+    --glob '!docs/workflow.md' \
     --glob '!docs/metrics/**' 2>/dev/null || true
 fi
 

@@ -2,11 +2,9 @@
 
 AI development team as a single Claude Code plugin.
 
-> docs are in migration. [docs/PHILOSOPHY.md](docs/PHILOSOPHY.md) is authoritative when other docs disagree.
-
 ## Start Here
 
-1. Read [docs/PHILOSOPHY.md](docs/PHILOSOPHY.md) for target workflow
+1. Read [CONSTITUTION.md](CONSTITUTION.md) for principles and [docs/workflow.md](docs/workflow.md) for development flow
 2. Check [docs/STATUS.md](docs/STATUS.md) and `docs/cycles/` for active work
 3. If an `IN_PROGRESS` cycle exists, continue it; otherwise start with `spec`
 
@@ -84,8 +82,9 @@ dev-crew/
 
 | Topic | Location |
 |-------|----------|
-| Philosophy & dev flow | [docs/PHILOSOPHY.md](docs/PHILOSOPHY.md) |
-| Roadmap | [docs/ROADMAP.md](docs/ROADMAP.md) |
+| Constitution (principles) | [CONSTITUTION.md](CONSTITUTION.md) |
+| Workflow (dev flow) | [docs/workflow.md](docs/workflow.md) |
+| Roadmap | [ROADMAP.md](ROADMAP.md) |
 | Architecture | [docs/architecture.md](docs/architecture.md) |
 | Skills | Plugin system auto-discovery (SKILL.md description) |
 | Terminology | [docs/terminology.md](docs/terminology.md) |

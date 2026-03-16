@@ -1,412 +1,346 @@
-# ROADMAP: Multi-AI Orchestration
+# Roadmap
 
-## Vision
+> Phase 1-10 の完了履歴は [docs/archive/development-plan.md](docs/archive/development-plan.md) を参照。
+> Phase 11-13 (v2) の詳細は本ファイル下部を参照。
 
-dev-crewを単一AIツール依存から脱却させ、Claude CodeとCodexを統合する。異なるモデルの視点を活かし、反論プロトコルで設計品質を昇華させる。
+## 現在地
 
-## Why
+v2.2.0 リリース済み。Phase 11-13 全完了。
+v3 は Constitution-Driven Development への移行。設計資料: [v3-constitution-design.md](docs/v3-constitution-design.md)
 
-- 異なるモデルの視点で反論し合うことで、仕様の曖昧さが消える
-- 現状はコピペでCycle docsをやり取りしており、非効率
-- 特定AIツールへのロックインを避ける
+## v3: Constitution-Driven Development
 
-## Design Principles
+CONSTITUTION.md を最上位規範（Layer 0）として導入し、PHILOSOPHY.md を分解・再構成する。
+詳細設計: [v3-constitution-design.md](docs/v3-constitution-design.md) / Issue: #75
 
-1. **CLIベース統合**: MCPは使わない。各AIのCLIを直接呼び出す
-2. **ファイルベース通信**: Cycle docs / decisions/ を介して非同期に論点を記録
-3. **AGENTS.md正本**: クロスツール共通の設定はAGENTS.mdに集約。CLAUDE.mdはClaude固有の拡張のみ
-4. **Single-AI Baseline**: Claude Code単体で全フェーズが完結する。Sub AIは品質向上のオプション
-5. **Main AI = Claude Code**: オーケストレーション・最終判断・承認はClaude Codeが担う
+### Phase 1: dev-crew CONSTITUTION 理想形 (設計完了)
 
-## Roles & Responsibilities
+- CONSTITUTION.md の構成設計（8章、~50行）
+- PHILOSOPHY.md の分解マッピング
+- 5-Layer Authority 定義
+- 影響ファイル一覧の完全化
 
-| 役割 | 担当 | 責務 |
-|------|------|------|
-| Phase Owner | Claude Code (Main AI) | 全フェーズの実行責任。Sub AI不在時は全て代行 |
-| Phase Executor | Codex (Sub AI) | RED/GREEN/REVIEWの実行を委譲される |
-| Plan Reviewer | Codex | 設計フェーズでの反論 |
-| Phase Approver | Claude Code | 各フェーズの成果物を承認してから次へ進める |
-| Final Go/No-Go | Human (株主) | 最終判断。設計理由の説明を受けて決定 |
+### Phase 2: App 型適用検討
 
-## AI CLI Capabilities
+一般化した適用ガイドを docs/ に資料化。プロジェクト固有情報は含めない。
 
-| CLI | 非対話実行 | セッション継続 | ファイル操作 | 出力制御 |
-|-----|-----------|--------------|------------|---------|
-| `codex exec` | `--full-auto` | `resume <session-id>` | `--sandbox workspace-write` | `-o file`, `--json`, `--output-schema` |
-| `claude` | Main AI | セッション内 | ネイティブ | ネイティブ |
+### Phase 3: CLI 型適用検討
 
-### 呼び出しパターン
+同上。
 
-```bash
-# Codex: 初回実行
-codex exec --full-auto -o <output> -C <dir> "プロンプト"
-# Codex: セッション継続（基本こちらを使う）
-codex exec resume <session-id> --full-auto -o <output> "プロンプト"
-# Codex: 最後のセッションを継続
-codex exec resume --last --full-auto -o <output> "プロンプト"
-# Codex: コードレビュー
-codex review --uncommitted
-```
+### Phase 4: Data/ML 型適用検討
 
-**Context Cache優先**: Codex呼び出しは基本 `resume` を使う。初回のみ新規セッション、以降は `resume --last` または `resume <session-id>` でContext Cacheを効かせる。
+同上。
 
-### 設定ファイルの読み込み
+### Phase 5: 一般化 vs 個別最適化
 
-| CLI | デフォルト | AGENTS.mdを読ませる方法 |
-|-----|----------|----------------------|
-| Codex | `AGENTS.md` | ネイティブ対応 |
-| Claude Code | `CLAUDE.md` | `@AGENTS.md` で import |
+Phase 2-4 の検証結果を基に判断:
+- 一般化テンプレート 1 本で済むか
+- プロジェクト型別テンプレートが必要か
+- Layer 名は全型で共通か
 
-### 対象外としたAI CLI
+### Phase 6: dev-crew 自体を理想形に変更
 
-- **Gemini CLI**: セッション継続(`-r`)、非対話実行(`-p`)、設定統一(`context.fileName`)の機能は確認済み。ただし現時点ではスコープ外とする。アダプタ層の設計は将来の追加を妨げない
+CONSTITUTION.md 新設、PHILOSOPHY.md 分解、参照移行（authority migration）。
+サブタスクに分割して TDD サイクルで実施。
 
-## Architecture
+### Phase 7: 他プロジェクト向けスキル実装
 
-```
-Human (株主)
-  │
-  ▼
-Claude Code (Main AI / Phase Owner / Approver)
-  │
-  ├── which codex で利用可能なSub AIを検出
-  │
-  ├── 設計フェーズ (SPEC/PLAN)
-  │   ├── Claude Code: plan 作成
-  │   ├── Codex: 反論 (codex exec) ← optional
-  │   ├── Claude Code: 再反論・統合
-  │   ├── [フォールバック] Codex不在 → 既存plan-review (Claude Code単体)
-  │   └── 収束判断 → decisions/ に理由を記録
-  │
-  ├── 実装フェーズ
-  │   ├── RED:      Codex (exec resume) or Claude Code
-  │   ├── GREEN:    Codex (同セッション) or Claude Code
-  │   ├── REFACTOR: Claude Code
-  │   ├── REVIEW:   Codex (review --uncommitted) or Claude Code
-  │   ├── COMMIT:   Claude Code
-  │   └── [フォールバック] Codex不在 → Claude Code が全フェーズ代行
-  │
-  └── 人間への説明
-      └── "なぜその設計になったか" を decisions/ から構成
-```
+onboard スキルに CONSTITUTION.md 生成を追加（breaking change）。
+Phase 5 の判断結果に基づくテンプレート設計。
 
-## Config Unification
+### Phase 8: リリース (v3.0.0)
 
-### Before (現状)
+---
 
-```
-CLAUDE.md  ← Claude Code が読む
-AGENTS.md  ← Codex が読む (symlink to CLAUDE.md)
-```
+## v2 (完了): Claude + Codex 統合開発フロー
 
-### After (目標・実施済み)
+## Phase 11: Claude + Codex 統合開発フロー
 
-```
-AGENTS.md (正本: 全AIが読む)
-  ├── 設計思想、ルール、構造、ワークフロー
-  ├── Codex: ネイティブに読む
-  └── Claude Code: CLAUDE.md に @AGENTS.md で import
+PHILOSOPHY.md の target philosophy を既存スキルに反映する。
 
-CLAUDE.md (Claude固有の拡張)
-  ├── @AGENTS.md  ← 共通設定を import
-  ├── スキルトリガー定義
-  ├── フック定義
-  └── サブエージェント定義
-```
+### 11.1 kickoff → sync-plan 移行 (完了)
 
-### Migration Strategy
+kickoff スキルを sync-plan agent に置き換え、spec 内部から呼ぶ軽量エージェント化。
 
-1. ~~CLAUDE.mdから共通部分をAGENTS.mdに移動~~ 完了
-2. ~~CLAUDE.mdに `@AGENTS.md` を追加してClaude Codeから読めるようにする~~ 完了
-3. Claude CodeがAGENTS.mdをネイティブ対応したら `@AGENTS.md` 行を削除するだけ
+#### マイグレーション対象
 
-## Tool Directory Investigation
-
-各AI CLIのプロジェクトディレクトリ構造を調査し、統合可能性を検証した。
-
-### ディレクトリ構造比較
-
-| ディレクトリ | ツール | 用途 |
-|-------------|--------|------|
-| `.claude/` | Claude Code | `settings.json`, `rules/*.md`, プラグインキャッシュ(`~/.claude/plugins/cache/`) |
-| `.codex/` | Codex | `config.toml`, `rules/*.rules` (Starlark), `AGENTS.md` |
-| `.agents/` | Codex (共有) | `skills/` (スキル発見), `plugins/marketplace.json` |
-
-### Skills発見パスの非互換
-
-| ツール | スキル発見パス | 変更可否 |
-|--------|--------------|---------|
-| Claude Code | `~/.claude/plugins/cache/<plugin>/<version>/skills/` | 不可（プラグインシステム固定） |
-| Codex | `.agents/skills/` | 不可（ハードコード） |
-
-Claude Codeのプラグインとしてインストールされたスキルは `~/.claude/plugins/cache/` にキャッシュされる。Codexはこのパスを参照しない。
-
-### Symlink統合の検討結果
-
-| 案 | 結果 | 理由 |
-|----|------|------|
-| `.codex/` → `.claude/` | 効果なし | 各ツールが読むファイルが完全に異なる（`config.toml` vs `settings.json`）。衝突はしないが相互発見もしない |
-| `.agents/` → `.claude/` | 効果なし | Codexは `.agents/skills/` と `.agents/plugins/` しか読まない。`.claude/` の構造と合わない |
-| `.agents/skills/` → plugin cache丸ごと | 1 plugin限定 | 複数pluginのスキルを束ねられない |
-| `.agents/skills/{name}` → 個別symlink | **唯一の現実解** | 各スキルディレクトリを個別にsymlinkすれば複数plugin対応可 |
-
-### 採用方針: 個別Symlink + onboard自動化
-
-```
-.agents/skills/
-├── spec -> ~/.claude/plugins/cache/dev-crew/.../skills/spec/
-├── red -> ~/.claude/plugins/cache/dev-crew/.../skills/red/
-├── green -> ~/.claude/plugins/cache/dev-crew/.../skills/green/
-├── commit-note -> ~/.claude/plugins/cache/note-skills/.../skills/commit-note/
-└── ...
-```
-
-**課題**: pluginバージョン更新でキャッシュパスが変わる（例: `2.0.0` → `2.1.0`）ためsymlinkが壊れる。
-
-**対策**: `/sync-skills` で `~/.claude/plugins/installed_plugins.json` と `.agents/skills/` を比較し、差分を検出・修復する。
-
-## Debate Protocol (反論プロトコル)
-
-### フロー
-
-```
-1. Claude Code が提案をファイルに書く
-2. Codex に渡して反論を求める:
-   codex exec --full-auto -o /tmp/codex_counter.md -C <project> < proposal.md
-3. Claude Code が反論を読み、再反論 or 受け入れ
-4. 収束するまで繰り返す (最大3ラウンド)
-5. 合意した理由を docs/decisions/ にADRとして記録
-6. 人間に説明して最終判断を仰ぐ
-```
-
-### 反論時に渡すコンテキスト
-
-全文丸投げではなく、以下に限定する:
-- 提案ファイル本体
-- 現在のCycle doc要約（あれば）
-- 関連ADR一覧（あれば）
-- 変更対象ファイル一覧
-
-### 採択基準 (Decision Scorecard)
-
-反論の採用/却下はMain AIが以下5項目で判断し、ADRに記録する:
-
-| 項目 | 評価内容 |
+| 対象 | 変更内容 |
 |------|---------|
-| Requirements Fit | 要件との整合性 |
-| Security | セキュリティリスク |
-| Operability | 運用のしやすさ |
-| Complexity | 複雑度は妥当か |
-| Testability | テスト可能か |
+| skills/kickoff/ | sync-plan agent に変換。spec から Task() で呼び出し |
+| skills/spec/ | sync-plan 呼び出しを追加。plan review → approve → sync-plan の順序 |
+| skills/orchestrate/ | kickoff → sync-plan 参照更新。Post-Approve Action 修正 |
+| skills/review/ | Cycle Doc Gate の kickoff 参照更新 |
+| skills/red/, green/, commit/ | Cycle Doc Gate の kickoff 参照更新 |
+| skills/refactor/, diagnose/ | kickoff 参照更新 |
+| skills/strategy/ | Step 4 の review(plan) を spec 内部 Codex plan review に修正 |
+| agents/architect.md | Skill(kickoff) 呼び出しを sync-plan に更新 |
+| rules/state-ownership.md | kickoff パーミッション行を sync-plan に更新 |
+| CLAUDE.md | Usage Patterns、Auto-orchestrate 記述更新 |
+| AGENTS.md | Workflow セクション更新 |
+| docs/terminology.md | kickoff → sync-plan 用語更新 |
+| docs/architecture.md | フロー図更新 |
+| docs/usability.md | kickoff 参照更新 |
+| docs/project-conventions/skill-md-frontmatter.md | kickoff 参照更新 |
+| tests/ | 6ファイル rename + 内容更新 (test-auto-kickoff, test-kickoff-debate, test-architect-improvement, test-decision-records, test-phase-gate, test-state-ownership) |
 
-統合記録のフォーマット:
-- Accepted: 採用した論点と理由
-- Rejected: 却下した論点と理由
-- Deferred: 人間判断に委ねた論点
+#### 互換性方針
 
-### Session管理
+kickoff エイリアスは残さない。完全置換。live docs から `kickoff` が 0 件になることをマイグレーション完了条件とする。
 
 ```bash
-# Codex: 初回 → stderr に session id: <UUID>
-codex exec --full-auto -C <project> "プロンプト"
-# Codex: 継続
-codex exec resume <session-id> --full-auto -o <output> "次のプロンプト"
+# 完了条件チェック（履歴ドキュメントは除外）
+rg "kickoff" skills/ CLAUDE.md AGENTS.md docs/ \
+  --glob '!docs/cycles/**' \
+  --glob '!docs/ROADMAP.md' \
+  --glob '!docs/STATUS.md' \
+  --glob '!docs/archive/**'
+# → 0 件で完了
 ```
 
-Session IDはCycle docに記録する。
+### 11.2 Codex 委譲インターフェース (完了)
 
-### 収束判断
+orchestrate スキルに Codex 委譲パスを追加。各実行フェーズのスキルにもCodex委譲情報を反映。
 
-Claude Code が以下を判断:
-- 新しい論点が出なくなった
-- 双方の主張が同じ結論に収束した
-- トレードオフが明確になり、人間の判断を仰ぐべき状態になった
-- 最大3ラウンドに到達した
+#### セッション管理
 
-## TDD Gate (テスト一貫性の担保)
+| イベント | 操作 | 備考 |
+|---------|------|------|
+| plan review 時 | `codex exec` で新規セッション作成 | plan ファイルパスをプロンプトに含める |
+| RED/GREEN/REVIEW 委譲 | `codex exec resume --last` | cwd フィルタにより同ディレクトリ内の最新セッションが選ばれる |
+| サイクル完了 | セッション破棄 | 次サイクルは新規 |
+| resume 失敗時 | 新規セッション作成で retry | stale session は自動回避 |
 
-Codex に RED/GREEN を委譲する際のゲート:
-
-```
-1. SPEC/PLANでTest Planを作成・凍結 (Claude Code)
-2. RED: Codex はTest Planから逸脱不可
-3. Claude Code がRED fail を確認 (Gate 1)
-4. GREEN: Codex は最小実装
-5. Claude Code がGREEN pass を確認 (Gate 2)
-6. REFACTOR: Claude Code が実行
-```
-
-Test Planの凍結 = Cycle docに記載されたテスト項目をCodexが勝手に変更しない。
-Gate通過 = Claude Codeがテスト結果を検証してから次フェーズへ進める。
-
-## Implementation Phases
-
-### Phase 1: sync-skills
-
-Claude Codeプラグインのスキルを `.agents/skills/` にsymlinkし、Codexから発見可能にするスキル。
+#### Codex 利用可否判定
 
 ```
-/sync-skills:
-1. ~/.claude/plugins/installed_plugins.json からplugin一覧取得
-2. 各pluginのキャッシュパス (~/.claude/plugins/cache/<name>/<version>/skills/) からスキル列挙
-3. .agents/skills/ にsymlinkを作成（raw skill名: spec, note-review 等。prefix無し）
-4. 既存symlink（別target）や名前衝突はユーザに確認（上書き or スキップ）
-5. 壊れたsymlinkは削除
-6. 結果をレポート
+which codex && codex exec --full-auto "echo ok" → 成功: Codex 利用可能
+→ 失敗: Claude fallback（既存スキルそのまま）
 ```
 
-実装: SKILL.md + reference.md（スキル定義のみ。スタンドアロンスクリプト不要）。
-Claude Codeがスキル実行時にBash toolで直接操作する。
-情報源: `~/.claude/plugins/installed_plugins.json` 一択。
+#### 委譲フロー
 
-### Phase 2: Kickoff Debate Integration (DONE)
-
-kickoffスキルにdebateステップ(Step 3.5)を統合。Cycle doc作成後にCodexと反論ラリーを実行。
-
-- 統合先: skills/kickoff/SKILL.md (Step 3.5) + reference.md (Debate Workflow)
-- 処理: Codexに反論を求め、Accepted/Rejected/Deferredで分類（max 3ラウンド）
-- 出力: Cycle doc Implementation NotesにDebate Summary追記。cross-cycle判断のみADR作成
-- 収束判断: Claude Code が行う
-- フォールバック: Sub AI不在 → 既存plan-review（Claude Code単体）
-
-### Phase 3: AGENTS.md Migration (DONE)
-
-Migration Strategyセクション参照。ステップ1,2完了済み。ステップ3（Claude CodeのAGENTS.mdネイティブ対応後に`@AGENTS.md`行を削除）は外部依存待ち。
-
-### Phase 4: Workflow Integration (DONE)
-
-orchestrate スキルを拡張し、フェーズごとにSub AIへ委譲。
-
-| フェーズ | Owner (Claude Code) | Codex | Codex不在時 |
-|---------|-------------------|-------|------------|
-| SPEC/PLAN | 作成 | 反論 | 既存plan-review |
-| RED | Gate 1確認 | exec resume | Claude Codeが代行 |
-| GREEN | Gate 2確認 | exec resume | Claude Codeが代行 |
-| REFACTOR | 実行 | - | - |
-| REVIEW | 実行 | review --uncommitted | Claude Codeが代行 |
-| COMMIT | 実行 | - | - |
-
-### Phase 5: Decision Records (DONE)
-
-`docs/decisions/` ディレクトリにADR (Architecture Decision Record) を蓄積。
-
-```markdown
-# ADR-001: タイトル
-
-## Status: accepted
-
-## Context
-何が問題だったか
-
-## Decision Scorecard
-| 項目 | 評価 | 理由 |
-|------|------|------|
-| Requirements Fit | ... | ... |
-| Security | ... | ... |
-| Operability | ... | ... |
-| Complexity | ... | ... |
-| Testability | ... | ... |
-
-## Arguments
-### Accepted
-- 採用した論点と理由
-### Rejected
-- 却下した論点と理由
-### Deferred
-- 人間判断に委ねた論点
-
-## Decision
-何を決めたか
-
-## Consequences
-その結果どうなるか
+```
+orchestrate
+  ├─ Codex 利用可能
+  │   ├─ RED: codex exec resume --last "red docs/cycles/xxx.md"
+  │   ├─ GREEN: codex exec resume --last "green docs/cycles/xxx.md"
+  │   ├─ REFACTOR: Claude（独自ロジック。Codex fallback）
+  │   └─ REVIEW: Claude review + codex exec resume --last "review code docs/cycles/xxx.md"
+  │
+  └─ Codex 不在
+      └─ 全フェーズ Claude（現行動作維持）
 ```
 
-### Phase 6: AGENTS.md Skill Propagation
+#### スキル別 Codex 委譲ドキュメント更新
 
-dev-crew内の既存スキルをAGENTS.md正本に対応させる。
+| スキル | 更新内容 |
+|--------|---------|
+| skills/red/reference.md | Codex 委譲セクション追加（Codex優先、Claude fallback） |
+| skills/green/reference.md | Codex 委譲セクション追加（Codex優先、Claude fallback） |
+| skills/review/SKILL.md + steps-subagent.md | 競争的レビューパターン追加（Claude + Codex 並行） |
+| skills/refactor/SKILL.md | Codex fallback 記述追加。`/simplify` は Claude 専用だが、Codex には独自 refactor を実行させる |
+| skills/orchestrate/steps-codex.md | REVIEW の「supplementary」を「competitive」に修正 |
 
-- onboard: CLAUDE.md生成ロジックをAGENTS.md前提に更新（`@AGENTS.md` importパターン、Claude固有拡張の分離）
-- 各スキルのドキュメント・テンプレート: CLAUDE.md前提の記述をAGENTS.md正本に更新
-- 影響範囲の調査が先行タスク
+### 11.3 競争的レビュー (完了)
 
-## Resolved Questions
+- review スキルに Codex レビュー統合
+- Claude review + Codex review の findings 集約フロー
+- findings 判断ロジック: Accept / Reject / AskUserQuestion / DISCOVERED / ADR
 
-1. **Gemini**: 検討の結果、現時点では対象外。機能は確認済み（セッション継続、非対話実行、設定統一）なので将来追加は容易
-2. **設定ファイル統一**: AGENTS.md正本
-3. **Main AI**: Claude Code固定。オーケストレーション・承認・最終判断を担う
-4. **Graceful Degradation**: Single-AI Baseline = Claude Code単体で全フェーズ完結。Sub AIはoptional
-5. **品質責任**: Phase Owner = Claude Code。Phase Executor = Codex。Phase Approver = Claude Code
-6. **TDD一貫性**: Test Plan凍結 + Gate 1 (RED fail確認) + Gate 2 (GREEN pass確認)
-7. **反論の採択基準**: Decision Scorecard (5項目) + 統合記録 (Accepted/Rejected/Deferred)
-8. **コンテキスト範囲**: 提案本体 + Cycle doc要約 + 関連ADR + 変更対象一覧に限定
-9. **コスト制御**: 反論ラウンド最大3回
-10. **呼び出し層**: Bash toolで直接呼び出し（`codex exec`, `which codex`等）。アダプタスクリプト不要
-11. **セッションID管理**: Cycle docに記載する運用で確定
-12. **AGENTS.md migration**: 互換期間不要。AGENTS.mdに共通部分を書き、CLAUDE.mdに`@AGENTS.md`を追加。ネイティブ対応後に行を消すだけ
-13. **機密情報**: `.gitignore`準拠。リスク許容。漏洩時はAPI Key再発行
-14. **出力フォーマット**: Markdown。LLMが受け取るのでJSON schema不要
-15. **Gate証跡**: Cycle doc記録 + pre-commit hook推奨
-16. **Session lifecycle**: 1サイクル1セッション。完了で破棄。Context肥大化防止。サイクル内は `resume --last` でContext Cache活用
-17. **ディレクトリ統合**: `.codex/`→`.claude/` や `.agents/`→`.claude/` のsymlinkは効果なし。`.agents/skills/{name}` への個別symlinkが唯一の現実解。`/sync-skills` で自動同期
-18. **AGENTS.md/CLAUDE.md分離**: 完了。AGENTS.md=クロスツール共通、CLAUDE.md=`@AGENTS.md` import + Claude固有拡張
-19. **機密マスキング**: 技術的に強制不可。Claude CodeもCodexも同じローカルファイルを見ている以上、送信前マスキングは実装不能。リスク受容で確定
-20. **sync-skills所有権管理**: 不要。sync-skillsが管理外のsymlinkを壊しても、使えないなら使えないで運用回避する。過剰な保護機構は入れない
-21. **スキル名衝突**: raw名を使用（prefix無し）。衝突時はユーザーに確認（上書き or スキップ）。実運用では各pluginのスキル名が既に固有名（note-review, spec等）なので衝突は稀
-22. **sync-skills情報源**: `~/.claude/plugins/installed_plugins.json` 一択。`settings.json` にはpluginのinstallPath情報がないため使えない。プロジェクトレベルの `.claude/` にも存在しない
-23. **Phase順序**: 実施済みのPhaseが後段に残っているのはインクリメンタルに進めた結果。厳密なウォーターフォール順ではなく、やりながら調整する前提
-24. **Debate出力構造**: 厳密なschemaは不要。Markdownの自由形式で十分。orchestrate統合時に必要なら固定見出し程度の半構造化を後付けする
-25. **並列実行**: Codex側での並列実行は想定しない。1 cycle = 1 Codex session、直列実行のみ
+### 11.4 exspec 統合 (完了)
 
-## Open Questions
+- RED 最終ステップに exspec 実行を追加
+- exspec 未インストール時はスキップ（既存パターン踏襲）
 
-なし。全て解消済み。
+### 11.5 マイグレーション検証 (完了)
 
-## Resolved Counter-Arguments (Round 3)
+- ~~kickoff → sync-plan の grep ベース参照チェックテスト追加~~
+- ~~既存テストの kickoff 参照を sync-plan に更新~~
+- ~~マイグレーション完了条件: live docs の kickoff 参照が 0 件（11.1 の完了条件チェックコマンド参照）~~
+- 11.1 実施時に既存テスト・参照を全て更新済み。live docs の kickoff 参照 0 件を確認。
 
-Codex R3で「条件付きGo」として残された2点への回答:
+### 11.6 onboard スキル改善 (完了)
 
-### 機密情報
-リスク許容する。Claude CodeもCodexも同じワークスペースをローカルで見ている。漏洩時はAPI Key再発行で対応。`.gitignore`準拠で十分。
+今回のdev-crew自身のドキュメント整備で得た知見を、onboard skillが他プロジェクトで生成するドキュメントに反映する:
 
-### 自動化契約
-不要。理由:
-- **Debate出力schema**: LLMが受け取る前提なのでMarkdownで十分。`--output-schema`でJSON強制する必要なし
-- **Gate判定証跡**: Cycle docに記録 + pre-commit hookで担保。dev-crewの既存ワークフローでカバー済み
-- **Session lifecycle**: 1サイクル1セッションID。引き継がない。Context肥大化を防ぐため、サイクル完了でセッション破棄
+#### AGENTS.md テンプレート改善
+- Start Here セクション（最初の行動指針）
+- テストコマンドの正確性（`bash tests/*.sh` ではなく `for f in; do bash "$f"; done`）
+- 数値カウントはSTATUS.mdに任せ、AGENTS.mdには書かない
+- migration注記パターン（対象プロジェクトに上位方針文書がある場合のみ。なければ不要）
 
-## Counter-Arguments Log
+#### CLAUDE.md テンプレート改善
+- Codex Integrationセクションのパターンを反映
+- Skills trigger table は不要（プラグインシステムが自動検出）
 
-### Round 1 (Codex)
+#### Codex 環境セットアップ
+- sync-skills スキルへの誘導を追加
+- Codex 利用可能時の初期セッション作成案内
 
-> 反論全文: /tmp/codex_counter.md
+対象: skills/onboard/reference.md
 
-10項目の反論。主要指摘: Main AI責任の曖昧さ、反論プロトコルの実効性、TDD一貫性、セキュリティ。
+### 11.7 refactor スキル再構築 (完了)
 
-### Round 1 (Gemini)
+現状 refactor は Claude Code の `/simplify` に完全委譲しているが、Codex には `/simplify` がない。cross-tool で動作する独自 refactor ロジックを復活させる。
 
-> 反論全文: /tmp/gemini_counter.md
+- `/simplify` 依存を解消し、独自の品質改善ロジックをスキル内に持つ
+- Claude 実行時: 独自ロジック（`/simplify` は使わない。または optional で併用）
+- Codex 実行時: 同じ独自ロジックで動作
+- 観点: N+1、変数宣言、const、重複コード、未使用変数、型の一貫性
 
-4カテゴリの反論。Codexと共通する指摘が多い。追加: コンテキスト不足、キメラ設計リスク。
+#### `/simplify` 依存の波及箇所
 
-### Round 2 (Codex)
+| 対象 | 変更内容 |
+|------|---------|
+| skills/refactor/SKILL.md | `/simplify` 委譲を独自ロジックに置換 |
+| skills/refactor/reference.md | 独自 refactor ロジックの詳細を記述 |
+| skills/orchestrate/steps-subagent.md | refactor 委譲パスの更新 |
+| skills/orchestrate/steps-teams.md | refactor 委譲パスの更新 |
+| skills/orchestrate/reference.md | REFACTOR フェーズ説明の更新 |
+| skills/reload/SKILL.md | REFACTOR 復元時の参照更新 |
+| skills/reload/reference.md | REFACTOR 復元時の参照更新 |
+| CLAUDE.md | `/simplify` 参照の更新 |
+| docs/terminology.md | refactor 用語説明の更新 |
 
-> 反論全文: /tmp/codex_counter2.md
+### 11.10 決定論的ゲート基盤 (v2.1.0, 完了)
 
-解消された点: Gemini役割限定、設定統一、ADR。
-未解消として具体提案: Phase Owner/Approver固定、Decision Scorecard、アダプタ契約、Test Plan凍結、Single-AI Baseline、マスキング3分類。
-→ 本版でPhase Owner/Approver、Decision Scorecard、アダプタ契約、TDD Gate、Single-AI Baselineを反映。
+「プロセス強制は決定論的コード、品質検出はLLM」の責務分離原則に基づく。
 
-### Round 3 (Codex)
+| 項目 | 内容 |
+|------|------|
+| pre-red-gate.sh | RED開始前にCycle doc存在・sync-plan完了・Plan Review記録を検証 |
+| pre-commit-gate.sh | COMMIT前にCode Review記録・Codex competitive review記録・STATUS.md同期を検証 |
 
-> 反論全文: /tmp/codex_counter3.md
+### 11.11 Review品質改善 (v2.1.0, 完了)
 
-4項目の指摘。機密情報の3分類、Gate判定条件、Debate I/O契約、Session寿命管理。
-→ 機密はリスク受容、Gate/Debate/Sessionは既存運用で十分と判断。「条件付きGo」。
+| 項目 | 内容 |
+|------|------|
+| spec上流整合性チェック | requirements/ROADMAPとの整合確認、design-reviewerにupstream観点追加 |
+| steps-codex.md改善 | REVIEWプロンプトのスコープ制限、Why Competitive Review Works文書化、Open Questions追跡 |
+| correctness-reviewer拡張 | テストアサーション品質観点追加 |
+| red reference品質ルール | Design Spec照合、AND条件ルール、検証粒度ルール、動的取得推奨 |
 
-### Round 4 (Codex) — Tool Directory Investigation レビュー
+### 11.12 テスト設計品質 + ツール改善 (v2.1.0, 完了)
 
-> 反論全文: /tmp/codex_review_roadmap.md
+| 項目 | 内容 |
+|------|------|
+| risk-classifier.sh | 低リスクファイルタイプ除外、新規ファイルのみbonus skip |
+| codex-patterns.md | Codex高確率検出パターン集 |
+| known-gotchas.md | macOS symlink canonicalize等の既知問題集 |
 
-7項目の指摘。sync-skills所有権、スキル名衝突、情報源不整合、Phase順序矛盾、Debate半構造化、並列実行リスク。
-→ 大半は過剰設計への指摘。マスキング不可、所有権管理不要、並列実行なし、Phase順序はインクリメンタル前提で却下。スキル名衝突はraw名使用、衝突時ユーザー確認。
+### 11.8 付属スキルの差し込み位置整理 (完了)
+
+dev-crew のフロー外で動作するスキル群の位置づけとCodex対応を整理。
+
+| スキル | 現状 | 課題 |
+|--------|------|------|
+| search-task | 別プラグイン（dev-crew外） | dev-crew スキルではない。Phase 13 のスキルマップからも除外 |
+| onboard | プロジェクト初期化 | 11.6 で対応 |
+| sync-skills | Codex 用シンボリックリンク生成 | onboard から誘導すべき |
+| skill-maker | スキル作成支援 | そのままで問題なし |
+| diagnose | バグ調査 | kickoff 参照更新のみ（11.1） |
+| learn / evolve | メタ学習 | そのままで問題なし |
+
+### 11.9 ディレクトリ構成の AI-Driven 標準化 (完了)
+
+onboard がプロジェクトに生成するディレクトリ構成を、どこまで dev-crew でコントロールするかの方針決定。
+
+検討事項:
+- `docs/cycles/` は必須（TDD サイクル管理）
+- `docs/STATUS.md` は必須（状態管理）
+- `.claude/rules/` はどこまで？（git-safety, security は標準化する価値あり）
+- `.claude/hooks/` はどこまで？（observe, pre-compact は dev-crew 固有）
+- AGENTS.md / CLAUDE.md の構成はどこまで規約化するか
+- 他ツール（Codex, Copilot）が期待するディレクトリ構成との整合
+
+## Phase 12: ドキュメント体系整備
+
+> 前提: Phase 11.10-11.12（決定論的ゲート + Review品質改善）完了済み。ゲートの存在を前提としてドキュメントを更新する。
+
+### 12.1 既存ドキュメント整理
+
+- README.md 新規作成（docs/ ナビゲーション）（完了）
+- STATUS.md 更新（最新サイクル反映）（完了）
+- development-plan.md アーカイブ化（完了）
+- skills-catalog.md アーカイブ化（完了。Phase 13 スキルマップで後継）
+
+### 12.2 AGENTS.md / CLAUDE.md 更新 (完了)
+
+- AGENTS.md: 決定論的ゲート（pre-red-gate, pre-commit-gate）をTDD Workflowに追記
+- CLAUDE.md: REFACTOR主従明記、Usage Patterns整合
+- architecture.md: フロー図にゲート追加、ハードコード数値削除
+
+## Phase 13: スキルマップ (完了)
+
+各スキルが開発フローのどこで、誰（Claude/Codex）が使うかを明示する。決定論的ゲートをフロー上の位置に含める。
+
+```
+フロー上の位置          スキル/ゲート            主担当        fallback
+─────────────────────────────────────────────────────────────────
+企画                    strategy                Claude        -
+設計                    spec                    Claude        -
+  曖昧性検出            (spec内蔵)              Claude        -
+  plan review           review --plan           Codex         Claude
+  Cycle doc生成         sync-plan               Claude        -
+■ pre-red-gate.sh       (決定論的)              script        -
+テスト作成              red                     Codex         Claude
+  テスト静的解析        exspec                  (tool)        skip
+実装                    green                   Codex         Claude
+品質改善                refactor                Claude        Codex
+レビュー                review                  Claude+Codex  Claude
+■ pre-commit-gate.sh    (決定論的)              script        -
+コミット                commit                  Claude        -
+───────────────────────────────────────────────────────────────
+コンテキスト管理        phase-compact, reload   Claude        -
+バグ調査                diagnose                Claude        -
+並列開発                parallel                Claude        -
+プロジェクト初期化      onboard + sync-skills   Claude        -
+セキュリティ            security-scan/audit     Claude        -
+メタ学習                learn, evolve           Claude        -
+言語別品質              *-quality               (auto)        -
+スキル作成              skill-maker             Claude        -
+```
+
+## 優先順位
+
+| Phase | 優先度 | 理由 |
+|-------|--------|------|
+| 11.1 | P0 | 全体の前提。kickoff が残ると他の全タスクがドリフトする |
+| 11.7 | P1 | refactor の cross-tool 対応。Codex 委譲の前提条件 |
+| 11.2 | P1 | PHILOSOPHY.md の核心。日常の開発効率に直結 |
+| 11.3 | P1 | 11.2 と密結合。同時実装が効率的 |
+| 11.4 | P2 | exspec の成熟度次第。独立して進められる |
+| 11.5 | P1 | 11.1 と同時。マイグレーション品質保証 |
+| 11.6 | P2 | 11.1, 11.2 完了後に着手 |
+| 11.8 | P2 | 方針決定のみ。実装は各スキルの修正時に吸収 |
+| 11.9 | P3 | 長期課題。onboard の進化に合わせて段階的に |
+| 12 | P2 | 11.1 完了後に開始 |
+| 13 | P2 | 11/12 完了後に確定 |
+
+## 順序
+
+```
+11.1 sync-plan 移行 + 11.5 マイグレーション検証
+  ↓
+11.7 refactor 再構築
+  ↓
+11.2 Codex 委譲 + 11.3 競争的レビュー
+  ↓
+11.4 exspec 統合
+  ↓
+11.6 onboard 改善 + 11.8 付属スキル整理
+  ↓
+12 ドキュメント整備
+  ↓
+13 スキルマップ確定
+  ↓
+11.9 ディレクトリ標準化（長期）
+```
+
+## 方針
+
+- 各サブタスクは独立した TDD サイクルで実施
+- v3: CONSTITUTION.md を最上位規範とし、PHILOSOPHY.md から authority を移行
+- v2: PHILOSOPHY.md を正（target philosophy）とし、既存ドキュメントを順次移行（完了）
+- security 系エージェント/スキルは現状維持

@@ -1,6 +1,6 @@
 # Skill Map
 
-> Authority: [PHILOSOPHY.md](PHILOSOPHY.md) のフロー図が正。このドキュメントはスキル/エージェント/ゲートの実装リファレンス。
+> Authority: [CONSTITUTION.md](../CONSTITUTION.md) + [workflow.md](workflow.md) が正。このドキュメントはスキル/エージェント/ゲートの実装リファレンス。
 > Counts: [STATUS.md](STATUS.md) 参照。
 
 ## TDD Workflow Skills
@@ -40,3 +40,18 @@
 | Meta | learn | セッションパターン抽出 |
 | Meta | evolve | instinctからスキル自動進化 |
 | Language | *-quality | 言語別品質チェック (auto) |
+
+## File Placement Map
+
+どのスキルが何をどこに生成するかの一覧。
+
+| スキル | 生成ファイル | レイヤー |
+|--------|-------------|---------|
+| onboard | AGENTS.md, CLAUDE.md, docs/STATUS.md, docs/README.md, .claude/rules/*, .claude/hooks/* | L1, L3, L4 |
+| spec | docs/cycles/YYYYMMDD_HHMM_*.md (plan files) | L2 |
+| sync-plan | docs/cycles/YYYYMMDD_HHMM_*.md (Cycle doc) | L2 |
+| skill-maker | skills/*/SKILL.md, skills/*/reference.md | L4 |
+| commit | docs/STATUS.md (自動更新) | L3 |
+| review | Cycle doc の Review Summary セクション | L2 |
+| phase-compact | Cycle doc の Phase Summary セクション | L2 |
+| learn | docs/instincts/*.md | L3 |
