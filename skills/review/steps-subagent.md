@@ -75,6 +75,7 @@ Task(subagent_type: "dev-crew:maintainability-reviewer", model: "sonnet", prompt
 # Risk-gated (MEDIUM/HIGH のみ)
 Task(subagent_type: "dev-crew:performance-reviewer", model: "sonnet", prompt: "...")  # DB/perf flags
 Task(subagent_type: "dev-crew:api-contract-reviewer", model: "sonnet", prompt: "Review Brief: [brief]. Lint results: [lint]. APIの契約品質をレビューせよ。破壊的変更検出、REST設計品質、エラー構造の一貫性。")  # API/endpoint flags
+Task(subagent_type: "dev-crew:observability-reviewer", model: "sonnet", prompt: "Review Brief: [brief]. Lint results: [lint]. 可観測性をレビューせよ。エラーパスのログ有無、構造化ログ、trace ID伝播、メトリクス計装。correctness-reviewerとのdedup: 例外処理の存在有無はcorrectness担当、ログ出力品質はobservability担当。")  # error-handling/logging flags
 Task(subagent_type: "dev-crew:product-reviewer", model: "haiku", prompt: "...")       # API/user-facing flags
 Task(subagent_type: "dev-crew:usability-reviewer", model: "haiku", prompt: "...")      # UI flags
 ```
