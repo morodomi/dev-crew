@@ -222,13 +222,13 @@ echo ""
 echo "TC-10: orchestrate uses unified review"
 ORCH_SUB="$BASE_DIR/skills/orchestrate/steps-subagent.md"
 if [ -f "$ORCH_SUB" ]; then
-  old_plan_review=$(grep -c 'plan-review' "$ORCH_SUB" 2>/dev/null || true)
+  old_skill_ref=$(grep -cE 'dev-crew:plan-review|Skill\(.*plan-review' "$ORCH_SUB" 2>/dev/null || true)
   old_quality_gate=$(grep -c 'quality-gate' "$ORCH_SUB" 2>/dev/null || true)
   new_review=$(grep -c 'dev-crew:review' "$ORCH_SUB" 2>/dev/null || true)
-  if [ "$old_plan_review" -eq 0 ] && [ "$old_quality_gate" -eq 0 ] && [ "$new_review" -gt 0 ]; then
-    pass "TC-10: orchestrate/steps-subagent.md uses unified review (no plan-review/quality-gate)"
+  if [ "$old_skill_ref" -eq 0 ] && [ "$old_quality_gate" -eq 0 ] && [ "$new_review" -gt 0 ]; then
+    pass "TC-10: orchestrate/steps-subagent.md uses unified review (no old skill refs)"
   else
-    fail "TC-10: orchestrate still references plan-review($old_plan_review) or quality-gate($old_quality_gate), new review refs: $new_review"
+    fail "TC-10: orchestrate still references old skill($old_skill_ref) or quality-gate($old_quality_gate), new review refs: $new_review"
   fi
 else
   fail "TC-10: orchestrate/steps-subagent.md not found"
@@ -239,13 +239,13 @@ echo ""
 echo "TC-11: orchestrate teams uses unified review"
 ORCH_TEAMS="$BASE_DIR/skills/orchestrate/steps-teams.md"
 if [ -f "$ORCH_TEAMS" ]; then
-  old_plan_review=$(grep -c 'plan-review' "$ORCH_TEAMS" 2>/dev/null || true)
+  old_skill_ref=$(grep -cE 'dev-crew:plan-review|Skill\(.*plan-review' "$ORCH_TEAMS" 2>/dev/null || true)
   old_quality_gate=$(grep -c 'quality-gate' "$ORCH_TEAMS" 2>/dev/null || true)
   new_review=$(grep -c 'dev-crew:review' "$ORCH_TEAMS" 2>/dev/null || true)
-  if [ "$old_plan_review" -eq 0 ] && [ "$old_quality_gate" -eq 0 ] && [ "$new_review" -gt 0 ]; then
-    pass "TC-11: orchestrate/steps-teams.md uses unified review (no plan-review/quality-gate)"
+  if [ "$old_skill_ref" -eq 0 ] && [ "$old_quality_gate" -eq 0 ] && [ "$new_review" -gt 0 ]; then
+    pass "TC-11: orchestrate/steps-teams.md uses unified review (no old skill refs)"
   else
-    fail "TC-11: orchestrate teams still references plan-review($old_plan_review) or quality-gate($old_quality_gate), new review refs: $new_review"
+    fail "TC-11: orchestrate teams still references old skill($old_skill_ref) or quality-gate($old_quality_gate), new review refs: $new_review"
   fi
 else
   fail "TC-11: orchestrate/steps-teams.md not found"
@@ -256,12 +256,12 @@ echo ""
 echo "TC-12: orchestrate/SKILL.md new flow"
 ORCH_SKILL="$BASE_DIR/skills/orchestrate/SKILL.md"
 if [ -f "$ORCH_SKILL" ]; then
-  old_refs=$(grep -c 'plan-review\|quality-gate' "$ORCH_SKILL" 2>/dev/null || true)
+  old_refs=$(grep -cE 'dev-crew:plan-review|Skill\(.*plan-review|quality-gate' "$ORCH_SKILL" 2>/dev/null || true)
   new_refs=$(grep -ci 'review' "$ORCH_SKILL" 2>/dev/null || true)
   if [ "$old_refs" -eq 0 ] && [ "$new_refs" -gt 0 ]; then
     pass "TC-12: orchestrate/SKILL.md uses unified review flow"
   else
-    fail "TC-12: orchestrate/SKILL.md still has old refs($old_refs), review refs: $new_refs"
+    fail "TC-12: orchestrate/SKILL.md still has old skill refs($old_refs), review refs: $new_refs"
   fi
 else
   fail "TC-12: orchestrate/SKILL.md not found"
@@ -341,11 +341,11 @@ fi
 # TC-20: No stale references to plan-review/quality-gate skills
 echo ""
 echo "TC-20: No stale references to retired skills"
-stale_hits=$(grep -rl 'plan-review\|quality-gate' "$BASE_DIR/skills/" --include='*.md' 2>/dev/null || true)
+stale_hits=$(grep -rlE 'dev-crew:plan-review|Skill\(.*plan-review|quality-gate' "$BASE_DIR/skills/" --include='*.md' 2>/dev/null || true)
 if [ -z "$stale_hits" ]; then
-  pass "TC-20: No stale references to plan-review/quality-gate in skills/"
+  pass "TC-20: No stale skill references to dev-crew:plan-review/quality-gate in skills/"
 else
-  fail "TC-20: Stale references found: $stale_hits"
+  fail "TC-20: Stale skill references found: $stale_hits"
 fi
 
 ########################################

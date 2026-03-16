@@ -428,8 +428,8 @@ planファイルに記録するTDDコンテキストのテンプレート:
 ## Post-Approve Action
 
 approve後、compact + accept edits on に遷移したら、最初のアクションとして以下を実行:
-1. Cycle doc を作成する（sync-plan エージェントが docs/cycles/ に生成）
-2. Plan review を実施する（Claude が自身で review(plan) を実行）
+1. sync-plan: Cycle doc を作成する（sync-plan エージェントが docs/cycles/ に生成）
+2. plan-review: 設計レビューを実施する（Claude が自身で review --plan を実行）
 3. Codex が利用可能なら `codex exec --full-auto` で Codex plan review を実行し、findings を誠実に判断
 4. Codex が利用可能なら AskUserQuestion: RED/GREEN を Codex に委譲するか確認 (full/no)。選択結果を Cycle doc frontmatter の `codex_mode` に記録
 5. `/dev-crew:orchestrate` を実行してREDからTDDサイクルを開始する

@@ -121,6 +121,24 @@ Test Listが見つかりません。
 plan modeでTest Listを作成してください。
 ```
 
+## ADR (Architecture Decision Records)
+
+設計上の重要な決定は `docs/decisions/` にADRとして記録する。
+
+### ADR作成条件
+
+以下のいずれかに該当する場合、Cycle doc生成時にADRも作成する:
+
+- 複数サイクルに影響する設計判断
+- 過去のADRを覆す決定
+- 人間がDeferred判断を下した場合
+
+### ADR作成手順
+
+1. `docs/decisions/TEMPLATE.md` をコピー
+2. ファイル名: `NNNN-description.md` (連番)
+3. Cycle docのContext & Dependenciesから該当ADRを参照
+
 ## Principles
 
 - **読み取り専用**: planファイルの内容を変更しない

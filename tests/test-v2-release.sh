@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# test-v2-release.sh - v2.0.2 release validation tests
+# test-v2-release.sh - v2.1.2 release validation tests
 set -euo pipefail
 
 DIR="$(cd "$(dirname "$0")/.." && pwd)"
@@ -8,12 +8,12 @@ FAIL=0
 fail() { echo "FAIL: $1"; FAIL=1; }
 pass() { echo "PASS: $1"; }
 
-# TC-01: plugin.json の version が "2.0.2"
+# TC-01: plugin.json の version が "2.1.2"
 VERSION=$(grep -o '"version": "[^"]*"' "$DIR/.claude-plugin/plugin.json" | grep -o '[0-9]\.[0-9]\.[0-9]')
-if [ "$VERSION" = "2.0.2" ]; then
-  pass "TC-01: plugin.json version is 2.0.2"
+if [ "$VERSION" = "2.1.2" ]; then
+  pass "TC-01: plugin.json version is 2.1.2"
 else
-  fail "TC-01: plugin.json version is '$VERSION', expected '2.0.2'"
+  fail "TC-01: plugin.json version is '$VERSION', expected '2.1.2'"
 fi
 
 # TC-02: CHANGELOG.md に "## [2.0.2]" セクションが存在
@@ -39,11 +39,11 @@ else
   fail "TC-04: STATUS.md test count ($STATUS_TESTS) != actual ($ACTUAL_TESTS)"
 fi
 
-# TC-05: STATUS.md の Last updated が 2026-03-15
-if grep -q 'Last updated: 2026-03-15' "$DIR/docs/STATUS.md"; then
-  pass "TC-05: STATUS.md Last updated is 2026-03-15"
+# TC-05: STATUS.md の Last updated が 2026-03-16
+if grep -q 'Last updated: 2026-03-16' "$DIR/docs/STATUS.md"; then
+  pass "TC-05: STATUS.md Last updated is 2026-03-16"
 else
-  fail "TC-05: STATUS.md Last updated is not 2026-03-15"
+  fail "TC-05: STATUS.md Last updated is not 2026-03-16"
 fi
 
 # TC-06: ROADMAP.md に Phase 11 完了のマークがある (11.1, 11.2, 11.3, 11.5, 11.6, 11.7)
