@@ -5,16 +5,17 @@
 | Metric | Value |
 |--------|-------|
 | In-Progress Cycles | 0 |
-| Done (unarchived) | 19 |
+| Done (unarchived) | 20 |
 | Archived Cycles | 37 |
-| Test Scripts | 84 |
+| Test Scripts | 85 |
 
-Last updated: 2026-03-16
+Last updated: 2026-03-17
 
 ## Completed (Recent)
 
 | Date | Cycle | Type |
 |------|-------|------|
+| 2026-03-17 | v4 Phase 15.1: test-reviewer 新設 | feat |
 | 2026-03-16 | v4 Phase 14.4: performance-reviewer 強化 | feat |
 | 2026-03-16 | v4 Phase 14.3: observability-reviewer 新設 | feat |
 | 2026-03-16 | v4 Phase 14.2: api-contract-reviewer 新設 | feat |

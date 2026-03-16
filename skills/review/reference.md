@@ -25,6 +25,7 @@ SKILL.mdの詳細情報。必要時のみ参照。
 | ファイル数 > 5 | +15 | 変更ファイル数 |
 | 変更行数 > 200 | +20 | diff 行数 |
 | UI コンポーネント変更 | +10 | ファイルパスに component/view/page/.vue/.tsx 等 |
+| テストファイル変更 | +10 | ファイルパスに test/spec/__tests__ 等 |
 
 ### Level 判定
 
@@ -74,6 +75,7 @@ SKILL.mdの詳細情報。必要時のみ参照。
 | observability-reviewer | Sonnet | If error-handling/logging flags |
 | product-reviewer | Haiku | If API/user-facing flags |
 | usability-reviewer | Haiku | If UI flags |
+| test-reviewer | Sonnet | If test-file flags |
 | Lint-as-Code | - | Always (ESLint/PHPStan/mypy, LLMコスト0) |
 
 ## ブロッキングスコア基準
