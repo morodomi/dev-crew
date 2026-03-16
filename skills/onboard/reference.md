@@ -61,6 +61,32 @@ symlink を検出した場合、AskUserQuestion で以下を確認:
 
 > sync-skills の Case 4 (Conflict → Ask user) パターンと同様。ユーザー判断なしに symlink を操作しない。
 
+### 1.6 プロジェクト型検出
+
+プロジェクトのディレクトリ構造から型を検出し、CONSTITUTION.md テンプレートの選択に使用する。
+
+#### 検出コマンド
+
+```bash
+[ -d skills ] || [ -d agents ] && TYPE_SKILLS=1
+[ -d src ] && ([ -d public ] || [ -d pages ] || [ -d app ]) && TYPE_APP=1
+[ -f main.rs ] || [ -f cli.py ] || [ -d bin ] && TYPE_CLI=1
+[ -d models ] || [ -d data ] || [ -d notebooks ] || [ -d experiments ] && TYPE_DATA=1
+```
+
+#### 型検出シグナルテーブル
+
+| 検出シグナル | 型 |
+|---|---|
+| skills/, agents/ | Skills |
+| src/ + public/pages/app/ | App |
+| main.rs, cli.py, bin/ | CLI |
+| models/, data/, notebooks/, experiments/ | Data/ML |
+| 複数該当 | 混合型 |
+| どれにも該当しない | Generic（共通骨格のみ） |
+
+Step 2 で AskUserQuestion により型を確認する。
+
 ### 1.5 プロジェクト状態判定
 
 #### 検出シグナル
@@ -157,7 +183,137 @@ grep -q "TDD Workflow" CLAUDE.md AGENTS.md 2>/dev/null || MISSING+=("TDD Workflo
 
 ---
 
-## Step 4: AGENTS.md + CLAUDE.md 生成
+## Step 4: CONSTITUTION.md + AGENTS.md + CLAUDE.md 生成
+
+### CONSTITUTION.md 生成
+
+**生成順序**: CONSTITUTION.md → AGENTS.md → CLAUDE.md（Layer 0 が最上位）
+
+#### モード別 CONSTITUTION 動作
+
+| モード | CONSTITUTION 動作 |
+|---|---|
+| fresh | テンプレートから新規生成 |
+| existing-no-tdd | 不在なら生成、既存あればスキップ |
+| dev-crew-installed | 存在チェック → 不在なら生成提案、既存ありなら更新提案 |
+
+#### migration 支援（dev-crew-installed モード）
+
+1. `ls philosophy.md design_philosophy.md PHILOSOPHY.md docs/PHILOSOPHY.md 2>/dev/null` で既存ファイルスキャン
+2. CLAUDE.md 肥大化検出（200行超 → 分離提案）
+3. 検出結果を AskUserQuestion で報告し CONSTITUTION 生成を提案
+
+#### 共通骨格テンプレート（5章、全型共通）
+
+```markdown
+# CONSTITUTION
+
+## 1. One Sentence
+
+[TBD]
+
+## 2. Goal / Non-Goals
+
+### Goals
+- [TBD]
+
+### Non-Goals
+- [TBD]
+
+## 3. Human vs AI 責務
+
+| 領域 | Human | AI |
+|------|-------|----|
+| [TBD] | [TBD] | [TBD] |
+
+## 4. Source of Truth (5-Layer)
+
+| Layer | File | Role |
+|-------|------|------|
+| 0 | CONSTITUTION.md | Why（存在意義・原則） |
+| 1 | AGENTS.md | What（技術スタック・ワークフロー） |
+| 2 | CLAUDE.md | How（AI振る舞い・委譲ルール） |
+| 3 | docs/ | Detail（設計・ADR・サイクル） |
+| 4 | Code | Truth（実装が最終的な真実） |
+
+## 5. 変更ポリシー
+
+- CONSTITUTION.md の変更は Human の承認が必要
+- 変更時は理由を Git コミットメッセージに記録する
+- 他のレイヤーとの矛盾が生じた場合、上位レイヤーが優先
+```
+
+#### 型別拡張章テンプレート
+
+**Skills 型**:
+
+```markdown
+## 6. 前提
+
+- [TBD]
+
+## 7. 原則
+
+- [TBD]
+
+## 8. Quality Standards
+
+| Metric | Target |
+|--------|--------|
+| [TBD] | [TBD] |
+```
+
+**App 型**:
+
+```markdown
+## 6. Domain Boundaries
+
+- [TBD]
+
+## 7. Product Principles
+
+- [TBD]
+```
+
+**CLI 型**:
+
+```markdown
+## 6. Detection Philosophy
+
+- [TBD]
+
+## 7. Severity/Confidence Policy
+
+- [TBD]
+
+## 8. Scope Boundaries
+
+- [TBD]
+```
+
+**Data/ML 型**:
+
+```markdown
+## 6. Data Integrity Principles
+
+- [TBD]
+
+## 7. Model Evaluation Philosophy
+
+- [TBD]
+
+## 8. Decision Boundaries
+
+- [TBD]
+```
+
+**Generic 型**: 共通骨格のみ（拡張章なし）。
+
+**混合型**: 検出された型の拡張章を組み合わせる。章番号は連番で振り直す。
+
+---
+
+## AGENTS.md + CLAUDE.md 生成
 
 ### Two-File Model
 

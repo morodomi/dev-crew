@@ -7,7 +7,7 @@
 | In-Progress Cycles | 0 |
 | Done (unarchived) | 18 |
 | Archived Cycles | 37 |
-| Test Scripts | 79 |
+| Test Scripts | 80 |
 
 Last updated: 2026-03-16
 
@@ -15,6 +15,8 @@ Last updated: 2026-03-16
 
 | Date | Cycle | Type |
 |------|-------|------|
+| 2026-03-16 | v3 Phase 7: onboard CONSTITUTION 対応 (#75) | feat |
+| 2026-03-16 | v3 Phase 6: CONSTITUTION authority migration (#75) | feat |
 | 2026-03-15 | v2.1.0 決定論的ゲート強化 + Review品質改善 (#58-#66) | feat |
 | 2026-03-15 | Onboard TDD Workflow + Codex Integration template hardening | feat |
 | 2026-03-15 | Codex session isolation with Cycle ID-based binding (#55) | feat |
@@ -44,8 +46,8 @@ None
 - [x] v3 Phase 3: CLI 型適用検討
 - [x] v3 Phase 4: Data/ML 型適用検討
 - [x] v3 Phase 5: 一般化 vs 個別最適化
-- [ ] v3 Phase 6: dev-crew authority migration 実装
-- [ ] v3 Phase 7: onboard CONSTITUTION 対応
+- [x] v3 Phase 6: dev-crew authority migration 実装
+- [x] v3 Phase 7: onboard CONSTITUTION 対応
 - [ ] v3 Phase 8: v3.0.0 リリース
 
 詳細は [ROADMAP.md](../ROADMAP.md) 参照。

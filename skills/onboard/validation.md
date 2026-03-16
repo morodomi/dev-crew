@@ -12,6 +12,7 @@ onboard完了時の健全性チェック。FAILは警告のみ（修正は強制
 | 4 | docs/STATUS.md | 存在 | test -f docs/STATUS.md |
 | 5 | .claude/rules/ | git-safety存在 | test -f .claude/rules/git-safety.md |
 | 6 | .claude/rules/ | security存在 | test -f .claude/rules/security.md |
+| 7 | CONSTITUTION.md | 存在確認 | test -f CONSTITUTION.md |
 
 ## 実行方法
 

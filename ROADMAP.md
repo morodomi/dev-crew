@@ -39,15 +39,15 @@ Phase 2-4 の検証結果を基に判断:
 - プロジェクト型別テンプレートが必要か
 - Layer 名は全型で共通か
 
-### Phase 6: dev-crew 自体を理想形に変更
+### Phase 6: dev-crew 自体を理想形に変更 (完了)
 
 CONSTITUTION.md 新設、PHILOSOPHY.md 分解、参照移行（authority migration）。
-サブタスクに分割して TDD サイクルで実施。
 
-### Phase 7: 他プロジェクト向けスキル実装
+### Phase 7: 他プロジェクト向けスキル実装 (完了)
 
-onboard スキルに CONSTITUTION.md 生成を追加（breaking change）。
-Phase 5 の判断結果に基づくテンプレート設計。
+onboard スキルに CONSTITUTION.md 生成を追加。
+型検出（Skills/App/CLI/Data/ML/Generic/混合）+ 共通骨格5章 + 型別拡張章テンプレート。
+migration 支援（philosophy.md スキャン、CLAUDE.md 肥大化検出）。
 
 ### Phase 8: リリース (v3.0.0)
 

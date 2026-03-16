@@ -14,6 +14,7 @@ Onboard Progress:
 - [ ] プロジェクト状態判定（fresh/existing-no-tdd/dev-crew-installed）
 - [ ] 検出結果をユーザーに確認
 - [ ] docs/ 構造作成（cycles/, README.md, STATUS.md）
+- [ ] CONSTITUTION.md 生成（型検出 + テンプレート）
 - [ ] AGENTS.md 生成（cross-tool情報、最大5セクション）
 - [ ] CLAUDE.md 生成（@AGENTS.md import + AI Behavior、既存あればマージ）
 - [ ] 階層CLAUDE.md推奨（任意）
@@ -28,7 +29,7 @@ Onboard Progress:
 
 ### Step 1: プロジェクト分析
 
-フレームワークとツールを検出。加えてプロジェクト状態を判定:
+フレームワーク・ツール・**プロジェクト型**を検出。加えてプロジェクト状態を判定:
 - `fresh` / `existing-no-tdd` / `dev-crew-installed`
 
 状態判定ロジック、**symlink 検出**、検出コマンドは [reference.md](reference.md) 参照。
@@ -37,7 +38,7 @@ Onboard Progress:
 
 AskUserQuestion で確認:
 - **プロジェクト目的**（fresh/existing-no-tdd）: 何を実現するプロジェクトか
-- フレームワーク、パッケージマネージャ、プロジェクト状態
+- フレームワーク、パッケージマネージャ、プロジェクト状態、**プロジェクト型**
 
 モード別確認項目は [reference.md](reference.md) 参照。
 
@@ -45,9 +46,9 @@ AskUserQuestion で確認:
 
 `mkdir -p docs/cycles` で作成。`docs/README.md` + `docs/STATUS.md` を生成。テンプレートは [reference.md](reference.md) 参照。
 
-### Step 4: AGENTS.md + CLAUDE.md 生成 (Two-File Model)
+### Step 4: CONSTITUTION.md + AGENTS.md + CLAUDE.md 生成
 
-AGENTS.md = cross-tool情報（他AIツールも利用可）、CLAUDE.md = Claude固有設定（`@AGENTS.md` importで連携）。
+CONSTITUTION.md（型検出結果に基づくテンプレート）→ AGENTS.md → CLAUDE.md の順で生成。
 
 #### AGENTS.md (cross-tool、最大5セクション)
 
