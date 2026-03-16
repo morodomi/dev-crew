@@ -70,6 +70,7 @@ SKILL.mdの詳細情報。必要時のみ参照。
 | correctness-reviewer | Sonnet | **Always (NON-NEGOTIABLE)** |
 | maintainability-reviewer | Sonnet | **Always (NON-NEGOTIABLE)** |
 | performance-reviewer | Sonnet | If DB/perf/large-data flags |
+| api-contract-reviewer | Sonnet | If API/endpoint flags |
 | product-reviewer | Haiku | If API/user-facing flags |
 | usability-reviewer | Haiku | If UI flags |
 | Lint-as-Code | - | Always (ESLint/PHPStan/mypy, LLMコスト0) |

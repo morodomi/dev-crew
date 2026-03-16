@@ -7,7 +7,7 @@
 | In-Progress Cycles | 0 |
 | Done (unarchived) | 18 |
 | Archived Cycles | 37 |
-| Test Scripts | 81 |
+| Test Scripts | 82 |
 
 Last updated: 2026-03-16
 
@@ -15,6 +15,7 @@ Last updated: 2026-03-16
 
 | Date | Cycle | Type |
 |------|-------|------|
+| 2026-03-16 | v4 Phase 14.2: api-contract-reviewer 新設 | feat |
 | 2026-03-16 | v3 Phase 7: onboard CONSTITUTION 対応 (#75) | feat |
 | 2026-03-16 | v3 Phase 6: CONSTITUTION authority migration (#75) | feat |
 | 2026-03-15 | v2.1.0 決定論的ゲート強化 + Review品質改善 (#58-#66) | feat |

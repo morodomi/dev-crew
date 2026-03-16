@@ -69,7 +69,7 @@ spec → sync-plan → plan-review → [pre-red-gate] → RED → GREEN → REFA
 
 ```
 dev-crew/
-├── agents/          # 33 agents (flat), 19 security agents
+├── agents/          # 35 agents (flat), 19 security agents
 ├── skills/          # Skills (each: SKILL.md + reference.md)
 ├── scripts/gates/   # Deterministic gate scripts (pre-red, pre-commit)
 ├── rules/           # Always-applied rules (git-safety, security, git-conventions)
