@@ -53,13 +53,13 @@ else
   fail "T-04: phase-compact not found"
 fi
 
-# T-05: Given skill-map.md, Then CONSTITUTION.md への参照がある
+# T-05: Given skill-map.md, Then PHILOSOPHY.md への参照がある
 echo ""
-echo "T-05: skill-map.md references CONSTITUTION.md"
-if grep -q 'CONSTITUTION.md' "$SKILL_MAP" 2>/dev/null; then
-  pass "T-05: CONSTITUTION.md reference found"
+echo "T-05: skill-map.md references PHILOSOPHY.md"
+if grep -q 'PHILOSOPHY.md' "$SKILL_MAP" 2>/dev/null; then
+  pass "T-05: PHILOSOPHY.md reference found"
 else
-  fail "T-05: CONSTITUTION.md reference not found"
+  fail "T-05: PHILOSOPHY.md reference not found"
 fi
 
 # T-06: Given skill-map.md, Then ハードコード数値がない

@@ -1,6 +1,6 @@
 # Skill Map
 
-> Authority: [CONSTITUTION.md](../CONSTITUTION.md) + [workflow.md](workflow.md) が正。このドキュメントはスキル/エージェント/ゲートの実装リファレンス。
+> Authority: [PHILOSOPHY.md](PHILOSOPHY.md) のフロー図が正。このドキュメントはスキル/エージェント/ゲートの実装リファレンス。
 > Counts: [STATUS.md](STATUS.md) 参照。
 
 ## TDD Workflow Skills
@@ -16,7 +16,7 @@
 | テスト静的解析 | exspec | (tool) | skip | 未インストール時skip |
 | 実装 | green | Codex | Claude | codex_mode依存 |
 | 品質改善 | refactor | Claude | Codex | |
-| レビュー | review | Claude+Codex | Claude | competitive, Risk-gated scaling (v2.4) |
+| レビュー | review | Claude+Codex | Claude | competitive |
 | **pre-commit-gate.sh** | **(決定論的)** | **script** | **-** | REVIEW完了・Codex review記録・STATUS.md同期を検証 |
 | コミット | commit | Claude | - | |
 
@@ -40,57 +40,3 @@
 | Meta | learn | セッションパターン抽出 |
 | Meta | evolve | instinctからスキル自動進化 |
 | Language | *-quality | 言語別品質チェック (auto) |
-
-## Review Agent Roster (v2.4)
-
-### Plan Mode
-
-| Agent | Condition | Phase |
-|-------|-----------|-------|
-| design-reviewer | Always-on | 既存 (16.4 強化) |
-| test-reviewer | Always-on | 15.1 新設 + 16.5 Plan統合 |
-| security-reviewer | Risk-gated: auth/security | 既存 |
-| product-reviewer | Risk-gated: API/user-facing | 既存 |
-| performance-reviewer | Risk-gated: DB/perf | 既存 (14.4 強化) |
-| usability-reviewer | Risk-gated: UI | 既存 |
-| designer | Risk-gated: UI + tech stack | 既存 |
-| change-safety-reviewer | Risk-gated: migration/schema | 16.1 新設 |
-| impact-reviewer | Risk-gated: wide-change | 16.2 新設 |
-| resiliency-reviewer | Risk-gated: external-comm | 16.3 新設 |
-
-### Code Mode
-
-| Agent | Condition | Phase |
-|-------|-----------|-------|
-| security-reviewer | Always-on | 既存 |
-| correctness-reviewer | Always-on | 既存 |
-| maintainability-reviewer | Always-on | 14.1 新設 |
-| performance-reviewer | Risk-gated: DB/perf | 既存 (14.4 強化) |
-| api-contract-reviewer | Risk-gated: API/endpoint | 14.2 新設 |
-| observability-reviewer | Risk-gated: error/logging | 14.3 新設 |
-| product-reviewer | Risk-gated: API/user-facing | 既存 |
-| usability-reviewer | Risk-gated: UI | 既存 |
-| test-reviewer | Flags-based: test-file | 15.1 新設 |
-
-### Cross-cutting
-
-| Agent | Role | Phase |
-|-------|------|-------|
-| review-briefer | Brief 生成 (Haiku) | 既存 |
-| socrates | Devil's Advocate (Opus) | 15.3 統合 |
-| risk-classifier.sh | 決定論的リスク判定 (11シグナル) | 16.6 拡張 |
-
-## File Placement Map
-
-どのスキルが何をどこに生成するかの一覧。
-
-| スキル | 生成ファイル | レイヤー |
-|--------|-------------|---------|
-| onboard | AGENTS.md, CLAUDE.md, docs/STATUS.md, docs/README.md, .claude/rules/*, .claude/hooks/* | L1, L3, L4 |
-| spec | docs/cycles/YYYYMMDD_HHMM_*.md (plan files) | L2 |
-| sync-plan | docs/cycles/YYYYMMDD_HHMM_*.md (Cycle doc) | L2 |
-| skill-maker | skills/*/SKILL.md, skills/*/reference.md | L4 |
-| commit | docs/STATUS.md (自動更新) | L3 |
-| review | Cycle doc の Review Summary セクション | L2 |
-| phase-compact | Cycle doc の Phase Summary セクション | L2 |
-| learn | docs/instincts/*.md | L3 |
