@@ -11,6 +11,7 @@
 #   file count > 5              +15
 #   line count > 200            +20
 #   UI component changes        +10
+#   test file changes            +10
 #
 # Thresholds:
 #   0-29:  LOW
@@ -47,6 +48,11 @@ if [ -f "$FILES_LIST" ]; then
 
   # UI component changes (+10)
   if grep -qiE 'component|view|page|template|layout|\.vue|\.tsx|\.jsx|\.blade\.php|\.dart' "$FILES_LIST" 2>/dev/null; then
+    score=$((score + 10))
+  fi
+
+  # Test file changes (+10)
+  if grep -qiE 'test|spec|__tests__' "$FILES_LIST" 2>/dev/null; then
     score=$((score + 10))
   fi
 

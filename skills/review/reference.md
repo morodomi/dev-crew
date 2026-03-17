@@ -25,6 +25,7 @@ SKILL.mdの詳細情報。必要時のみ参照。
 | ファイル数 > 5 | +15 | 変更ファイル数 |
 | 変更行数 > 200 | +20 | diff 行数 |
 | UI コンポーネント変更 | +10 | ファイルパスに component/view/page/.vue/.tsx 等 |
+| テストファイル変更 | +10 | ファイルパスに test/spec/__tests__ 等 |
 
 ### Level 判定
 
@@ -74,6 +75,7 @@ SKILL.mdの詳細情報。必要時のみ参照。
 | observability-reviewer | Sonnet | If error-handling/logging flags |
 | product-reviewer | Haiku | If API/user-facing flags |
 | usability-reviewer | Haiku | If UI flags |
+| test-reviewer | Sonnet | If test-file flags |
 | Lint-as-Code | - | Always (ESLint/PHPStan/mypy, LLMコスト0) |
 
 ## ブロッキングスコア基準
@@ -85,6 +87,26 @@ SKILL.mdの詳細情報。必要時のみ参照。
 | 80-100 | BLOCK | 修正必須 (plan→PLAN再設計 / code→RED/GREEN/REFACTOR) |
 | 50-79 | WARN | 警告確認後、次フェーズへ |
 | 0-49 | PASS | 次フェーズへ自動進行 |
+
+## Score Escalation (PdM 判断基準)
+
+Step 4.5 で Socrates が返した反論に基づき、PdM が verdict の昇格を判断する。Socrates は反論+選択肢を返すのみで、スコアや verdict は付けない（advisor 原則維持）。
+
+| Socrates の反論内容 | 元の verdict | PdM の判断 |
+|-------------------|-------------|-----------|
+| 反論なし（稀） | そのまま | そのまま |
+| 反論あり、二次影響の指摘なし | そのまま | そのまま |
+| 反論あり、reviewer が見逃した二次影響を指摘 | PASS | WARN に昇格を検討 |
+| 反論あり、reviewer のスコアと指摘件数に乖離 | PASS/WARN | 1段階昇格を検討 |
+| 反論あり、BLOCK 妥当性の補強 | BLOCK | BLOCK（変化なし） |
+
+原則: PdM は verdict を下げない（厳しい方向にのみ作用）。
+
+### 判断の根拠例
+
+- important 5件 + score 42 (PASS) → スコアと指摘件数に乖離 → WARN 昇格検討
+- キャッシュ構造変更 + reviewer がデプロイ影響を未指摘 → 二次影響見逃し → WARN 昇格検討
+- critical 0件 + optional のみ → 反論があっても verdict 維持
 
 ## BLOCK Recovery
 

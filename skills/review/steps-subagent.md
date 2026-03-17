@@ -78,6 +78,9 @@ Task(subagent_type: "dev-crew:api-contract-reviewer", model: "sonnet", prompt: "
 Task(subagent_type: "dev-crew:observability-reviewer", model: "sonnet", prompt: "Review Brief: [brief]. Lint results: [lint]. 可観測性をレビューせよ。エラーパスのログ有無、構造化ログ、trace ID伝播、メトリクス計装。correctness-reviewerとのdedup: 例外処理の存在有無はcorrectness担当、ログ出力品質はobservability担当。")  # error-handling/logging flags
 Task(subagent_type: "dev-crew:product-reviewer", model: "haiku", prompt: "...")       # API/user-facing flags
 Task(subagent_type: "dev-crew:usability-reviewer", model: "haiku", prompt: "...")      # UI flags
+
+# Flags-based (Risk level に関係なく、ファイルタイプフラグで起動)
+Task(subagent_type: "dev-crew:test-reviewer", model: "sonnet", prompt: "Review Brief: [brief]. テストコード品質をレビューせよ。xUnit Test Patterns テストスメル（Fragile Test, Obscure Test, Mystery Guest, Conditional Test Logic, Test Code Duplication）、テスト独立性。")  # test-file flags
 ```
 
 ### Plan Mode
@@ -94,6 +97,26 @@ Task(subagent_type: "dev-crew:performance-reviewer", model: "sonnet", prompt: ".
 Task(subagent_type: "dev-crew:usability-reviewer", model: "haiku", prompt: "...")      # UI flags
 Task(subagent_type: "dev-crew:designer", model: "sonnet", prompt: "...")               # UI + UI tech stack
 ```
+
+## Step 4.5: Devil's Advocate (Socrates)
+
+Specialist Panel 完了後、Socrates を起動して reviewer の判定妥当性を検証する。Socrates は反論+選択肢を返すのみ（advisor 原則維持）。Escalation 判定は PdM が行う。
+
+```
+Task(subagent_type: "dev-crew:socrates", model: "opus", prompt: "
+phase: review:[plan|code]
+score: [max blocking_score]
+reviewer_summary: [各reviewerのスコアとissuesサマリ]
+pdm_proposal: [auto-verdictに基づく判断提案: PASS/WARN/BLOCK]
+cycle_doc: [cycle docパス]
+
+各 reviewer の判定が忖度で甘くなっていないか検証せよ。
+特に: important/critical の issue 数に対してスコアが不当に低い場合、
+変更の二次影響を reviewer が見逃している場合を指摘せよ。
+")
+```
+
+PdM は Socrates の反論を踏まえ、Score Escalation 基準（reference.md 参照）に基づき verdict の昇格を判断する。
 
 ## Step 5: Score Aggregation
 
