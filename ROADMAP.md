@@ -5,8 +5,9 @@
 
 ## 現在地
 
-v2.4.0 リリース済み。v3 (Constitution-Driven Development) Phase 1-7 完了。
-v2.4 は Review Taxonomy 体系化。Phase 14-17 完了。
+v2.4.1 リリース済み。v3 (Constitution-Driven Development) Phase 1-7 完了。
+v2.4 は Review Taxonomy 体系化。Phase 14-17 完了。v2.4.1 で DISCOVERED 修正。
+v2.5 計画中（Phase 18-20）。
 
 ## v3: Constitution-Driven Development
 
@@ -50,6 +51,41 @@ onboard スキルに CONSTITUTION.md 生成を追加。
 migration 支援（philosophy.md スキャン、CLAUDE.md 肥大化検出）。
 
 ### Phase 8: リリース (v2.3.0, 完了)
+
+---
+
+## v2.5: ワークフロー厳格化 + 構造検証
+
+### Phase 18: AGENTS.md TDD Workflow 厳格化
+
+TDD Workflow セクションを展開し、各フェーズの責務と強制ルールを明確化する。
+
+| 項目 | 内容 |
+|------|------|
+| TDD Workflow 展開 | 各フェーズ（spec, sync-plan, plan-review, RED, GREEN, REFACTOR, REVIEW, COMMIT）を個別記述 |
+| Post-Approve Action 明確化 | plan approve 後の必須順序（sync-plan → plan-review → orchestrate）を強制 |
+| ゲートスクリプト明記 | pre-red-gate.sh / pre-commit-gate.sh の存在と役割を AGENTS.md に明記 |
+| テスト | AGENTS.md の構造検証テスト（必須セクション・順序・内容） |
+
+### Phase 19: ディレクトリ構造厳格化
+
+ROADMAP.md, STATUS.md, docs/cycles/ の構造規約をルール化し、検証スクリプトを新設する。
+
+| 項目 | 内容 |
+|------|------|
+| 構造規約ルール | rules/ にディレクトリ構造ルールを追加 |
+| 検証スクリプト | test-directory-structure.sh 新設（必須ファイル・ディレクトリの存在確認） |
+| onboard 反映 | onboard スキルのテンプレートに構造規約を反映 |
+
+### Phase 20: Socrates コスト最適化
+
+LOW risk PR での Socrates 起動をスキップし、Opus トークンコストを削減する。
+
+| 項目 | 内容 |
+|------|------|
+| Risk-gated 条件 | risk-classifier.sh の score が LOW (0-29) の場合、Step 4.5 Socrates をスキップ |
+| 期待効果 | LOW risk PR（全体の ~60%）で Opus コスト削減 |
+| テスト | risk level 別の Socrates 起動有無テスト |
 
 ---
 

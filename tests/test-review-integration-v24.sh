@@ -131,25 +131,35 @@ signal_count=$(grep -cE '^\#   .+\+[0-9]+' "$BASE_DIR/skills/review/risk-classif
 assert "TC-08" "risk-classifier.sh has 11 signals (got: $signal_count)" \
   "$([ "$signal_count" -eq 11 ] && echo true || echo false)"
 
-# TC-09: steps-subagent.md Plan Mode に Always-on 2体 + Risk-gated 8体
+# TC-09: steps-subagent.md Plan Mode Task() 数 = 12
+# Plan Mode section (11) + Step 4.5 socrates (1) = 12
 echo ""
-echo "TC-09: steps-subagent.md Plan Mode agent counts"
-plan_section=$(sed -n '/### Plan Mode/,/## Step 4\.5\|## Step 5/p' "$BASE_DIR/skills/review/steps-subagent.md" 2>/dev/null)
-plan_always=$(echo "$plan_section" | grep -c 'Always-on\|Always' 2>/dev/null || echo 0)
-plan_risk=$(echo "$plan_section" | grep -c 'Risk-gated' 2>/dev/null || echo 0)
-plan_total=$(echo "$plan_section" | grep -c 'Task(' 2>/dev/null || echo 0)
-# Always-on: design-reviewer, test-reviewer (2体) + review-briefer (Step 2)
-# Risk-gated: security, product, performance, usability, designer, change-safety, impact, resiliency (8体)
-assert "TC-09" "Plan Mode: Always-on + Risk-gated agents (total Task() >= 10, got: $plan_total)" \
-  "$([ "$plan_total" -ge 10 ] && echo true || echo false)"
+echo "TC-09: steps-subagent.md Plan Mode Task() count = 12"
+subagent_file="$BASE_DIR/skills/review/steps-subagent.md"
+# Section extraction using sed line ranges derived from grep
+plan_start=$(grep -n '^### Plan Mode' "$subagent_file" | head -1 | cut -d: -f1)
+plan_end=$(grep -n '^## Step 4\.5' "$subagent_file" | head -1 | cut -d: -f1)
+plan_tasks=$(sed -n "${plan_start},${plan_end}p" "$subagent_file" | grep -c 'Task(' || echo 0)
+socrates_start=$plan_end
+socrates_end=$(grep -n '^## Step 5' "$subagent_file" | head -1 | cut -d: -f1)
+socrates_tasks=$(sed -n "${socrates_start},${socrates_end}p" "$subagent_file" | grep -c 'Task(' || echo 0)
+plan_total=$((plan_tasks + socrates_tasks))
+assert "TC-09" "Plan Mode: total Task() = 12 (got: $plan_total)" \
+  "$([ "$plan_total" -eq 12 ] && echo true || echo false)"
 
-# TC-10: steps-subagent.md Code Mode に Always-on 3体 + Risk-gated/Flags 5体以上
+# TC-10: steps-subagent.md Code Mode Task() 数 = 11
+# Code Mode section (9) + Step 2 review-briefer (1) + Step 4.5 socrates (1) = 11
 echo ""
-echo "TC-10: steps-subagent.md Code Mode agent counts"
-code_section=$(sed -n '/### Code Mode/,/### Plan Mode\|## Step 4\.5\|## Step 5/p' "$BASE_DIR/skills/review/steps-subagent.md" 2>/dev/null)
-code_total=$(echo "$code_section" | grep -c 'Task(' 2>/dev/null || echo 0)
-assert "TC-10" "Code Mode: total Task() >= 8 (got: $code_total)" \
-  "$([ "$code_total" -ge 8 ] && echo true || echo false)"
+echo "TC-10: steps-subagent.md Code Mode Task() count = 11"
+code_start=$(grep -n '^### Code Mode' "$subagent_file" | head -1 | cut -d: -f1)
+code_end=$plan_start
+code_tasks=$(sed -n "${code_start},${code_end}p" "$subagent_file" | grep -c 'Task(' || echo 0)
+step2_start=$(grep -n '^## Step 2' "$subagent_file" | head -1 | cut -d: -f1)
+step2_end=$(grep -n '^## Step 3' "$subagent_file" | head -1 | cut -d: -f1)
+step2_tasks=$(sed -n "${step2_start},${step2_end}p" "$subagent_file" | grep -c 'Task(' || echo 0)
+code_total=$((code_tasks + step2_tasks + socrates_tasks))
+assert "TC-10" "Code Mode: total Task() = 11 (got: $code_total)" \
+  "$([ "$code_total" -eq 11 ] && echo true || echo false)"
 
 # TC-11: AGENTS.md の agent 数が 40
 echo ""
