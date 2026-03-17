@@ -1,5 +1,3 @@
-![Tests](https://github.com/morodomi/dev-crew/actions/workflows/test.yml/badge.svg)
-
 # dev-crew
 
 > **Not Maintained.** This repository is published as-is for reference. No issues, PRs, or feature requests will be addressed.
@@ -89,7 +87,7 @@ compaction, so long sessions stay within the context window.
 ```
 dev-crew/
 ├── .claude-plugin/plugin.json   # Single plugin
-├── agents/                      # 34 agents
+├── agents/                      # 40 agents
 ├── skills/                      # 29 skills
 ├── rules/                       # Git safety, conventions, security
 ├── hooks/hooks.json             # Phase-boundary compaction hooks

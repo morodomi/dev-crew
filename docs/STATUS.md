@@ -15,6 +15,7 @@ Last updated: 2026-03-17
 
 | Date | Cycle | Type |
 |------|-------|------|
+| 2026-03-17 | v2.4.2: Phase 13 skill-map + Phase 18 Post-Approve Action 強制 | feat |
 | 2026-03-17 | v2.4.1: DISCOVERED 修正 + ROADMAP 次期フェーズ追記 | fix |
 | 2026-03-17 | v2.4 Phase 17: 統合・リリース (v2.4.0) | feat |
 | 2026-03-17 | v2.4 Phase 16: Plan Review 強化 | feat |
@@ -57,7 +58,7 @@ Last updated: 2026-03-17
 - [x] v3 Phase 6: dev-crew authority migration 実装
 - [x] v3 Phase 7: onboard CONSTITUTION 対応
 - [ ] v3 Phase 8: v3.0.0 リリース
-- [ ] v2.5 Phase 18: AGENTS.md TDD Workflow 厳格化
+- [x] v2.5 Phase 18: Post-Approve Action 強制
 - [ ] v2.5 Phase 19: ディレクトリ構造厳格化
 - [ ] v2.5 Phase 20: Socrates コスト最適化
 

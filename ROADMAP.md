@@ -5,9 +5,10 @@
 
 ## 現在地
 
-v2.4.1 リリース済み。v3 (Constitution-Driven Development) Phase 1-7 完了。
+v2.4.2 リリース済み。v3 (Constitution-Driven Development) Phase 1-7 完了。
 v2.4 は Review Taxonomy 体系化。Phase 14-17 完了。v2.4.1 で DISCOVERED 修正。
-v2.5 計画中（Phase 18-20）。
+v2.4.2 で Phase 13 skill-map + Phase 18 Post-Approve Action 強制。
+v2.5 計画中（Phase 19-20）。
 
 ## v3: Constitution-Driven Development
 
@@ -56,16 +57,18 @@ migration 支援（philosophy.md スキャン、CLAUDE.md 肥大化検出）。
 
 ## v2.5: ワークフロー厳格化 + 構造検証
 
-### Phase 18: AGENTS.md TDD Workflow 厳格化
+### Phase 18: Post-Approve Action 強制 (完了)
 
-TDD Workflow セクションを展開し、各フェーズの責務と強制ルールを明確化する。
+Post-Approve Action を3層（rules + memory + onboard テンプレート）で強制。
+TDD Workflow 各フェーズの個別記述は不要と判断（冗長になり逆に読まれないリスク）。
 
-| 項目 | 内容 |
+| 項目 | 状態 |
 |------|------|
-| TDD Workflow 展開 | 各フェーズ（spec, sync-plan, plan-review, RED, GREEN, REFACTOR, REVIEW, COMMIT）を個別記述 |
-| Post-Approve Action 明確化 | plan approve 後の必須順序（sync-plan → plan-review → orchestrate）を強制 |
-| ゲートスクリプト明記 | pre-red-gate.sh / pre-commit-gate.sh の存在と役割を AGENTS.md に明記 |
-| テスト | AGENTS.md の構造検証テスト（必須セクション・順序・内容） |
+| Post-Approve Action 明確化 | 完了: AGENTS.md + .claude/rules/post-approve.md + memory |
+| ゲートスクリプト明記 | 完了: Post-Approve Action 内に pre-red-gate / pre-commit-gate 記載 |
+| onboard テンプレート同期 | 完了: skills/onboard/reference.md 更新 |
+| TDD Workflow 各フェーズ個別記述 | 不要: 現行フロー図 + Post-Approve Action で十分 |
+| AGENTS.md 構造検証テスト | 不要: 既存テストでカバー済み |
 
 ### Phase 19: ディレクトリ構造厳格化
 
