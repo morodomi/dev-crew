@@ -16,7 +16,7 @@
 | テスト静的解析 | exspec | (tool) | skip | 未インストール時skip |
 | 実装 | green | Codex | Claude | codex_mode依存 |
 | 品質改善 | refactor | Claude | Codex | |
-| レビュー | review | Claude+Codex | Claude | competitive |
+| レビュー | review | Claude+Codex | Claude | competitive, Risk-gated scaling (v2.4) |
 | **pre-commit-gate.sh** | **(決定論的)** | **script** | **-** | REVIEW完了・Codex review記録・STATUS.md同期を検証 |
 | コミット | commit | Claude | - | |
 
@@ -40,6 +40,45 @@
 | Meta | learn | セッションパターン抽出 |
 | Meta | evolve | instinctからスキル自動進化 |
 | Language | *-quality | 言語別品質チェック (auto) |
+
+## Review Agent Roster (v2.4)
+
+### Plan Mode
+
+| Agent | Condition | Phase |
+|-------|-----------|-------|
+| design-reviewer | Always-on | 既存 (16.4 強化) |
+| test-reviewer | Always-on | 15.1 新設 + 16.5 Plan統合 |
+| security-reviewer | Risk-gated: auth/security | 既存 |
+| product-reviewer | Risk-gated: API/user-facing | 既存 |
+| performance-reviewer | Risk-gated: DB/perf | 既存 (14.4 強化) |
+| usability-reviewer | Risk-gated: UI | 既存 |
+| designer | Risk-gated: UI + tech stack | 既存 |
+| change-safety-reviewer | Risk-gated: migration/schema | 16.1 新設 |
+| impact-reviewer | Risk-gated: wide-change | 16.2 新設 |
+| resiliency-reviewer | Risk-gated: external-comm | 16.3 新設 |
+
+### Code Mode
+
+| Agent | Condition | Phase |
+|-------|-----------|-------|
+| security-reviewer | Always-on | 既存 |
+| correctness-reviewer | Always-on | 既存 |
+| maintainability-reviewer | Always-on | 14.1 新設 |
+| performance-reviewer | Risk-gated: DB/perf | 既存 (14.4 強化) |
+| api-contract-reviewer | Risk-gated: API/endpoint | 14.2 新設 |
+| observability-reviewer | Risk-gated: error/logging | 14.3 新設 |
+| product-reviewer | Risk-gated: API/user-facing | 既存 |
+| usability-reviewer | Risk-gated: UI | 既存 |
+| test-reviewer | Flags-based: test-file | 15.1 新設 |
+
+### Cross-cutting
+
+| Agent | Role | Phase |
+|-------|------|-------|
+| review-briefer | Brief 生成 (Haiku) | 既存 |
+| socrates | Devil's Advocate (Opus) | 15.3 統合 |
+| risk-classifier.sh | 決定論的リスク判定 (11シグナル) | 16.6 拡張 |
 
 ## File Placement Map
 

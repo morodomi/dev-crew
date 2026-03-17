@@ -9,6 +9,13 @@
 
 **Auto-orchestrate after plan approve**: plan approve後は必ず sync-plan → plan-review → orchestrate の順序で実行する。`## Post-Approve Action` section が plan file と compressed context に残り、compact後もこの順序を維持する。
 
+**Plan approve トリガー認識**: 以下はすべて plan approve イベントとして扱い、sync-plan から開始する:
+- plan mode で Accept を押した場合
+- 「Implement the following plan:」でプランが渡された場合
+- 「この plan を実行して」等の指示を受けた場合
+- plan ファイルに `Post-Approve Action` セクションがある場合
+直接実装に入ってはいけない。Cycle doc なしの実装は pre-red-gate.sh でブロックされる。
+
 ## Codex Integration
 
 Codex が利用可能な場合、Plan Review と Code Review は常時 competitive に実行。RED/GREEN の委譲は codex_mode (full/no) で制御。REFACTOR は Claude が主担当（Codex fallback）。REVIEW は Claude + Codex competitive。詳細は [CONSTITUTION.md](CONSTITUTION.md) 参照。

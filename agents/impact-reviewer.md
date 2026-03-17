@@ -18,6 +18,16 @@ memory: project
 
 `{"blocking_score": 0-100, "issues": [{"severity": "critical|important|optional", "category": "dependency|public-api|spof|circular-dep", "message", "suggestion"}]}`
 
+## change-safety-reviewer との分担（Dedup ルール）
+
+| 指摘の性質 | 担当 | 例 |
+|-----------|------|-----|
+| 下流モジュールへの連鎖影響 | impact | 依存モジュール列挙 |
+| 公開APIの破壊的変更検出 | impact | エンドポイント削除 |
+| SPOF・循環依存の導入 | impact | 単一障害点の検出 |
+| デプロイ戦略・ロールバック手順 | change-safety | カナリアデプロイ未検討 |
+| blast radius（段階デプロイ） | change-safety | 影響範囲の限定 |
+
 ## ブロッキングスコア基準
 
 blocking_score: パイプラインをブロックすべき度合い（0 = 問題なし, 100 = ブロック必須）
