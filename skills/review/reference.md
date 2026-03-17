@@ -26,6 +26,9 @@ SKILL.mdの詳細情報。必要時のみ参照。
 | 変更行数 > 200 | +20 | diff 行数 |
 | UI コンポーネント変更 | +10 | ファイルパスに component/view/page/.vue/.tsx 等 |
 | テストファイル変更 | +10 | ファイルパスに test/spec/__tests__ 等 |
+| スキーマ/migration 変更 | +20 | ファイルパスに migration/schema/model 等 |
+| 外部通信パターン | +15 | diff に fetch/axios/requests/HttpClient 等 |
+| 広範囲変更 (dir spread>=3) | +15 | 変更ファイルのディレクトリ分散度 >= 3 |
 
 ### Level 判定
 
@@ -56,11 +59,15 @@ SKILL.mdの詳細情報。必要時のみ参照。
 |-------|-------|-----------|
 | review-briefer | Haiku | Always |
 | design-reviewer | Sonnet | Always |
+| test-reviewer | Sonnet | Always (Plan mode) |
 | security-reviewer | Sonnet | If auth/security flags |
 | product-reviewer | Haiku | If API/user-facing flags |
 | performance-reviewer | Sonnet | If DB/perf flags |
 | usability-reviewer | Haiku | If UI flags |
 | designer | Sonnet | If UI + UI tech stack |
+| change-safety-reviewer | Sonnet | If migration/schema flags |
+| impact-reviewer | Sonnet | If wide-change flags |
+| resiliency-reviewer | Sonnet | If external-comm flags |
 
 ## Agent Roster (Code Mode)
 

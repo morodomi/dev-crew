@@ -12,6 +12,9 @@
 #   line count > 200            +20
 #   UI component changes        +10
 #   test file changes            +10
+#   schema/migration changes     +20
+#   external communication       +15
+#   wide change (dir spread>=3)  +15
 #
 # Thresholds:
 #   0-29:  LOW
@@ -69,6 +72,17 @@ if [ -f "$FILES_LIST" ]; then
       score=$((score - 15))
     fi
   fi
+
+  # Schema/migration file changes (+20)
+  if grep -qiE 'migration|schema|\.migrate\.|model.*field|alter.table' "$FILES_LIST" 2>/dev/null; then
+    score=$((score + 20))
+  fi
+
+  # Wide change - directory spread >= 3 (+15)
+  dir_count=$(grep '/' "$FILES_LIST" 2>/dev/null | awk -F/ '{print $1}' | sort -u | wc -l | tr -d ' ')
+  if [ "$dir_count" -ge 3 ]; then
+    score=$((score + 15))
+  fi
 fi
 
 # --- Diff content based signals ---
@@ -82,6 +96,11 @@ if [ -f "$DIFF_CONTENT" ]; then
   # crypto/token/secret patterns (+30)
   if grep -qiE 'password|secret|token|hash|encrypt|decrypt|cipher|private.key|api.key|credential' "$DIFF_CONTENT" 2>/dev/null; then
     score=$((score + 30))
+  fi
+
+  # External communication patterns (+15)
+  if grep -qiE 'fetch\(|axios\.|requests\.|http\.client|HttpClient|new URL\(|curl_|guzzle|urllib|httpx' "$DIFF_CONTENT" 2>/dev/null; then
+    score=$((score + 15))
   fi
 
   # Line count > 200 (+20)

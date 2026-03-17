@@ -4,10 +4,10 @@
 
 | Metric | Value |
 |--------|-------|
-| In-Progress Cycles | 1 |
-| Done (unarchived) | 20 |
+| In-Progress Cycles | 0 |
+| Done (unarchived) | 21 |
 | Archived Cycles | 37 |
-| Test Scripts | 86 |
+| Test Scripts | 87 |
 
 Last updated: 2026-03-17
 
@@ -15,11 +15,12 @@ Last updated: 2026-03-17
 
 | Date | Cycle | Type |
 |------|-------|------|
-| 2026-03-17 | v4 Phase 15.3: Socrates review pipeline 統合 | feat |
-| 2026-03-17 | v4 Phase 15.1: test-reviewer 新設 | feat |
-| 2026-03-16 | v4 Phase 14.4: performance-reviewer 強化 | feat |
-| 2026-03-16 | v4 Phase 14.3: observability-reviewer 新設 | feat |
-| 2026-03-16 | v4 Phase 14.2: api-contract-reviewer 新設 | feat |
+| 2026-03-17 | v2.4 Phase 16: Plan Review 強化 | feat |
+| 2026-03-17 | v2.4 Phase 15.3: Socrates review pipeline 統合 | feat |
+| 2026-03-17 | v2.4 Phase 15.1: test-reviewer 新設 | feat |
+| 2026-03-16 | v2.4 Phase 14.4: performance-reviewer 強化 | feat |
+| 2026-03-16 | v2.4 Phase 14.3: observability-reviewer 新設 | feat |
+| 2026-03-16 | v2.4 Phase 14.2: api-contract-reviewer 新設 | feat |
 | 2026-03-16 | v3 Phase 7: onboard CONSTITUTION 対応 (#75) | feat |
 | 2026-03-16 | v3 Phase 6: CONSTITUTION authority migration (#75) | feat |
 | 2026-03-15 | v2.1.0 決定論的ゲート強化 + Review品質改善 (#58-#66) | feat |
@@ -42,9 +43,7 @@ Last updated: 2026-03-17
 
 ## In Progress
 
-| Date | Cycle | Phase |
-|------|-------|-------|
-| 2026-03-17 | v4 Phase 15.3: Socrates review pipeline 統合 | COMMIT |
+(none)
 
 ## TODO
 

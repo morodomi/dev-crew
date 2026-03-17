@@ -37,6 +37,17 @@ blocking_score: パイプラインをブロックすべき度合い（0 = 問題
 | 例外処理の存在有無 | correctness | try/catch が必須だが未実装 |
 | エッジケース漏れ | correctness | 空配列、ゼロ除算 |
 
+## Plan Mode Focus
+
+| 観点 | チェック内容 | 参照元 |
+|------|------------|--------|
+| TC カバレッジ | Scope 項目あたりの TC 数が十分か | Google SWE Book Ch12 |
+| 異常系 TC | エラーケース・境界値の TC 有無 | xUnit Test Patterns |
+| テスト独立性 | TC 間の依存関係がないか | Google SWE Book Ch11 |
+| Given/When/Then | テスト設計形式の準拠 | - |
+
+起動条件: Always-on (Plan mode)
+
 ## Memory
 
 Record: プロジェクト固有のテストパターン、テストヘルパー/fixture の場所、既知のテストスメル。
