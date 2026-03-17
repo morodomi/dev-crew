@@ -6,7 +6,7 @@
 ## 現在地
 
 v2.3.0 リリース済み。v3 (Constitution-Driven Development) Phase 1-7 完了。
-v4 は Review Taxonomy 体系化。セキュリティの OWASP アプローチを Plan/Test/Code Review に適用する。
+v2.4 は Review Taxonomy 体系化。セキュリティの OWASP アプローチを Plan/Test/Code Review に適用する。
 
 ## v3: Constitution-Driven Development
 
@@ -53,7 +53,7 @@ migration 支援（philosophy.md スキャン、CLAUDE.md 肥大化検出）。
 
 ---
 
-## v4: Review Taxonomy 体系化
+## v2.4: Review Taxonomy 体系化
 
 セキュリティレビューが OWASP Top 10 / CWE Top 25 に基づく 19 attacker agent で体系化されているのに対し、Plan Review / Test Review / Code Review は汎用的な観点のみだった。権威ある参照元に基づき、専門 reviewer agent を体系的に追加する。
 
@@ -247,11 +247,11 @@ Risk-gated（risk-classifier.sh 判定時のみ）:
 
 Phase 13 のスキルマップに新 agent の位置を追加。
 
-#### 17.4 リリース (v4.0.0)
+#### 17.4 リリース (v2.4.0)
 
 ### 統廃合サマリ
 
-| Agent | 現状 | v4 後 | 変更 |
+| Agent | 現状 | v2.4 後 | 変更 |
 |-------|------|-------|------|
 | design-reviewer | Plan: スコープ + アーキ + リスク | Plan: スコープ + アーキ + リスク + 過剰設計 | risk 維持、過剰設計追加 |
 | product-reviewer | Plan: ビジネス判断 | 維持 | - |
@@ -293,7 +293,7 @@ Phase 17: 統合・リリース
   17.1 段階的統合テスト（全 agent 横断）
   17.2 review スキル統合
   17.3 スキルマップ更新
-  17.4 v4.0.0 リリース
+  17.4 v2.4.0 リリース
 ```
 
 ### 参照元一覧

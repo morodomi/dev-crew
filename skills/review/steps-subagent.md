@@ -89,6 +89,7 @@ Task(subagent_type: "dev-crew:test-reviewer", model: "sonnet", prompt: "Review B
 # Always-on
 Task(subagent_type: "dev-crew:review-briefer", model: "haiku", prompt: "...")  # Step 2 で実行済み
 Task(subagent_type: "dev-crew:design-reviewer", model: "sonnet", prompt: "Review Brief: [brief]. 設計をスコープ・アーキテクチャ・リスク観点でレビューせよ。")
+Task(subagent_type: "dev-crew:test-reviewer", model: "sonnet", prompt: "Review Brief: [brief]. Plan mode: TC カバレッジ、異常系、独立性、Given/When/Then を検証せよ。")
 
 # Risk-gated (MEDIUM/HIGH のみ)
 Task(subagent_type: "dev-crew:security-reviewer", model: "sonnet", prompt: "...")      # auth/security flags
@@ -96,6 +97,9 @@ Task(subagent_type: "dev-crew:product-reviewer", model: "haiku", prompt: "...") 
 Task(subagent_type: "dev-crew:performance-reviewer", model: "sonnet", prompt: "...")   # DB/perf flags
 Task(subagent_type: "dev-crew:usability-reviewer", model: "haiku", prompt: "...")      # UI flags
 Task(subagent_type: "dev-crew:designer", model: "sonnet", prompt: "...")               # UI + UI tech stack
+Task(subagent_type: "dev-crew:change-safety-reviewer", model: "sonnet", prompt: "Review Brief: [brief]. ロールバック安全性・マイグレーション安全性を検証せよ。")  # migration/schema flags
+Task(subagent_type: "dev-crew:impact-reviewer", model: "sonnet", prompt: "Review Brief: [brief]. 変更の連鎖影響と破壊範囲を分析せよ。")  # wide-change flags
+Task(subagent_type: "dev-crew:resiliency-reviewer", model: "sonnet", prompt: "Review Brief: [brief]. 耐障害性・カスケード障害防止を検証せよ。")  # external-comm flags
 ```
 
 ## Step 4.5: Devil's Advocate (Socrates)

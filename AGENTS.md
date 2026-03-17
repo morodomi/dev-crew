@@ -69,7 +69,7 @@ Cycle docs: `docs/cycles/YYYYMMDD_HHMM_<topic>.md`
 
 ```
 dev-crew/
-├── agents/          # 37 agents (flat), 21 security agents
+├── agents/          # 40 agents (flat), 21 security agents
 ├── skills/          # Skills (each: SKILL.md + reference.md)
 ├── scripts/gates/   # Deterministic gate scripts (pre-red, pre-commit)
 ├── rules/           # Always-applied rules (git-safety, security, git-conventions)
