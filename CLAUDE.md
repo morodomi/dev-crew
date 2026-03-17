@@ -44,6 +44,7 @@ Phase-boundary compaction:
 | Event | Matcher | Script | Purpose |
 |-------|---------|--------|---------|
 | PostToolUse | Edit\|Write\|Bash | `scripts/hooks/observe.sh` | Logs tool usage patterns for learn skill |
+| PostToolUse | Skill\|Agent | `~/.claude/hooks/observe-skills.sh` | Logs Skill/Agent usage for prune planning (global hook) |
 | PreCompact | manual | `scripts/hooks/pre-compact.sh` | Persists phase summary before /compact |
 
 ## Usage Patterns

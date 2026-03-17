@@ -59,13 +59,11 @@ learn を継続して instinct を蓄積してください。
 
 承認されたクラスタから定義ファイルを生成:
 
-- デフォルト出力先: `~/.claude/dev-crew/evolved/` (staging)
-- `--contribute` 時: dev-crew ソース (`skills/` or `agents/`) に直接出力
+- 出力先: `~/.claude/dev-crew/evolved/` (staging のみ)
+- ローカルの dev-crew プラグインソースは書き換えない
 - 生成物に由来 instinct ID をコメントとして埋め込む
 
-### Step 5: バックアップ + 結果報告
-
-生成前に既存ファイルのバックアップを `~/.claude/dev-crew/backup/` に保存。
+### Step 5: 結果報告
 
 ```
 スキル「phpstan-type-fix」を生成しました。
@@ -73,18 +71,36 @@ learn を継続して instinct を蓄積してください。
 保存先: ~/.claude/dev-crew/evolved/phpstan-type-fix/SKILL.md
 ```
 
-### Step 6: Contribute to dev-crew (Optional)
+### Step 6: GitHub Issue 作成
 
-`--contribute` 指定時、生成物を dev-crew ソースに書き戻す:
+生成されたスキル/エージェントごとに `morodomi/dev-crew` リポジトリに Issue を作成:
 
-1. **パス解決**: `cat ~/.claude/dev-crew/source-path` で dev-crew 絶対パスを取得（不在時は AskUserQuestion）
-2. **パス検証**: `{source-path}/.claude-plugin/plugin.json` の存在を確認
-3. staging (`~/.claude/dev-crew/evolved/`) から `{source-path}/skills/` or `{source-path}/agents/` にコピー
-4. 全テスト実行: `for f in {source-path}/tests/test-*.sh; do bash "$f"; done`
-5. テスト失敗時: コピーを削除しロールバック。staging に残す
-6. テスト成功時: ユーザーに `{source-path}` での commit を促す
+```bash
+gh issue create --repo morodomi/dev-crew \
+  --title "feat: evolve提案 - <スキル名>" \
+  --label "evolve" \
+  --body "$(cat <<'EOF'
+## 概要
+instinct クラスタリングから自動生成されたスキル/エージェント提案。
 
-デフォルト (contribute なし): staging に出力して終了。
+## 由来 instinct
+- <instinct ID>: <trigger の要約>
+- ...
+
+## 生成物
+<SKILL.md または agent定義の全文をコードブロックで添付>
+
+## staging パス
+`~/.claude/dev-crew/evolved/<スキル名>/`
+
+## 導入判断
+メンテナーが内容を確認し、dev-crew ソースへの導入を判断してください。
+EOF
+)"
+```
+
+- `evolve` ラベルが未作成の場合は `gh label create evolve --repo morodomi/dev-crew --description "Auto-generated from instinct clustering"` で作成
+- 実際の dev-crew への導入はメンテナーが判断・実施する
 
 ## Reference
 
