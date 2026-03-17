@@ -19,6 +19,17 @@ memory: project
 
 design-reviewer は risk フラグ（breaking changes の有無）を出す。change-safety-reviewer はその深掘り（どう安全にデプロイするか）を担当。
 
+## impact-reviewer との分担（Dedup ルール）
+
+| 指摘の性質 | 担当 | 例 |
+|-----------|------|-----|
+| デプロイ戦略・ロールバック手順 | change-safety | カナリアデプロイ未検討 |
+| スキーマの expand-contract | change-safety | 破壊的カラム削除 |
+| 影響範囲の限定（blast radius） | change-safety | 段階デプロイ可能性 |
+| 下流モジュールへの連鎖影響 | impact | 依存モジュール列挙 |
+| 公開APIの破壊的変更検出 | impact | エンドポイント削除 |
+| SPOF・循環依存の導入 | impact | 単一障害点の検出 |
+
 ## Output
 
 `{"blocking_score": 0-100, "issues": [{"severity": "critical|important|optional", "category": "rollback|migration|feature-flag|blast-radius|irreversible", "message", "suggestion"}]}`

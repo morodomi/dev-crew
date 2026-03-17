@@ -5,9 +5,9 @@
 | Metric | Value |
 |--------|-------|
 | In-Progress Cycles | 0 |
-| Done (unarchived) | 21 |
+| Done (unarchived) | 22 |
 | Archived Cycles | 37 |
-| Test Scripts | 87 |
+| Test Scripts | 89 |
 
 Last updated: 2026-03-17
 
@@ -15,6 +15,7 @@ Last updated: 2026-03-17
 
 | Date | Cycle | Type |
 |------|-------|------|
+| 2026-03-17 | v2.4 Phase 17: 統合・リリース (v2.4.0) | feat |
 | 2026-03-17 | v2.4 Phase 16: Plan Review 強化 | feat |
 | 2026-03-17 | v2.4 Phase 15.3: Socrates review pipeline 統合 | feat |
 | 2026-03-17 | v2.4 Phase 15.1: test-reviewer 新設 | feat |
