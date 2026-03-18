@@ -6,8 +6,7 @@ allowed-tools: Task, Read, Write, Bash, Grep, Glob, AskUserQuestion
 
 # TDD Orchestrate (PdM Mode)
 
-TDDサイクル全体をPdM (Product Manager) として管理するオーケストレータ。
-plan mode起点でワークフロー制御を行う。
+TDDサイクル全体をPdM (Product Manager) として管理。plan mode起点でワークフロー制御。
 
 ## Progress Checklist
 
@@ -15,7 +14,11 @@ plan mode起点でワークフロー制御を行う。
 orchestrate Progress:
 - [ ] Block 0: planファイル / Cycle doc 確認 → 開始地点決定
 - [ ] Block 1: sync-plan (with Design Review) → 自律判断
-- [ ] Block 2: RED → GREEN → REFACTOR → REVIEW → 自律判断 → DISCOVERED
+- [ ] Block 2a: RED — Task(red-worker) でテスト作成、失敗確認
+- [ ] Block 2b: GREEN — Task(green-worker) で実装、全テストPASS確認
+- [ ] Block 2c: REFACTOR — Skill(refactor) で品質改善
+- [ ] Block 2d: REVIEW — Skill(review --code) でコードレビュー → 自律判断
+- [ ] Block 2e: DISCOVERED — スコープ外項目をissue起票
 - [ ] Block 3: COMMIT → 完了
 ```
 
@@ -39,7 +42,7 @@ planファイルを起点に開始地点を決定する:
 1. **planファイルあり?**
    → YES:
      a. 未完了 cycle doc あり (`phase: DONE` 以外)?
-        - plan-review 記録あり (Cycle doc に `plan_review` セクション存在)? → Block 1 スキップ → Block 2 (RED) へ
+        - plan-review 記録あり (Cycle doc に `plan_review` セクション存在)? → Block 1 スキップ → Block 2a (RED) へ
         - plan-review 記録なし? → Progress Log から再開
      b. cycle doc なし → Block 1 (sync-plan) へ
    → NO:
@@ -52,49 +55,46 @@ planファイルを起点に開始地点を決定する:
 ### Block 1: Sync-Plan (with Design Review)
 
 1. **sync-plan**: architect が Design Review Gate を実施後、PASS/WARN なら Cycle doc 生成
-2. **Codex不在時: Socrates adversarial review** — `which codex` 失敗時、Socrates を計画への adversarial reviewer として起動（Step 4.5 のバイアスチェックとは別目的）。詳細: [reference.md](reference.md#socrates-plan-review)
-3. **自律判断**: PASS/WARN → Block 2 へ、BLOCK → sync-plan再実行
+2. **Codex不在時: Socrates adversarial review** — `which codex` 失敗時、Socrates を計画への adversarial reviewer として起動。詳細: [reference.md](reference.md#socrates-plan-review)
+3. **自律判断**: PASS/WARN → Block 2a へ、BLOCK → sync-plan再実行
 
 ### Block 2: Implementation
 
-1. **RED**: red-worker にテスト作成を委譲
-2. **GREEN**: green-worker に実装を委譲
-3. **REFACTOR**: コード品質改善（チェックリスト駆動）+ Verification Gate
-4. **REVIEW**: 統一レビュー (mode: code) でコードレビュー
-5. **自律判断**: PASS/WARN → DISCOVERED判断 → Block 3 へ、BLOCK → GREEN再実行
-6. **DISCOVERED**: スコープ外項目をCycle docに記録し、GitHub issueに起票（起票→ `issue #N` 参照、reject→ 理由記載）
+**MUST**: 次のフェーズに進む前に、現フェーズの完了条件を確認せよ。詳細手順はモードに応じて参照: [steps-subagent.md](steps-subagent.md) / [steps-teams.md](steps-teams.md) / [steps-codex.md](steps-codex.md)
+
+#### Block 2a: RED
+```
+Task(subagent_type: "dev-crew:red-worker", model: "sonnet", prompt: "Cycle doc: [path]. 担当テストケース: [TC-XX]. テストを作成し、失敗を確認せよ。")
+```
+**完了条件**: テストが作成され、実行して失敗（RED状態）を確認
+
+#### Block 2b: GREEN
+```
+Task(subagent_type: "dev-crew:green-worker", model: "sonnet", prompt: "Cycle doc: [path]. テストを通す最小限の実装を行え。")
+```
+**完了条件**: 全テストがPASS（GREEN状態）を確認
+
+#### Block 2c: REFACTOR
+```
+Skill(dev-crew:refactor)
+```
+**完了条件**: Verification Gate通過（テスト全PASS + 静的解析0件 + フォーマット適用）
+
+#### Block 2d: REVIEW
+```
+Skill(dev-crew:review, args: "--code")
+```
+Codex利用可能時は competitive review も実行。
+**判定**: PASS/WARN → Block 2e へ、BLOCK → GREEN再実行（max 1回）
+
+#### Block 2e: DISCOVERED
+スコープ外項目をCycle docに記録し、GitHub issueに起票（起票→ `issue #N` 参照、reject→ 理由記載）。
 
 ### Block 3: Finalization
 
 1. **COMMIT**: git add & commit（PdM 直接実行）
 2. **完了報告**: サイクル完了をユーザーに報告
 
-## Mode Selection
-
-`codex_mode` は RED/GREEN の委譲先のみ制御する。Plan Review と Code Review は Codex 利用可能なら codex_mode に関わらず常時実行。
-
-| 条件 | RED/GREEN モード | 手順 |
-|------|-----------------|------|
-| `codex_mode: full` | Codex (codex exec) | [steps-codex.md](steps-codex.md) |
-| `codex_mode: no` | Claude (Task(worker)) | [steps-subagent.md](steps-subagent.md) |
-| 未設定 + `which codex` 成功 | Codex (codex exec) | [steps-codex.md](steps-codex.md) |
-| Agent Teams有効 (`1`) | Claude (Agent Teams) | [steps-teams.md](steps-teams.md) |
-| 無効 / 未設定 | Claude (Subagent Chain) | [steps-subagent.md](steps-subagent.md) |
-
-## Judgment Criteria
-
-| スコア | 判定 | PdM アクション |
-|--------|------|---------------|
-| 0-49 | PASS | 次 Block へ自動進行 |
-| 50-79 | WARN | Socrates Protocol → 人間判断 (Agent Teams時) |
-| 80-100 | BLOCK | Socrates Protocol → 人間判断 (Agent Teams時) |
-
-Agent Teams 無効時は WARN 自動進行、BLOCK 自動再試行 (v5.0 互換)。
-Socrates Protocol 詳細: [reference.md](reference.md)
-
 ## Reference
 
-- PdM 責務・判断基準: [reference.md](reference.md)
-- Codex 委譲手順: [steps-codex.md](steps-codex.md)
-- Agent Teams 手順: [steps-teams.md](steps-teams.md)
-- Subagent 手順: [steps-subagent.md](steps-subagent.md)
+Mode選択・Judgment Criteria・PdM責務: [reference.md](reference.md) | [steps-codex.md](steps-codex.md) | [steps-teams.md](steps-teams.md) | [steps-subagent.md](steps-subagent.md)
