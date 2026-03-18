@@ -52,7 +52,8 @@ planファイルを起点に開始地点を決定する:
 ### Block 1: Sync-Plan (with Design Review)
 
 1. **sync-plan**: architect が Design Review Gate を実施後、PASS/WARN なら Cycle doc 生成
-2. **自律判断**: PASS/WARN → Block 2 へ、BLOCK → sync-plan再実行
+2. **Codex不在時: Socrates adversarial review** — `which codex` 失敗時、Socrates を計画への adversarial reviewer として起動（Step 4.5 のバイアスチェックとは別目的）。詳細: [reference.md](reference.md#socrates-plan-review)
+3. **自律判断**: PASS/WARN → Block 2 へ、BLOCK → sync-plan再実行
 
 ### Block 2: Implementation
 

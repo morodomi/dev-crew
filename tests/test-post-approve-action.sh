@@ -95,6 +95,31 @@ else
   fail "design-reviewer output missing constitution category"
 fi
 
+# --- Socrates Plan Review (Codex不在時) ---
+
+echo "-- socrates plan review --"
+
+# Given orchestrate SKILL.md Block 1, When check, Then mentions Socrates for Codex absent
+if grep -q "Socrates" "$DIR/skills/orchestrate/SKILL.md" && grep -q "Codex不在" "$DIR/skills/orchestrate/SKILL.md"; then
+  pass "orchestrate Block 1 has Socrates for Codex absent"
+else
+  fail "orchestrate Block 1 missing Socrates for Codex absent"
+fi
+
+# Given orchestrate reference.md, When check, Then has socrates-plan-review section
+if grep -q "socrates-plan-review" "$DIR/skills/orchestrate/reference.md"; then
+  pass "orchestrate reference.md has socrates-plan-review section"
+else
+  fail "orchestrate reference.md missing socrates-plan-review section"
+fi
+
+# Given orchestrate reference.md socrates section, When check, Then mentions CONSTITUTION
+if grep -A 20 "socrates-plan-review" "$DIR/skills/orchestrate/reference.md" | grep -q "CONSTITUTION"; then
+  pass "socrates plan review references CONSTITUTION"
+else
+  fail "socrates plan review missing CONSTITUTION reference"
+fi
+
 echo ""
 echo "Results: $PASS passed, $FAIL failed"
 [ "$FAIL" -eq 0 ] && exit 0 || exit 1
