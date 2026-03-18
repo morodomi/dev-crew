@@ -21,11 +21,11 @@ else
   fail "AGENTS.md missing Post-Approve Action"
 fi
 
-# Given AGENTS.md Post-Approve Action, When check order, Then sync-plan before orchestrate
-if grep -A 5 "Post-Approve Action" "$DIR/AGENTS.md" | grep -q "sync-plan"; then
-  pass "Post-Approve Action mentions sync-plan"
+# Given AGENTS.md Post-Approve Action, When check content, Then mentions orchestrate
+if grep -A 3 "Post-Approve Action" "$DIR/AGENTS.md" | grep -q "orchestrate"; then
+  pass "Post-Approve Action mentions orchestrate"
 else
-  fail "Post-Approve Action missing sync-plan"
+  fail "Post-Approve Action missing orchestrate"
 fi
 
 # --- onboard/reference.md TDD Workflow template ---
@@ -57,6 +57,67 @@ if grep -q "plan-review" "$ORCH_FILE" && grep -q "skip\|Skip\|スキップ" "$OR
   pass "orchestrate Block 0 has conditional skip logic (plan-review + skip)"
 else
   fail "orchestrate Block 0 missing conditional skip logic"
+fi
+
+# --- Constitution Check in spec ---
+
+echo "-- spec constitution check --"
+
+# Given spec SKILL.md, When check Step 7.1, Then mentions Constitution
+if grep -q "Constitution" "$DIR/skills/spec/SKILL.md"; then
+  pass "spec SKILL.md mentions Constitution check"
+else
+  fail "spec SKILL.md missing Constitution check"
+fi
+
+# Given spec reference.md, When check, Then has constitution-check section
+if grep -q "constitution-check" "$DIR/skills/spec/reference.md"; then
+  pass "spec reference.md has constitution-check section"
+else
+  fail "spec reference.md missing constitution-check section"
+fi
+
+# --- Constitution Check in design-reviewer ---
+
+echo "-- design-reviewer constitution check --"
+
+# Given design-reviewer.md, When check Focus, Then includes constitution
+if grep -qi "constitution" "$DIR/agents/design-reviewer.md"; then
+  pass "design-reviewer includes constitution in Focus"
+else
+  fail "design-reviewer missing constitution in Focus"
+fi
+
+# Given design-reviewer.md output, When check categories, Then includes constitution
+if grep -q "constitution" "$DIR/agents/design-reviewer.md"; then
+  pass "design-reviewer output has constitution category"
+else
+  fail "design-reviewer output missing constitution category"
+fi
+
+# --- Socrates Plan Review (Codex不在時) ---
+
+echo "-- socrates plan review --"
+
+# Given orchestrate SKILL.md Block 1, When check, Then mentions Socrates for Codex absent
+if grep -q "Socrates" "$DIR/skills/orchestrate/SKILL.md" && grep -q "Codex不在" "$DIR/skills/orchestrate/SKILL.md"; then
+  pass "orchestrate Block 1 has Socrates for Codex absent"
+else
+  fail "orchestrate Block 1 missing Socrates for Codex absent"
+fi
+
+# Given orchestrate reference.md, When check, Then has socrates-plan-review section
+if grep -q "socrates-plan-review" "$DIR/skills/orchestrate/reference.md"; then
+  pass "orchestrate reference.md has socrates-plan-review section"
+else
+  fail "orchestrate reference.md missing socrates-plan-review section"
+fi
+
+# Given orchestrate reference.md socrates section, When check, Then mentions CONSTITUTION
+if grep -A 20 "socrates-plan-review" "$DIR/skills/orchestrate/reference.md" | grep -q "CONSTITUTION"; then
+  pass "socrates plan review references CONSTITUTION"
+else
+  fail "socrates plan review missing CONSTITUTION reference"
 fi
 
 echo ""

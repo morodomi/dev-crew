@@ -219,6 +219,54 @@ GitHub issue を作成しますか? (Y/n)
 
 `→ #` が付いている項目は起票をスキップする。
 
+## Socrates Plan Review (Codex不在時) {#socrates-plan-review}
+
+Codex が利用不可の場合、Block 1 の plan-review 後に Socrates を **計画への adversarial reviewer** として起動する。Step 4.5 の「reviewer バイアスチェック」とは目的が異なる。
+
+### 目的の違い
+
+| | Step 4.5 Socrates | Block 1 Socrates (本セクション) |
+|---|---|---|
+| 目的 | reviewer のスコアが甘くないか検証 | 計画自体に反論（Codex competitive review の代替） |
+| 入力 | reviewer スコア + issues サマリ | plan 全文 + CONSTITUTION + reviewer verdict |
+| タイミング | review skill 内 | orchestrate Block 1（plan-review 完了後） |
+| 条件 | 常時 | Codex 不在時のみ |
+
+### 起動条件
+
+```bash
+which codex >/dev/null 2>&1 || NEED_SOCRATES_PLAN=true
+```
+
+Codex 利用可能時はスキップ（Codex competitive review が同等の役割を果たす）。
+
+### プロンプト
+
+```
+Task(subagent_type: "dev-crew:socrates", model: "opus", prompt: "
+phase: review:plan (adversarial)
+plan: [planファイルの全文]
+constitution: [CONSTITUTION.md / AGENTS.md / CLAUDE.md の内容（存在するもの）]
+reviewer_verdict: [plan-review の verdict と主要 issues]
+cycle_doc: [Cycle doc パス]
+
+Codex competitive review の代替として、計画自体に反論せよ。
+reviewer のスコアではなく、計画の設計判断・スコープ・トレードオフに焦点を当てよ。
+特に: CONSTITUTION の原則に反していないか、Non-Goals に該当しないか、
+より良い代替設計がないかを検証せよ。
+")
+```
+
+### PdM の判断
+
+Socrates の反論を受け、PdM は以下を判断:
+
+| Socrates の反論 | PdM アクション |
+|----------------|---------------|
+| 軽微な指摘のみ | そのまま Block 2 へ |
+| CONSTITUTION 違反の指摘 | ユーザーに報告、plan 修正を検討 |
+| より良い代替設計の提案 | ユーザーに選択肢を提示 |
+
 ## ADR Reference
 
 orchestrate中にアーキテクチャ判断が発生した場合、`docs/decisions/` の既存ADRを参照する。

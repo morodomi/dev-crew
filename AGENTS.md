@@ -26,23 +26,14 @@ bash tests/test-plugin-structure.sh
 ## TDD Workflow
 
 ```
-spec → sync-plan → plan-review → orchestrate(RED → GREEN → REFACTOR → REVIEW → COMMIT)
+spec → approve → /orchestrate (sync-plan → plan-review → RED → GREEN → REFACTOR → REVIEW → COMMIT)
 ```
 
 Cycle docs: `docs/cycles/YYYYMMDD_HHMM_<topic>.md`
 
 ### Post-Approve Action
 
-Plan mode を抜けたら、直接実装に入らず以下を順に実行する:
-
-1. Plan mode を抜けたら、Cycle Doc に内容をコピーする (`dev-crew:sync-plan`)
-   - Cycle Doc なしの実装は `pre-red-gate.sh` でブロックされる
-2. Cycle Doc をレビューする (`dev-crew:review --plan`)
-   - BLOCK 判定なら Plan に戻る
-3. レビュー通過後、実装フローを回す (`dev-crew:orchestrate`)
-   - RED → GREEN → REFACTOR → REVIEW → COMMIT を自律管理
-   - PASS/WARN → 自動進行、BLOCK → 再試行 → ユーザー報告
-   - COMMIT 前に `pre-commit-gate.sh` で REVIEW 完了を検証
+Plan mode を抜けたら `/orchestrate` を起動する。Edit/Write は hook でブロックされる。
 
 ## Quality Standards
 
