@@ -62,6 +62,9 @@ Last updated: 2026-03-18
 - [x] v2.5 Phase 18: Post-Approve Action hook 強制
 - [x] v2.5 Phase 18.1: Constitution 整合性チェック
 - [x] v2.5 Phase 18.2: Socrates Plan Adversarial Review
+- [ ] v2.6 Phase 21: exspec observe 統合
+- [ ] v2.6 Phase 22: exspec init 統合
+- [ ] v2.6 Phase 23: exspec lint 連携評価・改善
 - [ ] v2.6 Phase 19: ディレクトリ構造厳格化
 - [ ] v2.6 Phase 20: Socrates コスト最適化
 

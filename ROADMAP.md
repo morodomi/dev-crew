@@ -10,7 +10,7 @@ v2.4 は Review Taxonomy 体系化。Phase 14-17 完了。v2.4.1 で DISCOVERED 
 v2.4.2 で Phase 13 skill-map + Phase 18 Post-Approve Action 強制。
 v2.4.3 で Post-Approve Action を hook 化。
 v2.5.0: Constitution-Driven Enforcement（hook 強制 + Constitution Check + Socrates Plan Review）。
-v2.6 計画中（Phase 19-20）。
+v2.6 計画中（Phase 21-23: exspec 深層統合 + Phase 19-20: 構造厳格化・コスト最適化）。
 
 ## v3: Constitution-Driven Development
 
@@ -95,7 +95,42 @@ Codex 不在時に Socrates を plan adversarial reviewer として起動。
 
 ---
 
-## v2.6: ワークフロー厳格化 + コスト最適化
+## v2.6: exspec 深層統合 + ワークフロー厳格化
+
+exspec CLI (v0.3.0) の lint / observe / init を dev-crew ワークフローに深層統合する。現行の RED フェーズ gate（exspec-check.sh）を超え、spec・onboard・review フェーズにも exspec を活用する。
+
+### Phase 21: exspec observe 統合
+
+exspec observe のテスト-コードマッピングを spec/RED フェーズで活用し、テストカバレッジのギャップを可視化する。
+
+| 項目 | 内容 |
+|------|------|
+| spec 連携 | spec フェーズで `exspec observe` を実行し、未テストの本番コードを特定。Test List 作成の入力にする |
+| RED 連携 | RED フェーズ完了時に `exspec observe` で新規テストのマッピング検証（テストが意図した本番コードを参照しているか） |
+| ゲートスクリプト | scripts/gates/exspec-observe-check.sh 新設 |
+| テスト | test-exspec-observe-integration.sh 新設 |
+
+### Phase 22: exspec init 統合
+
+exspec init（`.exspec.toml` 自動生成）を onboard スキルに統合する。
+
+| 項目 | 内容 |
+|------|------|
+| 前提 | exspec 側で `exspec init` コマンドが実装済みであること |
+| onboard 連携 | onboard スキルのセットアップフローに `exspec init` を追加。フレームワーク検出 → `.exspec.toml` 生成 |
+| exspec 未インストール時 | スキップ（既存パターン踏襲） |
+| テスト | test-onboard-exspec-init.sh 新設 |
+
+### Phase 23: exspec lint 連携評価・改善
+
+現行の `exspec-check.sh` を評価し、observe データとの組み合わせや severity 調整を検討する。
+
+| 項目 | 内容 |
+|------|------|
+| 連携評価 | RED gate での exspec lint 実績（BLOCK/WARN 検出率、FP 率）を収集・分析 |
+| observe 連動 | observe の unmapped ファイル情報を lint の context として渡す可能性を検討 |
+| severity 調整 | dev-crew コンテキストでの severity 最適化（例: WARN → BLOCK 昇格の条件定義） |
+| --strict モード | CI 統合時の `--strict` 適用基準を策定 |
 
 ### Phase 19: ディレクトリ構造厳格化
 
