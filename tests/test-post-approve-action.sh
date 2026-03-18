@@ -21,11 +21,11 @@ else
   fail "AGENTS.md missing Post-Approve Action"
 fi
 
-# Given AGENTS.md Post-Approve Action, When check order, Then sync-plan before orchestrate
-if grep -A 5 "Post-Approve Action" "$DIR/AGENTS.md" | grep -q "sync-plan"; then
-  pass "Post-Approve Action mentions sync-plan"
+# Given AGENTS.md Post-Approve Action, When check content, Then mentions orchestrate
+if grep -A 3 "Post-Approve Action" "$DIR/AGENTS.md" | grep -q "orchestrate"; then
+  pass "Post-Approve Action mentions orchestrate"
 else
-  fail "Post-Approve Action missing sync-plan"
+  fail "Post-Approve Action missing orchestrate"
 fi
 
 # --- onboard/reference.md TDD Workflow template ---

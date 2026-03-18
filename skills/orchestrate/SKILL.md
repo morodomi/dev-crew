@@ -29,6 +29,11 @@ orchestrate Progress:
 
 ### Block 0: Prerequisite Check
 
+**最初に実行**: post-approve gate フラグを解除する:
+```bash
+rm -f "${HOME}/.claude/dev-crew/.plan-approved"
+```
+
 planファイルを起点に開始地点を決定する:
 
 1. **planファイルあり?**
