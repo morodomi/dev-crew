@@ -142,6 +142,24 @@ else
   pass "hooks.json has no PreCommit entries"
 fi
 
+# TC-11: hooks.json has PostToolUse ExitPlanMode → plan-exit-flag.sh entry
+echo ""
+echo "TC-11: hooks.json PostToolUse ExitPlanMode → plan-exit-flag.sh"
+if jq -e '.hooks.PostToolUse[] | select(.matcher == "ExitPlanMode") | .hooks[] | select(.command | contains("plan-exit-flag.sh"))' "$BASE_DIR/hooks/hooks.json" >/dev/null 2>&1; then
+  pass "PostToolUse ExitPlanMode → plan-exit-flag.sh entry exists"
+else
+  fail "PostToolUse ExitPlanMode → plan-exit-flag.sh entry missing"
+fi
+
+# TC-12: hooks.json has PreToolUse Edit|Write → post-approve-gate.sh entry
+echo ""
+echo "TC-12: hooks.json PreToolUse Edit|Write → post-approve-gate.sh"
+if jq -e '.hooks.PreToolUse[] | select(.matcher == "Edit|Write") | .hooks[] | select(.command | contains("post-approve-gate.sh"))' "$BASE_DIR/hooks/hooks.json" >/dev/null 2>&1; then
+  pass "PreToolUse Edit|Write → post-approve-gate.sh entry exists"
+else
+  fail "PreToolUse Edit|Write → post-approve-gate.sh entry missing"
+fi
+
 # Summary
 echo ""
 echo "=== Summary ==="
