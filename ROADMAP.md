@@ -5,10 +5,12 @@
 
 ## 現在地
 
-v2.4.2 リリース済み。v3 (Constitution-Driven Development) Phase 1-7 完了。
+v2.5.0 リリース済み。v3 (Constitution-Driven Development) Phase 1-7 完了。
 v2.4 は Review Taxonomy 体系化。Phase 14-17 完了。v2.4.1 で DISCOVERED 修正。
 v2.4.2 で Phase 13 skill-map + Phase 18 Post-Approve Action 強制。
-v2.5 計画中（Phase 19-20）。
+v2.4.3 で Post-Approve Action を hook 化。
+v2.5.0: Constitution-Driven Enforcement（hook 強制 + Constitution Check + Socrates Plan Review）。
+v2.6 計画中（Phase 19-20）。
 
 ## v3: Constitution-Driven Development
 
@@ -55,20 +57,45 @@ migration 支援（philosophy.md スキャン、CLAUDE.md 肥大化検出）。
 
 ---
 
-## v2.5: ワークフロー厳格化 + 構造検証
+## v2.5: Constitution-Driven Enforcement
+
+CONSTITUTION 原則6（決定論的プロセス保証）の実現。hook によるプロセス強制、Constitution 整合性チェック、Socrates adversarial review を追加。
 
 ### Phase 18: Post-Approve Action 強制 (完了)
 
-Post-Approve Action を3層（rules + memory + onboard テンプレート）で強制。
-TDD Workflow 各フェーズの個別記述は不要と判断（冗長になり逆に読まれないリスク）。
+Post-Approve Action を hook（plan-exit-flag.sh + post-approve-gate.sh）で決定論的に強制。
+rules/memory/onboard テンプレートの3層から、hook による確実なブロックに移行。
 
 | 項目 | 状態 |
 |------|------|
-| Post-Approve Action 明確化 | 完了: AGENTS.md + .claude/rules/post-approve.md + memory |
-| ゲートスクリプト明記 | 完了: Post-Approve Action 内に pre-red-gate / pre-commit-gate 記載 |
-| onboard テンプレート同期 | 完了: skills/onboard/reference.md 更新 |
-| TDD Workflow 各フェーズ個別記述 | 不要: 現行フロー図 + Post-Approve Action で十分 |
-| AGENTS.md 構造検証テスト | 不要: 既存テストでカバー済み |
+| plan-exit-flag.sh | 完了: ExitPlanMode 後にフラグファイル作成 |
+| post-approve-gate.sh | 完了: フラグ存在時に Edit/Write をブロック（exit 2） |
+| orchestrate クリア | 完了: orchestrate 起動時にフラグ削除 |
+| テスト | 完了: 9 テストケース（test-post-approve-gate.sh） |
+
+### Phase 18.1: Constitution 整合性チェック (完了)
+
+spec/plan-review に CONSTITUTION.md との整合性チェックを追加。
+
+| 項目 | 状態 |
+|------|------|
+| spec reference.md | 完了: Constitution Check ステップ追加 |
+| design-reviewer agent | 完了: constitution_alignment 観点追加 |
+| テスト | 完了: test-post-approve-action.sh に検証追加 |
+
+### Phase 18.2: Socrates Plan Adversarial Review (完了)
+
+Codex 不在時に Socrates を plan adversarial reviewer として起動。
+
+| 項目 | 状態 |
+|------|------|
+| orchestrate reference.md | 完了: Codex 不在時 Socrates fallback |
+| spec reference.md | 完了: Socrates plan review パス追加 |
+| テスト | 完了: test-post-approve-action.sh に検証追加 |
+
+---
+
+## v2.6: ワークフロー厳格化 + コスト最適化
 
 ### Phase 19: ディレクトリ構造厳格化
 
