@@ -25,7 +25,7 @@ for f in docs/cycles/*.md; do awk '/^---$/{c++;next} c==1{print}' "$f" | grep -q
 ```
 
 - **未完了 cycle doc あり** →
-  - plan-review 記録あり (Cycle doc に `plan_review` セクション存在)? → Block 1 スキップ → Block 2 (RED) へ
+  - plan-review 記録あり (Cycle doc に `plan_review` セクション存在)? → Block 1 スキップ → Block 2a (RED) へ
   - plan-review 記録なし? → Progress Log の最終完了 Phase の次から再開
 - **なし (DONE のみ or cycle doc なし)** → Phase 1 (Team 作成) → Phase 2 (sync-plan) へ直行
 
@@ -85,7 +85,7 @@ architect 完了後、PdM が Cycle doc に Phase Summary を追記:
 
 architect の `pre_review.verdict` でスコアベース判定:
 
-- PASS (0-49) → Block 2 (Phase 3) へ自動進行
+- PASS (0-49) → Block 2a (Phase 3) へ自動進行
 - WARN (50-79) / BLOCK (80+) → Socrates Protocol 発動:
 
 #### Socrates Protocol (pre-review plan)
@@ -100,7 +100,7 @@ architect の `pre_review.verdict` でスコアベース判定:
 
 初回発動時のみユーザー案内を表示（[reference.md](reference.md#初回発動時のユーザー案内) 参照）。
 
-- proceed → Block 2 へ進行
+- proceed → Block 2a へ進行
 - fix → architect を再起動して sync-plan 再実行（max 1回再試行）
 - abort → サイクル中断
 

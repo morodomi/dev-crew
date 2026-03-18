@@ -165,7 +165,7 @@ Phase: [Phase名]
 orchestrate Progress:
 - [x] Block 0: plan mode → INIT → 探索・設計 → Test List → QA → approve
 - [x] Block 1: sync-plan (with Design Review) → PASS
-- [ ] Block 2: RED (実行中) → GREEN → REFACTOR → REVIEW
+- [ ] Block 2a: RED (実行中) → 2b: GREEN → 2c: REFACTOR → 2d: REVIEW → 2e: DISCOVERED
 - [ ] Block 3: COMMIT
 ```
 
@@ -263,7 +263,7 @@ Socrates の反論を受け、PdM は以下を判断:
 
 | Socrates の反論 | PdM アクション |
 |----------------|---------------|
-| 軽微な指摘のみ | そのまま Block 2 へ |
+| 軽微な指摘のみ | そのまま Block 2a へ |
 | CONSTITUTION 違反の指摘 | ユーザーに報告、plan 修正を検討 |
 | より良い代替設計の提案 | ユーザーに選択肢を提示 |
 
