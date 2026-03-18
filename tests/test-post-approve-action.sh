@@ -59,6 +59,42 @@ else
   fail "orchestrate Block 0 missing conditional skip logic"
 fi
 
+# --- Constitution Check in spec ---
+
+echo "-- spec constitution check --"
+
+# Given spec SKILL.md, When check Step 7.1, Then mentions Constitution
+if grep -q "Constitution" "$DIR/skills/spec/SKILL.md"; then
+  pass "spec SKILL.md mentions Constitution check"
+else
+  fail "spec SKILL.md missing Constitution check"
+fi
+
+# Given spec reference.md, When check, Then has constitution-check section
+if grep -q "constitution-check" "$DIR/skills/spec/reference.md"; then
+  pass "spec reference.md has constitution-check section"
+else
+  fail "spec reference.md missing constitution-check section"
+fi
+
+# --- Constitution Check in design-reviewer ---
+
+echo "-- design-reviewer constitution check --"
+
+# Given design-reviewer.md, When check Focus, Then includes constitution
+if grep -qi "constitution" "$DIR/agents/design-reviewer.md"; then
+  pass "design-reviewer includes constitution in Focus"
+else
+  fail "design-reviewer missing constitution in Focus"
+fi
+
+# Given design-reviewer.md output, When check categories, Then includes constitution
+if grep -q "constitution" "$DIR/agents/design-reviewer.md"; then
+  pass "design-reviewer output has constitution category"
+else
+  fail "design-reviewer output missing constitution category"
+fi
+
 echo ""
 echo "Results: $PASS passed, $FAIL failed"
 [ "$FAIL" -eq 0 ] && exit 0 || exit 1

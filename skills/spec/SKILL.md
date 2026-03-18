@@ -80,7 +80,7 @@ planファイルにTDDコンテキストを記録。テンプレート: [referen
 
 ### Step 7: Continue in Plan Mode
 
-**Step 7.1: Upstream Consistency Check** — `ls *requirements*.md docs/*requirements*.md ROADMAP.md docs/ROADMAP.md 2>/dev/null` で上流ドキュメントを検出。差異があれば plan の `## Upstream References` に理由を記録。
+**Step 7.1: Upstream & Constitution Check** — 上流ドキュメント (`ROADMAP.md` 等) と憲法ドキュメント (`CONSTITUTION.md`, `AGENTS.md`, `CLAUDE.md`, `README.md` のいずれか存在するもの) を読み、設計方針との整合性を確認。差異があれば plan の `## Upstream References` に理由を記録。詳細: [reference.md](reference.md#constitution-check)
 
 specの記録後、plan mode内で以下を続行（specスキルの範囲外）:
 1. **探索**: コードベース調査（最低5ファイル読む）
