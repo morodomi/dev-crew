@@ -95,6 +95,6 @@ Codex利用可能時は competitive review も実行。
 1. **COMMIT**: git add & commit（PdM 直接実行）
 2. **完了報告**: サイクル完了をユーザーに報告
 
-## Reference
+## Mode Selection
 
-Mode選択・Judgment Criteria・PdM責務: [reference.md](reference.md) | [steps-codex.md](steps-codex.md) | [steps-teams.md](steps-teams.md) | [steps-subagent.md](steps-subagent.md)
+codex_mode (full/no) は RED/GREEN の委譲先を制御。ユーザー選択優先。詳細: [reference.md](reference.md) | [steps-codex.md](steps-codex.md) | [steps-teams.md](steps-teams.md) | [steps-subagent.md](steps-subagent.md)

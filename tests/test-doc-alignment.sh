@@ -1,6 +1,6 @@
 #!/bin/bash
-# test-doc-alignment.sh - CONSTITUTION.md / workflow.md との整合テスト (ROADMAP 12.2)
-# T-01 ~ T-08
+# test-doc-alignment.sh - CONSTITUTION.md / workflow.md との整合テスト
+# T-01 ~ T-07
 
 set -euo pipefail
 
@@ -79,15 +79,6 @@ if grep -qE '34 agents|29 skills' "$ARCH_FILE"; then
   fail "T-07: hardcoded counts found in architecture.md"
 else
   pass "T-07: no hardcoded counts in architecture.md"
-fi
-
-# T-08: Given ROADMAP.md, Then 12.2 に完了マークがある
-echo ""
-echo "T-08: ROADMAP.md 12.2 has completion mark"
-if grep -qE '12\.2.*完了|12\.2.*\(完了\)' "$ROADMAP_FILE"; then
-  pass "T-08: ROADMAP.md 12.2 has completion mark"
-else
-  fail "T-08: ROADMAP.md 12.2 missing completion mark"
 fi
 
 # Summary

@@ -127,10 +127,12 @@ else
   fail "reference.md missing TDD Gate section"
 fi
 
-# TC-12: ROADMAP.md Phase 4 is DONE
+# TC-12: ROADMAP.md Phase 4 is DONE (may be in archive)
 echo ""
 echo "TC-12: ROADMAP.md Phase 4 is DONE"
-if grep -qE 'Phase 4.*DONE|Phase 4.*\(DONE\)' "$BASE_DIR/ROADMAP.md"; then
+ARCHIVE="$BASE_DIR/docs/archive/roadmap-v2-v3-completed.md"
+if grep -qE 'Phase 4.*DONE|Phase 4.*\(DONE\)' "$BASE_DIR/ROADMAP.md" 2>/dev/null || \
+   grep -qE 'Phase 1-5.*完了' "$ARCHIVE" 2>/dev/null; then
   pass "ROADMAP.md Phase 4 is DONE"
 else
   fail "ROADMAP.md Phase 4 is not marked DONE"

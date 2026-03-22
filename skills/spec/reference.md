@@ -486,7 +486,11 @@ planファイルに記録するTDDコンテキストのテンプレート:
 
 ## Post-Approve Action
 
-approve後は `/orchestrate` を起動する。orchestrate が sync-plan → plan-review → TDDサイクルを全て管理する。
+approve後は `/orchestrate` を起動する。orchestrate が全フェーズを管理する:
+- sync-plan → Cycle doc 生成
+- Codex plan review (codex exec --full-auto, 委譲確認不要)
+- plan-review (Claude)
+
 Edit/Write は orchestrate 起動まで hook (post-approve-gate.sh) でブロックされる。
 ```
 
