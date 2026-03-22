@@ -30,6 +30,15 @@
             "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/hooks/post-approve-gate.sh"
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/hooks/no-verify-guard.sh"
+          }
+        ]
       }
     ],
     "PreCompact": [
