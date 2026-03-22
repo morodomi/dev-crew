@@ -1,6 +1,6 @@
 # Skill Map
 
-> Authority: [PHILOSOPHY.md](PHILOSOPHY.md) のフロー図が正。このドキュメントはスキル/エージェント/ゲートの実装リファレンス。
+> Authority: [CONSTITUTION.md](CONSTITUTION.md) のフロー図が正。このドキュメントはスキル/エージェント/ゲートの実装リファレンス。
 > Counts: [STATUS.md](STATUS.md) 参照。
 
 ## TDD Workflow Skills

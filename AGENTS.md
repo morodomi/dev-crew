@@ -26,7 +26,7 @@ bash tests/test-plugin-structure.sh
 ## TDD Workflow
 
 ```
-spec → approve → /orchestrate (sync-plan → plan-review → RED → GREEN → REFACTOR → REVIEW → COMMIT)
+spec → approve → /orchestrate (sync-plan → plan-review → pre-red-gate → RED → GREEN → REFACTOR → REVIEW → pre-commit-gate → COMMIT)
 ```
 
 Cycle docs: `docs/cycles/YYYYMMDD_HHMM_<topic>.md`
@@ -58,7 +58,7 @@ Plan mode を抜けたら `/orchestrate` を起動する。Edit/Write は hook �
 
 ```
 dev-crew/
-├── agents/          # 40 agents (flat), 21 security agents
+├── agents/          # 40 agents (flat), 19 security agents
 ├── skills/          # Skills (each: SKILL.md + reference.md)
 ├── scripts/gates/   # Deterministic gate scripts (pre-red, pre-commit)
 ├── rules/           # Always-applied rules (git-safety, security, git-conventions)

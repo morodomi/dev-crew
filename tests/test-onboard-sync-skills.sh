@@ -80,12 +80,15 @@ else
   fail "T-06: SKILL.md is $LINE_COUNT lines (> 100)"
 fi
 
-# T-07: Given ROADMAP.md, Then 11.8に完了マークがある
+# T-07: Given ROADMAP.md or archive, Then 11.8に完了マークがある
 echo ""
 echo "T-07: ROADMAP.md 11.8 has completion mark"
-# Check that 11.8 section header contains "完了" marker
+ARCHIVE="$BASE_DIR/docs/archive/roadmap-v2-v3-completed.md"
+# Check that 11.8 section header contains "完了" marker (may be in archive)
 if echo "$ROADMAP_CONTENT" | grep -q '11\.8.*完了\|11\.8.*\(完了\)'; then
   pass "T-07: ROADMAP.md 11.8 has completion mark"
+elif grep -q '11\.8.*完了\|11\.8.*\(完了\)' "$ARCHIVE" 2>/dev/null; then
+  pass "T-07: ROADMAP.md 11.8 has completion mark (archived)"
 else
   fail "T-07: ROADMAP.md 11.8 missing completion mark"
 fi

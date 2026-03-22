@@ -73,10 +73,12 @@ else
   fail "TC-06: orchestrate/reference.md missing ADR Reference section"
 fi
 
-# TC-07: ROADMAP.md Phase 5 marked DONE
+# TC-07: ROADMAP.md Phase 5 marked DONE (may be in archive)
 echo ""
 echo "TC-07: ROADMAP Phase 5 status"
-if grep -q "Phase 5.*DONE\|Phase 5.*Decision Records.*(DONE)" "$ROADMAP"; then
+ARCHIVE="$BASE_DIR/docs/archive/roadmap-v2-v3-completed.md"
+if grep -q "Phase 5.*DONE\|Phase 5.*Decision Records.*(DONE)" "$ROADMAP" 2>/dev/null || \
+   grep -qE 'Phase 1-5.*完了' "$ARCHIVE" 2>/dev/null; then
   pass "TC-07: ROADMAP Phase 5 marked DONE"
 else
   fail "TC-07: ROADMAP Phase 5 not marked DONE"

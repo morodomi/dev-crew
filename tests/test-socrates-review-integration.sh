@@ -56,9 +56,10 @@ assert "TC-05: socrates.md description mentions review pipeline" \
 assert_not "TC-06: socrates.md description does NOT contain old WARN/BLOCK trigger" \
   grep -q "WARN/BLOCK時" "$BASE_DIR/agents/socrates.md"
 
-# TC-07: ROADMAP.md に Phase 15.3 が含まれる
+# TC-07: ROADMAP.md or archive に Phase 15.3 が含まれる
+ARCHIVE="$BASE_DIR/docs/archive/roadmap-v2-v3-completed.md"
 assert "TC-07: ROADMAP.md contains Phase 15.3" \
-  grep -q "15\.3" "$BASE_DIR/ROADMAP.md"
+  bash -c "grep -q '15\.3' '$BASE_DIR/ROADMAP.md' 2>/dev/null || grep -q '15\.3' '$ARCHIVE' 2>/dev/null"
 
 # TC-08: リグレッション: 直接関連する既存テスト通過
 echo ""

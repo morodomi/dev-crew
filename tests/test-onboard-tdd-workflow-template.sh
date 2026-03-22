@@ -20,12 +20,12 @@ echo "=== Onboard TDD Workflow Template Tests ==="
 echo ""
 
 # TC-01: Given reference.md, When reading AGENTS.md template section,
-# Then TDD Workflow literal template with "spec → sync-plan → plan-review → RED" exists
+# Then TDD Workflow literal template with "spec → sync-plan → plan-review" followed by RED exists
 echo "TC-01: TDD Workflow literal template has correct workflow line"
-if echo "$REF_CONTENT" | grep -q 'spec → sync-plan → plan-review → RED'; then
-  pass "TC-01: TDD Workflow template has 'spec → sync-plan → plan-review → RED'"
+if echo "$REF_CONTENT" | grep -q 'spec → sync-plan → plan-review →.*RED'; then
+  pass "TC-01: TDD Workflow template has 'spec → sync-plan → plan-review → ... RED'"
 else
-  fail "TC-01: TDD Workflow template missing 'spec → sync-plan → plan-review → RED'"
+  fail "TC-01: TDD Workflow template missing 'spec → sync-plan → plan-review → ... RED'"
 fi
 
 # TC-02: Given reference.md TDD Workflow template,

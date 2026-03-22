@@ -7,9 +7,9 @@
 | In-Progress Cycles | 0 |
 | Done (unarchived) | 23 |
 | Archived Cycles | 37 |
-| Test Scripts | 89 |
+| Test Scripts | 90 |
 
-Last updated: 2026-03-18
+Last updated: 2026-03-22
 
 ## Completed (Recent)
 
@@ -51,17 +51,8 @@ Last updated: 2026-03-18
 
 ## TODO
 
-- [x] #75 v3 Phase 1: CONSTITUTION 理想形設計
-- [x] v3 Phase 2: App 型適用検討
-- [x] v3 Phase 3: CLI 型適用検討
-- [x] v3 Phase 4: Data/ML 型適用検討
-- [x] v3 Phase 5: 一般化 vs 個別最適化
-- [x] v3 Phase 6: dev-crew authority migration 実装
-- [x] v3 Phase 7: onboard CONSTITUTION 対応
-- [ ] v3 Phase 8: v3.0.0 リリース
-- [x] v2.5 Phase 18: Post-Approve Action hook 強制
-- [x] v2.5 Phase 18.1: Constitution 整合性チェック
-- [x] v2.5 Phase 18.2: Socrates Plan Adversarial Review
+- [ ] v2.7 Phase 24: 動的スキルコンテンツ注入 設計・PoC
+- [ ] v2.7 Phase 25: 動的スキルコンテンツ注入 段階的適用
 - [ ] v2.6 Phase 21: exspec observe 統合
 - [ ] v2.6 Phase 22: exspec init 統合
 - [ ] v2.6 Phase 23: exspec lint 連携評価・改善

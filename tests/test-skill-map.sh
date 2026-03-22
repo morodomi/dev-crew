@@ -53,13 +53,13 @@ else
   fail "T-04: phase-compact not found"
 fi
 
-# T-05: Given skill-map.md, Then PHILOSOPHY.md への参照がある
+# T-05: Given skill-map.md, Then CONSTITUTION.md への参照がある
 echo ""
-echo "T-05: skill-map.md references PHILOSOPHY.md"
-if grep -q 'PHILOSOPHY.md' "$SKILL_MAP" 2>/dev/null; then
-  pass "T-05: PHILOSOPHY.md reference found"
+echo "T-05: skill-map.md references CONSTITUTION.md"
+if grep -q 'CONSTITUTION.md' "$SKILL_MAP" 2>/dev/null; then
+  pass "T-05: CONSTITUTION.md reference found"
 else
-  fail "T-05: PHILOSOPHY.md reference not found"
+  fail "T-05: CONSTITUTION.md reference not found"
 fi
 
 # T-06: Given skill-map.md, Then ハードコード数値がない
@@ -80,10 +80,12 @@ else
   fail "T-07: skill-map reference not found in README.md"
 fi
 
-# T-08: Given ROADMAP.md, Then Phase 13 に完了マークがある
+# T-08: Given ROADMAP.md or archive, Then Phase 13 に完了マークがある
 echo ""
 echo "T-08: ROADMAP.md Phase 13 has completion mark"
-if grep -qE 'Phase 13.*完了|スキルマップ.*完了|スキルマップ.*\(完了\)' "$ROADMAP" 2>/dev/null; then
+ARCHIVE="$BASE_DIR/docs/archive/roadmap-v2-v3-completed.md"
+if grep -qE 'Phase 13.*完了|スキルマップ.*完了|スキルマップ.*\(完了\)' "$ROADMAP" 2>/dev/null || \
+   grep -qE 'Phase 13.*完了|スキルマップ.*完了' "$ARCHIVE" 2>/dev/null; then
   pass "T-08: Phase 13 completion mark found"
 else
   fail "T-08: Phase 13 completion mark not found"

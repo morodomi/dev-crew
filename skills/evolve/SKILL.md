@@ -55,10 +55,11 @@ learn を継続して instinct を蓄積してください。
 
 選択肢: 生成する / スキル名を変更して生成 / スキップ
 
-### Step 4: スキル/エージェント生成
+### Step 4: バックアップ + スキル/エージェント生成
 
 承認されたクラスタから定義ファイルを生成:
 
+- バックアップ: `~/.claude/dev-crew/backup/YYYYMMDD_HHMM/` にスナップショット保存
 - 出力先: `~/.claude/dev-crew/evolved/` (staging のみ)
 - ローカルの dev-crew プラグインソースは書き換えない
 - 生成物に由来 instinct ID をコメントとして埋め込む
@@ -71,36 +72,11 @@ learn を継続して instinct を蓄積してください。
 保存先: ~/.claude/dev-crew/evolved/phpstan-type-fix/SKILL.md
 ```
 
-### Step 6: GitHub Issue 作成
+### Step 6: GitHub Issue 作成 (Contribute)
 
-生成されたスキル/エージェントごとに `morodomi/dev-crew` リポジトリに Issue を作成:
-
-```bash
-gh issue create --repo morodomi/dev-crew \
-  --title "feat: evolve提案 - <スキル名>" \
-  --label "evolve" \
-  --body "$(cat <<'EOF'
-## 概要
-instinct クラスタリングから自動生成されたスキル/エージェント提案。
-
-## 由来 instinct
-- <instinct ID>: <trigger の要約>
-- ...
-
-## 生成物
-<SKILL.md または agent定義の全文をコードブロックで添付>
-
-## staging パス
-`~/.claude/dev-crew/evolved/<スキル名>/`
-
-## 導入判断
-メンテナーが内容を確認し、dev-crew ソースへの導入を判断してください。
-EOF
-)"
-```
-
-- `evolve` ラベルが未作成の場合は `gh label create evolve --repo morodomi/dev-crew --description "Auto-generated from instinct clustering"` で作成
-- 実際の dev-crew への導入はメンテナーが判断・実施する
+生成されたスキル/エージェントごとに `morodomi/dev-crew` リポジトリに Issue を作成。
+source-path から dev-crew プラグインルートを解決し、テスト検証 (`test-*.sh`) 後に Issue 作成。
+詳細な Issue テンプレート・plugin.json パス検証: [reference.md](reference.md#github-issue-作成-導入提案)
 
 ## Reference
 
