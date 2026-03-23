@@ -9,7 +9,7 @@ SKILL.md の詳細情報。必要時のみ参照。
 | 性質 | 長期知識 | 短期パターン |
 | 編集者 | 人間が検証・編集 | 自動抽出 (未検証) |
 | 形式 | Markdown (フリーテキスト) | JSONL (構造化) |
-| スコープ | プロジェクトローカル | ユーザーグローバル (~/.claude/dev-crew/) |
+| スコープ | プロジェクトローカル | ユーザーグローバル (${CLAUDE_PLUGIN_DATA}/) |
 | 用途 | 次セッションのシステムプロンプト | evolve のクラスタリング入力 |
 
 MEMORY.md に書くべきもの: 確認済みのプロジェクト規約、ツール設定、ユーザー嗜好。
@@ -45,7 +45,7 @@ learn 実行のタイムスタンプを管理するファイル。auto-learn の
 
 | 項目 | 値 |
 |------|-----|
-| パス | `~/.claude/dev-crew/observations/.last-learn-timestamp` |
+| パス | `${CLAUDE_PLUGIN_DATA}/observations/.last-learn-timestamp` |
 | 形式 | ISO 8601 UTC (`2026-02-24T12:00:00Z`) |
 | 更新タイミング | learn の Step 6 完了後 |
 | 用途 | 前回 learn 以降の observation 数をカウントする基準 |
@@ -54,7 +54,7 @@ learn 実行のタイムスタンプを管理するファイル。auto-learn の
 
 ## instinct 蓄積場所
 
-保存先: `~/.claude/dev-crew/instincts/`（ユーザーグローバル）
+保存先: `${CLAUDE_PLUGIN_DATA}/instincts/`（ユーザーグローバル）
 
 選択理由:
 - クロスプロジェクトでパターンが蓄積され、プロジェクト横断の知見が活用できる

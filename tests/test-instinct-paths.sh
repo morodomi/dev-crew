@@ -1,8 +1,8 @@
 #!/bin/bash
-# test-instinct-paths.sh - Verify instinct storage paths use user-global ~/.claude/dev-crew/
+# test-instinct-paths.sh - Verify instinct storage paths use CLAUDE_PLUGIN_DATA
 # TC-10: learn skill has no .claude/meta-skills references
 # TC-11: evolve skill has no .claude/meta-skills references
-# TC-12: observe.sh uses ~/.claude/dev-crew/observations
+# TC-12: observe.sh uses CLAUDE_PLUGIN_DATA pattern (not hardcoded ~/.claude/dev-crew)
 
 set -euo pipefail
 
@@ -33,13 +33,13 @@ else
   pass "evolve skill has no .claude/meta-skills references"
 fi
 
-# TC-12: observe.sh uses ~/.claude/dev-crew/observations
+# TC-12: observe.sh uses CLAUDE_PLUGIN_DATA pattern (not hardcoded ~/.claude/dev-crew)
 echo ""
-echo "TC-12: observe.sh uses ~/.claude/dev-crew/observations"
-if grep -q '\.claude/dev-crew/observations' "$BASE_DIR/scripts/hooks/observe.sh"; then
-  pass "observe.sh uses ~/.claude/dev-crew/observations"
+echo "TC-12: observe.sh uses CLAUDE_PLUGIN_DATA pattern"
+if grep -q 'CLAUDE_PLUGIN_DATA' "$BASE_DIR/scripts/hooks/observe.sh"; then
+  pass "observe.sh uses CLAUDE_PLUGIN_DATA pattern"
 else
-  fail "observe.sh does not use ~/.claude/dev-crew/observations"
+  fail "observe.sh does not use CLAUDE_PLUGIN_DATA pattern"
 fi
 
 # Summary

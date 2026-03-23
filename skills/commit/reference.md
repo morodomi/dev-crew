@@ -60,13 +60,13 @@ COMMIT 後に learn を自動実行する仕組み。`DEV_CREW_AUTO_LEARN=1` 環
 ### 判定ロジック
 
 ```bash
-LAST_LEARN="$HOME/.claude/dev-crew/observations/.last-learn-timestamp"
-if [ "${DEV_CREW_AUTO_LEARN:-0}" = "1" ] && [ -f "$HOME/.claude/dev-crew/observations/log.jsonl" ]; then
+LAST_LEARN="${CLAUDE_PLUGIN_DATA}/observations/.last-learn-timestamp"
+if [ "${DEV_CREW_AUTO_LEARN:-0}" = "1" ] && [ -f "${CLAUDE_PLUGIN_DATA}/observations/log.jsonl" ]; then
   if [ -f "$LAST_LEARN" ]; then
     SINCE=$(cat "$LAST_LEARN")
-    COUNT=$(jq -r --arg since "$SINCE" 'select(.timestamp > $since)' "$HOME/.claude/dev-crew/observations/log.jsonl" | wc -l)
+    COUNT=$(jq -r --arg since "$SINCE" 'select(.timestamp > $since)' "${CLAUDE_PLUGIN_DATA}/observations/log.jsonl" | wc -l)
   else
-    COUNT=$(wc -l < "$HOME/.claude/dev-crew/observations/log.jsonl")
+    COUNT=$(wc -l < "${CLAUDE_PLUGIN_DATA}/observations/log.jsonl")
   fi
   if [ "$COUNT" -ge 20 ]; then
     Skill(dev-crew:learn)
@@ -79,7 +79,7 @@ fi
 | 条件 | 値 | 必須 |
 |------|-----|------|
 | `DEV_CREW_AUTO_LEARN` 環境変数 | `1` | Yes |
-| `~/.claude/dev-crew/observations/log.jsonl` 存在 | ファイルが存在する | Yes |
+| `${CLAUDE_PLUGIN_DATA}/observations/log.jsonl` 存在 | ファイルが存在する | Yes |
 | 前回 learn 以降の観測数 | 20件以上 | Yes |
 
 ### 失敗時の挙動

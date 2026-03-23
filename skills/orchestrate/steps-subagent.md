@@ -204,7 +204,7 @@ Skill(dev-crew:commit)
 条件を満たす場合、COMMIT 後に learn を自動実行:
 
 1. `DEV_CREW_AUTO_LEARN=1` が設定されている
-2. `~/.claude/dev-crew/observations/log.jsonl` が存在する
+2. `${CLAUDE_PLUGIN_DATA}/observations/log.jsonl` が存在する
 3. 前回 learn 以降の観測数が閾値 (20件) 以上
 
 ```

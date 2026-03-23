@@ -66,19 +66,19 @@ description: "{cluster-summary}"
 
 ## バックアップ + ロールバック
 
-evolve 実行前に `~/.claude/dev-crew/backup/YYYYMMDD_HHMM/` にスナップショットを保存。
+evolve 実行前に `${CLAUDE_PLUGIN_DATA}/backup/YYYYMMDD_HHMM/` にスナップショットを保存。
 
 ロールバック手順:
 ```bash
 # 直前の evolve を取り消す
-cp -r ~/.claude/dev-crew/backup/YYYYMMDD_HHMM/* ~/.claude/dev-crew/evolved/
+cp -r ${CLAUDE_PLUGIN_DATA}/backup/YYYYMMDD_HHMM/* ${CLAUDE_PLUGIN_DATA}/evolved/
 ```
 
 ## source-path 解決
 
 evolve は source-path ファイルからプラグインルートを解決する:
 
-1. `~/.claude/dev-crew/source-path` ファイルを読む（observe.sh が自動生成）
+1. `${CLAUDE_PLUGIN_DATA}/source-path` ファイルを読む（observe.sh が自動生成）
 2. source-path が存在しない場合: AskUserQuestion でプラグインルートを確認
 3. source-path のパスに `plugin.json` が存在することを検証
 
@@ -105,7 +105,7 @@ for f in test-*.sh; do bash "$f"; done
 
 ### Issue 作成フロー
 
-1. staging (`~/.claude/dev-crew/evolved/<スキル名>/`) の生成物を読み取る
+1. staging (`${CLAUDE_PLUGIN_DATA}/evolved/<スキル名>/`) の生成物を読み取る
 2. `gh issue create` で Issue 作成
 3. Issue URL をユーザーに報告
 

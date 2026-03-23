@@ -7,7 +7,7 @@
 
 set -euo pipefail
 
-LOG_FILE="${1:-$HOME/.claude/dev-crew/observations/log.jsonl}"
+LOG_FILE="${1:-${CLAUDE_PLUGIN_DATA:-${HOME}/.claude/dev-crew}/observations/log.jsonl}"
 
 # Empty or missing file → empty array
 if [ ! -s "$LOG_FILE" ]; then

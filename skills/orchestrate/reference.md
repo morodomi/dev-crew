@@ -288,7 +288,7 @@ COMMIT 後に learn を自動実行するための条件テーブル:
 | 条件 | 値 | 必須 |
 |------|-----|------|
 | `DEV_CREW_AUTO_LEARN` 環境変数 | `1` | Yes |
-| `~/.claude/dev-crew/observations/log.jsonl` 存在 | ファイルが存在する | Yes |
+| `${CLAUDE_PLUGIN_DATA}/observations/log.jsonl` 存在 | ファイルが存在する | Yes |
 
 両条件を満たさない場合、Auto-Learn はスキップされる (サイレント)。
 
