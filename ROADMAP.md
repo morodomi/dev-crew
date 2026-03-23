@@ -21,19 +21,7 @@ v2.5.3 リリース済み。全完了済みバージョン:
 
 Anthropic Skills Best Practices (Thariq, 2026-03) と Socrates/Codex レビューを反映したスキル品質の体系的強化。品質改善・構造厳格化・検証強化・自動化を段階的に実施する。リリースは Phase 単位で v2.6.x patch として行う。
 
-旧 v2.6 (exspec 深層統合) は凍結済み。番号を再利用する。旧 v2.8/v2.9 を統合。Phase 26 (--no-verify hook) 完了済み。
-
-### Phase 27: Gotchas セクション体系化
-
-各スキルに Gotchas セクション（よくある失敗パターン）を追加。learn/evolve パイプラインの出力先としても機能させる。既存の docs/known-gotchas.md はクロスカッティングな問題を扱い、スキル別 Gotchas はスキル固有の失敗パターンに特化する（スコープの分離）。
-
-| 項目 | 内容 |
-|------|------|
-| 対象 | 高頻度スキル: orchestrate, spec, red, green, review, commit |
-| ソース | instincts/ の蓄積、過去のセッション失敗パターン |
-| 配置 | 各スキルの reference.md 末尾に `## Gotchas` セクション |
-| evolve 連携 | evolve スキルが新 instinct を該当スキルの Gotchas に追記する機能 |
-| テスト | test-gotchas-structure.sh（Gotchas セクション存在確認） |
+旧 v2.6 (exspec 深層統合) は凍結済み。番号を再利用する。旧 v2.8/v2.9 を統合。Phase 26-27 完了済み。
 
 ### Phase 28: On-demand hooks（フィージビリティスパイク）
 

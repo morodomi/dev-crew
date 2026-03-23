@@ -204,3 +204,7 @@ orchestrate → reload → spec → red/green に適用。
 ### v2.8 Phase 26: --no-verify hook (完了)
 
 PreToolUse Bash hook で `--no-verify` を含むコマンドを決定論的にブロック。no-verify-guard.sh 新設、onboard テンプレートにも追加。
+
+### v2.6 Phase 27: Gotchas セクション体系化 (完了)
+
+高頻度6スキル(orchestrate/spec/red/green/review/commit)の reference.md に ## Gotchas テーブル追加(各5項目)。test-gotchas-structure.sh 新設(8テスト)。docs/known-gotchas.md に evolve 連携規約追加。Codex plan review + 3 reviewer findings 反映。
