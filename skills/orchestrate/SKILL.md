@@ -4,6 +4,10 @@ description: "TDDサイクル全体をPdM（Product Manager）として自律管
 allowed-tools: Task, Read, Write, Bash, Grep, Glob, AskUserQuestion
 ---
 
+## Current State
+!`ls -t docs/cycles/*.md 2>/dev/null | head -5 || echo "(none)"`
+!`git log --oneline -5 2>/dev/null || echo "(no commits)"`
+
 # TDD Orchestrate (PdM Mode)
 
 TDDサイクル全体をPdM (Product Manager) として管理。plan mode起点でワークフロー制御。
@@ -32,10 +36,7 @@ orchestrate Progress:
 
 ### Block 0: Prerequisite Check
 
-**最初に実行**: post-approve gate フラグを解除する:
-```bash
-rm -f "${HOME}/.claude/dev-crew/.plan-approved"
-```
+**最初に実行**: `rm -f "${HOME}/.claude/dev-crew/.plan-approved"` で post-approve gate フラグを解除する。
 
 planファイルを起点に開始地点を決定する:
 
@@ -63,28 +64,16 @@ planファイルを起点に開始地点を決定する:
 **MUST**: 次のフェーズに進む前に、現フェーズの完了条件を確認せよ。詳細手順はモードに応じて参照: [steps-subagent.md](steps-subagent.md) / [steps-teams.md](steps-teams.md) / [steps-codex.md](steps-codex.md)
 
 #### Block 2a: RED
-```
-Task(subagent_type: "dev-crew:red-worker", model: "sonnet", prompt: "Cycle doc: [path]. 担当テストケース: [TC-XX]. テストを作成し、失敗を確認せよ。")
-```
-**完了条件**: テストが作成され、実行して失敗（RED状態）を確認
+Task(red-worker, sonnet): Cycle doc + TC → テスト作成・失敗確認
 
 #### Block 2b: GREEN
-```
-Task(subagent_type: "dev-crew:green-worker", model: "sonnet", prompt: "Cycle doc: [path]. テストを通す最小限の実装を行え。")
-```
-**完了条件**: 全テストがPASS（GREEN状態）を確認
+Task(green-worker, sonnet): Cycle doc → テストを通す最小実装・全PASS確認
 
 #### Block 2c: REFACTOR
-```
-Skill(dev-crew:refactor)
-```
-**完了条件**: Verification Gate通過（テスト全PASS + 静的解析0件 + フォーマット適用）
+Skill(dev-crew:refactor): Verification Gate通過（テスト全PASS + 静的解析0件 + フォーマット）
 
 #### Block 2d: REVIEW
-```
-Skill(dev-crew:review, args: "--code")
-```
-Codex利用可能時は competitive review も実行。
+Skill(dev-crew:review, args: "--code"): competitive review（Codex利用可能時）
 **判定**: PASS/WARN → Block 2e へ、BLOCK → GREEN再実行（max 1回）
 
 #### Block 2e: DISCOVERED

@@ -4,6 +4,9 @@ description: compact後にCycle docからコンテキストを復元する。「
 allowed-tools: Read, Glob, Grep
 ---
 
+## Current State
+!`ls -t docs/cycles/*.md 2>/dev/null | head -1 || echo "(none)"`
+
 # Reload
 
 compact後にCycle docからTDDサイクルのコンテキストを復元するスキル。

@@ -103,3 +103,17 @@ Claude Code は `!`command`` 構文を認識し、スキル呼び出し時にシ
 - 各スキルで使用するコマンドを `settings.local.json` に登録する手順が必要
 - onboard スキルで新規プロジェクトに推奨パターンを案内（Phase 25 以降）
 - 自動テストは構造チェック（ADR存在確認）のみ。展開結果の検証は手動
+
+## Phase 25 適用結果
+
+適用日: 2026-03-23
+
+| スキル | 注入コマンド | 行数変化 |
+|--------|-------------|---------|
+| orchestrate | `ls cycles` + `git log` | 100→89（圧縮実施） |
+| reload | `ls cycles` | 75→78 |
+| spec | `ls cycles` (head -3) | 95→98 |
+| red | `ls cycles` | 78→81 |
+| green | `ls cycles` | 49→52 |
+
+配置: frontmatter直後の `## Current State` セクション。テスト: TC-07/07f/08/09（test-dynamic-content.sh）
