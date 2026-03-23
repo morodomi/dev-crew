@@ -5,7 +5,7 @@
 | Metric | Value |
 |--------|-------|
 | In-Progress Cycles | 0 |
-| Done (unarchived) | 24 |
+| Done (unarchived) | 25 |
 | Archived Cycles | 37 |
 | Test Scripts | 92 |
 
@@ -15,6 +15,7 @@ Last updated: 2026-03-23
 
 | Date | Cycle | Type |
 |------|-------|------|
+| 2026-03-23 | v2.7 Phase 25: 動的スキルコンテンツ注入 段階的適用 | feat |
 | 2026-03-23 | v2.7 Phase 24: 動的スキルコンテンツ注入 設計・PoC | feat |
 | 2026-03-23 | v2.8 Phase 26: --no-verify hook（決定論的ブロック） | feat |
 | 2026-03-18 | v2.5.0: Constitution-Driven Enforcement | feat |
@@ -59,7 +60,7 @@ Last updated: 2026-03-23
 - [ ] v2.6 Phase 22: exspec init 統合
 - [ ] v2.6 Phase 23: exspec lint 連携評価・改善
 - [x] v2.7 Phase 24: 動的スキルコンテンツ注入 設計・PoC
-- [ ] v2.7 Phase 25: 動的スキルコンテンツ注入 段階的適用
+- [x] v2.7 Phase 25: 動的スキルコンテンツ注入 段階的適用
 - [x] v2.8 Phase 26: --no-verify hook（決定論的ブロック）
 - [ ] v2.8 Phase 27: Gotchas セクション体系化
 - [ ] v2.8 Phase 28: On-demand hooks（v2.7 Phase 24 完了後）
