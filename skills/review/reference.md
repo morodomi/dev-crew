@@ -237,3 +237,13 @@ Codex 利用可能時、orchestrate が Claude レビュー（本スキル）と
 | LOW risk (80%) | 11 agents, ~88K tokens | 5 agents, ~25K tokens | ~72% |
 | MEDIUM risk | 11 agents, ~88K tokens | 7-9 agents, ~45K tokens | ~49% |
 | HIGH risk | 11-12 agents | 10-12 agents, ~75K tokens | ~15% |
+
+## Gotchas
+
+| # | 症状 | 原因 | 対策 |
+|---|------|------|------|
+| G-01 | mode判定誤り(planをcodeで実行) | 引数なしはcode(default) | --plan/--codeを明示指定 |
+| G-02 | REFACTOR記録未検出 | Progress Log表記揺れ | grep -qiEでcase insensitive |
+| G-03 | LOW riskで全agent起動 | Risk-based scaling不適用 | risk-classifier.sh判定に従う |
+| G-04 | Codex competitive review未試行 | CLAUDE.mdルール忘れ | steps-codex.mdのCompetitive Reviewセクション参照 |
+| G-05 | DISCOVERED issue起票忘れ | Step 7スキップ | review完了前にDISCOVERED確認 |
