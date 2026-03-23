@@ -26,7 +26,7 @@ learn スキルから以下の情報を受け取る:
 | git_log | git log --oneline -20 の出力 |
 | changed_files | git diff --name-only の出力 |
 | user_notes | ユーザーからの補足情報 |
-| observations | `~/.claude/dev-crew/observations/log.jsonl` のツール使用ログ |
+| observations | `${CLAUDE_PLUGIN_DATA}/observations/log.jsonl` のツール使用ログ |
 | tfidf_summary | learn が算出した TF-IDF サマリ (term, tf, idf, tfidf, count, sessions) |
 
 ## Output

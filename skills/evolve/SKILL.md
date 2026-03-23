@@ -11,14 +11,14 @@ allowed-tools: Read, Write, Bash, Grep, Glob
 ## 前提
 
 - learn スキルで instinct が蓄積されていること
-- ~/.claude/dev-crew/instincts/ に JSONL ファイルが存在すること
+- ${CLAUDE_PLUGIN_DATA}/instincts/ に JSONL ファイルが存在すること
 
 ## 実行手順
 
 ### Step 1: instinct 読み込み + Empty State チェック
 
 ```bash
-wc -l ~/.claude/dev-crew/instincts/*.jsonl 2>/dev/null
+wc -l ${CLAUDE_PLUGIN_DATA}/instincts/*.jsonl 2>/dev/null
 ```
 
 instinct が不足している場合:
@@ -59,8 +59,8 @@ learn を継続して instinct を蓄積してください。
 
 承認されたクラスタから定義ファイルを生成:
 
-- バックアップ: `~/.claude/dev-crew/backup/YYYYMMDD_HHMM/` にスナップショット保存
-- 出力先: `~/.claude/dev-crew/evolved/` (staging のみ)
+- バックアップ: `${CLAUDE_PLUGIN_DATA}/backup/YYYYMMDD_HHMM/` にスナップショット保存
+- 出力先: `${CLAUDE_PLUGIN_DATA}/evolved/` (staging のみ)
 - ローカルの dev-crew プラグインソースは書き換えない
 - 生成物に由来 instinct ID をコメントとして埋め込む
 
@@ -69,7 +69,7 @@ learn を継続して instinct を蓄積してください。
 ```
 スキル「phpstan-type-fix」を生成しました。
 由来: inst-20260213-001, inst-20260214-003, inst-20260215-002
-保存先: ~/.claude/dev-crew/evolved/phpstan-type-fix/SKILL.md
+保存先: ${CLAUDE_PLUGIN_DATA}/evolved/phpstan-type-fix/SKILL.md
 ```
 
 ### Step 6: GitHub Issue 作成 (Contribute)

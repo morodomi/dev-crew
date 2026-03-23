@@ -36,7 +36,7 @@ orchestrate Progress:
 
 ### Block 0: Prerequisite Check
 
-**最初に実行**: `PROJECT_HASH=$(pwd | md5 -q 2>/dev/null || echo "$PWD" | md5sum | cut -d' ' -f1) && rm -f "${HOME}/.claude/dev-crew/.plan-approved-${PROJECT_HASH}"` で post-approve gate フラグを解除する。
+**最初に実行**: `DATA_DIR="${CLAUDE_PLUGIN_DATA:-${HOME}/.claude/dev-crew}" && PROJECT_HASH=$(pwd | md5 -q 2>/dev/null || echo "$PWD" | md5sum | cut -d' ' -f1) && rm -f "${DATA_DIR}/.plan-approved-${PROJECT_HASH}"` で post-approve gate フラグを解除する。
 
 planファイルを起点に開始地点を決定する:
 

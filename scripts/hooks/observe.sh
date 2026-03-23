@@ -20,11 +20,12 @@ if ! command -v jq >/dev/null 2>&1; then
 fi
 
 # Determine output directory
-OBS_DIR="${HOME}/.claude/dev-crew/observations"
+DATA_DIR="${CLAUDE_PLUGIN_DATA:-${HOME}/.claude/dev-crew}"
+OBS_DIR="${DATA_DIR}/observations"
 mkdir -p "$OBS_DIR"
 
 # Cache plugin source path for evolve --contribute
-printf '%s\n' "$(cd "$(dirname "$0")/../.." && pwd)" > "$HOME/.claude/dev-crew/source-path" 2>/dev/null || true
+printf '%s\n' "$(cd "$(dirname "$0")/../.." && pwd)" > "${DATA_DIR}/source-path" 2>/dev/null || true
 
 # Filter out read-only Bash commands to reduce noise
 TOOL_NAME=$(echo "$INPUT" | jq -r '.tool_name // ""')

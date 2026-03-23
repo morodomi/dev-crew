@@ -5,8 +5,9 @@
 
 set -uo pipefail
 
+FLAG_DIR="${CLAUDE_PLUGIN_DATA:-${HOME}/.claude/dev-crew}"
 PROJECT_HASH=$(pwd | md5 -q 2>/dev/null || echo "$PWD" | md5sum | cut -d' ' -f1)
-FLAG_FILE="${HOME}/.claude/dev-crew/.plan-approved-${PROJECT_HASH}"
+FLAG_FILE="${FLAG_DIR}/.plan-approved-${PROJECT_HASH}"
 
 # No flag → allow
 if [ ! -f "$FLAG_FILE" ]; then
@@ -28,5 +29,5 @@ fi
 # Flag is valid → block
 echo "BLOCKED: Plan was approved but /orchestrate has not been started."
 echo "Run /orchestrate first. It handles sync-plan, plan-review, and the full TDD cycle."
-echo "To clear this gate manually: rm ~/.claude/dev-crew/.plan-approved-${PROJECT_HASH}"
+echo "To clear this gate manually: rm ${FLAG_DIR}/.plan-approved-${PROJECT_HASH}"
 exit 2

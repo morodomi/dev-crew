@@ -10,7 +10,7 @@ if [ ! -d "docs/cycles" ]; then
   exit 0
 fi
 
-FLAG_DIR="${HOME}/.claude/dev-crew"
+FLAG_DIR="${CLAUDE_PLUGIN_DATA:-${HOME}/.claude/dev-crew}"
 PROJECT_HASH=$(pwd | md5 -q 2>/dev/null || echo "$PWD" | md5sum | cut -d' ' -f1)
 FLAG_FILE="${FLAG_DIR}/.plan-approved-${PROJECT_HASH}"
 

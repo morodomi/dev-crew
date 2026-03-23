@@ -4,7 +4,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-FLAG_DIR="${HOME}/.claude/dev-crew"
+FLAG_DIR="${CLAUDE_PLUGIN_DATA:-${HOME}/.claude/dev-crew}"
 
 # PROJECT_HASH: ハッシュベースのフラグ名（現在のpwdから計算）
 PROJECT_HASH=$(pwd | md5 -q 2>/dev/null || echo "$PWD" | md5sum | cut -d' ' -f1)

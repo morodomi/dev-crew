@@ -39,7 +39,7 @@ count=$(grep -c 'pattern' file 2>/dev/null || echo "0")
 
 ## evolve 連携規約
 
-evolve の将来拡張として、instinct を Gotchas に変換する際のルール。現在は手動追記。evolve が直接 reference.md を編集する機能は未実装（evolve は ~/.claude/dev-crew/evolved/ へのステージングと GitHub Issue 提案のみ）。
+evolve の将来拡張として、instinct を Gotchas に変換する際のルール。現在は手動追記。evolve が直接 reference.md を編集する機能は未実装（evolve は ${CLAUDE_PLUGIN_DATA}/evolved/ へのステージングと GitHub Issue 提案のみ）。
 
 ### 追記先の判断
 
