@@ -5,9 +5,9 @@
 | Metric | Value |
 |--------|-------|
 | In-Progress Cycles | 0 |
-| Done (unarchived) | 25 |
+| Done (unarchived) | 26 |
 | Archived Cycles | 37 |
-| Test Scripts | 92 |
+| Test Scripts | 93 |
 
 Last updated: 2026-03-23
 
@@ -15,6 +15,7 @@ Last updated: 2026-03-23
 
 | Date | Cycle | Type |
 |------|-------|------|
+| 2026-03-23 | #88: onboardテンプレートにno-verify-guard hook推奨追加 | feat |
 | 2026-03-23 | v2.7 Phase 25: 動的スキルコンテンツ注入 段階的適用 | feat |
 | 2026-03-23 | v2.7 Phase 24: 動的スキルコンテンツ注入 設計・PoC | feat |
 | 2026-03-23 | v2.8 Phase 26: --no-verify hook（決定論的ブロック） | feat |
