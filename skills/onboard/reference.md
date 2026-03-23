@@ -536,9 +536,9 @@ CLAUDE.md から `@docs/architecture.md` のように外部ファイルを参照
 
 ---
 
-## Step 6: .claude/ 構造
+## Step 6: .claude/ 構造（決定論的ブロック・hookテンプレート配布）
 
-core の `.claude/` から Read してコピー: `.claude/rules/security.md`, `.claude/rules/git-safety.md`, `.claude/rules/git-conventions.md`, `.claude/hooks/recommended.md` (--no-verify + rm -rf ブロック)。
+core の `.claude/` から Read してコピー: `.claude/rules/security.md`, `.claude/rules/git-safety.md`, `.claude/rules/git-conventions.md`, `.claude/hooks/recommended.md` (--no-verify + rm -rf ブロック、no-verify-guard.sh による決定論的ブロック)。
 
 ### ファイル単位の差分チェック
 
