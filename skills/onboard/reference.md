@@ -594,6 +594,17 @@ hookなし → セットアップ推奨。
 
 spec スキルの [templates/cycle.md](../spec/templates/cycle.md) をベースに `docs/cycles/YYYYMMDD_0000_project-setup.md` を作成。
 
+### Cycle doc命名規約
+
+| 要素 | 規約 | 例 |
+|------|------|-----|
+| ファイル名 | `YYYYMMDD_HHMM_<feature-name>.md` | `20260323_2324_phase30-directory-structure.md` |
+| YYYYMMDD | 日付 (ゼロ埋め) | `20260323` |
+| HHMM | 時刻 (24h, ゼロ埋め) | `2324` |
+| feature-name | kebab-case 識別子 | `phase30-directory-structure` |
+
+検証: `tests/test-directory-structure.sh` で自動チェック。
+
 ---
 
 ## 変数一覧
