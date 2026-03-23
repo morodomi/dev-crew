@@ -1,10 +1,12 @@
 ---
+phase: DONE
 title: "Phase 29: CLAUDE_PLUGIN_DATA Migration"
 date: 2026-03-23
 status: IN_PROGRESS
 plan_file: /Users/morodomi/.claude/plans/parsed-seeking-steele.md
 codex_session_id: ""
 ---
+phase: DONE
 
 # Phase 29: CLAUDE_PLUGIN_DATA 移行
 
@@ -159,5 +161,6 @@ Design Review Gate: **PASS** (score: 20/100)
 - Risk: 全体的にリスクは低い。フォールバック設計が安全ネットとして機能する。
 
 ---
+phase: DONE
 
 _RED phase: tests/test-plugin-data-paths.sh を作成し、全 T-01〜T-06 が FAIL することを確認する_

@@ -1,8 +1,10 @@
 ---
+phase: DONE
 status: DONE
 type: feat
 created: 2026-03-17
 ---
+phase: DONE
 
 # Phase 17: v2.4 統合・リリース
 

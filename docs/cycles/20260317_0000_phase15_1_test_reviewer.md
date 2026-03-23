@@ -1,3 +1,7 @@
+---
+phase: DONE
+---
+
 # Phase 15.1: test-reviewer 新設
 
 ## Metadata

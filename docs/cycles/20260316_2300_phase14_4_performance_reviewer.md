@@ -1,3 +1,7 @@
+---
+phase: DONE
+---
+
 # Phase 14.4: performance-reviewer 強化
 
 ## Metadata

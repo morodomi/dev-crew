@@ -276,6 +276,84 @@ else
   pass "TC-I11: unclosed frontmatter rejected"
 fi
 
+# --- Required field presence (Phase 30: directory structure strictification) ---
+
+# TC-I12: Missing feature field -> FAIL
+echo ""
+echo "TC-I12: Missing feature field -> FAIL"
+FIXTURE=$(make_fixture "i12.md" "$(cat <<'FM'
+cycle: test-cycle
+phase: RED
+complexity: standard
+test_count: 5
+risk_level: medium
+created: 2026-03-09 10:00
+updated: 2026-03-09 10:00
+FM
+)")
+if bash "$VALIDATOR" "$FIXTURE" >/dev/null 2>&1; then
+  fail "TC-I12: missing feature field accepted"
+else
+  pass "TC-I12: missing feature field rejected"
+fi
+
+# TC-I13: Missing cycle field -> FAIL
+echo ""
+echo "TC-I13: Missing cycle field -> FAIL"
+FIXTURE=$(make_fixture "i13.md" "$(cat <<'FM'
+feature: test-feature
+phase: GREEN
+complexity: standard
+test_count: 3
+risk_level: low
+created: 2026-03-09 10:00
+updated: 2026-03-09 10:00
+FM
+)")
+if bash "$VALIDATOR" "$FIXTURE" >/dev/null 2>&1; then
+  fail "TC-I13: missing cycle field accepted"
+else
+  pass "TC-I13: missing cycle field rejected"
+fi
+
+# TC-I14: Missing created field -> FAIL
+echo ""
+echo "TC-I14: Missing created field -> FAIL"
+FIXTURE=$(make_fixture "i14.md" "$(cat <<'FM'
+feature: test-feature
+cycle: test-cycle
+phase: RED
+complexity: trivial
+test_count: 2
+risk_level: low
+updated: 2026-03-09 10:00
+FM
+)")
+if bash "$VALIDATOR" "$FIXTURE" >/dev/null 2>&1; then
+  fail "TC-I14: missing created field accepted"
+else
+  pass "TC-I14: missing created field rejected"
+fi
+
+# TC-I15: Missing updated field -> FAIL
+echo ""
+echo "TC-I15: Missing updated field -> FAIL"
+FIXTURE=$(make_fixture "i15.md" "$(cat <<'FM'
+feature: test-feature
+cycle: test-cycle
+phase: RED
+complexity: standard
+test_count: 5
+risk_level: medium
+created: 2026-03-09 10:00
+FM
+)")
+if bash "$VALIDATOR" "$FIXTURE" >/dev/null 2>&1; then
+  fail "TC-I15: missing updated field accepted"
+else
+  pass "TC-I15: missing updated field rejected"
+fi
+
 # Summary
 echo ""
 echo "=== Summary ==="

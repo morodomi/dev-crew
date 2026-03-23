@@ -1,3 +1,7 @@
+---
+phase: DONE
+---
+
 # Phase 14.2: api-contract-reviewer 新設
 
 ## Metadata

@@ -43,6 +43,14 @@ fi
 # Helper: extract value for a key from frontmatter
 fm_val() { echo "$FM" | grep "^$1:" | head -1 | sed "s/^$1: *//"; }
 
+# 0. required field presence (Phase 30: directory structure strictification)
+for FIELD in feature cycle created updated; do
+  VAL=$(fm_val "$FIELD")
+  if [ -z "$VAL" ]; then
+    error "required field missing or empty: '$FIELD'"
+  fi
+done
+
 # 1. phase validation
 PHASE=$(fm_val phase)
 case "$PHASE" in
