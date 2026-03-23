@@ -7,6 +7,8 @@
 | In-Progress Cycles | 0 |
 | Done (unarchived) | 27 |
 | Archived Cycles | 37 |
+| Skills | 30 |
+| Agents | 41 |
 | Test Scripts | 96 |
 
 Last updated: 2026-03-23

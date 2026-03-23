@@ -5,46 +5,21 @@
 
 ## 現在地
 
-v2.5.3 リリース済み。全完了済みバージョン:
+v2.6.0 リリース済み。全完了済みバージョン:
 - v2 (Phase 11-13): Claude + Codex 統合開発フロー
 - v2.4 (Phase 14-17): Review Taxonomy 体系化 (33→40 agents)
 - v2.5 (Phase 18): Constitution-Driven Enforcement
-- v2.6-old (Phase 19-23): exspec 深層統合（凍結）
+- v2.6 (Phase 26-29): スキル成熟化 (Gotchas, On-demand hooks, PLUGIN_DATA)
 - v2.7 (Phase 24-25): 動的スキルコンテンツ注入
 - v3 (Phase 1-8): Constitution-Driven Development
 
-次: v2.6 (スキル成熟化)
+次: v2.6.x (構造厳格化 + Verification + Automation)
 
 ---
 
-## v2.6: スキル成熟化
+## v2.6.x: 構造厳格化 + Verification + Automation
 
-Anthropic Skills Best Practices (Thariq, 2026-03) と Socrates/Codex レビューを反映したスキル品質の体系的強化。品質改善・構造厳格化・検証強化・自動化を段階的に実施する。リリースは Phase 単位で v2.6.x patch として行う。
-
-旧 v2.6 (exspec 深層統合) は凍結済み。番号を再利用する。旧 v2.8/v2.9 を統合。Phase 26-27 完了済み。
-
-### Phase 28: On-demand hooks（フィージビリティスパイク）
-
-スキル呼び出し時にのみ有効になる hooks の構文検証。
-
-| 項目 | 内容 |
-|------|------|
-| 設計 | SKILL.md frontmatter に hooks 定義を追加する構文を検証 |
-| ユースケース | `/careful`: prod 作業時に破壊コマンドブロック、`/freeze`: 特定ディレクトリ以外の編集ブロック |
-| PoC | 1スキル（careful）で試験導入 |
-| テスト | on-demand hook の有効化・無効化テスト |
-
-### Phase 29: CLAUDE_PLUGIN_DATA 移行
-
-スキルデータの保存先を `~/.claude/dev-crew/` から公式の `${CLAUDE_PLUGIN_DATA}` に移行。
-
-**影響範囲**: 6+ファイルにハードコード（learn, evolve, commit, observe.sh, tests 等）。
-
-| 項目 | 内容 |
-|------|------|
-| 移行戦略 | dual-read: 新パス優先 → 旧パス fallback → 初回実行時に自動コピー |
-| 完了条件 | grep で `~/.claude/dev-crew` の参照が 0 件 |
-| テスト | データパス解決テスト + 旧パスからの移行テスト |
+v2.6.0 の品質強化に続き、構造規約・検証・自動化を追加する。
 
 ### Phase 30: ディレクトリ構造厳格化
 
