@@ -11,7 +11,8 @@ if [ ! -d "docs/cycles" ]; then
 fi
 
 FLAG_DIR="${HOME}/.claude/dev-crew"
-FLAG_FILE="${FLAG_DIR}/.plan-approved"
+PROJECT_HASH=$(pwd | md5 -q 2>/dev/null || echo "$PWD" | md5sum | cut -d' ' -f1)
+FLAG_FILE="${FLAG_DIR}/.plan-approved-${PROJECT_HASH}"
 
 mkdir -p "$FLAG_DIR"
 date -u +"%Y-%m-%dT%H:%M:%SZ" > "$FLAG_FILE"
