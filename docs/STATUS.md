@@ -56,17 +56,12 @@ Last updated: 2026-03-23
 
 ## TODO
 
-- [ ] v2.6 Phase 19: ディレクトリ構造厳格化
-- [ ] v2.6 Phase 20: Socrates コスト最適化
-- [ ] v2.6 Phase 21: exspec observe 統合
-- [ ] v2.6 Phase 22: exspec init 統合
-- [ ] v2.6 Phase 23: exspec lint 連携評価・改善
-- [x] v2.7 Phase 24: 動的スキルコンテンツ注入 設計・PoC
-- [x] v2.7 Phase 25: 動的スキルコンテンツ注入 段階的適用
-- [x] v2.8 Phase 26: --no-verify hook（決定論的ブロック）
-- [ ] v2.8 Phase 27: Gotchas セクション体系化
-- [ ] v2.8 Phase 28: On-demand hooks（v2.7 Phase 24 完了後）
-- [ ] v2.8 Phase 29: CLAUDE_PLUGIN_DATA 移行
+- [ ] v2.6 Phase 27: Gotchas セクション体系化
+- [ ] v2.6 Phase 28: On-demand hooks（フィージビリティスパイク）
+- [ ] v2.6 Phase 29: CLAUDE_PLUGIN_DATA 移行
+- [ ] v2.6 Phase 30: ディレクトリ構造厳格化
+- [ ] v2.6 Phase 31: Product Verification PoC
+- [ ] v2.6 Phase 32: babysit-pr（GitHub Actions）
 
 詳細は [ROADMAP.md](../ROADMAP.md) 参照。
 

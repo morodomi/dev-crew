@@ -1,4 +1,4 @@
-# Archived Roadmap: v2 / v2.4 / v2.5 / v3 (全完了)
+# Archived Roadmap: v2 / v2.4 / v2.5 / v2.6 / v2.7 / v3
 
 > このファイルは ROADMAP.md から完了済みセクションをアーカイブしたもの。
 > Phase 1-10 は [development-plan.md](development-plan.md) を参照。
@@ -174,3 +174,33 @@ onboard スキルに CONSTITUTION.md 生成を追加。
 ### Phase 8: リリース (v2.3.0 → v2.5.2, 完了)
 
 Constitution 機能は v2.3.0 でリリース。以降 v2.5.2 まで段階的に強化。
+
+---
+
+## v2.6: exspec 深層統合 + ワークフロー厳格化 (凍結)
+
+exspec CLI (v0.3.0) の lint / observe / init を dev-crew ワークフローに深層統合する計画。exspec CLI 側の実装が進まず、2026-03-23 時点で凍結。
+
+### Phase 19: ディレクトリ構造厳格化 (未着手)
+### Phase 20: Socrates コスト最適化 (未着手)
+### Phase 21: exspec observe 統合 (未着手、exspec 依存)
+### Phase 22: exspec init 統合 (未着手、exspec 依存)
+### Phase 23: exspec lint 連携評価・改善 (未着手、exspec 依存)
+
+---
+
+## v2.7: 動的スキルコンテンツ注入 (全Phase完了)
+
+SKILL.md 内に `` !`command` `` を埋め込むことで、スキル起動時にシェルコマンドの出力をプロンプトにインライン注入する。
+
+### Phase 24: 設計・PoC (完了)
+
+`` !`command` `` 構文の動作検証。orchestrate で試験導入し、トークン削減を確認。ADR記録済み。
+
+### Phase 25: 段階的適用 (完了)
+
+orchestrate → reload → spec → red/green に適用。
+
+### v2.8 Phase 26: --no-verify hook (完了)
+
+PreToolUse Bash hook で `--no-verify` を含むコマンドを決定論的にブロック。no-verify-guard.sh 新設、onboard テンプレートにも追加。
