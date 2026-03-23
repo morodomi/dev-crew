@@ -137,6 +137,46 @@ else
   fail "Script file does not exist at $SCRIPT"
 fi
 
+# T-06: BLOCK when only old-format Cycle doc exists (no phase: field)
+echo ""
+echo "T-06: BLOCK when old-format Cycle doc (no phase: field) is only doc"
+
+# Remove previous active doc, add old-format only
+rm -f "$TMPDIR/docs/cycles/20260315_1300_active.md"
+cat > "$TMPDIR/docs/cycles/20260316_0053_old-format.md" <<'CYCLE'
+---
+title: "Old Format Phase 13"
+date: 2026-03-16
+status: IN_PROGRESS
+---
+# Old format cycle
+CYCLE
+
+output=$(bash "$SCRIPT" "$TMPDIR" 2>&1) && rc=$? || rc=$?
+if [ "$rc" -eq 1 ] && echo "$output" | grep -qi "cycle doc"; then
+  pass "BLOCK on old-format Cycle doc (no phase: field)"
+else
+  fail "Expected BLOCK (exit 1) on old-format doc, got rc=$rc output: $output"
+fi
+
+# T-07: BLOCK when only no-frontmatter Cycle doc exists
+echo ""
+echo "T-07: BLOCK when no-frontmatter Cycle doc is only doc"
+
+rm -f "$TMPDIR/docs/cycles/20260316_0053_old-format.md"
+cat > "$TMPDIR/docs/cycles/20260316_1200_no-fm.md" <<'CYCLE'
+# No Frontmatter Doc
+
+This doc has no YAML frontmatter at all.
+CYCLE
+
+output=$(bash "$SCRIPT" "$TMPDIR" 2>&1) && rc=$? || rc=$?
+if [ "$rc" -eq 1 ] && echo "$output" | grep -qi "cycle doc"; then
+  pass "BLOCK on no-frontmatter Cycle doc"
+else
+  fail "Expected BLOCK (exit 1) on no-frontmatter doc, got rc=$rc output: $output"
+fi
+
 # Summary
 echo ""
 echo "=== Summary ==="

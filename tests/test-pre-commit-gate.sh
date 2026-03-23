@@ -136,6 +136,27 @@ else
   fail "Expected clean PASS, got rc=$rc output: $output"
 fi
 
+# T-06: BLOCK when only old-format Cycle doc exists (no phase: field)
+echo ""
+echo "T-06: BLOCK when old-format Cycle doc (no phase: field) is only doc"
+
+rm -f "$TMPDIR/docs/cycles/20260315_1400_active.md"
+cat > "$TMPDIR/docs/cycles/20260316_0053_old-format.md" <<'CYCLE'
+---
+title: "Old Format Phase 13"
+date: 2026-03-16
+status: IN_PROGRESS
+---
+# Old format cycle
+CYCLE
+
+output=$(bash "$SCRIPT" "$TMPDIR" 2>&1) && rc=$? || rc=$?
+if [ "$rc" -eq 1 ] && echo "$output" | grep -qi "cycle doc"; then
+  pass "BLOCK on old-format Cycle doc (no phase: field)"
+else
+  fail "Expected BLOCK (exit 1) on old-format doc, got rc=$rc output: $output"
+fi
+
 # Summary
 echo ""
 echo "=== Summary ==="
