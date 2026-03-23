@@ -20,11 +20,13 @@ set -euo pipefail
 
 PROJECT_ROOT="${1:-.}"
 
-# Find active Cycle doc
+# Find active Cycle doc (skip docs without phase field)
 ACTIVE_CYCLE=""
 for f in "$PROJECT_ROOT"/docs/cycles/*.md; do
   [ -f "$f" ] || continue
-  if ! awk '/^---$/{c++;next} c==1{print}' "$f" | grep -q 'phase: DONE'; then
+  phase=$(awk '/^---$/{c++;next} c==1{print}' "$f" | grep '^phase:' | head -1 | sed 's/^phase: *//' || true)
+  [ -z "$phase" ] && continue  # Skip docs without phase field (old format / no frontmatter)
+  if [ "$phase" != "DONE" ]; then
     ACTIVE_CYCLE="$f"
     break
   fi
