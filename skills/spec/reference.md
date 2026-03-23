@@ -554,3 +554,13 @@ ls CONSTITUTION.md AGENTS.md CLAUDE.md README.md 2>/dev/null | head -1
 ```
 
 矛盾がなければ記録不要（デフォルトで整合と見なす）。
+
+## Gotchas
+
+| # | 症状 | 原因 | 対策 |
+|---|------|------|------|
+| G-01 | plan mode外で実行エラー | spec はplan mode専用 | 案内して終了 |
+| G-02 | Post-Approve Actionセクション書き忘れ | auto-orchestrate不発 | Step 6テンプレート確認 |
+| G-03 | 既存cycle無視で新規spec開始 | Step 3チェックスキップ | ls -t docs/cycles/*.md |
+| G-04 | CONSTITUTION整合性チェック省略 | Step 7.1の省略 | Upstream Referencesに記録 |
+| G-05 | Version Gate失敗 | onboard未実行 | onboard先行実行案内 |

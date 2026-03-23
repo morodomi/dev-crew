@@ -36,3 +36,26 @@ count=$(grep -c 'pattern' file 2>/dev/null || echo "0")
 - ゲートスクリプト（pre-red-gate.sh, pre-commit-gate.sh）
 - risk-classifier.sh
 - テストスクリプト全般
+
+## evolve 連携規約
+
+evolve の将来拡張として、instinct を Gotchas に変換する際のルール。現在は手動追記。evolve が直接 reference.md を編集する機能は未実装（evolve は ~/.claude/dev-crew/evolved/ へのステージングと GitHub Issue 提案のみ）。
+
+### 追記先の判断
+
+| スコープ | 追記先 |
+|---------|--------|
+| このスキルでしか発生しない | 各スキルの `skills/<name>/reference.md` の `## Gotchas` テーブル |
+| 複数スキルに影響する | `docs/known-gotchas.md` |
+
+### G-番号規則
+
+- スキル reference.md の Gotchas テーブルにのみ適用（known-gotchas.md のエントリには G-番号を付与しない）
+- 既存の最大番号 + 1 で連番付与
+- 例: G-05 が最後なら次は G-06
+
+### テーブル行フォーマット
+
+```markdown
+| G-NN | [症状の簡潔な記述] | [根本原因] | [具体的な対策] |
+```

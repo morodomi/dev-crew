@@ -7,7 +7,7 @@
 | In-Progress Cycles | 0 |
 | Done (unarchived) | 27 |
 | Archived Cycles | 37 |
-| Test Scripts | 93 |
+| Test Scripts | 94 |
 
 Last updated: 2026-03-23
 
@@ -15,6 +15,7 @@ Last updated: 2026-03-23
 
 | Date | Cycle | Type |
 |------|-------|------|
+| 2026-03-23 | v2.6 Phase 27: Gotchasセクション体系化 | feat |
 | 2026-03-23 | #93: post-approve-gateフラグのプロジェクト分離 | fix |
 | 2026-03-23 | #88: onboardテンプレートにno-verify-guard hook推奨追加 | feat |
 | 2026-03-23 | v2.7 Phase 25: 動的スキルコンテンツ注入 段階的適用 | feat |
@@ -56,7 +57,7 @@ Last updated: 2026-03-23
 
 ## TODO
 
-- [ ] v2.6 Phase 27: Gotchas セクション体系化
+- [x] v2.6 Phase 27: Gotchas セクション体系化
 - [ ] v2.6 Phase 28: On-demand hooks（フィージビリティスパイク）
 - [ ] v2.6 Phase 29: CLAUDE_PLUGIN_DATA 移行
 - [ ] v2.6 Phase 30: ディレクトリ構造厳格化

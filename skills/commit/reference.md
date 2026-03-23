@@ -152,6 +152,16 @@ done
 | REFACTOR | refactor を実行 |
 | REVIEW | review を実行 |
 
+## Gotchas
+
+| # | 症状 | 原因 | 対策 |
+|---|------|------|------|
+| G-01 | Test List未完了でBLOCK | TODO/WIP残項目 | Completion Gate。DISCOVEREDはreviewに戻す |
+| G-02 | Progress Log不完全でBLOCK | フェーズスキップ | 4フェーズ全記録確認 |
+| G-03 | STATUS.md Test Scripts数不一致で警告 | テスト追加後未更新 | Step 3ドキュメント更新で同期 |
+| G-04 | --no-verifyでhookバイパス | 禁止コマンド | no-verify-guard.shがBLOCK |
+| G-05 | 手動バージョン更新・タグ作成 | リリーススキル未使用 | Holdings側のrelease-skillを使う |
+
 ## Cycle doc完了形式
 
 ```markdown

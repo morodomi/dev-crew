@@ -149,3 +149,13 @@ GREEN フェーズは Codex 利用可能時に Codex 優先で実行される。
 - **実行権限**: orchestrate が制御（[steps-codex.md](../orchestrate/steps-codex.md) 参照）
 - **Gate 2**: PdM がテストコマンドを実行し、全テスト PASS を確認
 - **Codex 不在時**: Claude が green-worker として直接実装（既存フロー）
+
+## Gotchas
+
+| # | 症状 | 原因 | 対策 |
+|---|------|------|------|
+| G-01 | 複数workerが同一ファイル競合 | 依存関係分析漏れ | 同一ファイルは同一workerに集約 |
+| G-02 | テスト要件超の実装(YAGNI違反) | GREEN段階で機能追加 | テスト要求外は実装しない |
+| G-03 | 全worker失敗でリトライループ | 設計自体に問題 | 全失敗時はPLANに戻る |
+| G-04 | REFACTORの作業をGREENで実行 | フェーズ責務混同 | ハードコード許容、REFACTORで改善 |
+| G-05 | Codex委譲時にGate 2忘れ | codex_mode: full時のスキップ | steps-codex.mdのGate 2確認 |
