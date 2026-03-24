@@ -5,7 +5,7 @@
 | Metric | Value |
 |--------|-------|
 | In-Progress Cycles | 0 |
-| Done (unarchived) | 29 |
+| Done (unarchived) | 30 |
 | Archived Cycles | 37 |
 | Skills | 30 |
 | Agents | 41 |
@@ -17,6 +17,7 @@ Last updated: 2026-03-24
 
 | Date | Cycle | Type |
 |------|-------|------|
+| 2026-03-24 | #84: designer AI生成UIレビュー観点追加 (P-13〜P-17) | feat |
 | 2026-03-24 | v2.6 Phase 31: Product Verification PoC | feat |
 | 2026-03-24 | #102: pre-red/pre-commit gate 旧形式Cycle doc誤検出修正 | fix |
 | 2026-03-24 | v2.6 Phase 30: ディレクトリ構造厳格化 | feat |
@@ -69,7 +70,8 @@ Last updated: 2026-03-24
 - [x] v2.6 Phase 29: CLAUDE_PLUGIN_DATA 移行
 - [x] v2.6 Phase 30: ディレクトリ構造厳格化
 - [x] v2.6 Phase 31: Product Verification PoC
-- [ ] v2.6 Phase 32: babysit-pr（GitHub Actions）
+- [x] #84: designer AI生成UIレビュー観点追加
+- [ ] babysit-pr（GitHub Actions、dev-crewリポジトリ外）
 
 詳細は [ROADMAP.md](../ROADMAP.md) 参照。
 
