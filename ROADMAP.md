@@ -5,15 +5,15 @@
 
 ## 現在地
 
-v2.6.0 リリース済み。全完了済みバージョン:
+v2.6.1 リリース済み。全完了済みバージョン:
 - v2 (Phase 11-13): Claude + Codex 統合開発フロー
 - v2.4 (Phase 14-17): Review Taxonomy 体系化 (33→40 agents)
 - v2.5 (Phase 18): Constitution-Driven Enforcement
-- v2.6 (Phase 26-29): スキル成熟化 (Gotchas, On-demand hooks, PLUGIN_DATA)
+- v2.6 (Phase 26-31): スキル成熟化 + 構造厳格化 + Product Verification
 - v2.7 (Phase 24-25): 動的スキルコンテンツ注入
 - v3 (Phase 1-8): Constitution-Driven Development
 
-次: v2.6.x (構造厳格化 + Verification + Automation)
+次: v2.6.x (Automation)
 
 ---
 
