@@ -66,6 +66,16 @@ UI scope: User registration form with address input
 - **P-11: Social Proof (ソーシャルプルーフ)**: 日本=多次元評価+ランキング+レビュー数。欧米=星評価+厳選証言。
 - **P-12: Compliance Display (法令遵守表示)**: 日本=特定商取引法表記+プライバシーポリシー目立つ配置。欧米=クッキー同意バナー+フッターリンク。
 
+### 5. AI-Generated UI Review
+
+AI生成UIに特有のレビュー観点。テンプレート的な出力を業務文脈に最適化されたデザインに引き上げる。
+
+- **P-13: Priority Focus (優先順位のメリハリ)**: 画面の主役が1つに絞られているか。AI生成UIは要素を均等に配置しがちで、何が最重要かが不明瞭になる。
+- **P-14: Context-Driven Design (業務文脈設計)**: UIパターンの機械的寄せ集めではなく、業務文脈から設計されているか。ダッシュボードが汎用テンプレートそのままになっていないか。
+- **P-15: Color Role Separation (色の役割分離)**: ブランド色・操作色・状態色・注意色が明確に分離されているか。同じ色に複数の意味を持たせていないか。P-03の上位チェック。
+- **P-16: Real Data Resilience (実運用データ耐性)**: 長文、0件、異常値、重複、欠損で破綻しないか。モックデータでは美しいが実データで崩れるUIを検出。
+- **P-17: Ruthless Elimination (削ぎ落とし)**: 不要な装飾・情報が残っていないか。AI生成UIは装飾過多になりやすい。
+
 ## Pattern Quick Reference
 
 各パターンの判断基準と適用条件。詳細は docs/research/japanese-ux-patterns.md 参照。
@@ -84,6 +94,11 @@ UI scope: User registration form with address input
 | P-10 | Trust Signals | E-commerce or financial services targeting JP market | JP: multi-badge + company info + phone; Western: clean design + brand + minimal badges |
 | P-11 | Social Proof | Product comparison and purchase decisions | JP: multi-dimensional ratings + rankings; Western: star ratings + testimonials |
 | P-12 | Compliance Display | Japanese regulatory requirements apply (Tokushoho) | JP: prominent Tokushoho + inline terms; Western: cookie banner + footer links |
+| P-13 | Priority Focus | AI-generated UI with evenly weighted elements | Single hero element per screen; avoid equal visual weight distribution |
+| P-14 | Context-Driven Design | UI feels like a generic template | Design from business workflow, not pattern library assembly |
+| P-15 | Color Role Separation | Colors carry ambiguous meanings | Brand/action/state/warning colors must be distinct; extends P-03 |
+| P-16 | Real Data Resilience | UI tested only with mock data | Verify with long text, 0 items, outliers, duplicates, missing values |
+| P-17 | Ruthless Elimination | AI-generated UI with excessive decoration | Remove every element that doesn't serve the user's immediate task |
 
 **Management Boundary:** docs/research/japanese-ux-patterns.md は権威源 (authoritative source)。この Quick Reference は凍結スナップショット (frozen snapshot) として機能し、詳細・変更は研究ドキュメント側で管理する。
 
@@ -140,6 +155,6 @@ UI scope: User registration form with address input
 ## Principles
 
 - **設計に集中**: 実装コード・テストコードは作成しない
-- **パターン駆動**: 12 パターンの中から適切なものを選択・組み合わせる
+- **パターン駆動**: 17 パターン（12 文化パターン + 5 AI生成UIレビュー）の中から適切なものを選択・組み合わせる
 - **トークンレベル指示**: 具体的な CSS 値ではなく、Design Token の方向性を示す
 - **結果返却**: 結果は Output JSON で呼び出し元に返す。直接ユーザーと対話しない

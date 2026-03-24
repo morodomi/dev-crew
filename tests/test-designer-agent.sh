@@ -204,6 +204,67 @@ else
 fi
 
 ########################################
+# TC-10: P-13〜P-17 AI-Generated UI Review patterns exist
+########################################
+
+echo ""
+echo "TC-10: P-13〜P-17 AI-Generated UI Review patterns in designer.md"
+if [ -f "$DESIGNER_FILE" ]; then
+  missing_patterns=()
+  for pid in P-13 P-14 P-15 P-16 P-17; do
+    if ! grep -q "$pid" "$DESIGNER_FILE"; then
+      missing_patterns+=("$pid")
+    fi
+  done
+  if [ "${#missing_patterns[@]}" -eq 0 ]; then
+    pass "TC-10: All P-13〜P-17 patterns found"
+  else
+    fail "TC-10: Missing patterns: ${missing_patterns[*]}"
+  fi
+else
+  fail "TC-10: designer.md does not exist"
+fi
+
+########################################
+# TC-11: AI-Generated UI Review category exists
+########################################
+
+echo ""
+echo "TC-11: AI-Generated UI Review category in designer.md"
+if [ -f "$DESIGNER_FILE" ]; then
+  if grep -qi 'AI.Generated UI' "$DESIGNER_FILE"; then
+    pass "TC-11: AI-Generated UI Review category found"
+  else
+    fail "TC-11: AI-Generated UI Review category not found"
+  fi
+else
+  fail "TC-11: designer.md does not exist"
+fi
+
+########################################
+# TC-12: P-13〜P-17 details in japanese-ux-patterns.md
+########################################
+
+echo ""
+echo "TC-12: P-13〜P-17 in japanese-ux-patterns.md"
+UX_PATTERNS="$BASE_DIR/docs/research/japanese-ux-patterns.md"
+if [ -f "$UX_PATTERNS" ]; then
+  missing_patterns=()
+  for pid in P-13 P-14 P-15 P-16 P-17; do
+    if ! grep -q "$pid" "$UX_PATTERNS"; then
+      missing_patterns+=("$pid")
+    fi
+  done
+  if [ "${#missing_patterns[@]}" -eq 0 ]; then
+    pass "TC-12: All P-13〜P-17 details found in japanese-ux-patterns.md"
+  else
+    fail "TC-12: Missing patterns in research doc: ${missing_patterns[*]}"
+  fi
+else
+  fail "TC-12: japanese-ux-patterns.md does not exist"
+fi
+
+########################################
 # Summary
 ########################################
 
