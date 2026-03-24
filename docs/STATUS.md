@@ -5,18 +5,21 @@
 | Metric | Value |
 |--------|-------|
 | In-Progress Cycles | 0 |
-| Done (unarchived) | 27 |
+| Done (unarchived) | 29 |
 | Archived Cycles | 37 |
 | Skills | 30 |
 | Agents | 41 |
-| Test Scripts | 96 |
+| Test Scripts | 98 |
 
-Last updated: 2026-03-23
+Last updated: 2026-03-24
 
 ## Completed (Recent)
 
 | Date | Cycle | Type |
 |------|-------|------|
+| 2026-03-24 | v2.6 Phase 31: Product Verification PoC | feat |
+| 2026-03-24 | #102: pre-red/pre-commit gate 旧形式Cycle doc誤検出修正 | fix |
+| 2026-03-24 | v2.6 Phase 30: ディレクトリ構造厳格化 | feat |
 | 2026-03-23 | v2.6 Phase 29: CLAUDE_PLUGIN_DATA 移行 | refactor |
 | 2026-03-23 | v2.6 Phase 28: On-demand hooks PoC (careful スキル) | feat |
 | 2026-03-23 | v2.6 Phase 27: Gotchasセクション体系化 | feat |
@@ -64,8 +67,8 @@ Last updated: 2026-03-23
 - [x] v2.6 Phase 27: Gotchas セクション体系化
 - [x] v2.6 Phase 28: On-demand hooks（フィージビリティスパイク）
 - [x] v2.6 Phase 29: CLAUDE_PLUGIN_DATA 移行
-- [ ] v2.6 Phase 30: ディレクトリ構造厳格化
-- [ ] v2.6 Phase 31: Product Verification PoC
+- [x] v2.6 Phase 30: ディレクトリ構造厳格化
+- [x] v2.6 Phase 31: Product Verification PoC
 - [ ] v2.6 Phase 32: babysit-pr（GitHub Actions）
 
 詳細は [ROADMAP.md](../ROADMAP.md) 参照。
