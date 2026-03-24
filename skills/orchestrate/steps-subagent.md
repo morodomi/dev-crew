@@ -141,6 +141,16 @@ Skill(dev-crew:refactor)
 → チェックリスト駆動リファクタリング + Verification Gate（テスト全PASS + 静的解析0件 + フォーマット適用）
 ```
 
+### VERIFY (Product Verification)
+
+> NOTE: PdM が直接 Bash で実行する（advisory evidence のため、委譲不要）。
+
+Cycle doc の `## Verification` セクションからコマンドを抽出して実行する。
+セクション不在 or コマンドなし → サイレントスキップ。
+コマンド失敗は `|| true` で吸収（advisory: ブロッキングしない）。
+結果を Evidence ディレクトリ (`/tmp/dev-crew-verify-{cycle-id}/`) に保存し、Progress Log に記録後、REVIEW へ進行する。
+詳細: [reference.md](reference.md#product-verification)
+
 ### REVIEW
 
 > NOTE: review 内部で subagent 化済みのため、Skill() 直接呼び出しが正しい。

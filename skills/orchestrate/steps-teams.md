@@ -176,9 +176,15 @@ Skill(dev-crew:refactor)
 ### Phase: REFACTOR - Completed at HH:MM
 **Artifacts**: [refactored file paths]
 **Decisions**: refactor=[changes made or "no changes needed"]
-**Next Phase Input**: source files on disk, run review
+**Next Phase Input**: source files on disk, run product verification (if defined)
 **Subagent**: PdM direct (Skill(dev-crew:refactor))
 ```
+
+### VERIFY (Product Verification)
+
+PdM が直接 Bash で実行（advisory evidence、委譲不要）。
+Cycle doc `## Verification` セクション不在 → サイレントスキップ。
+詳細: [reference.md](reference.md#product-verification)
 
 ### REVIEW (review code)
 
