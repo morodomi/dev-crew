@@ -452,6 +452,65 @@ This research documents key differences between Japanese and Western UI/UX desig
 - **P-11 Social Proof:** JP=multi-dimensional ratings + rankings; Western=star ratings + testimonials
 - **P-12 Compliance Display:** JP=prominent Tokushoho + inline terms; Western=cookie banner + footer links
 
+## 5. AI-Generated UI Review (P-13〜P-17)
+
+AI生成UIに特有のレビュー観点。文化パターン（P-01〜P-12）とは独立に、AI生成物の品質を引き上げる。
+
+### P-13: Priority Focus (優先順位のメリハリ)
+
+AI生成UIは要素を均等に配置しがちで、画面の「主役」が不明瞭になる。
+
+| Aspect | Check |
+|--------|-------|
+| Hero Element | 画面に1つの明確な主役があるか |
+| Visual Weight | 主役以外の要素は視覚的に控えめか |
+| Action Priority | CTAボタンが1つに絞られているか |
+
+### P-14: Context-Driven Design (業務文脈設計)
+
+UIパターンの機械的寄せ集め（テンプレ感）を排除し、業務フローから設計されているかを検証。
+
+| Aspect | Check |
+|--------|-------|
+| Workflow Fit | UIがユーザーの実際の業務フローに沿っているか |
+| Domain Language | ドメイン固有の用語・概念がUIに反映されているか |
+| Template Smell | 汎用ダッシュボードテンプレートそのままになっていないか |
+
+### P-15: Color Role Separation (色の役割分離)
+
+P-03 (Color Palette) の上位チェック。同じ色に複数の意味を持たせていないかを検証。
+
+| Role | Purpose | Example |
+|------|---------|---------|
+| Brand | ブランドアイデンティティ | ロゴ、ヘッダー |
+| Action | 操作可能な要素 | ボタン、リンク |
+| State | 状態表示 | 成功(緑)、エラー(赤) |
+| Warning | 注意喚起 | アラート、バッジ |
+
+NG: 同じ青をリンクにもブランド背景にも使用。NG: 赤をエラーとセール価格の両方に使用。
+
+### P-16: Real Data Resilience (実運用データ耐性)
+
+モックデータでは美しいが実データで崩れるUIを検出。
+
+| Edge Case | Check |
+|-----------|-------|
+| Long Text | 100文字超のタイトル、3行以上の説明文で崩れないか |
+| Zero Items | データ0件時に空状態UIが表示されるか |
+| Outliers | 異常に大きい数値、極端に長いユーザー名で崩れないか |
+| Duplicates | 同一データが複数表示されても区別できるか |
+| Missing Values | 画像なし、説明なし、日付なしでも破綻しないか |
+
+### P-17: Ruthless Elimination (削ぎ落とし)
+
+AI生成UIは装飾過多になりやすい。すべての要素が「ユーザーの今の作業に必要か」で検証。
+
+| Aspect | Check |
+|--------|-------|
+| Decoration | グラデーション、影、角丸が目的なく使われていないか |
+| Information | ユーザーが今必要としない情報が表示されていないか |
+| Chrome | UIフレーム（ヘッダー/サイドバー/フッター）がコンテンツより目立っていないか |
+
 ## Sources
 
 1. Nisbett, R.E. & Miyamoto, Y. (2005). "The influence of culture: holistic versus analytic perception." *Trends in Cognitive Sciences*, 9(10), 467-473.
