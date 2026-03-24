@@ -18,20 +18,6 @@ v2.6.2 リリース済み。全完了済みバージョン:
 
 ---
 
-## Backlog
-
-### babysit-pr（GitHub Actions ベース）
-
-COMMIT 後の PR マージ監視。GitHub Actions + gh CLI で決定論的に実装。dev-crew は commit 後に有効化を提案するのみ。dev-crew リポジトリ外で管理。
-
-| 項目 | 内容 |
-|------|------|
-| 実装 | .github/workflows/babysit-pr.yml（reusable workflow） |
-| ガードレール | max retry: 2回、stale PR: 7日で通知 |
-| dev-crew 連携 | commit スキルが PR 作成後に Actions 有効化を提案 |
-
----
-
 ## 方針
 
 - 各サブタスクは独立した TDD サイクルで実施
