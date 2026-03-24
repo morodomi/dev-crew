@@ -71,7 +71,6 @@ Last updated: 2026-03-24
 - [x] v2.6 Phase 30: ディレクトリ構造厳格化
 - [x] v2.6 Phase 31: Product Verification PoC
 - [x] #84: designer AI生成UIレビュー観点追加
-- [ ] babysit-pr（GitHub Actions、dev-crewリポジトリ外）
 
 詳細は [ROADMAP.md](../ROADMAP.md) 参照。
 
