@@ -88,6 +88,18 @@ updated: YYYY-MM-DD HH:MM
 ### Design Approach
 [Fill in PLAN]
 
+## Verification
+
+Product Verification コマンド（省略可能）。orchestrate が REFACTOR 後に実行し、結果を Evidence として保存する。
+advisory evidence（非ブロッキング）。セクション不在またはコマンドなし → サイレントスキップ。
+
+```bash
+# 例: curl -s http://localhost:8080/api/health | jq .status
+# 例: npx playwright test e2e/smoke.spec.ts
+```
+
+Evidence: (orchestrate が自動記入)
+
 ## Progress Log
 
 Format for each phase entry:

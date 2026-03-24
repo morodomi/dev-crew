@@ -85,6 +85,12 @@ Claude が主担当（CONSTITUTION.md 準拠）。チェックリスト駆動の
 Skill(dev-crew:refactor)
 ```
 
+### VERIFY (Product Verification)
+
+PdM が直接 Bash で実行（advisory evidence、委譲不要）。
+Cycle doc `## Verification` セクション不在 → サイレントスキップ。
+詳細: [reference.md](reference.md#product-verification)
+
 ### REVIEW via Codex (competitive)
 
 Claude と Codex が独立にレビューし、PdM が findings を裁定する競争的レビュー。

@@ -395,3 +395,43 @@ reviewer とは異なり、スコアは付けず代替案を提示します。
 | G-03 | Codex session ID stale | セッション期限切れ | 新規セッション作成でretry |
 | G-04 | post-approve-gateフラグ残存 | orchestrate起動前にフラグ未解除 | Block 0冒頭のrm -f実行 |
 | G-05 | PdMが直接実装コード記述 | 委譲ルール違反 | 「やらないこと」テーブル参照 |
+
+## Product Verification {#product-verification}
+
+REFACTOR の Verification Gate（テスト+lint+format）とは異なる。
+プロダクトが期待通り動作するか（UI描画、API応答、E2Eスモーク等）を確認する advisory evidence。
+
+### 位置
+
+REFACTOR (Block 2c) → **VERIFY (Block 2c.5)** → REVIEW (Block 2d)
+
+### 性質
+
+- **Advisory evidence**: 失敗しても REVIEW を non-blocking でブロックしない
+- エビデンスは Cycle doc の Progress Log にポインタとして記録
+- コマンドの exit code と stdout/stderr をキャプチャ
+
+### 実行ロジック
+
+1. Cycle doc から `## Verification` セクションを抽出
+2. セクション内の bash コードブロックからコマンドを抽出
+3. コマンドがない（セクション不在、空、コメントのみ）→ サイレントスキップ
+4. コマンドがある場合:
+   a. Evidence ディレクトリ作成: `/tmp/dev-crew-verify-{cycle-id}/`
+   b. 各コマンドを順次実行、stdout/stderr を `verify-{n}.log` に保存
+   c. exit code を記録（`|| true` で吸収、ブロッキングしない）
+5. Cycle doc の Progress Log に結果を追記
+
+### Progress Log フォーマット
+
+```
+### YYYY-MM-DD HH:MM - VERIFY
+- Command 1: `<command>` → exit 0 (PASS) / exit N (FAIL)
+- Evidence: /tmp/dev-crew-verify-{cycle-id}/
+- Advisory: PASS/FAIL (non-blocking)
+- Phase completed
+```
+
+### スキップ時
+
+Progress Checklist に "(skipped)" 表示のみ。Progress Log には記録しない。

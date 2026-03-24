@@ -21,6 +21,7 @@ orchestrate Progress:
 - [ ] Block 2a: RED — Task(red-worker) でテスト作成、失敗確認
 - [ ] Block 2b: GREEN — Task(green-worker) で実装、全テストPASS確認
 - [ ] Block 2c: REFACTOR — Skill(refactor) で品質改善
+- [ ] Block 2c.5: VERIFY — Product Verification (advisory, skip if absent)
 - [ ] Block 2d: REVIEW — Skill(review --code) でコードレビュー → 自律判断
 - [ ] Block 2e: DISCOVERED — スコープ外項目をissue起票
 - [ ] Block 3: COMMIT → 完了
@@ -71,6 +72,11 @@ Task(green-worker, sonnet): Cycle doc → テストを通す最小実装・全PA
 
 #### Block 2c: REFACTOR
 Skill(dev-crew:refactor): Verification Gate通過（テスト全PASS + 静的解析0件 + フォーマット）
+
+#### Block 2c.5: VERIFY (Product Verification)
+Cycle doc `## Verification` セクションのコマンドを実行。advisory evidence（非ブロッキング）。
+詳細: [reference.md](reference.md#product-verification)
+セクション不在 or コマンドなし → サイレントスキップ。
 
 #### Block 2d: REVIEW
 Skill(dev-crew:review, args: "--code"): competitive review（Codex利用可能時）
