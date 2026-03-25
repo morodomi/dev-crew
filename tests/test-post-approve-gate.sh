@@ -6,8 +6,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 FLAG_DIR="${CLAUDE_PLUGIN_DATA:-${HOME}/.claude/dev-crew}"
 
-# PROJECT_HASH: ハッシュベースのフラグ名（現在のpwdから計算）
-PROJECT_HASH=$(pwd | md5 -q 2>/dev/null || echo "$PWD" | md5sum | cut -d' ' -f1)
+# PROJECT_HASH: ハッシュベースのフラグ名（CLAUDE_PROJECT_DIRまたはpwdから計算）
+PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(pwd)}"
+PROJECT_HASH=$(echo "$PROJECT_DIR" | md5 -q 2>/dev/null || echo "$PROJECT_DIR" | md5sum | cut -d' ' -f1)
 FLAG_FILE="${FLAG_DIR}/.plan-approved-${PROJECT_HASH}"
 
 PASS=0
@@ -132,7 +133,7 @@ PROJECT_B_HASH=$(echo "/tmp/fake-project-b" | md5 -q 2>/dev/null || echo "/tmp/f
 rm -f "${FLAG_DIR}/.plan-approved-${PROJECT_B_HASH}"
 
 mkdir -p /tmp/fake-project-b
-(cd /tmp/fake-project-b && bash "$SCRIPT_DIR/scripts/hooks/post-approve-gate.sh" >/dev/null 2>&1) || true
+(export CLAUDE_PROJECT_DIR="/tmp/fake-project-b" && bash "$SCRIPT_DIR/scripts/hooks/post-approve-gate.sh" >/dev/null 2>&1) || true
 EXIT_CODE=$?
 # Then: exit 0（プロジェクトBはブロックされない）
 assert_eq "TC-02: project B not blocked by project A flag" "0" "$EXIT_CODE"
