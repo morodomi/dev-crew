@@ -1,6 +1,6 @@
 ---
 name: sync-plan
-description: planファイルからCycle docを生成する軽量エージェント。spec内部からTask()で呼ばれる。ユーザー直接起動不可。
+description: planファイルからCycle docを生成する軽量エージェント。orchestrate内部からAgent()で呼ばれる。Skill()での直接呼び出し不可 — 必ず /orchestrate 経由で使用すること。
 model: sonnet
 ---
 
