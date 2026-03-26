@@ -40,11 +40,18 @@ else
   fail "onboard/reference.md TDD Workflow template missing Post-Approve Action"
 fi
 
-# Verify sync-plan appears before orchestrate in template's Post-Approve Action
-if awk '/Post-Approve Action/,/^```$/' "$TEMPLATE_FILE" | grep -q "sync-plan"; then
-  pass "onboard/reference.md Post-Approve Action has sync-plan"
+# Verify Post-Approve Action delegates to orchestrate (not direct sync-plan call)
+if awk '/Post-Approve Action/,/^```$/' "$TEMPLATE_FILE" | grep -q "/orchestrate"; then
+  pass "onboard/reference.md Post-Approve Action delegates to /orchestrate"
 else
-  fail "onboard/reference.md Post-Approve Action missing sync-plan"
+  fail "onboard/reference.md Post-Approve Action missing /orchestrate delegation"
+fi
+
+# Verify Post-Approve Action does NOT instruct direct sync-plan call
+if awk '/Post-Approve Action/,/^```$/' "$TEMPLATE_FILE" | grep -q 'dev-crew:sync-plan)'; then
+  fail "onboard/reference.md Post-Approve Action still has direct sync-plan call"
+else
+  pass "onboard/reference.md Post-Approve Action has no direct sync-plan call"
 fi
 
 # --- orchestrate/SKILL.md Block 0 ---
@@ -118,6 +125,23 @@ if grep -A 20 "socrates-plan-review" "$DIR/skills/orchestrate/reference.md" | gr
   pass "socrates plan review references CONSTITUTION"
 else
   fail "socrates plan review missing CONSTITUTION reference"
+fi
+
+# TC-NEW-01: sync-plan.md description に「Skill()不可」が記載されている
+echo "-- sync-plan description --"
+if grep -q 'Skill().*不可\|直接呼び出し不可' "$DIR/agents/sync-plan.md"; then
+  pass "sync-plan.md description has Skill() prohibition"
+else
+  fail "sync-plan.md description missing Skill() prohibition"
+fi
+
+# TC-NEW-02: post-approve.md に sync-plan 直接呼び出し禁止が記載
+echo "-- post-approve prohibition --"
+RULE_FILE="$DIR/.claude/rules/post-approve.md"
+if grep -q 'Skill(dev-crew:sync-plan)' "$RULE_FILE" && grep -q '禁止' "$RULE_FILE"; then
+  pass "post-approve.md has sync-plan direct call prohibition"
+else
+  fail "post-approve.md missing sync-plan direct call prohibition"
 fi
 
 echo ""
