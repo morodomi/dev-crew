@@ -1,7 +1,7 @@
 ---
 feature: fix-risk-classifier-grep-vc
 cycle: 20260326_1654
-phase: COMMIT
+phase: DONE
 complexity: trivial
 test_count: 2
 risk_level: low
@@ -153,4 +153,4 @@ Evidence: 9/9 PASS (T-01~T-09)
 4. [Done] GREEN
 5. [Done] REFACTOR
 6. [Done] REVIEW
-7. [Next] COMMIT
+7. [Done] COMMIT
