@@ -60,7 +60,7 @@ if [ -f "$FILES_LIST" ]; then
   fi
 
   # File count > 5 (+15) - excluding low-risk file types
-  file_count=$(grep -vcE '\.(scm|fixture|snap|mock|seed)$|fixtures/|__snapshots__/' "$FILES_LIST" 2>/dev/null || echo "0")
+  file_count=$(grep -vcE '\.(scm|fixture|snap|mock|seed)$|fixtures/|__snapshots__/' "$FILES_LIST" 2>/dev/null) || file_count=0
   if [ "$file_count" -gt 5 ]; then
     score=$((score + 15))
   fi
@@ -79,7 +79,7 @@ if [ -f "$FILES_LIST" ]; then
   fi
 
   # Wide change - directory spread >= 3 (+15)
-  dir_count=$(grep '/' "$FILES_LIST" 2>/dev/null | awk -F/ '{print $1}' | sort -u | wc -l | tr -d ' ')
+  dir_count=$(grep '/' "$FILES_LIST" 2>/dev/null | awk -F/ '{print $1}' | sort -u | wc -l | tr -d ' ') || dir_count=0
   if [ "$dir_count" -ge 3 ]; then
     score=$((score + 15))
   fi
