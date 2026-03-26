@@ -5,18 +5,22 @@
 | Metric | Value |
 |--------|-------|
 | In-Progress Cycles | 0 |
-| Done (unarchived) | 30 |
+| Done (unarchived) | 38 |
 | Archived Cycles | 37 |
 | Skills | 30 |
 | Agents | 41 |
 | Test Scripts | 98 |
 
-Last updated: 2026-03-24
+Last updated: 2026-03-27
 
 ## Completed (Recent)
 
 | Date | Cycle | Type |
 |------|-------|------|
+| 2026-03-27 | v2.6.6: post-approve-gate廃止 + orchestrate TaskCreate導入 | refactor |
+| 2026-03-27 | v2.6.5: Post-Approve sync-plan直接呼び出し禁止 + risk-classifier修正 | fix |
+| 2026-03-26 | v2.6.4: hookのpwdをCLAUDE_PROJECT_DIRに置換 | fix |
+| 2026-03-24 | v2.6.3: babysit-prバックログ削除 | chore |
 | 2026-03-24 | #84: designer AI生成UIレビュー観点追加 (P-13〜P-17) | feat |
 | 2026-03-24 | v2.6 Phase 31: Product Verification PoC | feat |
 | 2026-03-24 | #102: pre-red/pre-commit gate 旧形式Cycle doc誤検出修正 | fix |
@@ -71,6 +75,10 @@ Last updated: 2026-03-24
 - [x] v2.6 Phase 30: ディレクトリ構造厳格化
 - [x] v2.6 Phase 31: Product Verification PoC
 - [x] #84: designer AI生成UIレビュー観点追加
+- [x] v2.6.3: babysit-prバックログ削除
+- [x] v2.6.4: hookのpwd置換 + set -u除去
+- [x] v2.6.5: Post-Approve sync-plan直接呼び出し禁止 + risk-classifier修正
+- [x] v2.6.6: post-approve-gate廃止 + orchestrate TaskCreate導入
 
 詳細は [ROADMAP.md](../ROADMAP.md) 参照。
 

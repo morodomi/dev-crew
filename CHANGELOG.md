@@ -1,5 +1,39 @@
 # Changelog
 
+## [2.6.6] - 2026-03-27
+
+post-approve-gate廃止とorchestrateプロセス強化。
+
+### Changed
+
+- post-approve-gateフラグを廃止し、orchestrate TaskCreateに移行
+- orchestrate TaskCreateの7件全登録を必須化
+
+## [2.6.5] - 2026-03-27
+
+Post-Approve Action安全性強化とバグ修正。
+
+### Fixed
+
+- Post-Approve Actionでsync-planを直接呼ばせないルール追加
+- risk-classifier.sh の grep -vc 0件時に整数比較エラー修正
+
+## [2.6.4] - 2026-03-26
+
+hook環境変数の修正。
+
+### Fixed
+
+- hookのpwdをCLAUDE_PROJECT_DIRに置換 + set -u除去
+
+## [2.6.3] - 2026-03-24
+
+バックログ整理。
+
+### Removed
+
+- babysit-prをBacklogから削除
+
 ## [2.0.2] - 2026-03-15
 
 Codex セッション分離と onboard テンプレート品質強化。
