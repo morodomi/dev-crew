@@ -3,15 +3,6 @@
   "hooks": {
     "PostToolUse": [
       {
-        "matcher": "ExitPlanMode",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/hooks/plan-exit-flag.sh"
-          }
-        ]
-      },
-      {
         "matcher": "Edit|Write|Bash",
         "hooks": [
           {
@@ -22,15 +13,6 @@
       }
     ],
     "PreToolUse": [
-      {
-        "matcher": "Edit|Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/hooks/post-approve-gate.sh"
-          }
-        ]
-      },
       {
         "matcher": "Bash",
         "hooks": [

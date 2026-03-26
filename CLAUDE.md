@@ -36,8 +36,6 @@ Phase-boundary compaction:
 
 | Event | Matcher | Script | Purpose |
 |-------|---------|--------|---------|
-| PostToolUse | ExitPlanMode | `scripts/hooks/plan-exit-flag.sh` | Creates flag to enforce /orchestrate after plan approve |
-| PreToolUse | Edit\|Write | `scripts/hooks/post-approve-gate.sh` | Blocks Edit/Write until orchestrate clears the flag (exit 2) |
 | PostToolUse | Edit\|Write\|Bash | `scripts/hooks/observe.sh` | Logs tool usage patterns for learn skill |
 | PostToolUse | Skill\|Agent | `~/.claude/hooks/observe-skills.sh` | Logs Skill/Agent usage for prune planning (global hook) |
 | PreToolUse | Bash | `scripts/hooks/no-verify-guard.sh` | Blocks --no-verify commands (exit 2) |
