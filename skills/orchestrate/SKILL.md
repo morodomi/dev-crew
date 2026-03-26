@@ -48,6 +48,8 @@ orchestrate Progress:
 6. REVIEW (コードレビュー)
 7. COMMIT (コミット)
 
+**MUST**: 7件全て登録すること。plan-review を省略しない。
+
 planファイルを起点に開始地点を決定する:
 
 1. **planファイルあり?**
