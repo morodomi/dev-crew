@@ -37,7 +37,18 @@ orchestrate Progress:
 
 ### Block 0: Prerequisite Check
 
-**最初に実行**: `DATA_DIR="${CLAUDE_PLUGIN_DATA:-${HOME}/.claude/dev-crew}" && PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(pwd)}" && PROJECT_HASH=$(echo "$PROJECT_DIR" | md5 -q 2>/dev/null || echo "$PROJECT_DIR" | md5sum | cut -d' ' -f1) && rm -f "${DATA_DIR}/.plan-approved-${PROJECT_HASH}"` で post-approve gate フラグを解除する。
+**最初に実行**: TaskCreate で TDD サイクルのタスクを登録する。
+
+タスク一覧（各 Block 開始時に TaskUpdate(status: "in_progress")、完了時に TaskUpdate(status: "completed")）:
+1. sync-plan (Cycle doc 生成)
+2. plan-review (設計レビュー)
+3. RED (テスト作成)
+4. GREEN (実装)
+5. REFACTOR (品質改善)
+6. REVIEW (コードレビュー)
+7. COMMIT (コミット)
+
+**MUST**: 7件全て登録すること。plan-review を省略しない。
 
 planファイルを起点に開始地点を決定する:
 

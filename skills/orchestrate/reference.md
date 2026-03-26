@@ -393,7 +393,6 @@ reviewer とは異なり、スコアは付けず代替案を提示します。
 | G-01 | sync-plan/plan-reviewスキップ | Post-Approve Action違反 | Block 0でProgress Log確認 |
 | G-02 | WARN/BLOCKで自動再試行ループ | 自動進行ロジック | Socrates Protocol経由で人間判断 |
 | G-03 | Codex session ID stale | セッション期限切れ | 新規セッション作成でretry |
-| G-04 | post-approve-gateフラグ残存 | orchestrate起動前にフラグ未解除 | Block 0冒頭のrm -f実行 |
 | G-05 | PdMが直接実装コード記述 | 委譲ルール違反 | 「やらないこと」テーブル参照 |
 
 ## Product Verification {#product-verification}
