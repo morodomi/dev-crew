@@ -167,6 +167,62 @@ else
 fi
 rm -f "$TMPFILES7" "$TMPDIFF7"
 
+# T-08: Empty file list produces valid integer for file_count
+echo ""
+echo "T-08: Empty file list produces valid integer for file_count"
+
+TMPFILES8=$(mktemp)
+TMPDIFF8=$(mktemp)
+
+# Given: FILES_LIST is empty (0 lines)
+: > "$TMPFILES8"
+: > "$TMPDIFF8"
+
+output8=$(bash "$SCRIPT" "$TMPFILES8" "$TMPDIFF8" 2>&1) && exit_code8=0 || exit_code8=$?
+# When: risk-classifier.sh is executed with empty file list
+# Then: output matches "LOW score:0" and exit code is 0
+if [ "$exit_code8" -eq 0 ] && echo "$output8" | grep -qE '^LOW score:0$'; then
+  pass "T-08: Empty file list outputs 'LOW score:0' and exits 0"
+else
+  fail "T-08: Empty file list failed. exit_code=$exit_code8, output='$output8'"
+fi
+rm -f "$TMPFILES8" "$TMPDIFF8"
+
+# T-09: All files are fixture files (0 real files) - no file_count bonus
+echo ""
+echo "T-09: All files are fixture files (0 real files)"
+
+TMPFILES9=$(mktemp)
+TMPDIFF9=$(mktemp)
+
+# Given: FILES_LIST contains only fixture files (grep -vc returns 0)
+cat > "$TMPFILES9" <<'FILES'
+tests/fixtures/data1.fixture
+tests/fixtures/data2.fixture
+tests/fixtures/data3.fixture
+tests/fixtures/data4.fixture
+tests/fixtures/data5.fixture
+tests/fixtures/data6.fixture
+FILES
+
+# Modified files exist so file_count bonus would apply if count were non-zero
+cat > "$TMPDIFF9" <<'DIFF'
+--- a/tests/fixtures/data1.fixture
++++ b/tests/fixtures/data1.fixture
++changed line
+DIFF
+
+output9=$(bash "$SCRIPT" "$TMPFILES9" "$TMPDIFF9" 2>&1) && exit_code9=0 || exit_code9=$?
+score9=$(echo "$output9" | grep -oE 'score:[0-9]+' | grep -oE '[0-9]+')
+# When: risk-classifier.sh is executed
+# Then: file_count bonus (+15) should NOT apply (0 real files), score stays 0
+if [ "$exit_code9" -eq 0 ] && [ -n "$score9" ] && [ "$score9" -lt 15 ]; then
+  pass "T-09: Fixture-only list produces no file_count bonus (score: $score9)"
+else
+  fail "T-09: Fixture-only list failed. exit_code=$exit_code9, output='$output9'"
+fi
+rm -f "$TMPFILES9" "$TMPDIFF9"
+
 # Summary
 echo ""
 echo "=== Summary ==="

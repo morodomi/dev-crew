@@ -29,7 +29,7 @@ expected=$(realpath "$path2")
 
 ### 対策
 ```bash
-count=$(grep -c 'pattern' file 2>/dev/null || echo "0")
+count=$(grep -c 'pattern' file 2>/dev/null) || count=0
 ```
 
 ### 影響範囲
