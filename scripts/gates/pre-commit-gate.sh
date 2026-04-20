@@ -16,7 +16,8 @@
 #   2. Codex code review recorded (only when `which codex` succeeds)
 #   3. STATUS.md test script count sync warning (non-blocking)
 #   4. Retrospective status (retro_status: captured/resolved required;
-#      field absence allowed for legacy compat with WARN)
+#      none/empty/invalid/absent all BLOCK — absent is a bypass risk since
+#      cycle-retrospective idempotency also treats absent as skip)
 
 set -euo pipefail
 
@@ -65,26 +66,28 @@ if [ -f "$STATUS_FILE" ]; then
   fi
 fi
 
-# 4. Retrospective check (legacy compat: only enforce when retro_status field exists,
-#    but strict value validation — defense in depth with validate-cycle-frontmatter.sh)
+# 4. Retrospective check (defense in depth with validate-cycle-frontmatter.sh).
+#    Since A1, retro_status is mandatory for new Cycle docs (sync-plan initializes it).
+#    Field absence would allow bypass (merge conflict, manual removal) because
+#    cycle-retrospective's idempotency also treats absent as skip — gate must BLOCK.
 retro_status_line=$(awk '/^---$/{c++;next} c==1{print}' "$ACTIVE_CYCLE" | grep '^retro_status:' | head -1 || true)
 if [ -z "$retro_status_line" ]; then
-  echo "WARN: retro_status field absent (legacy doc). Consider running cycle-retrospective for new cycles."
-else
-  retro_status=$(echo "$retro_status_line" | sed 's/^retro_status: *//')
-  case "$retro_status" in
-    captured|resolved) ;;  # PASS
-    none)
-      echo "BLOCK: retro_status=none. Run cycle-retrospective before commit."
-      exit 1 ;;
-    "")
-      echo "BLOCK: retro_status is present but empty. Set to one of: none | captured | resolved."
-      exit 1 ;;
-    *)
-      echo "BLOCK: invalid retro_status value: '$retro_status' (expected: none | captured | resolved)."
-      exit 1 ;;
-  esac
+  echo "BLOCK: retro_status field missing from frontmatter. Add 'retro_status: none' and run cycle-retrospective."
+  exit 1
 fi
+retro_status=$(echo "$retro_status_line" | sed 's/^retro_status: *//')
+case "$retro_status" in
+  captured|resolved) ;;  # PASS
+  none)
+    echo "BLOCK: retro_status=none. Run cycle-retrospective before commit."
+    exit 1 ;;
+  "")
+    echo "BLOCK: retro_status is present but empty. Set to one of: none | captured | resolved."
+    exit 1 ;;
+  *)
+    echo "BLOCK: invalid retro_status value: '$retro_status' (expected: none | captured | resolved)."
+    exit 1 ;;
+esac
 
 echo "PASS: All pre-COMMIT gate checks passed."
 exit 0
