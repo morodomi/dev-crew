@@ -117,22 +117,25 @@ else
   fail "TC-08: expected PASS (exit 0) but BLOCK occurred (output: $output_08)"
 fi
 
-# TC-09: pre-commit-gate.sh が retro_status field 不在 (legacy) で WARN+PASS を返す
+# TC-09: pre-commit-gate.sh が retro_status field 不在で BLOCK を返す (Codex post-commit P2 対応)
+# 理由: A1 以降、retro_status は新規 Cycle doc の必須フィールド。
+#   absent を許容すると cycle-retrospective idempotency (absent→skip) と組み合わせて
+#   retrospective 必須化を bypass する抜け道になる。
 # Given: fixture Cycle doc (retro_status フィールドなし, phase: REVIEW, REVIEW 完了記録あり)
 # When:  bash pre-commit-gate.sh <fixture_dir> 2>&1
-# Then:  exit 0, 結合出力に "WARN" を含む
+# Then:  exit 非0, 結合出力に "retro_status" または "missing" を含む
 echo ""
-echo "TC-09: pre-commit-gate.sh WARN+PASS on absent retro_status (legacy compat)"
+echo "TC-09: pre-commit-gate.sh BLOCKs on absent retro_status (bypass prevention)"
 FIXTURE_09="$TMPDIR_FIXTURE/tc09"
 make_gate_fixture "$FIXTURE_09" "" "yes"
 output_09="$(bash "$GATE" "$FIXTURE_09" 2>&1 || true)"
 exit_09=$( (bash "$GATE" "$FIXTURE_09" > /dev/null 2>&1); echo $? )
-if [ "$exit_09" -eq 0 ] && echo "$output_09" | grep -qi "WARN"; then
-  pass "TC-09: WARN+PASS on absent retro_status (exit=0, output contains 'WARN')"
-elif [ "$exit_09" -ne 0 ]; then
-  fail "TC-09: expected PASS (exit 0) for legacy doc but got exit $exit_09 (output: $output_09)"
+if [ "$exit_09" -ne 0 ] && echo "$output_09" | grep -qiE "retro_status|missing"; then
+  pass "TC-09: BLOCK on absent retro_status (exit=$exit_09, output mentions retro_status/missing)"
+elif [ "$exit_09" -eq 0 ]; then
+  fail "TC-09: expected BLOCK (exit non-0) for absent retro_status (bypass risk) but got exit 0 (output: $output_09)"
 else
-  fail "TC-09: exit 0 but output does NOT contain 'WARN' (output: $output_09)"
+  fail "TC-09: exit non-0 but output does NOT mention retro_status/missing (output: $output_09)"
 fi
 
 # TC-10: pre-commit-gate.sh が retro_status: <invalid> で BLOCK (defense in depth、Codex review 対応)
