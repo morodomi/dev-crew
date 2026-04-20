@@ -40,9 +40,9 @@ Cycle doc の以下セクションをスキャン:
 - **Insight**: ...
 ```
 
-### No-lesson 処理
+### No-lesson 処理 (抽出成功 + 0 件、Codex P2-2 対応)
 
-抽出 0 件の場合 (再現性のある失敗が見つからない場合):
+抽出 LLM 実行は**成功**したが、再利用可能な failure-success ペアが見つからない場合。これは「失敗」ではなく通常の exit path:
 
 ```markdown
 ## Retrospective
@@ -50,12 +50,21 @@ Cycle doc の以下セクションをスキャン:
 No reusable lesson this cycle
 ```
 
-## Retry Policy
+- retro_status: `resolved` に遷移
+- **AskUserQuestion は実行しない** (user intervention 不要)
+- Retry / override path とは別 (そちらは LLM エラー時のみ)
 
-- 初回抽出で Insight が得られない場合、N=2 回リトライする
-- 各リトライで抽象度を上げる (より一般化された insight を狙う)
+## Retry Policy (LLM エラー時のみ、Codex P2-2 対応)
+
+**重要**: retry は「LLM 実行自体の失敗 (API error, parse error, etc.)」時のみ発動する。抽出成功 + 0 件 (no lesson) は retry 対象**ではない** (no-lesson path に直接遷移)。
+
+LLM エラー時の動作:
+
+- 初回抽出でエラー発生時、N=2 回リトライする
+- 各リトライで抽象度を上げる (より一般化された insight を狙うことでエラー回避を試みる)
 - リトライ 1: ドメイン固有の失敗から一般的なパターンへ抽象化
 - リトライ 2: 技術的詳細を捨て、プロセス・判断ミスの観点で再スキャン
+- 全 retry 失敗 → Override 2 路分離 (下記) へ
 
 ## Override 2 路分離 (Codex 2nd #3)
 

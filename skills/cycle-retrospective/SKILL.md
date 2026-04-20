@@ -10,9 +10,8 @@ allowed-tools: Read, Edit, AskUserQuestion
 
 ### Hard Gate
 
-- Cycle doc が **存在するか** のみ check (phase 値は問わない、advisory なので REVIEW 中・DONE 後・任意のタイミング許可)
-- Cycle doc 不在 → BLOCK: 「先に spec/orchestrate を実行してください」
-- 存在すれば phase に関わらず続行 (実際の重複防止は Idempotency Check で行う)
+1. **Cycle doc 存在**: 不在 → BLOCK: 「先に spec/orchestrate を実行してください」
+2. **Phase 制約** (Codex P2-1 対応、mid-cycle 実行で A2b inline 呼び出しの順序が永続破壊されるのを防ぐ): phase が `REVIEW` / `COMMIT` / `DONE` のいずれかのみ許可。`INIT` / `KICKOFF` / `RED` / `GREEN` / `REFACTOR` → BLOCK: 「cycle-retrospective は REVIEW phase 以降で実行してください (現 phase: $phase)」
 
 ### Idempotency Check
 
@@ -23,7 +22,8 @@ allowed-tools: Read, Edit, AskUserQuestion
 
 - Cycle doc 全体を読む (plan / phase summaries / review verdicts / test failures / retry log / DISCOVERED)
 - Failure → Final fix → Insight ペアを抽出 (詳細手順: reference.md)
-- 抽出失敗 → retry N=2 → 全失敗時は AskUserQuestion で override (proceed / abort)
+- **抽出 0 件 (no reusable lesson)** — 抽出は成功したが再利用可能な知見が見つからないケース (Codex P2-2 対応): 通常 exit path、Retrospective に `No reusable lesson this cycle` を記録して retro_status: resolved に遷移 (user intervention 不要、AskUserQuestion も実行しない)
+- **抽出エラー (LLM error / parse error)** — LLM 実行自体が失敗したケース: retry N=2 → 全失敗時は AskUserQuestion で override (proceed / abort)。no-lesson path と混同しない
 
 ### Output (Cycle doc 更新)
 
