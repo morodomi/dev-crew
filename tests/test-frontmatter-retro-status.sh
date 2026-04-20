@@ -74,14 +74,21 @@ else
 fi
 
 # TC-03: agents/sync-plan.md includes retro_status: none initialization
+# Strengthened (Codex P3): assert that the same line containing retro_status also specifies "none"
+# default — presence alone is insufficient (would pass on any text mentioning the field).
 echo ""
-echo "TC-03: agents/sync-plan.md includes retro_status initialization"
+echo "TC-03: agents/sync-plan.md includes retro_status: none initialization (default contract)"
 if [ ! -f "$SYNC_PLAN_AGENT" ]; then
   fail "TC-03: agents/sync-plan.md does not exist"
-elif grep -q "retro_status" "$SYNC_PLAN_AGENT"; then
-  pass "TC-03: agents/sync-plan.md contains retro_status reference"
 else
-  fail "TC-03: agents/sync-plan.md does NOT contain retro_status"
+  RETRO_LINE="$(grep "retro_status" "$SYNC_PLAN_AGENT" | head -1 || true)"
+  if [ -z "$RETRO_LINE" ]; then
+    fail "TC-03: agents/sync-plan.md does NOT contain retro_status"
+  elif echo "$RETRO_LINE" | grep -q "none"; then
+    pass "TC-03: agents/sync-plan.md initializes retro_status to none (line: '$RETRO_LINE')"
+  else
+    fail "TC-03: agents/sync-plan.md mentions retro_status but does NOT specify 'none' default (line: '$RETRO_LINE')"
+  fi
 fi
 
 # TC-04: validate-cycle-frontmatter.sh accepts retro_status: none/captured/resolved
@@ -174,18 +181,24 @@ if [ "$TC09_PASS" = "true" ]; then
   pass "TC-09: validator rejected present-but-empty retro_status (empty + whitespace-only)"
 fi
 
-# TC-08: rules/state-ownership.md sync-plan row mentions retro_status
+# TC-08: rules/state-ownership.md sync-plan row mentions retro_status with default
+# Strengthened (Codex P3): assert the sync-plan row specifies the "= none" default,
+# not just the field name. Otherwise default semantics regression slips through.
 echo ""
-echo "TC-08: rules/state-ownership.md sync-plan row includes retro_status"
+echo "TC-08: rules/state-ownership.md sync-plan row includes retro_status (= none) default"
 if [ ! -f "$STATE_OWNERSHIP" ]; then
   fail "TC-08: rules/state-ownership.md does not exist"
 else
-  # Find the sync-plan row and check it contains retro_status
   SYNCPLAN_LINE="$(grep "sync-plan" "$STATE_OWNERSHIP" || true)"
   if [ -z "$SYNCPLAN_LINE" ]; then
     fail "TC-08: rules/state-ownership.md has no sync-plan entry"
   elif echo "$SYNCPLAN_LINE" | grep -q "retro_status"; then
-    pass "TC-08: rules/state-ownership.md sync-plan row contains retro_status"
+    # Stricter check: must also document the default value
+    if echo "$SYNCPLAN_LINE" | grep -qE "retro_status[^|]*none"; then
+      pass "TC-08: rules/state-ownership.md sync-plan row specifies retro_status with 'none' default"
+    else
+      fail "TC-08: rules/state-ownership.md sync-plan row mentions retro_status but does NOT specify 'none' default (line: $SYNCPLAN_LINE)"
+    fi
   else
     fail "TC-08: rules/state-ownership.md sync-plan row does NOT contain retro_status (line: $SYNCPLAN_LINE)"
   fi
