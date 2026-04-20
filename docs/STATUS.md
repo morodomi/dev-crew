@@ -5,18 +5,19 @@
 | Metric | Value |
 |--------|-------|
 | In-Progress Cycles | 0 |
-| Done (unarchived) | 38 |
+| Done (unarchived) | 39 |
 | Archived Cycles | 37 |
 | Skills | 30 |
 | Agents | 41 |
-| Test Scripts | 98 |
+| Test Scripts | 99 |
 
-Last updated: 2026-03-27
+Last updated: 2026-04-20
 
 ## Completed (Recent)
 
 | Date | Cycle | Type |
 |------|-------|------|
+| 2026-04-20 | v2.8 Cycle A1: retro_status foundation (validator + template + state-ownership + sync-plan) | feat |
 | 2026-03-27 | v2.6.6: post-approve-gate廃止 + orchestrate TaskCreate導入 | refactor |
 | 2026-03-27 | v2.6.5: Post-Approve sync-plan直接呼び出し禁止 + risk-classifier修正 | fix |
 | 2026-03-26 | v2.6.4: hookのpwdをCLAUDE_PROJECT_DIRに置換 | fix |
@@ -79,8 +80,19 @@ Last updated: 2026-03-27
 - [x] v2.6.4: hookのpwd置換 + set -u除去
 - [x] v2.6.5: Post-Approve sync-plan直接呼び出し禁止 + risk-classifier修正
 - [x] v2.6.6: post-approve-gate廃止 + orchestrate TaskCreate導入
+- [x] v2.8 Cycle A1: retro_status foundation (Step 1+1b 一括から Cycle 分割した結果の最小基盤) — 2026-04-20 完了
+- [ ] v2.8 Cycle A2: cycle-retrospective skill 本体 + orchestrate 統合 + pre-commit-gate enable + workflow/architecture/README/AGENTS/CLAUDE 同期 (Codex BLOCK 対応で分離)
+- [ ] v2.8 Step 1: cycle-retrospective skill (advisory, auto blocking, 抽出のみ inline)
+- [ ] v2.8 Step 1b: codify-insight skill (次回 /orchestrate 開始時 decide gate)
+- [ ] v2.8 Step 1.5: captured 可視化
+- [ ] v2.8 Step 2: search-task → agile-next 化 + Goal doc 新設
+- [ ] v2.8 Step 3a: Cycle doc frontmatter 最小拡張
+- [ ] (運用評価ポイント — Step 3b 以降の必要性を再判定)
+- [ ] v2.8 Step 3b: flow metrics 構造化
+- [ ] v2.8 Step 4: 知見 lifecycle (artifact metadata)
+- [ ] v2.8 Step 5: knowledge-prune
 
-詳細は [ROADMAP.md](../ROADMAP.md) 参照。
+詳細は [ROADMAP.md](../ROADMAP.md) 参照。設計根拠は [ADR-002](decisions/adr-cycle-retrospective.md)。
 
 ## Cycle Doc Lifecycle
 

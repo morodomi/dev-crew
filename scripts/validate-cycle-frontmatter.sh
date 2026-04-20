@@ -80,8 +80,19 @@ case "$RISK_LEVEL" in
   *) error "invalid risk_level value: '$RISK_LEVEL'" ;;
 esac
 
-# 5. body contamination check
-for FIELD in phase complexity test_count risk_level; do
+# 5. retro_status validation (optional field — absence is allowed for legacy compat,
+#    but if the key is present it must have a valid value; empty/whitespace-only is rejected)
+RETRO_STATUS_PRESENT=$(echo "$FM" | grep -c "^retro_status:" || true)
+if [ "$RETRO_STATUS_PRESENT" -gt 0 ]; then
+  RETRO_STATUS=$(echo "$FM" | grep "^retro_status:" | head -1 | sed "s/^retro_status: *//")
+  case "$RETRO_STATUS" in
+    none|captured|resolved) ;;
+    *) error "invalid retro_status value: '$RETRO_STATUS' (expected: none|captured|resolved)" ;;
+  esac
+fi
+
+# 6. body contamination check (state-like metadata leak)
+for FIELD in phase complexity test_count risk_level retro_status; do
   if echo "$BODY" | grep -q "^${FIELD}:"; then
     error "state-like metadata in body: '${FIELD}:'"
   fi

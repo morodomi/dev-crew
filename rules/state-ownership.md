@@ -24,7 +24,7 @@ Cycle doc records what was done; source files define what is.
 
 | Phase | Allowed Updates |
 |-------|----------------|
-| sync-plan | Initialize all frontmatter fields (feature, phase, complexity, test_count, risk_level, created, updated) |
+| sync-plan | Initialize all frontmatter fields (feature, phase, complexity, test_count, risk_level, retro_status (= none), created, updated) |
 | red | complexity, test_count, phase, updated |
 | green | phase, updated |
 | refactor | phase, updated |
