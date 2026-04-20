@@ -149,6 +149,18 @@ PdM が Claude + Codex 両方の結果を統合:
 
 既存モードと同一。Cycle doc の DISCOVERED セクションを確認し、未起票項目を GitHub issue に起票。
 
+### Block 2f: RETROSPECTIVE (cycle-retrospective)
+
+DISCOVERED 完了後、COMMIT 前に実行する:
+
+```
+Skill(dev-crew:cycle-retrospective)
+```
+
+- 正常終了 (exit 0) → retro_status: captured または resolved → Block 3 へ
+- abort signal (exit 1) → COMMIT をスキップして停止。「cycle-retrospective aborted by user. 手動で fix してから /orchestrate を再起動してください」と出力
+- `default: abort`（安全側）。abort → BLOCK、proceed のみ Block 3 へ進行
+
 ## Block 3: Finalization
 
 既存フローと同一:

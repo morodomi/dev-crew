@@ -2,6 +2,40 @@
 
 PdM (Product Manager) オーケストレータの詳細ガイド。
 
+## Task List (Block 0 で登録) {#task-list}
+
+TaskCreate で TDD サイクルのタスクを登録する。各 Block 開始時に TaskUpdate(status: "in_progress")、完了時に TaskUpdate(status: "completed")。
+
+1. sync-plan (Cycle doc 生成)
+2. plan-review (設計レビュー)
+3. RED (テスト作成)
+4. GREEN (実装)
+5. REFACTOR (品質改善)
+6. REVIEW (コードレビュー)
+7. cycle-retrospective (失敗-成功 insight 抽出)
+8. COMMIT (コミット)
+
+**MUST**: 8件全て登録すること。plan-review と cycle-retrospective を省略しない。
+
+## Block 2f: RETROSPECTIVE {#block-2f}
+
+DISCOVERED (Block 2e) 完了後、COMMIT (Block 3) 前に実行する。
+
+```
+Skill(dev-crew:cycle-retrospective)
+```
+
+### 終了条件
+
+| 結果 | アクション |
+|------|-----------|
+| 正常終了 (exit 0) | retro_status が captured または resolved に遷移済み → Block 3 (COMMIT) へ |
+| abort signal (exit 1) | COMMIT に進まず停止。「cycle-retrospective aborted by user. 手動で fix してから /orchestrate を再起動してください」と出力 |
+
+### default 動作
+
+`default: abort`（安全側）。proceed はユーザーが明示的に選択した場合のみ。abort signal を受信した場合、orchestrate は commit に進まず停止する（Codex #1 対応）。
+
 ## PdM の責務
 
 ### やること

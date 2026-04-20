@@ -5,11 +5,11 @@
 | Metric | Value |
 |--------|-------|
 | In-Progress Cycles | 0 |
-| Done (unarchived) | 40 |
+| Done (unarchived) | 41 |
 | Archived Cycles | 37 |
 | Skills | 31 |
 | Agents | 41 |
-| Test Scripts | 100 |
+| Test Scripts | 102 |
 
 Last updated: 2026-04-20
 
@@ -17,6 +17,7 @@ Last updated: 2026-04-20
 
 | Date | Cycle | Type |
 |------|-------|------|
+| 2026-04-20 | v2.8 Cycle A2b: orchestrate Block 2f 統合 + pre-commit-gate retro_status check enable + self-dogfood | feat |
 | 2026-04-20 | v2.8 Cycle A2a: cycle-retrospective skill 本体 (advisory, SKILL.md + reference.md + state-ownership + docs sync) | feat |
 | 2026-04-20 | v2.8 Cycle A1: retro_status foundation (validator + template + state-ownership + sync-plan) | feat |
 | 2026-03-27 | v2.6.6: post-approve-gate廃止 + orchestrate TaskCreate導入 | refactor |
@@ -82,7 +83,7 @@ Last updated: 2026-04-20
 - [x] v2.6.5: Post-Approve sync-plan直接呼び出し禁止 + risk-classifier修正
 - [x] v2.6.6: post-approve-gate廃止 + orchestrate TaskCreate導入
 - [x] v2.8 Cycle A1: retro_status foundation (Step 1+1b 一括から Cycle 分割した結果の最小基盤) — 2026-04-20 完了
-- [ ] v2.8 Cycle A2: cycle-retrospective skill 本体 + orchestrate 統合 + pre-commit-gate enable + workflow/architecture/README/AGENTS/CLAUDE 同期 (Codex BLOCK 対応で分離)
+- [x] v2.8 Cycle A2: cycle-retrospective skill 本体 + orchestrate 統合 + pre-commit-gate enable + workflow/architecture/README/AGENTS/CLAUDE 同期 — A2b で完了 (2026-04-20)
 - [x] v2.8 Step 1: cycle-retrospective skill (advisory, 抽出のみ inline) — A2a で完了 (2026-04-20)
 - [ ] v2.8 Step 1b: codify-insight skill (次回 /orchestrate 開始時 decide gate)
 - [ ] v2.8 Step 1.5: captured 可視化

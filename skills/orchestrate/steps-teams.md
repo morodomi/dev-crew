@@ -246,7 +246,7 @@ review(code) 完了後、PdM が Cycle doc に Phase Summary を追記:
 
 REVIEW が PASS/WARN の場合、Cycle doc の DISCOVERED セクションを確認:
 
-1. DISCOVERED が空 → スキップして Block 3 へ
+1. DISCOVERED が空 → スキップして Block 2f へ
 2. 起票済み（`→ #` 付き）の項目 → スキップ
 3. 未起票の項目がある場合:
 
@@ -277,6 +277,18 @@ EOF
 ```
 
 起票後、Cycle doc の DISCOVERED セクションに `→ #<issue番号>` を付記。
+
+### Block 2f: RETROSPECTIVE (cycle-retrospective)
+
+DISCOVERED 完了後、COMMIT 前に実行する:
+
+```
+Skill(dev-crew:cycle-retrospective)
+```
+
+- 正常終了 (exit 0) → retro_status: captured または resolved → Block 3 へ
+- abort signal (exit 1) → COMMIT をスキップして停止。「cycle-retrospective aborted by user. 手動で fix してから /orchestrate を再起動してください」と出力
+- `default: abort`（安全側）。abort → BLOCK、proceed のみ Block 3 へ進行
 
 ## Phase 4: Block 3 - Finalization
 

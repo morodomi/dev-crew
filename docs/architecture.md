@@ -69,7 +69,7 @@ dev-crew/
 │   ├── Security: *-attacker.md, recon-agent.md, etc.
 │   └── Meta: observer.md
 ├── skills/                       # Skills (flat, see STATUS.md for counts)
-│   ├── Workflow: spec/, red/, green/, refactor/, review/, commit/, reload/
+│   ├── Workflow: spec/, red/, green/, refactor/, review/, commit/, reload/, cycle-retrospective/
 │   ├── Orchestration: orchestrate/, phase-compact/, strategy/
 │   ├── Diagnostic: diagnose/, parallel/
 │   ├── Setup: onboard/, skill-maker/
