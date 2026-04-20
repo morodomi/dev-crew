@@ -73,7 +73,7 @@ You: approve the plan (exits plan mode)
      → Codex reviews the plan (if available), findings are resolved
      → Choose Codex delegation for RED/GREEN (full/no)
 
-     → orchestrate auto-starts: RED → GREEN → REFACTOR → REVIEW → COMMIT
+     → orchestrate auto-starts: RED → GREEN → REFACTOR → REVIEW → cycle-retrospective → COMMIT
      → Each phase delegated to specialist agents (Codex or Claude workers)
      → Competitive review (Claude + Codex) at REVIEW phase
      → Findings summary shown after commit

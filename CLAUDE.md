@@ -7,7 +7,7 @@
 - plan mode: spec + design consolidated in plan file
 - /compact: phase-compact skill updates Cycle doc before compaction
 
-**Auto-orchestrate after plan approve (Post-Approve Action)**: plan approve後は `/orchestrate` を起動する。orchestrate が sync-plan → plan-review → TDDサイクルを全て管理する。Edit/Write は orchestrate 起動まで hook (post-approve-gate.sh) でブロックされる。
+**Auto-orchestrate after plan approve (Post-Approve Action)**: plan approve後は `/orchestrate` を起動する。orchestrate が sync-plan → plan-review → TDDサイクルを全て管理する。
 
 ## Codex Integration
 

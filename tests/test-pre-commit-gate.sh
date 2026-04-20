@@ -63,6 +63,7 @@ echo "T-02: PASS when REVIEW recorded"
 cat > "$TMPDIR/docs/cycles/20260315_1400_active.md" <<'CYCLE'
 ---
 phase: COMMIT
+retro_status: captured
 ---
 # Active cycle
 

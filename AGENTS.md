@@ -30,7 +30,7 @@ bash tests/test-plugin-structure.sh
 ## TDD Workflow
 
 ```
-spec → approve → /orchestrate (sync-plan → plan-review → pre-red-gate → RED → GREEN → REFACTOR → REVIEW → pre-commit-gate → COMMIT)
+spec → approve → /orchestrate (sync-plan → plan-review → pre-red-gate → RED → GREEN → REFACTOR → REVIEW → cycle-retrospective → pre-commit-gate → COMMIT)
 ```
 
 Cycle docs: `docs/cycles/YYYYMMDD_HHMM_<topic>.md`
