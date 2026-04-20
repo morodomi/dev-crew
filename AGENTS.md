@@ -13,6 +13,10 @@ AI development team as a single Claude Code plugin.
 - **Target Languages**: PHP, Python, TypeScript, JavaScript, Flutter, Hugo
 - **Security**: OWASP Top 10, CWE Top 25
 
+## Skills
+
+Skills available: spec, red, green, refactor, review, commit, orchestrate, strategy, diagnose, parallel, onboard, phase-compact, reload, sync-skills, skill-maker, cycle-retrospective, learn, evolve, security-scan, attack-report, context-review, generate-e2e, security-audit, php-quality, python-quality, ts-quality, js-quality, flask-quality, flutter-quality, hugo-quality, careful
+
 ## Quick Start
 
 ```bash
@@ -59,7 +63,7 @@ Plan mode を抜けたら `/orchestrate` を起動する。Edit/Write は hook �
 ```
 dev-crew/
 ├── agents/          # 41 agents (flat), 19 security agents
-├── skills/          # 30 skills (each: SKILL.md + reference.md)
+├── skills/          # 31 skills (each: SKILL.md + reference.md)
 ├── scripts/gates/   # Deterministic gate scripts (pre-red, pre-commit)
 ├── rules/           # Always-applied rules (git-safety, security, git-conventions)
 ├── tests/           # Shell test scripts
