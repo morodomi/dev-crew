@@ -9,7 +9,7 @@
 | Archived Cycles | 37 |
 | Skills | 31 |
 | Agents | 41 |
-| Test Scripts | 102 |
+| Test Scripts | 103 |
 
 Last updated: 2026-04-21
 
@@ -17,6 +17,7 @@ Last updated: 2026-04-21
 
 | Date | Cycle | Type |
 |------|-------|------|
+| 2026-04-21 | eval-1: test-doc-consistency.sh TC-02 CONSTITUTION 準拠修正 + meta test 新設 (v2.7.0 dogfood) | fix |
 | 2026-04-21 | v2.7.0 リリース (Agile Loop Step 1: A1+A2a+A2b 統合 + post-commit fixes) | docs |
 | 2026-04-20 | v2.7 Cycle A2b: orchestrate Block 2f 統合 + pre-commit-gate retro_status check enable + self-dogfood | feat |
 | 2026-04-20 | v2.7 Cycle A2a: cycle-retrospective skill 本体 (advisory, SKILL.md + reference.md + state-ownership + docs sync) | feat |
