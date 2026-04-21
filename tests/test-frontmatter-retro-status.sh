@@ -1,6 +1,6 @@
 #!/bin/bash
 # test-frontmatter-retro-status.sh - retro_status field foundation tests
-# TC-01 to TC-08 (9 TCs total) for v2.8 Agile Loop Cycle A1
+# TC-01 to TC-08 (9 TCs total) for v2.7 Agile Loop Cycle A1
 
 set -uo pipefail
 
@@ -49,7 +49,7 @@ CYCLE_TEMPLATE="$BASE_DIR/skills/spec/templates/cycle.md"
 SYNC_PLAN_AGENT="$BASE_DIR/agents/sync-plan.md"
 STATE_OWNERSHIP="$BASE_DIR/rules/state-ownership.md"
 
-echo "=== retro_status Foundation Tests (v2.8 Cycle A1) ==="
+echo "=== retro_status Foundation Tests (v2.7 Cycle A1) ==="
 
 # TC-01: cycle.md template contains retro_status: none field
 echo ""

@@ -1,6 +1,6 @@
 #!/bin/bash
 # test-orchestrate-a2b.sh - orchestrate A2b integration structure tests
-# TC-01 to TC-05, TC-10 to TC-18 for v2.8 Agile Loop Cycle A2b
+# TC-01 to TC-05, TC-10 to TC-18 for v2.7 Agile Loop Cycle A2b
 # Structural inspection (grep-based): no fixtures needed
 
 set -uo pipefail
@@ -26,7 +26,7 @@ README_MD="$BASE_DIR/README.md"
 AGENTS_MD="$BASE_DIR/AGENTS.md"
 RETRO_SKILL="$BASE_DIR/skills/cycle-retrospective/SKILL.md"
 
-echo "=== orchestrate A2b Integration Tests (v2.8 Cycle A2b) ==="
+echo "=== orchestrate A2b Integration Tests (v2.7 Cycle A2b) ==="
 
 # ----------------------------------------------------------------
 # TC-01: orchestrate/SKILL.md 行数 <= 100 (compress 確認)

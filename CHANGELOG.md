@@ -1,5 +1,49 @@
 # Changelog
 
+## [2.7.0] - 2026-04-21
+
+Agile Loop Step 1: cycle-retrospective ループの実用完成。
+TDD サイクル末尾で「最初の失敗 → 最終解 → 事前知識化」のペアを抽出し、
+Cycle doc に永続化する。pre-commit-gate で deterministic に検証。
+
+設計: [ADR-002](docs/decisions/adr-cycle-retrospective.md)
+PRs: #119 (A1 foundation) / #120 (A2a skill 本体) / #121 (A2b orchestrate 統合) / #122 (post-commit fixes)
+
+### Added
+
+- `skills/cycle-retrospective/` 新規 skill
+  - Hard Gate (Cycle doc 存在 + phase REVIEW/COMMIT/DONE)
+  - Idempotency Check (retro_status != none → skip)
+  - Extraction (mizchi 方式 failure → final fix → insight)
+  - Output (## Retrospective を Cycle doc EOF に append、retro_status 遷移)
+  - Override 2 路分離 (proceed / abort、default abort)
+- `frontmatter.retro_status: none|captured|resolved` 必須フィールド
+  - sync-plan agent が新規 cycle で `none` 初期化
+  - cycle-retrospective が `none → captured` (insight あり) または `none → resolved` (no-lesson / extraction failed override) に遷移
+- `orchestrate Block 2f`: REVIEW → DISCOVERED → cycle-retrospective → COMMIT の自動順序
+- `pre-commit-gate.sh check 4`: retro_status の deterministic 検証
+  - `captured` / `resolved` → PASS
+  - `none` / 空値 / 不在 / 無効値 → BLOCK
+- 新規テスト: `tests/test-frontmatter-retro-status.sh` / `test-cycle-retrospective.sh` / `test-pre-commit-gate-retro.sh` / `test-orchestrate-a2b.sh`
+
+### Changed
+
+- `validate-cycle-frontmatter.sh`: retro_status 値の strict validation + body contamination check (行頭限定)
+- `rules/state-ownership.md`: cycle-retrospective 行追加 (retro_status / updated)
+- `skills/orchestrate/SKILL.md`: 106 → 97 行に compress + Block 2f 挿入
+- `skills/orchestrate/{reference, steps-subagent, steps-teams, steps-codex}.md`: Block 2f + abort handling
+- `skills/commit/SKILL.md`: Pre-COMMIT Gate に retro_status check 追記
+- `docs/workflow.md` / `docs/architecture.md` / `README.md` / `AGENTS.md` / `CLAUDE.md`: cycle-retrospective 同期
+- `skills/spec/templates/cycle.md`: frontmatter に retro_status: none 追加 (placeholder セクションは入れない)
+
+### Breaking (edge case only)
+
+- `pre-commit-gate.sh` が `retro_status` 不在 cycle doc を BLOCK するようになった
+  - A1 以降の新規 cycle は sync-plan が自動で `retro_status: none` を初期化、影響なし
+  - Archived cycles は phase: DONE で gate skip、影響なし
+  - 影響対象: A1 以前の in-progress cycle doc を upgrade 後に commit しようとする場合のみ
+  - 対処: frontmatter に `retro_status: none` を手動追加して cycle-retrospective を実行
+
 ## [2.6.6] - 2026-03-27
 
 post-approve-gate廃止とorchestrateプロセス強化。

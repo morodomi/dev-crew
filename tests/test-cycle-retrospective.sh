@@ -1,6 +1,6 @@
 #!/bin/bash
 # test-cycle-retrospective.sh - cycle-retrospective skill structure tests
-# TC-01 to TC-15 for v2.8 Agile Loop Cycle A2a
+# TC-01 to TC-15 for v2.7 Agile Loop Cycle A2a
 
 set -uo pipefail
 
@@ -20,7 +20,7 @@ CLAUDE_MD="$BASE_DIR/CLAUDE.md"
 STATUS_MD="$BASE_DIR/docs/STATUS.md"
 FRONTMATTER_VALIDATOR="$BASE_DIR/scripts/validate-yaml-frontmatter.sh"
 
-echo "=== cycle-retrospective Skill Structure Tests (v2.8 Cycle A2a) ==="
+echo "=== cycle-retrospective Skill Structure Tests (v2.7 Cycle A2a) ==="
 
 # TC-01: SKILL.md frontmatter valid (via validate-yaml-frontmatter.sh)
 echo ""
