@@ -1,6 +1,6 @@
 #!/bin/bash
 # test-pre-commit-gate-retro.sh - pre-commit-gate.sh retro_status check tests
-# TC-06 to TC-09 (4 TCs) for v2.8 Agile Loop Cycle A2b
+# TC-06 to TC-09 (4 TCs) for v2.7 Agile Loop Cycle A2b
 # Fixture-based: mktemp -d + trap for cleanup
 
 set -uo pipefail
@@ -62,7 +62,7 @@ make_gate_fixture() {
   } > "$cycle_file"
 }
 
-echo "=== pre-commit-gate.sh retro_status Check Tests (v2.8 Cycle A2b) ==="
+echo "=== pre-commit-gate.sh retro_status Check Tests (v2.7 Cycle A2b) ==="
 
 if [ ! -f "$GATE" ]; then
   echo "ERROR: pre-commit-gate.sh not found at $GATE"
