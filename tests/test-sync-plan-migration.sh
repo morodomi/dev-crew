@@ -132,9 +132,10 @@ else
   pass "TC-13"
 fi
 
-# TC-14: rg "kickoff" in active paths returns 0 results
-echo "TC-14: No kickoff references in active paths"
-kickoff_count=$(rg -ci "kickoff" skills/ CLAUDE.md AGENTS.md docs/ \
+# TC-14: rg "kickoff" (old skill name, lowercase) in active paths returns 0 results
+# Word boundary + case-sensitive に限定 (phase 名 "KICKOFF" は別物、eval-2 で導入、match させない)
+echo "TC-14: No 'kickoff' (old skill name) references in active paths"
+kickoff_count=$(rg -c "\bkickoff\b" skills/ CLAUDE.md AGENTS.md docs/ \
   --glob '!docs/cycles/**' \
   --glob '!ROADMAP.md' \
   --glob '!docs/STATUS.md' \
