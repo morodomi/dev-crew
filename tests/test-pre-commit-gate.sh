@@ -158,6 +158,83 @@ else
   fail "Expected BLOCK (exit 1) on old-format doc, got rc=$rc output: $output"
 fi
 
+# TC-06: BLOCK when Progress Log has old-format REVIEW entry (### REVIEW (date))
+echo ""
+echo "TC-06: BLOCK when Progress Log uses old-format '### REVIEW (date)' header"
+
+rm -f "$TMPDIR/docs/cycles/20260316_0053_old-format.md"
+cat > "$TMPDIR/docs/cycles/20260315_1400_active.md" <<'CYCLE'
+---
+phase: COMMIT
+retro_status: captured
+---
+# Active cycle
+
+## Progress Log
+
+### 2026-01-01 - RED
+- Tests created
+- Phase completed
+
+### 2026-01-01 - GREEN
+- Implementation done
+- Phase completed
+
+### 2026-01-01 - REFACTOR
+- Code quality improved
+- Phase completed
+
+### REVIEW (2026-01-01)
+- Code review passed
+- Codex review: Accept 2, Reject 0
+- Phase completed
+CYCLE
+
+output=$(bash "$SCRIPT" "$TMPDIR" 2>&1) && rc=$? || rc=$?
+if [ "$rc" -ne 0 ]; then
+  pass "TC-06: BLOCK on old-format '### REVIEW (date)' Progress Log entry (exit $rc)"
+else
+  fail "TC-06: Expected BLOCK (exit non-0) on old-format REVIEW, got PASS (exit 0): $output"
+fi
+
+# TC-07: PASS when Progress Log has correct-format REVIEW entry (### YYYY-MM-DD HH:MM - REVIEW)
+echo ""
+echo "TC-07: PASS when Progress Log uses correct '### YYYY-MM-DD HH:MM - REVIEW' format"
+
+cat > "$TMPDIR/docs/cycles/20260315_1400_active.md" <<'CYCLE'
+---
+phase: COMMIT
+retro_status: captured
+---
+# Active cycle
+
+## Progress Log
+
+### 2026-01-01 00:00 - RED
+- Tests created
+- Phase completed
+
+### 2026-01-01 00:00 - GREEN
+- Implementation done
+- Phase completed
+
+### 2026-01-01 00:00 - REFACTOR
+- Code quality improved
+- Phase completed
+
+### 2026-01-01 00:00 - REVIEW
+- Code review passed
+- Codex review: Accept 2, Reject 0
+- Phase completed
+CYCLE
+
+output=$(bash "$SCRIPT" "$TMPDIR" 2>&1) && rc=$? || rc=$?
+if [ "$rc" -eq 0 ]; then
+  pass "TC-07: PASS on correct '### YYYY-MM-DD HH:MM - REVIEW' format"
+else
+  fail "TC-07: Expected PASS (exit 0), got BLOCK (exit $rc): $output"
+fi
+
 # Summary
 echo ""
 echo "=== Summary ==="

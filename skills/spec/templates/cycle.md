@@ -8,7 +8,7 @@ Copy and create `docs/cycles/YYYYMMDD_HHMM_<feature-name>.md`.
 ---
 feature: [feature-area]
 cycle: [cycle-identifier]
-phase: INIT
+phase: KICKOFF
 complexity: [trivial|standard|complex]
 test_count: [number]
 risk_level: [low|medium|high]
@@ -103,7 +103,7 @@ Evidence: (orchestrate が自動記入)
 
 ## Progress Log
 
-Format for each phase entry:
+Format for each phase entry (**strict, required by pre-commit-gate.sh**):
 
 ```
 ### YYYY-MM-DD HH:MM - PHASE_NAME
@@ -118,7 +118,7 @@ Phase-specific content:
 - REVIEW: `review(code) score:NN verdict:PASS/WARN/BLOCK`
 - COMMIT: `Committed: [hash]`
 
-### YYYY-MM-DD HH:MM - INIT
+### YYYY-MM-DD HH:MM - KICKOFF
 - Cycle doc created
 - Scope definition ready
 
@@ -126,11 +126,11 @@ Phase-specific content:
 
 ## Next Steps
 
-1. [Done] INIT <- Current
-2. [Next] PLAN
-3. [ ] RED
-4. [ ] GREEN
-5. [ ] REFACTOR
-6. [ ] REVIEW
-7. [ ] COMMIT
+1. [Done] KICKOFF <- Current
+2. [Next] RED
+3. [ ] GREEN
+4. [ ] REFACTOR
+5. [ ] REVIEW
+6. [ ] COMMIT
+7. [ ] DONE
 ```

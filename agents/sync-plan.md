@@ -97,7 +97,7 @@ Output: Cycle doc生成完了。結果JSONを返却。
 |-----------|--------|
 | feature | フィーチャー名 |
 | cycle | YYYYMMDD_HHMM |
-| phase | RED |
+| phase | KICKOFF |
 | complexity | trivial/standard/complex (planのRiskから仮設定) |
 | test_count | Test Listのカウント |
 | risk_level | low/medium/high |
@@ -112,7 +112,7 @@ Output: Cycle doc生成完了。結果JSONを返却。
 
 ```
 planファイルが見つかりません。
-plan modeでINIT + 設計を先に実行してください。
+plan modeで設計を先に実行してください。
 ```
 
 ### Test Listが空
@@ -139,6 +139,22 @@ plan modeでTest Listを作成してください。
 1. `docs/decisions/TEMPLATE.md` をコピー
 2. ファイル名: `NNNN-description.md` (連番)
 3. Cycle docのContext & Dependenciesから該当ADRを参照
+
+## Progress Log Format (pre-commit-gate 互換必須)
+
+Cycle doc 生成時、Progress Log セクションの各 phase entry は以下の**厳密な形式**で出力すること:
+
+```
+### YYYY-MM-DD HH:MM - PHASE_NAME
+- [completed action]
+- Phase completed
+```
+
+**禁止形式**: `### PHASE_NAME (YYYY-MM-DD)`, `### PHASE_NAME at HH:MM`, その他 date を header 末尾の括弧内に置く形式。
+
+**理由**: `scripts/gates/pre-commit-gate.sh` が `awk '/^### .* - REVIEW/,/Phase completed/'` で REVIEW entry を検出する。header 形式が乖離すると gate が BLOCK する。
+
+**対象 PHASE_NAME**: KICKOFF / RED / GREEN / REFACTOR / REVIEW / COMMIT / DONE。
 
 ## Principles
 
