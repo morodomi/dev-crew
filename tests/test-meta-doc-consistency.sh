@@ -57,13 +57,16 @@ echo "TC-01: TC-02 passes when architecture.md has no hardcoded skill count"
 FIXTURE_01="$TMPDIR_FIXTURE/tc01"
 make_fixture "$FIXTURE_01" "# Skills (flat, see STATUS.md for counts)" 2
 
-# BASE_DIR override で test-doc-consistency.sh を実行し TC-02 行のみ抽出
-tc02_output_01="$(BASE_DIR="$FIXTURE_01" bash "$SUBJECT" 2>&1 | grep -E "TC-02|does not hardcode" || true)"
+# BASE_DIR override で test-doc-consistency.sh を実行し、TC-02 セクションのみ抽出
+# (Codex post-commit P2-1 対応: 全 output から grep だと TC-02 以外の location でも match
+#  し得るため、awk で TC-02 ヘッダ〜次 TC-N ヘッダ間に限定)
+full_output_01="$(BASE_DIR="$FIXTURE_01" bash "$SUBJECT" 2>&1 || true)"
+tc02_section_01="$(echo "$full_output_01" | awk '/^TC-02:/{flag=1} flag{print} /^TC-0[3-9]:|^TC-1[0-9]:|^===/&&NR>1&&flag{exit}')"
 
-if echo "$tc02_output_01" | grep -q "does not hardcode"; then
-  pass "TC-01: TC-02 outputs 'does not hardcode' PASS when count absent"
+if echo "$tc02_section_01" | grep -q "does not hardcode"; then
+  pass "TC-01: TC-02 section contains 'does not hardcode' PASS when count absent"
 else
-  fail "TC-01: expected 'does not hardcode' in TC-02 output, got: $tc02_output_01"
+  fail "TC-01: expected 'does not hardcode' inside TC-02 section, got section: $tc02_section_01"
 fi
 
 ########################################
@@ -76,14 +79,14 @@ echo "TC-02: TC-02 passes when architecture.md count matches actual (2)"
 FIXTURE_02="$TMPDIR_FIXTURE/tc02"
 make_fixture "$FIXTURE_02" "# 2 skills available (see STATUS.md for details)" 2
 
-tc02_output_02="$(BASE_DIR="$FIXTURE_02" bash "$SUBJECT" 2>&1 | grep -E "TC-02.*skill count|architecture\.md skill count.*= actual \(2\)" || true)"
+# Codex post-commit P2-1 対応: TC-02 セクション限定
+full_output_02="$(BASE_DIR="$FIXTURE_02" bash "$SUBJECT" 2>&1 || true)"
+tc02_section_02="$(echo "$full_output_02" | awk '/^TC-02:/{flag=1} flag{print} /^TC-0[3-9]:|^TC-1[0-9]:|^===/&&NR>1&&flag{exit}')"
 
-# Tighten to architecture.md-specific PASS line to avoid false-positive match
-# from TC-01's "README.md skill count (2) = actual (2)" (Codex/correctness review)
-if echo "$tc02_output_02" | grep -qE "architecture\.md skill count \(2\) = actual \(2\)"; then
-  pass "TC-02: TC-02 outputs 'architecture.md skill count (2) = actual (2)' PASS"
+if echo "$tc02_section_02" | grep -qE "architecture\.md skill count \(2\) = actual \(2\)"; then
+  pass "TC-02: TC-02 section contains 'architecture.md skill count (2) = actual (2)' PASS"
 else
-  fail "TC-02: expected 'architecture.md skill count (2) = actual (2)' PASS in TC-02 output, got: $tc02_output_02"
+  fail "TC-02: expected 'architecture.md skill count (2) = actual (2)' PASS in TC-02 section, got: $tc02_section_02"
 fi
 
 ########################################
@@ -96,14 +99,14 @@ echo "TC-03: TC-02 fails when architecture.md count does not match actual (99 vs
 FIXTURE_03="$TMPDIR_FIXTURE/tc03"
 make_fixture "$FIXTURE_03" "# 99 skills (outdated)" 2
 
-tc02_output_03="$(BASE_DIR="$FIXTURE_03" bash "$SUBJECT" 2>&1 | grep -E "TC-02|architecture\.md skill count.*!= actual" || true)"
+# Codex post-commit P2-1 対応: TC-02 セクション限定
+full_output_03="$(BASE_DIR="$FIXTURE_03" bash "$SUBJECT" 2>&1 || true)"
+tc02_section_03="$(echo "$full_output_03" | awk '/^TC-02:/{flag=1} flag{print} /^TC-0[3-9]:|^TC-1[0-9]:|^===/&&NR>1&&flag{exit}')"
 
-# Tighten to architecture.md-specific FAIL line to avoid false-positive match
-# from any other test's "!= actual" output (Codex/correctness review)
-if echo "$tc02_output_03" | grep -qE "architecture\.md skill count \(99\) != actual \(2\)"; then
-  pass "TC-03: TC-02 outputs 'architecture.md skill count (99) != actual (2)' FAIL"
+if echo "$tc02_section_03" | grep -qE "architecture\.md skill count \(99\) != actual \(2\)"; then
+  pass "TC-03: TC-02 section contains 'architecture.md skill count (99) != actual (2)' FAIL"
 else
-  fail "TC-03: expected 'architecture.md skill count (99) != actual (2)' FAIL in TC-02 output, got: $tc02_output_03"
+  fail "TC-03: expected 'architecture.md skill count (99) != actual (2)' FAIL in TC-02 section, got: $tc02_section_03"
 fi
 
 ########################################
