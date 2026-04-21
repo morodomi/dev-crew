@@ -4,7 +4,7 @@
 
 set -euo pipefail
 
-BASE_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+BASE_DIR="${BASE_DIR:-$(cd "$(dirname "$0")/.." && pwd)}"
 PASS=0
 FAIL=0
 
@@ -26,7 +26,7 @@ ACTUAL_COUNT=$(find "$BASE_DIR/skills" -mindepth 1 -maxdepth 1 -type d | wc -l |
 # TC-01: README.md skill count = actual skill directories
 echo ""
 echo "TC-01: README.md skill count matches actual ($ACTUAL_COUNT)"
-readme_counts=$(grep -oE '[0-9]+ skills' "$BASE_DIR/README.md" | head -1 | grep -oE '[0-9]+')
+readme_counts=$(grep -oE '[0-9]+ skills' "$BASE_DIR/README.md" 2>/dev/null | head -1 | grep -oE '[0-9]+' || true)
 if [ "$readme_counts" = "$ACTUAL_COUNT" ]; then
   pass "README.md skill count ($readme_counts) = actual ($ACTUAL_COUNT)"
 else
@@ -35,9 +35,11 @@ fi
 
 # TC-02: architecture.md skill count = actual skill directories
 echo ""
-echo "TC-02: architecture.md skill count matches actual ($ACTUAL_COUNT)"
-arch_count=$(grep -oE '[0-9]+ skills' "$BASE_DIR/docs/architecture.md" | head -1 | grep -oE '[0-9]+')
-if [ "$arch_count" = "$ACTUAL_COUNT" ]; then
+echo "TC-02: architecture.md skill count check (skip if absent per CONSTITUTION)"
+arch_count=$(grep -oE '[0-9]+ skills' "$BASE_DIR/docs/architecture.md" 2>/dev/null | head -1 | grep -oE '[0-9]+' || true)
+if [ -z "$arch_count" ]; then
+  pass "architecture.md does not hardcode skill count (CONSTITUTION principle honored)"
+elif [ "$arch_count" = "$ACTUAL_COUNT" ]; then
   pass "architecture.md skill count ($arch_count) = actual ($ACTUAL_COUNT)"
 else
   fail "architecture.md skill count ($arch_count) != actual ($ACTUAL_COUNT)"
@@ -188,8 +190,9 @@ echo "TC-13: Existing tests pass"
 existing_fail=0
 for test_file in "$BASE_DIR/tests"/test-*.sh; do
   test_name=$(basename "$test_file")
-  # Skip ourselves to avoid recursion
+  # Skip ourselves and meta test to avoid recursion
   [ "$test_name" = "test-doc-consistency.sh" ] && continue
+  [ "$test_name" = "test-meta-doc-consistency.sh" ] && continue
   if ! bash "$test_file" > /dev/null 2>&1; then
     fail "Existing test failed: $test_name"
     existing_fail=1
