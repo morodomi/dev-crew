@@ -315,6 +315,7 @@ allowed-tools: "Bash(python:*) Bash(npm:*) WebFetch"
 - [ ] Examples provided
 - [ ] References clearly linked
 - [ ] SKILL.md under 100 lines (dev-crew rule)
+- [ ] If skill invokes other skills: Exit Contract documented (exit codes + stderr + state transitions; caller integration updated). See [rules/skill-authoring.md](../../rules/skill-authoring.md).
 
 ### Before Upload / Distribution
 

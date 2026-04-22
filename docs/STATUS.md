@@ -9,7 +9,7 @@
 | Archived Cycles | 37 |
 | Skills | 32 |
 | Agents | 41 |
-| Test Scripts | 107 |
+| Test Scripts | 108 |
 
 Last updated: 2026-04-22
 

@@ -375,22 +375,22 @@ if [ "$TC18_PASS" = "true" ]; then
   pass "TC-18: All 4 files mention codify-insight"
 fi
 
-# TC-19: docs/STATUS.md contains "Skills | 32" AND "Test Scripts | 107", README.md contains "32 skills"
+# TC-19: docs/STATUS.md contains "Skills | 32" AND "Test Scripts | 108", README.md contains "32 skills"
 echo ""
-echo "TC-19: STATUS.md Skills=32 + Test Scripts=107, README.md 32 skills"
+echo "TC-19: STATUS.md Skills=32 + Test Scripts=108, README.md 32 skills"
 if [ ! -f "$STATUS_MD" ]; then
   fail "TC-19: docs/STATUS.md does not exist"
 else
   has_skills32=$(grep -qE "Skills[[:space:]]*\|[[:space:]]*32" "$STATUS_MD" && echo "yes" || echo "no")
-  has_scripts107=$(grep -qE "Test Scripts[[:space:]]*\|[[:space:]]*107" "$STATUS_MD" && echo "yes" || echo "no")
+  has_scripts108=$(grep -qE "Test Scripts[[:space:]]*\|[[:space:]]*108" "$STATUS_MD" && echo "yes" || echo "no")
   has_readme32=$(grep -qE "32 skills" "$README_MD" 2>/dev/null && echo "yes" || echo "no")
-  if [ "$has_skills32" = "yes" ] && [ "$has_scripts107" = "yes" ] && [ "$has_readme32" = "yes" ]; then
-    pass "TC-19: STATUS.md Skills=32 + Test Scripts=107, README.md 32 skills"
+  if [ "$has_skills32" = "yes" ] && [ "$has_scripts108" = "yes" ] && [ "$has_readme32" = "yes" ]; then
+    pass "TC-19: STATUS.md Skills=32 + Test Scripts=108, README.md 32 skills"
   else
     skills_current=$(grep -oE "Skills[[:space:]]*\|[[:space:]]*[0-9]+" "$STATUS_MD" | grep -oE "[0-9]+$" | head -1 || echo "not found")
     scripts_current=$(grep -oE "Test Scripts[[:space:]]*\|[[:space:]]*[0-9]+" "$STATUS_MD" | grep -oE "[0-9]+$" | head -1 || echo "not found")
     readme_current=$(grep -oE "[0-9]+ skills" "$README_MD" 2>/dev/null | head -1 || echo "not found")
-    fail "TC-19: STATUS.md Skills=$skills_current (need 32), Test Scripts=$scripts_current (need 107), README=$readme_current (need '32 skills')"
+    fail "TC-19: STATUS.md Skills=$skills_current (need 32), Test Scripts=$scripts_current (need 108), README=$readme_current (need '32 skills')"
   fi
 fi
 
