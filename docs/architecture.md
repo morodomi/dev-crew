@@ -146,6 +146,43 @@ Task()委譲で各フェーズのcontextは自動分離。PdMが直接Phase Summ
 - memory/ files for cross-session knowledge
 - meta plugin learn/evolve for pattern accumulation
 
+## Agile Loop: codify-insight
+
+### 位置づけ
+
+`cycle-retrospective` → COMMIT → **次サイクル開始時に `codify-insight`** → 次サイクル実行、という順で動作する。
+codify-insight は orchestrate Block 0 から自動起動される。
+
+### フロー
+
+```
+[前サイクル完了]
+  retro_status: captured (cycle-retrospective で insight 抽出済み)
+  │
+  ▼
+[次 /orchestrate 開始]
+  Block 0: Codify gate — frontmatter-only scan で captured cycles を検出
+  │  非空 → Skill(dev-crew:codify-insight) を起動
+  │
+  ▼
+codify-insight
+  │  各 insight を AskUserQuestion で codify/defer/no-codify 判断
+  │  Cycle doc EOF に ## Codify Decisions を append (APPEND-ONLY)
+  │  全 insight 判定完了 → retro_status: captured → resolved
+  │
+  ▼
+  [通常の orchestrate フローへ]
+```
+
+### 設計原則
+
+- **APPEND-ONLY**: 既存 `## Retrospective` セクションは変更しない。`## Codify Decisions` を EOF に追記するのみ。
+- **Frontmatter-only scan**: whole-file grep は body 引用テキストに self-trigger する。`awk` で frontmatter のみ抽出。
+- **MVP 意味論**: `codified` は判断の記録のみ。実際の書き出しは follow-up cycle で実施。
+- **Idempotency**: `### Insight N` heading の存在で判定済みを確認。partial 完了でも再起動で残分のみ処理。
+
+詳細: [skills/codify-insight/reference.md](../skills/codify-insight/reference.md)
+
 ## Scoring & Judgment
 
 ### Review Scores

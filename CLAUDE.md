@@ -27,9 +27,10 @@ Codex 不在時は Claude fallback（既存スキルそのまま）。
 
 ## Skills
 
-Available skills (31 total): spec, red, green, refactor, review, commit, orchestrate, strategy, diagnose, parallel, onboard, phase-compact, reload, sync-skills, skill-maker, cycle-retrospective, learn, evolve, security-scan, attack-report, context-review, generate-e2e, security-audit, php-quality, python-quality, ts-quality, js-quality, flask-quality, flutter-quality, hugo-quality, careful
+Available skills (32 total): spec, red, green, refactor, review, commit, orchestrate, strategy, diagnose, parallel, onboard, phase-compact, reload, sync-skills, skill-maker, cycle-retrospective, codify-insight, learn, evolve, security-scan, attack-report, context-review, generate-e2e, security-audit, php-quality, python-quality, ts-quality, js-quality, flask-quality, flutter-quality, hugo-quality, careful
 
 - **cycle-retrospective**: TDD サイクル末尾で失敗-成功ペアを抽出する advisory スキル (「retrospective」「振り返り」で起動)
+- **codify-insight**: retrospective insights を codify/defer/no-codify で明示判断する decide gate (「codify」「codify-insight」で起動)
 
 ## Token Optimization
 
