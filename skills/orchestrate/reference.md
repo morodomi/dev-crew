@@ -2,6 +2,33 @@
 
 PdM (Product Manager) オーケストレータの詳細ガイド。
 
+## Block 0 Pre-Check: Codify Gate {#block-0-pre-check}
+
+orchestrate 起動時に最初に実行する codify-insight トリガーチェック。
+
+### 動作
+
+frontmatter-only scan で `retro_status: captured` の Cycle doc を検出:
+
+```bash
+for f in docs/cycles/*.md; do
+  awk '/^---$/{c++;next} c==1{print}' "$f" | grep -q 'retro_status: captured' && echo "$f"
+done
+```
+
+- **非空 (captured cycles あり)**: `Skill(dev-crew:codify-insight)` を起動する。全 captured cycles が resolved に遷移した後、次のステップへ進む。
+- **空 (captured cycles なし)**: no-op。次のステップへ直行。
+
+### なぜ frontmatter-only scan か
+
+whole-file grep (`grep -l 'retro_status: captured'`) は Cycle doc body 中の引用テキスト（本 plan/cycle doc にも `retro_status: captured` を本文で引用する箇所がある）に self-trigger する。frontmatter のみを `awk` で抽出することで false positive を防ぐ。
+
+### codify-insight スキルとの関係
+
+`Skill(dev-crew:codify-insight)` が実際の判断インタラクション（codify/defer/no-codify の AskUserQuestion）を担う。orchestrate は起動のみ担当し、判断ロジックは codify-insight に委譲する。
+
+詳細: [codify-insight/SKILL.md](../codify-insight/SKILL.md) / [codify-insight/reference.md](../codify-insight/reference.md)
+
 ## Task List (Block 0 で登録) {#task-list}
 
 TaskCreate で TDD サイクルのタスクを登録する。各 Block 開始時に TaskUpdate(status: "in_progress")、完了時に TaskUpdate(status: "completed")。

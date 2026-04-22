@@ -7,6 +7,17 @@
 
 ## Block 0: Prerequisite Check
 
+### 0. Codify gate (frontmatter-only scan)
+
+```bash
+for f in docs/cycles/*.md; do
+  awk '/^---$/{c++;next} c==1{print}' "$f" | grep -q 'retro_status: captured' && echo "$f"
+done
+```
+
+非空 → `Skill(dev-crew:codify-insight)` を起動。全 captured が resolved 遷移後、次へ。
+空 → no-op、次ステップへ。
+
 planファイルを起点に開始地点を決定する:
 
 ### 1. planファイルの存在確認

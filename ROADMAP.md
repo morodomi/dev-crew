@@ -30,7 +30,7 @@ dev-crew 内 agile namespace で Cycle Retrospective + Goal Layer + Knowledge Li
 | Step | 内容 | 状態 |
 |------|------|------|
 | 1   | cycle-retrospective (REVIEW→DISCOVERED→retro→COMMIT, auto blocking, 抽出のみ inline) | **完了 (v2.7.0)** |
-| 1b  | codify-insight (次回 /orchestrate 開始時 decide gate, codify/defer/no-codify を明示判断) | 未着手 |
+| 1b  | codify-insight (次回 /orchestrate 開始時 decide gate, codify/defer/no-codify を明示判断) | 完了 |
 | 1.5 | captured 可視化 (未処理 insight 件数の警告) | 次の候補 |
 | 2   | search-task → agile-next 化 + Goal doc 新設 (docs/goals/) | 未着手 |
 | 3a  | Cycle doc frontmatter 最小拡張 (cycle_id/goal_id/issue_id/status/retro_status/review_verdict/verification_status) | 未着手 |

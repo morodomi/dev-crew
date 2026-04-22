@@ -53,6 +53,20 @@ cycle-retrospective (Claude)
   │
   ▼
 COMMIT (Claude)
+  │  cycle N コミット完了
+  ╎
+  ╎  ─── cycle N+1 起動 ───
+  ╎
+  ▼
+[次サイクル Block 0] codify-insight (Claude) ← orchestrate Block 0 自動起動
+  │  retro_status: captured の cycle doc を検出 (frontmatter-only scan)
+  │  各 insight を codify/defer/no-codify で明示判断
+  │  Cycle doc EOF に ## Codify Decisions を append
+  │  全 insight 判定 → retro_status: captured → resolved、次フェーズへ
+  │  abort (exit 1) → BLOCK、/orchestrate 再起動案内
+  │
+  ▼
+sync-plan → RED → GREEN → ... → COMMIT (cycle N+1 本体フロー、以下同じ)
 ```
 
 ## 承認と確認

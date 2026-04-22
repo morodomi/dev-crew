@@ -88,7 +88,7 @@ compaction, so long sessions stay within the context window.
 dev-crew/
 ├── .claude-plugin/plugin.json   # Single plugin
 ├── agents/                      # 40 agents
-├── skills/                      # 31 skills
+├── skills/                      # 32 skills
 ├── rules/                       # Git safety, conventions, security
 ├── hooks/hooks.json             # Phase-boundary compaction hooks
 ├── scripts/hooks/               # Shell scripts for hooks
@@ -98,8 +98,8 @@ dev-crew/
 
 ## Skills
 
-### Development Workflow (16)
-spec, red, green, refactor, review, commit, orchestrate, strategy, diagnose, parallel, onboard, phase-compact, reload, sync-skills, skill-maker, cycle-retrospective
+### Development Workflow (17)
+spec, red, green, refactor, review, commit, orchestrate, strategy, diagnose, parallel, onboard, phase-compact, reload, sync-skills, skill-maker, cycle-retrospective, codify-insight
 
 ### Security (5)
 security-scan, attack-report, context-review, generate-e2e, security-audit

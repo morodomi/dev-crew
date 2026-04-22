@@ -26,6 +26,7 @@ Cycle doc records what was done; source files define what is.
 |-------|----------------|
 | sync-plan | Initialize all frontmatter fields (feature, phase, complexity, test_count, risk_level, retro_status (= none), created, updated) |
 | cycle-retrospective | retro_status (none → captured / none → resolved), updated |
+| codify-insight | retro_status (captured → resolved), updated, body ## Codify Decisions section append |
 | red | complexity, test_count, phase, updated |
 | green | phase, updated |
 | refactor | phase, updated |
