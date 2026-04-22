@@ -87,7 +87,7 @@ Skill(dev-crew:refactor)
 
 ### VERIFY (Product Verification)
 
-PdM が直接 Bash で実行（advisory evidence、委譲不要）。
+PdM が直接 Bash で実行（参考エビデンス、委譲不要）。
 Cycle doc `## Verification` セクション不在 → サイレントスキップ。
 詳細: [reference.md](reference.md#product-verification)
 
