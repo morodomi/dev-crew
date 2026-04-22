@@ -4,7 +4,7 @@ phase: COMMIT
 complexity: trivial
 risk_level: low
 test_count: 2
-retro_status: captured
+retro_status: resolved
 ---
 
 # Cycle: AGENTS.md agent count 整合 (eval-3)
@@ -131,3 +131,22 @@ for f in tests/test-*.sh; do bash "$f" > /dev/null 2>&1 || echo "FAIL: $(basenam
 - **Failure**: 過去 cycle で Codex + Claude correctness を並列実行していたが、trivial scope では overkill
 - **Final fix**: Codex code review が findings なしで approve → Claude correctness skip
 - **Insight**: trivial scope (1 file / 1 line / risk low) では **Codex のみ code review** で十分。Claude correctness reviewer の並列化は medium 以上 risk で価値が出る。review コストの適応的運用
+
+## Codify Decisions
+
+### Insight 1: small scope でも `set -euo pipefail + pipe + grep` の masking bug が発見される
+- **Decision**: codified
+- **Destination**: rule
+- **Reason**: "bash pipefail + pipe + grep は output capture で分離" rule (eval-4 #3 の `$?` 即捕捉と合わせ "pipefail + $ トラップ集" に整理)
+- **Decided**: 2026-04-22 14:00
+
+### Insight 2: 小 scope cycle でも insight は 1-2 件抽出できる (retrospective loop の効率性)
+- **Decision**: no-codify
+- **Reason**: dogfood observation、retrospective loop の coverage 特性記述であり rule 化しない
+- **Decided**: 2026-04-22 14:00
+
+### Insight 3: Codex が approve 一発のとき、Claude correctness reviewer の並列実行は省略できる
+- **Decision**: codified
+- **Destination**: rule
+- **Reason**: "Risk LOW + Codex approve 一発は Claude correctness skip 可" rule (Cycle B #6 の Risk-based scaling 具体例)
+- **Decided**: 2026-04-22 14:00

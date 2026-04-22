@@ -5,10 +5,10 @@ phase: COMMIT
 complexity: trivial
 test_count: 7
 risk_level: low
-retro_status: captured
+retro_status: resolved
 codex_session_id: ""
 created: 2026-04-21 18:09
-updated: 2026-04-21 19:00
+updated: 2026-04-22 14:00
 ---
 
 # sync-plan Progress Log Format
@@ -191,3 +191,33 @@ Evidence: (orchestrate が自動記入)
 - **Failure**: eval-1 では architect 生成 Cycle doc の Progress Log header が `### PHASE (date)` 形式で pre-commit-gate が BLOCK。手修正で回避したが根本原因 (sync-plan agent の format spec 不在 + template の INIT/KICKOFF 混在) は残っていた
 - **Final fix**: agents/sync-plan.md に Progress Log Format section 追加 + cycle.md template を KICKOFF に完全統一 + TC-06/07 で gate 互換性を回帰検証
 - **Insight**: v2.7 Step 1 retrospective loop が「前 cycle の DISCOVERED を次 cycle で消化して根本解消する」という設計通りに機能している。eval-1 の insight (template drift 発見) → eval-2 の根本解消 のループが 2 回成立 = **dogfood evidence of v2.7 Step 1 の実効性**
+
+## Codify Decisions
+
+### Insight 1: architect agent の scope drift は plan 冒頭で「独自判断で scope 変更しない」を明示的に約束させる
+- **Decision**: codified
+- **Destination**: rule
+- **Reason**: "architect sync-plan prompt に Files to Change 全量尊重を明示" rule (A2b #2 と統合 canonical version)
+- **Decided**: 2026-04-22 14:00
+
+### Insight 2: Cycle doc と test assertion の wording 整合は architect 生成段階で機械検証できない
+- **Decision**: deferred
+- **Reason**: template.md の TC 記述テンプレート設計は別 cycle スコープ、独立 design が必要
+- **Decided**: 2026-04-22 14:00
+
+### Insight 3: case-insensitive grep は「似たが異なる概念」(skill 名 vs phase 名) を混同する
+- **Decision**: codified
+- **Destination**: rule
+- **Reason**: "grep は case-sensitive + word boundary + 固有 prefix" rule (eval-1 #3 と統合)
+- **Decided**: 2026-04-22 14:00
+
+### Insight 4: pre-existing failures を DISCOVERED で先送りする前に、本 cycle の scope 拡張で解消可能か検討
+- **Decision**: codified
+- **Destination**: rule
+- **Reason**: "pre-existing FAIL を見つけたら本 cycle で 1 行 fix 可能か必ず check" rule
+- **Decided**: 2026-04-22 14:00
+
+### Insight 5: 本 cycle の KICKOFF convention 導入が eval-1 format drift 問題を根本解消
+- **Decision**: no-codify
+- **Reason**: dogfood evidence loop の実効性観察であり、actionable rule にはならない (meta observation)
+- **Decided**: 2026-04-22 14:00
