@@ -5,10 +5,10 @@ phase: DONE
 complexity: trivial
 test_count: 4
 risk_level: low
-retro_status: captured
+retro_status: resolved
 codex_session_id: ""
 created: 2026-04-21 10:43
-updated: 2026-04-21 11:50
+updated: 2026-04-22 14:00
 ---
 
 # test-doc-consistency TC-02 CONSTITUTION 準拠修正
@@ -216,3 +216,35 @@ Codex post-commit review (commit bbdab73) で 2 件 P2:
 - **Final fix**: TC-13 の skip リストに `test-meta-doc-consistency.sh` を追加 (1 行)
 - **Insight**: 既存 test を `bash` で再実行する meta test を導入するときは、**recursive runner (test-doc-consistency.sh TC-13 のような他テスト全実行 logic) に対する skip 登録**を plan 段階で明示。後付けで気付くと巻き込み事故になる
 
+
+## Codify Decisions
+
+### Insight 1: plan の現状記述は「実コードを実行確認」してから書く
+- **Decision**: codified
+- **Destination**: rule
+- **Reason**: "plan の Problem/Current-state 記述は実行確認後に書く" rule
+- **Decided**: 2026-04-22 14:00
+
+### Insight 2: meta test (test を test する) は対象 script を直接実行する形が drift 防止に強い
+- **Decision**: codified
+- **Destination**: rule
+- **Reason**: "meta test は対象 script を BASE_DIR env override で直接実行、logic copy 禁止" rule
+- **Decided**: 2026-04-22 14:00
+
+### Insight 3: meta test assertion は対象 TC を特定する固有 prefix で絞り込む
+- **Decision**: codified
+- **Destination**: rule
+- **Reason**: "test assertion grep は一意特定文字列 (file/section/TC番号+文脈) を含める" rule (eval-2 #3 と統合)
+- **Decided**: 2026-04-22 14:00
+
+### Insight 4: fixture-based meta test 導入時、対象 script の他 TC が fixture 環境で abort しない defense を当てる
+- **Decision**: codified
+- **Destination**: rule
+- **Reason**: "fixture-based meta test 導入時は対象 script の defensive 化を同時実施" rule
+- **Decided**: 2026-04-22 14:00
+
+### Insight 5: 既存 test を実行する meta test は recursive runner (TC-13 等) に対する skip を初期に設計
+- **Decision**: codified
+- **Destination**: rule
+- **Reason**: "既存 test を再実行する meta test 導入時は recursive runner skip 登録を plan 段階で明示" rule
+- **Decided**: 2026-04-22 14:00

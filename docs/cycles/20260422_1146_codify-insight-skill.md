@@ -5,10 +5,10 @@ phase: REVIEW
 complexity: standard
 test_count: 20
 risk_level: medium
-retro_status: captured
+retro_status: resolved
 codex_session_id: "019db316-9c2c-74f0-b32d-0b7d92de9e17"
 created: 2026-04-22 11:46
-updated: 2026-04-22 12:05
+updated: 2026-04-22 14:00
 ---
 
 # Cycle B: codify-insight skill 新設 (ROADMAP Step 1b)
@@ -421,3 +421,41 @@ Evidence: (orchestrate が自動記入)
 - **Final fix**: Claude 3 reviewer (correctness + security + maintainability) + Codex を並行実行。maintainability-reviewer が DRY (5 箇所重複)、SKILL.md/reference.md 分離妥当性、Fowler code smells を独立に評価し、correctness/security と視点がかぶらず有効だった。
 - **Insight**: **Risk score が reviewer 数/種別を決定する**。LOW (0-30): security + correctness + Codex (3 views)。MEDIUM (30-60): + maintainability。HIGH (60+): + architectural/design-reviewer 候補。Score 115 は eval-4 (25) の 4.6 倍、review 厚みも比例 scale で OK。Findings triage も HIGH では 3 categories (accept-apply / accept-defer / reject) 必須。
 - **一般化**: Risk-based scaling を review pipeline に明示 default として組み込む。今は ad-hoc 判断、将来 review skill 自体に「HIGH なら maintainability を自動追加」ロジックを入れると良い (Step 1c 以降の候補)。
+
+## Codify Decisions
+
+### Insight 1: frontmatter state scan は必ず frontmatter のみ抽出せよ
+- **Decision**: codified
+- **Destination**: rule
+- **Reason**: "doc state は doc body で grep しない、awk c==1 frontmatter-only parse を内部標準" rule
+- **Decided**: 2026-04-22 14:00
+
+### Insight 2: 逆向き test contract (文字列/数値を固定値で assert するテスト) を事前検索せよ
+- **Decision**: codified
+- **Destination**: rule
+- **Reason**: eval-4 #1 と統合、同じ rule document で canonical 記述
+- **Decided**: 2026-04-22 14:00
+
+### Insight 3: 既存セクション内の per-item 追記は APPEND-ONLY 違反、独立セクション + 参照で代用する
+- **Decision**: codified
+- **Destination**: rule
+- **Reason**: "APPEND-ONLY 制約下で per-item metadata 追加は独立セクション + heading 参照で代用" rule
+- **Decided**: 2026-04-22 14:00
+
+### Insight 4: Plan file は approve 後 IMMUTABLE、Codex review 改訂は Cycle doc のみに反映する
+- **Decision**: codified
+- **Destination**: rule
+- **Reason**: "plan approve 後は plan file 絶対編集禁止、SSOT 宣言で片方向更新" rule (state-ownership.md 補強)
+- **Decided**: 2026-04-22 14:00
+
+### Insight 5: Skill 間 invoke には exit contract を両側に明記する
+- **Decision**: codified
+- **Destination**: skill
+- **Reason**: skill-maker SKILL.md の checklist に "exit contract specification + caller integration update" 追加 (architectural codification)
+- **Decided**: 2026-04-22 14:00
+
+### Insight 6: Risk HIGH (60+) は Claude 3 reviewer + Codex parallel を最低ラインにする
+- **Decision**: codified
+- **Destination**: skill
+- **Reason**: review skill 自体に "Risk-based reviewer scaling (LOW: 2+Codex, MEDIUM: +maintainability, HIGH: +architectural)" 組み込む (将来改修)
+- **Decided**: 2026-04-22 14:00

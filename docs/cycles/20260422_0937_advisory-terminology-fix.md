@@ -5,10 +5,10 @@ phase: REVIEW
 complexity: trivial
 test_count: 6
 risk_level: low
-retro_status: captured
+retro_status: resolved
 codex_session_id: "019db29f-ab0e-7632-a181-e52b68ce33ac"
 created: 2026-04-22 09:37
-updated: 2026-04-22 11:02
+updated: 2026-04-22 14:00
 ---
 
 # eval-4: TC-09 "advisory" 用語置換 (Revised after Codex plan review round 1)
@@ -264,3 +264,35 @@ Evidence: (orchestrate が自動記入)
 - **Final fix**: TC-01 に `grep -qi 'advisory' "$STEPS_TEAMS"` チェックを追加 (2 行、scope 内の invariant 強化と判断)。VERIFY-block slicing は architectural 強化として DEFER し DISCOVERED 記録。
 - **Insight**: competitive review の WARN は「今すぐ BLOCK ではないが、review findings を 2 カテゴリ分離する」— (a) scope 内 invariant 強化 (2 行レベル → 即適用)、(b) architectural / scope 越え → DISCOVERED 記録 + follow-up。PdM の accept 判断を記録し、将来同様 WARN 処理の template 化。
 - **一般化**: review findings は「accept・適用」「accept・defer」「reject」の 3 分岐を明示的に判断・記録する。silent ignore は retrospective 抽出対象を失う。
+
+## Codify Decisions
+
+### Insight 1: Doc 変更 scope 決定時、「テスト契約」の逆向き依存を grep で先行検索する
+- **Decision**: codified
+- **Destination**: rule
+- **Reason**: "count/state bump 前に grep -rn '<value>' tests/ で hardcode assertion 事前検索" rule (Cycle B #2 と統合 canonical version)
+- **Decided**: 2026-04-22 14:00
+
+### Insight 2: Baseline は narrative ではなく実測で取る
+- **Decision**: codified
+- **Destination**: rule
+- **Reason**: "cycle 開始時 Block 0 で必ず baseline 実測、narrative 信頼禁止" rule
+- **Decided**: 2026-04-22 14:00
+
+### Insight 3: `$?` 捕捉は即 `rc=$?` に格納する
+- **Decision**: codified
+- **Destination**: rule
+- **Reason**: "bash `$?` は即座に `rc=$?` 格納、subshell 展開前に消える" rule (eval-3 #1 と pipefail トラップ集に統合)
+- **Decided**: 2026-04-22 14:00
+
+### Insight 4: 新規 test script 追加は meta-test (test count 等) に波及する
+- **Decision**: codified
+- **Destination**: rule
+- **Reason**: "新規 test file 追加 → STATUS.md test count 更新を scope に含む" rule
+- **Decided**: 2026-04-22 14:00
+
+### Insight 5: Codex WARN は軽微でも「適用可能な強化」を切り出して反映する
+- **Decision**: codified
+- **Destination**: rule
+- **Reason**: "review findings は accept-apply / accept-defer / reject の 3 カテゴリで必ず triage" rule
+- **Decided**: 2026-04-22 14:00
