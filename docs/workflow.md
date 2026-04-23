@@ -60,7 +60,8 @@ COMMIT (Claude)
   ▼
 [次サイクル Block 0] codify-insight (Claude) ← orchestrate Block 0 自動起動
   │  retro_status: captured の cycle doc を検出 (frontmatter-only scan)
-  │  各 insight を codify/defer/no-codify で明示判断
+  │  原則は自動 triage（rule / inline-update / defer / no-codify）
+  │  skill 候補 / 低確信時のみ 1 回だけ確認
   │  Cycle doc EOF に ## Codify Decisions を append
   │  全 insight 判定 → retro_status: captured → resolved、次フェーズへ
   │  abort (exit 1) → BLOCK、/orchestrate 再起動案内

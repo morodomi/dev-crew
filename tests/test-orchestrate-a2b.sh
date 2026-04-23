@@ -295,18 +295,18 @@ if [ "$TC14B_PASS" = "true" ]; then
 fi
 
 # ----------------------------------------------------------------
-# TC-15: docs/STATUS.md の Test Scripts count が 101
-#         (test-pre-commit-gate-retro.sh + test-orchestrate-a2b.sh 追加後)
+# TC-15: docs/STATUS.md の Test Scripts count が 109
+#         (current repository status)
 # ----------------------------------------------------------------
 echo ""
-echo "TC-15: docs/STATUS.md Test Scripts count = 102"
+echo "TC-15: docs/STATUS.md Test Scripts count = 109"
 if [ ! -f "$STATUS_MD" ]; then
   fail "TC-15: docs/STATUS.md does not exist"
-elif grep -qE 'Test Scripts[[:space:]]*\|[[:space:]]*102' "$STATUS_MD"; then
-  pass "TC-15: docs/STATUS.md Test Scripts count is 102"
+elif grep -qE 'Test Scripts[[:space:]]*\|[[:space:]]*109' "$STATUS_MD"; then
+  pass "TC-15: docs/STATUS.md Test Scripts count is 109"
 else
   current=$(grep -oE 'Test Scripts[[:space:]]*\|[[:space:]]*[0-9]+' "$STATUS_MD" | grep -oE '[0-9]+$' | head -1 || echo "not found")
-  fail "TC-15: docs/STATUS.md Test Scripts count is NOT 102 (current: $current)"
+  fail "TC-15: docs/STATUS.md Test Scripts count is NOT 109 (current: $current)"
 fi
 
 # ----------------------------------------------------------------

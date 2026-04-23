@@ -166,7 +166,8 @@ codify-insight は orchestrate Block 0 から自動起動される。
   │
   ▼
 codify-insight
-  │  各 insight を AskUserQuestion で codify/defer/no-codify 判断
+  │  原則は自動 triage（rule / inline-update / defer / no-codify）
+  │  skill 候補 / low-confidence のときだけ AskUserQuestion
   │  Cycle doc EOF に ## Codify Decisions を append (APPEND-ONLY)
   │  全 insight 判定完了 → retro_status: captured → resolved
   │
@@ -179,6 +180,7 @@ codify-insight
 - **APPEND-ONLY**: 既存 `## Retrospective` セクションは変更しない。`## Codify Decisions` を EOF に追記するのみ。
 - **Frontmatter-only scan**: whole-file grep は body 引用テキストに self-trigger する。`awk` で frontmatter のみ抽出。
 - **MVP 意味論**: `codified` は判断の記録のみ。実際の書き出しは follow-up cycle で実施。
+- **Autonomous default**: まず AI が triage し、`skill` 候補や低確信ケースだけ人に聞く。
 - **Idempotency**: `### Insight N` heading の存在で判定済みを確認。partial 完了でも再起動で残分のみ処理。
 
 詳細: [skills/codify-insight/reference.md](../skills/codify-insight/reference.md)

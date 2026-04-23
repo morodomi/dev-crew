@@ -1,6 +1,6 @@
 ---
 name: codify-insight
-description: "TDD サイクルの retrospective insights を codify/defer/no-codify で明示判断する decide gate スキル。次サイクル開始時に /orchestrate Block 0 から自動起動。「codify」「codify-insight」「insight codify」「次サイクル開始時」で手動起動も可。"
+description: "TDD サイクルの retrospective insights を自動 triage し、必要時のみ codify/defer/no-codify を確認する decide gate スキル。次サイクル開始時に /orchestrate Block 0 から自動起動。「codify」「codify-insight」「insight codify」「次サイクル開始時」で手動起動も可。"
 allowed-tools: Read, Edit, AskUserQuestion, Glob
 ---
 
@@ -31,16 +31,34 @@ done
 `## Codify Decisions` セクション内の `### Insight N` heading 存在 = 該当 insight 判定済み。
 partial 完了時は未判定 insight のみ処理し、captured を維持して再起動で残分を処理。
 
-### Decide Gate (per insight)
+### Recurrence-aware Pre-triage (質問を減らす一次フィルタ)
 
-`## Retrospective` セクションから各 insight を読み込み、以下の 3 択で AskUserQuestion:
+autonomous triage の前に、直近 10 cycle docs の `## Retrospective` + `## Codify Decisions` を scan し頻度判定:
 
-```
-Insight N: <insight 概要>
-1. codify now   — destination (rule/skill/instinct/new-cycle/inline-update) を明記
-2. defer with reason — 理由必須
-3. no-codify    — 理由任意
-```
+- **同 key phrase が 2+ 回再発** → 自動 `codified` → `rule` (質問スキップ、promotion 確定)
+- **過去 cycle で同 insight が `no-codify` 判定済み** → 自動 `no-codify` (質問スキップ、duplicate)
+- **1 回以下 (novel / 初出)** → 下記 autonomous triage へ
+
+scan 詳細 + threshold 調整は reference.md 参照。
+
+### Default: Autonomous Batch Triage
+
+pre-triage で処理されなかった insight は 1 cycle 分まとめて自動 triage。per-insight AskUserQuestion をデフォルトにしない。
+
+優先ルール:
+- 次 cycle の TDD をすぐ harden できるもの → `codified` with `rule` or `inline-update`
+- post-TDD の広い改善、repo-wide sweep → `deferred`（通常 `new-cycle`）
+- observation-only / 2nd-order note → `no-codify`
+- `skill` destination は rare。2+ cycles 再発 + 複数 phase / repo 再利用時のみ
+
+### AskUserQuestion Fallback (only when needed)
+
+以下の場合のみ AskUserQuestion (1 cycle max 1 回の batch、per-insight 不可):
+- `skill` 候補で destination 妥当性の確認が必要
+- autonomous triage で `codified` vs `deferred` の境界が低確信
+- ユーザーが対話的 codify を明示要求
+
+全件 recurrence or high-confidence triage なら質問 0 件で summary のみ print。
 
 ### Output
 
@@ -60,7 +78,7 @@ Cycle doc EOF に `## Codify Decisions` セクションを append (APPEND-ONLY):
 
 ### State Transition
 
-全 insight 判定完了時: `retro_status: captured` → `resolved` + `updated` を更新。
+全 insight triage 完了時: `retro_status: captured` → `resolved` + `updated` を更新。
 partial 完了時: frontmatter 遷移なし（captured 維持）。
 
 ### Exit Contract (orchestrate 連携)
