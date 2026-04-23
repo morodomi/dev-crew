@@ -215,6 +215,55 @@ else
   fi
 fi
 
+# Section-specific grep: extract content under a given H2 heading until next H2.
+# Usage: section_grep <file> <heading_regex> <pattern> → emits matching lines.
+section_grep() {
+  local file="$1"
+  local heading="$2"
+  local pattern="$3"
+  awk -v h="$heading" '
+    $0 ~ "^## " h {in_sec=1; next}
+    in_sec && /^## /{in_sec=0}
+    in_sec
+  ' "$file" | grep -cF "$pattern" || true
+}
+
+# TC-11: rules/plan-discipline.md — 推奨 に「grep -rn」literal、出典 に「20260422_1313」
+echo ""
+echo "TC-11: rules/plan-discipline.md has 'grep -rn' in 推奨 + '20260422_1313' in 出典"
+FILE="$RULES_DIR/plan-discipline.md"
+if [ ! -f "$FILE" ]; then
+  fail "TC-11: rules/plan-discipline.md does not exist"
+else
+  count_grep_rn=$(section_grep "$FILE" "推奨" "grep -rn")
+  count_cycle1313_in_source=$(section_grep "$FILE" "出典" "20260422_1313")
+  if [ "$count_grep_rn" -ge 1 ] && [ "$count_cycle1313_in_source" -ge 1 ]; then
+    pass "TC-11: plan-discipline.md 推奨 has grep -rn + 出典 has 20260422_1313"
+  elif [ "$count_grep_rn" -lt 1 ]; then
+    fail "TC-11: plan-discipline.md 推奨 section missing 'grep -rn' literal"
+  else
+    fail "TC-11: plan-discipline.md 出典 section missing '20260422_1313' reference"
+  fi
+fi
+
+# TC-12: rules/test-patterns.md — 禁止事項 に「command substitution」、出典 に「20260422_1313」
+echo ""
+echo "TC-12: rules/test-patterns.md has 'command substitution' in 禁止事項 + '20260422_1313' in 出典"
+FILE="$RULES_DIR/test-patterns.md"
+if [ ! -f "$FILE" ]; then
+  fail "TC-12: rules/test-patterns.md does not exist"
+else
+  count_cmd_sub=$(section_grep "$FILE" "禁止事項" "command substitution")
+  count_cycle1313_in_source=$(section_grep "$FILE" "出典" "20260422_1313")
+  if [ "$count_cmd_sub" -ge 1 ] && [ "$count_cycle1313_in_source" -ge 1 ]; then
+    pass "TC-12: test-patterns.md 禁止事項 has command substitution + 出典 has 20260422_1313"
+  elif [ "$count_cmd_sub" -lt 1 ]; then
+    fail "TC-12: test-patterns.md 禁止事項 section missing 'command substitution' description"
+  else
+    fail "TC-12: test-patterns.md 出典 section missing '20260422_1313' reference"
+  fi
+fi
+
 # Summary
 echo ""
 echo "=== Summary ==="
