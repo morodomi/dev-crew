@@ -22,7 +22,7 @@ for f in docs/cycles/*.md; do
 done
 ```
 
-非空 → `Skill(dev-crew:codify-insight)` を起動。全 captured が resolved 遷移後、次へ。
+非空 → `Skill(dev-crew:codify-insight)` を起動。既定は自動 triage、`skill` 候補/低確信のみ 1 回確認。全 captured が resolved 遷移後、次へ。
 空 → no-op、次ステップへ。
 
 planファイルを起点に開始地点を決定する:

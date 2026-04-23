@@ -5,10 +5,10 @@ phase: REVIEW
 complexity: standard
 test_count: 10
 risk_level: low
-retro_status: captured
+retro_status: resolved
 codex_session_id: "019db366-3682-7823-a9ee-978eee20bb0f"
 created: 2026-04-22 13:13
-updated: 2026-04-22 13:13
+updated: 2026-04-23 09:25
 ---
 
 # Follow-up Cycle: codify→rule 23 insights を rule document 化 + skill-maker 強化
@@ -317,3 +317,38 @@ Evidence: (orchestrate が自動記入)
 - **Final fix**: N/A (observation のみ)
 - **Insight**: rule を新設する cycle で「その rule を即時 self-apply する」のは retrospective loop の 2nd-order dogfood として強力。ただし actionable rule ではなく pattern observation。Cycle B Insight 5 「dogfood evidence」と同系統の no-codify 候補。
 - **一般化**: 2nd-order dogfood は rule 品質検証に寄与するが、rule 化して他 cycle に強制するものではない。
+
+## Codify Decisions
+
+### Insight 1
+- **Decision**: codified
+- **Destination**: rule (plan-discipline.md)
+- **Reason**: 本 cycle (discovered-followup) の plan が plan-discipline.md 追記を scope に含む。自動化 grep literal を plan 必須化として rule 本体に反映
+- **Decided**: 2026-04-23 09:25
+
+### Insight 2
+- **Decision**: deferred
+- **Reason**: 本 cycle plan scope 外、別cycleで doc-mutations.md に SSOT 即時同期 discipline を追記予定
+- **Decided**: 2026-04-23 09:25
+
+### Insight 3
+- **Decision**: deferred
+- **Reason**: 本 cycle plan scope 外、Codex competitive review に暫定依存し、別cycleで skill-authoring.md に原文引用ルールを追記予定
+- **Decided**: 2026-04-23 09:25
+
+### Insight 4
+- **Decision**: codified
+- **Destination**: rule (test-patterns.md)
+- **Reason**: 本 cycle (discovered-followup) の plan が test-patterns.md 追記を scope に含む。`$(cmd1 || cmd2)` pitfall を禁止事項として rule 本体に反映
+- **Decided**: 2026-04-23 09:25
+
+### Insight 5
+- **Decision**: codified
+- **Destination**: rule (doc-mutations.md)
+- **Reason**: rule 内 cycle 参照は full filename or cycle_id のみ使用するルールを doc-mutations.md に追記 (judgment-only record、実装は follow-up)
+- **Decided**: 2026-04-23 09:25
+
+### Insight 6
+- **Decision**: no-codify
+- **Reason**: 元から no-codify 候補と明記された observation。2nd-order dogfood は rule 化して他 cycle に強制するものではない
+- **Decided**: 2026-04-23 09:25

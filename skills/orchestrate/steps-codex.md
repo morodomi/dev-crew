@@ -31,6 +31,7 @@ Cycle doc frontmatter の `codex_mode` を読み取る。
 ## Block 0-1: Prerequisite & Sync-Plan
 
 既存フロー（steps-subagent.md / steps-teams.md）と同一。Codex委譲はBlock 2から。
+codify-insight も同一で、既定は自動 triage。`skill` 候補/low-confidence のときだけ AskUserQuestion を 1 cycle につき 1 回使う。
 
 ## Block 2: Implementation
 

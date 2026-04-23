@@ -215,6 +215,173 @@ else
   fi
 fi
 
+# Section-specific grep: extract content under a given H2 heading until next H2.
+# Usage: section_grep <file> <heading_regex> <pattern> → emits matching lines.
+section_grep() {
+  local file="$1"
+  local heading="$2"
+  local pattern="$3"
+  awk -v h="$heading" '
+    $0 ~ "^## " h {in_sec=1; next}
+    in_sec && /^## /{in_sec=0}
+    in_sec
+  ' "$file" | grep -cF "$pattern" || true
+}
+
+# TC-11: rules/plan-discipline.md — 推奨 に「grep -rn」literal、出典 に「20260422_1313」
+echo ""
+echo "TC-11: rules/plan-discipline.md has 'grep -rn' in 推奨 + '20260422_1313' in 出典"
+FILE="$RULES_DIR/plan-discipline.md"
+if [ ! -f "$FILE" ]; then
+  fail "TC-11: rules/plan-discipline.md does not exist"
+else
+  count_grep_rn=$(section_grep "$FILE" "推奨" "grep -rn")
+  count_cycle1313_in_source=$(section_grep "$FILE" "出典" "20260422_1313")
+  if [ "$count_grep_rn" -ge 1 ] && [ "$count_cycle1313_in_source" -ge 1 ]; then
+    pass "TC-11: plan-discipline.md 推奨 has grep -rn + 出典 has 20260422_1313"
+  elif [ "$count_grep_rn" -lt 1 ]; then
+    fail "TC-11: plan-discipline.md 推奨 section missing 'grep -rn' literal"
+  else
+    fail "TC-11: plan-discipline.md 出典 section missing '20260422_1313' reference"
+  fi
+fi
+
+# TC-12: rules/test-patterns.md — 禁止事項 に「command substitution」、出典 に「20260422_1313」
+echo ""
+echo "TC-12: rules/test-patterns.md has 'command substitution' in 禁止事項 + '20260422_1313' in 出典"
+FILE="$RULES_DIR/test-patterns.md"
+if [ ! -f "$FILE" ]; then
+  fail "TC-12: rules/test-patterns.md does not exist"
+else
+  count_cmd_sub=$(section_grep "$FILE" "禁止事項" "command substitution")
+  count_cycle1313_in_source=$(section_grep "$FILE" "出典" "20260422_1313")
+  if [ "$count_cmd_sub" -ge 1 ] && [ "$count_cycle1313_in_source" -ge 1 ]; then
+    pass "TC-12: test-patterns.md 禁止事項 has command substitution + 出典 has 20260422_1313"
+  elif [ "$count_cmd_sub" -lt 1 ]; then
+    fail "TC-12: test-patterns.md 禁止事項 section missing 'command substitution' description"
+  else
+    fail "TC-12: test-patterns.md 出典 section missing '20260422_1313' reference"
+  fi
+fi
+
+# TC-13: rules/doc-mutations.md — SSOT 即時同期 section に "collateral fix" + "即時更新"、出典 に "20260422_1313"
+echo ""
+echo "TC-13: rules/doc-mutations.md has 'collateral fix'+'即時更新' in SSOT 即時同期 section + '20260422_1313' in 出典"
+FILE="$RULES_DIR/doc-mutations.md"
+if [ ! -f "$FILE" ]; then
+  fail "TC-13: rules/doc-mutations.md does not exist"
+else
+  count_collateral=$(section_grep "$FILE" "SSOT 即時同期" "collateral fix")
+  count_soku=$(section_grep "$FILE" "SSOT 即時同期" "即時更新")
+  count_cycle1313=$(section_grep "$FILE" "出典" "20260422_1313")
+  if [ "$count_collateral" -ge 1 ] && [ "$count_soku" -ge 1 ] && [ "$count_cycle1313" -ge 1 ]; then
+    pass "TC-13: doc-mutations.md SSOT 即時同期 has collateral fix + 即時更新 + 出典 has 20260422_1313"
+  elif [ "$count_collateral" -lt 1 ]; then
+    fail "TC-13: doc-mutations.md SSOT 即時同期 section missing 'collateral fix'"
+  elif [ "$count_soku" -lt 1 ]; then
+    fail "TC-13: doc-mutations.md SSOT 即時同期 section missing '即時更新'"
+  else
+    fail "TC-13: doc-mutations.md 出典 section missing '20260422_1313' reference"
+  fi
+fi
+
+# TC-14: rules/doc-mutations.md — Cycle 参照 format section に "full filename" + "cycle_id"、出典 に "20260422_1313"
+echo ""
+echo "TC-14: rules/doc-mutations.md has 'full filename'+'cycle_id' in Cycle 参照 format section + '20260422_1313' in 出典"
+FILE="$RULES_DIR/doc-mutations.md"
+if [ ! -f "$FILE" ]; then
+  fail "TC-14: rules/doc-mutations.md does not exist"
+else
+  count_full_filename=$(section_grep "$FILE" "Cycle 参照 format" "full filename")
+  count_cycle_id=$(section_grep "$FILE" "Cycle 参照 format" "cycle_id")
+  count_cycle1313=$(section_grep "$FILE" "出典" "20260422_1313")
+  if [ "$count_full_filename" -ge 1 ] && [ "$count_cycle_id" -ge 1 ] && [ "$count_cycle1313" -ge 1 ]; then
+    pass "TC-14: doc-mutations.md Cycle 参照 format has full filename + cycle_id + 出典 has 20260422_1313"
+  elif [ "$count_full_filename" -lt 1 ]; then
+    fail "TC-14: doc-mutations.md Cycle 参照 format section missing 'full filename'"
+  elif [ "$count_cycle_id" -lt 1 ]; then
+    fail "TC-14: doc-mutations.md Cycle 参照 format section missing 'cycle_id'"
+  else
+    fail "TC-14: doc-mutations.md 出典 section missing '20260422_1313' reference"
+  fi
+fi
+
+# TC-15: rules/skill-authoring.md — Insight 引用の原則 section に "原文引用" + "generalize"、出典 に "20260422_1313"
+echo ""
+echo "TC-15: rules/skill-authoring.md has '原文引用'+'generalize' in Insight 引用の原則 section + '20260422_1313' in 出典"
+FILE="$RULES_DIR/skill-authoring.md"
+if [ ! -f "$FILE" ]; then
+  fail "TC-15: rules/skill-authoring.md does not exist"
+else
+  count_genmon=$(section_grep "$FILE" "Insight 引用の原則" "原文引用")
+  count_generalize=$(section_grep "$FILE" "Insight 引用の原則" "generalize")
+  count_cycle1313=$(section_grep "$FILE" "出典" "20260422_1313")
+  if [ "$count_genmon" -ge 1 ] && [ "$count_generalize" -ge 1 ] && [ "$count_cycle1313" -ge 1 ]; then
+    pass "TC-15: skill-authoring.md Insight 引用の原則 has 原文引用 + generalize + 出典 has 20260422_1313"
+  elif [ "$count_genmon" -lt 1 ]; then
+    fail "TC-15: skill-authoring.md Insight 引用の原則 section missing '原文引用'"
+  elif [ "$count_generalize" -lt 1 ]; then
+    fail "TC-15: skill-authoring.md Insight 引用の原則 section missing 'generalize'"
+  else
+    fail "TC-15: skill-authoring.md 出典 section missing '20260422_1313' reference"
+  fi
+fi
+
+# TC-16: skills/onboard/SKILL.md と reference.md 両方に "rules/*.md" glob 表記が存在 (forward direction 統一)
+echo ""
+echo "TC-16: skills/onboard/SKILL.md and reference.md each have 'rules/*.md' glob (forward direction)"
+ONBOARD_SKILL="$BASE_DIR/skills/onboard/SKILL.md"
+ONBOARD_REF="$BASE_DIR/skills/onboard/reference.md"
+if [ ! -f "$ONBOARD_SKILL" ]; then
+  fail "TC-16: skills/onboard/SKILL.md does not exist"
+elif [ ! -f "$ONBOARD_REF" ]; then
+  fail "TC-16: skills/onboard/reference.md does not exist"
+else
+  count_skill=$(grep -cF "rules/*.md" "$ONBOARD_SKILL" || true)
+  count_ref=$(grep -cF "rules/*.md" "$ONBOARD_REF" || true)
+  if [ "$count_skill" -ge 1 ] && [ "$count_ref" -ge 1 ]; then
+    pass "TC-16: Both onboard/SKILL.md and reference.md contain 'rules/*.md' glob"
+  elif [ "$count_skill" -lt 1 ]; then
+    fail "TC-16: skills/onboard/SKILL.md missing 'rules/*.md' glob expression"
+  else
+    fail "TC-16: skills/onboard/reference.md missing 'rules/*.md' glob expression"
+  fi
+fi
+
+# TC-17: skills/onboard/*.md に "git-safety, security, git-conventions" enumeration が存在しない (stale list 除去)
+echo ""
+echo "TC-17: skills/onboard/*.md has no 'git-safety, security, git-conventions' hardcoded enumeration"
+ONBOARD_DIR="$BASE_DIR/skills/onboard"
+count_stale=0
+for f in "$ONBOARD_DIR"/*.md; do
+  [ -e "$f" ] || continue
+  n=$(grep -cE "git-safety, security, git-conventions" "$f" || true)
+  count_stale=$((count_stale + n))
+done
+if [ "$count_stale" -eq 0 ]; then
+  pass "TC-17: No hardcoded 'git-safety, security, git-conventions' enumeration in onboard/*.md"
+else
+  fail "TC-17: Found $count_stale occurrence(s) of stale enumeration 'git-safety, security, git-conventions' in onboard/*.md"
+fi
+
+# TC-18: skills/onboard/validation.md に "test -f .claude/rules/git-safety.md" と "test -f .claude/rules/security.md" の個別 assertion が除去済み
+echo ""
+echo "TC-18: skills/onboard/validation.md has no hardcoded 'test -f .claude/rules/git-safety.md' or 'test -f .claude/rules/security.md'"
+VALIDATION_MD="$BASE_DIR/skills/onboard/validation.md"
+if [ ! -f "$VALIDATION_MD" ]; then
+  fail "TC-18: skills/onboard/validation.md does not exist"
+else
+  count_old_gitsafety=$(grep -cF "test -f .claude/rules/git-safety.md" "$VALIDATION_MD" || true)
+  count_old_security=$(grep -cF "test -f .claude/rules/security.md" "$VALIDATION_MD" || true)
+  if [ "$count_old_gitsafety" -eq 0 ] && [ "$count_old_security" -eq 0 ]; then
+    pass "TC-18: validation.md has no hardcoded git-safety/security individual assertions"
+  elif [ "$count_old_gitsafety" -gt 0 ]; then
+    fail "TC-18: validation.md still has hardcoded 'test -f .claude/rules/git-safety.md' ($count_old_gitsafety occurrence(s))"
+  else
+    fail "TC-18: validation.md still has hardcoded 'test -f .claude/rules/security.md' ($count_old_security occurrence(s))"
+  fi
+fi
+
 # Summary
 echo ""
 echo "=== Summary ==="

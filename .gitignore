@@ -1,3 +1,5 @@
 docs/downloads
 docs/requests
-.claude/
+.claude/*
+!.claude/dev-crew.json
+!.claude/rules/

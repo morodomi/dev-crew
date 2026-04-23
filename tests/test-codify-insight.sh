@@ -113,8 +113,9 @@ else
 fi
 
 # TC-06: reference.md contains verbatim 3-option strings: "codify now", "defer with reason", "no-codify"
+#        AND documents they are fallback-only (not default per-insight interaction)
 echo ""
-echo "TC-06: reference.md contains 3-option strings (codify now / defer with reason / no-codify)"
+echo "TC-06: reference.md contains 3-option strings and marks them fallback-only"
 if [ ! -f "$REFERENCE_MD" ]; then
   fail "TC-06: skills/codify-insight/reference.md does not exist"
 else
@@ -125,26 +126,33 @@ else
       TC06_PASS=false
     fi
   done
-  if [ "$TC06_PASS" = "true" ]; then
-    pass "TC-06: reference.md contains all 3 verbatim option strings"
+  has_fallback_only=$(grep -iE "fallback only|fallback のみ|default.*autonomous|autonomous.*default" "$REFERENCE_MD" || true)
+  if [ "$TC06_PASS" = "true" ] && [ -n "$has_fallback_only" ]; then
+    pass "TC-06: reference.md contains 3 options and marks them fallback-only"
+  elif [ "$TC06_PASS" = "true" ]; then
+    fail "TC-06: reference.md contains 3 options but does NOT mark them as fallback-only/autonomous default"
   fi
 fi
 
-# TC-07: reference.md states defer requires reason, no-codify reason is optional
+# TC-07: reference.md states defer requires reason, no-codify reason is optional,
+#        and AskUserQuestion is batched only for skill/low-confidence cases
 echo ""
-echo "TC-07: reference.md documents defer=reason required, no-codify=reason optional"
+echo "TC-07: reference.md documents defer/no-codify reason contract + batch escalation"
 if [ ! -f "$REFERENCE_MD" ]; then
   fail "TC-07: skills/codify-insight/reference.md does not exist"
 else
   has_defer_required=$(grep -iE "defer.*(reason|required|必須)" "$REFERENCE_MD" || true)
   has_nocodify_optional=$(grep -iE "no-codify.*(optional|任意)|no-codify.*reason.*(optional|任意)" "$REFERENCE_MD" || true)
-  if [ -n "$has_defer_required" ] && [ -n "$has_nocodify_optional" ]; then
-    pass "TC-07: reference.md documents defer=required, no-codify=optional for reason"
+  has_batch_escalation=$(grep -iE "1 cycle.*1 回|once per cycle|skill.*candidate|low confidence|low-confidence" "$REFERENCE_MD" || true)
+  if [ -n "$has_defer_required" ] && [ -n "$has_nocodify_optional" ] && [ -n "$has_batch_escalation" ]; then
+    pass "TC-07: reference.md documents reason contract and batch escalation policy"
   else
     if [ -z "$has_defer_required" ]; then
       fail "TC-07: reference.md does NOT state defer requires reason"
-    else
+    elif [ -z "$has_nocodify_optional" ]; then
       fail "TC-07: reference.md does NOT state no-codify reason is optional"
+    else
+      fail "TC-07: reference.md does NOT document batch escalation for skill/low-confidence cases"
     fi
   fi
 fi
@@ -375,22 +383,22 @@ if [ "$TC18_PASS" = "true" ]; then
   pass "TC-18: All 4 files mention codify-insight"
 fi
 
-# TC-19: docs/STATUS.md contains "Skills | 32" AND "Test Scripts | 108", README.md contains "32 skills"
+# TC-19: docs/STATUS.md contains "Skills | 32" AND "Test Scripts | 109", README.md contains "32 skills"
 echo ""
-echo "TC-19: STATUS.md Skills=32 + Test Scripts=108, README.md 32 skills"
+echo "TC-19: STATUS.md Skills=32 + Test Scripts=109, README.md 32 skills"
 if [ ! -f "$STATUS_MD" ]; then
   fail "TC-19: docs/STATUS.md does not exist"
 else
   has_skills32=$(grep -qE "Skills[[:space:]]*\|[[:space:]]*32" "$STATUS_MD" && echo "yes" || echo "no")
-  has_scripts108=$(grep -qE "Test Scripts[[:space:]]*\|[[:space:]]*108" "$STATUS_MD" && echo "yes" || echo "no")
+  has_scripts109=$(grep -qE "Test Scripts[[:space:]]*\|[[:space:]]*109" "$STATUS_MD" && echo "yes" || echo "no")
   has_readme32=$(grep -qE "32 skills" "$README_MD" 2>/dev/null && echo "yes" || echo "no")
-  if [ "$has_skills32" = "yes" ] && [ "$has_scripts108" = "yes" ] && [ "$has_readme32" = "yes" ]; then
-    pass "TC-19: STATUS.md Skills=32 + Test Scripts=108, README.md 32 skills"
+  if [ "$has_skills32" = "yes" ] && [ "$has_scripts109" = "yes" ] && [ "$has_readme32" = "yes" ]; then
+    pass "TC-19: STATUS.md Skills=32 + Test Scripts=109, README.md 32 skills"
   else
     skills_current=$(grep -oE "Skills[[:space:]]*\|[[:space:]]*[0-9]+" "$STATUS_MD" | grep -oE "[0-9]+$" | head -1 || echo "not found")
     scripts_current=$(grep -oE "Test Scripts[[:space:]]*\|[[:space:]]*[0-9]+" "$STATUS_MD" | grep -oE "[0-9]+$" | head -1 || echo "not found")
     readme_current=$(grep -oE "[0-9]+ skills" "$README_MD" 2>/dev/null | head -1 || echo "not found")
-    fail "TC-19: STATUS.md Skills=$skills_current (need 32), Test Scripts=$scripts_current (need 108), README=$readme_current (need '32 skills')"
+    fail "TC-19: STATUS.md Skills=$skills_current (need 32), Test Scripts=$scripts_current (need 109), README=$readme_current (need '32 skills')"
   fi
 fi
 
@@ -417,6 +425,57 @@ else
     pass "TC-20: test-cycle-retrospective.sh TC-14 references Skills count 32"
   else
     fail "TC-20: test-cycle-retrospective.sh TC-14 Skills count check not found (pattern not recognized)"
+  fi
+fi
+
+# TC-21: SKILL.md documents Recurrence-aware Pre-triage (2+ 回再発 → 自動 rule 昇格)
+echo ""
+echo "TC-21: SKILL.md documents Recurrence-aware Pre-triage"
+if [ ! -f "$SKILL_MD" ]; then
+  fail "TC-21: skills/codify-insight/SKILL.md does not exist"
+else
+  has_recurrence_heading=$(grep -cE "^### Recurrence" "$SKILL_MD" || true)
+  has_promotion_rule=$(grep -cF "2+ 回再発" "$SKILL_MD" || true)
+  if [ "$has_recurrence_heading" -ge 1 ] && [ "$has_promotion_rule" -ge 1 ]; then
+    pass "TC-21: SKILL.md documents Recurrence-aware Pre-triage + 2+ 回再発 promotion"
+  elif [ "$has_recurrence_heading" -lt 1 ]; then
+    fail "TC-21: SKILL.md missing '### Recurrence' heading"
+  else
+    fail "TC-21: SKILL.md missing '2+ 回再発' promotion rule"
+  fi
+fi
+
+# TC-22: reference.md documents frequency_threshold (default 2 回) + scan 範囲 (直近 10 cycle docs)
+echo ""
+echo "TC-22: reference.md documents frequency_threshold + scan 範囲"
+if [ ! -f "$REFERENCE_MD" ]; then
+  fail "TC-22: skills/codify-insight/reference.md does not exist"
+else
+  has_threshold=$(grep -cE "frequency_threshold|2 回" "$REFERENCE_MD" || true)
+  has_scan_range=$(grep -cE "直近 10 cycle|10 cycles" "$REFERENCE_MD" || true)
+  has_duplicate_detect=$(grep -cF "duplicate" "$REFERENCE_MD" || true)
+  if [ "$has_threshold" -ge 1 ] && [ "$has_scan_range" -ge 1 ] && [ "$has_duplicate_detect" -ge 1 ]; then
+    pass "TC-22: reference.md documents frequency_threshold + scan 範囲 + duplicate detection"
+  elif [ "$has_threshold" -lt 1 ]; then
+    fail "TC-22: reference.md missing frequency_threshold / 2 回 mention"
+  elif [ "$has_scan_range" -lt 1 ]; then
+    fail "TC-22: reference.md missing scan 範囲 (直近 10 cycle docs)"
+  else
+    fail "TC-22: reference.md missing duplicate detection documentation"
+  fi
+fi
+
+# TC-23: SKILL.md documents Question 0 件条件 (全件 recurrence or high-confidence で質問スキップ)
+echo ""
+echo "TC-23: SKILL.md documents zero-question path"
+if [ ! -f "$SKILL_MD" ]; then
+  fail "TC-23: skills/codify-insight/SKILL.md does not exist"
+else
+  has_zero_question=$(grep -cE "質問 0 件|質問スキップ|0 件で summary" "$SKILL_MD" || true)
+  if [ "$has_zero_question" -ge 1 ]; then
+    pass "TC-23: SKILL.md documents zero-question path"
+  else
+    fail "TC-23: SKILL.md missing zero-question (質問 0 件 / 質問スキップ) documentation"
   fi
 fi
 

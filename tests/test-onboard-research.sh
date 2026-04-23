@@ -202,13 +202,15 @@ else
   fail "TC-18: dev-crew-installed update flow not found"
 fi
 
-# TC-19: reference.md にファイル単位の差分チェック表がある
+# TC-19: reference.md に mirror-all rules / 差分チェックの記述がある
+# (PR #132 以降、rules/*.md 全ファイル mirror 方針に変更された。
+#  test-rules-mirror.sh に drift 検出を委譲する汎用表記を受け入れる)
 echo ""
-echo "TC-19: reference.md has per-file diff check table"
-if echo "$REF_CONTENT" | grep -q "git-safety.*作成\|git-safety.*差分\|不在時.*作成\|不在.*作成"; then
-  pass "TC-19: per-file diff check table found"
+echo "TC-19: reference.md has rules mirror check description"
+if echo "$REF_CONTENT" | grep -qE "rules/\*\.md.*作成|identical mirror|test-rules-mirror\.sh"; then
+  pass "TC-19: rules mirror check description found"
 else
-  fail "TC-19: per-file diff check table not found"
+  fail "TC-19: rules mirror check description not found (expected 'rules/*.md ... 作成' or 'identical mirror' or 'test-rules-mirror.sh')"
 fi
 
 # TC-20: SKILL.md Step 4 に3モード全ての分岐がある

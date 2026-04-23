@@ -40,7 +40,7 @@ orchestrate Progress:
 
 **0. Codify gate** — frontmatter-only scan:
 `for f in docs/cycles/*.md; do awk '/^---$/{c++;next} c==1{print}' "$f" | grep -q 'retro_status: captured' && echo "$f"; done`
-非空 → `Skill(dev-crew:codify-insight)` 起動。exit 0 (全 resolved) → 次へ。exit 1 (abort) → BLOCK、/orchestrate 再起動を案内。空 → no-op。
+非空 → `Skill(dev-crew:codify-insight)` 起動。既定は自動 triage、`skill` 候補/低確信のみ 1 回確認。exit 0 (全 resolved) → 次へ。exit 1 (abort) → BLOCK、/orchestrate 再起動を案内。空 → no-op。
 
 **最初に実行**: TaskCreate でタスクを登録。詳細: [reference.md](reference.md#task-list)
 
@@ -54,7 +54,8 @@ planファイルを起点に開始地点を決定する:
 
 1. **sync-plan**: architect が Design Review Gate を実施後、PASS/WARN なら Cycle doc 生成
 2. **Codex不在時: Socrates adversarial review** — `which codex` 失敗時、Socrates を計画への adversarial reviewer として起動。詳細: [reference.md](reference.md#socrates-plan-review)
-3. **自律判断**: PASS/WARN → Block 2a へ、BLOCK → sync-plan再実行
+3. **codex_mode / 委譲モード**: RED/GREEN の委譲先はユーザー選択を優先。詳細: [reference.md](reference.md#tdd-gate)
+4. **自律判断**: PASS/WARN → Block 2a へ、BLOCK → sync-plan再実行
 
 ### Block 2: Implementation
 

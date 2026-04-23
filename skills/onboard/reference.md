@@ -537,16 +537,14 @@ CLAUDE.md から `@docs/architecture.md` のように外部ファイルを参照
 
 ## Step 6: .claude/ 構造（決定論的ブロック・hookテンプレート配布）
 
-core の `.claude/` から Read してコピー: `.claude/rules/security.md`, `.claude/rules/git-safety.md`, `.claude/rules/git-conventions.md`, `.claude/hooks/recommended.md` (--no-verify + rm -rf ブロック、no-verify-guard.sh による決定論的ブロック)。
+core の `rules/*.md` 全ファイルを `.claude/rules/` に identical mirror (drift は tests/test-rules-mirror.sh で検証) + `.claude/hooks/recommended.md` を Read してコピー (--no-verify + rm -rf ブロック、no-verify-guard.sh による決定論的ブロック)。
 
 ### ファイル単位の差分チェック
 
 | ファイル | 不在時 | 存在時 |
 |---------|--------|--------|
 | `.claude/dev-crew.json` | 作成 | バージョン差分あれば更新確認 |
-| `.claude/rules/git-safety.md` | 作成 | 内容差分あれば更新確認 |
-| `.claude/rules/security.md` | 作成 | 内容差分あれば更新確認 |
-| `.claude/rules/git-conventions.md` | 作成 | 内容差分あれば更新確認 |
+| `.claude/rules/*.md` (all from `rules/*.md`) | 作成 | `rules/*.md` と identical mirror。drift は `tests/test-rules-mirror.sh` で検出 |
 | `.claude/hooks/recommended.md` | 作成 | 内容差分あれば更新確認 |
 
 既存ファイルの更新時は差分を表示し、個別に承認を得る。
