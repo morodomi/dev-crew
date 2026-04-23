@@ -39,7 +39,12 @@ skill が別 skill から invoke される場合、callee SKILL.md に exit code
 副作用: frontmatter `retro_status` を `none → captured` に更新
 ```
 
+## Insight 引用の原則 (cycle 20260422_1313 #3)
+
+rule に insight を codify する際、**元の insight L## (Cycle doc 行番号) を引用として明示**する。generalize する場合は「なぜ generalize したか」を 1 行書く。LLM は insight を generalize する時、source より自分の "clean statement" を優先する bias があるため、原文引用の明示が一次防御となる。Codex competitive review は原典照合を担うが、引用の明示が無いと複数 source の merge bias を検出できない。
+
 ## 出典
 
 - `docs/cycles/20260420_1752_v2.8-orchestrate-integration.md` Insight 1
 - `docs/cycles/20260422_1146_codify-insight-skill.md` Insight 5
+- `docs/cycles/20260422_1313_rule-docs-codify-followup.md` Insight 3 — insight 原文の改変禁止、generalize 時は理由明示

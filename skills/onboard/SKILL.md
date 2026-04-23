@@ -73,7 +73,7 @@ tests/, src/, docs/ に CLAUDE.md 配置を推奨（各30-50行）。
 
 ### Step 6: .claude/ 構造生成
 
-不足分のみ作成、既存は更新確認。rules/: git-safety, security, git-conventions。hooks/: recommended。
+不足分のみ作成、既存は更新確認。rules/: `rules/*.md` を全て `.claude/rules/` に identical mirror (drift は tests/test-rules-mirror.sh で検証)。hooks/: recommended。
 Hook設定は `~/.claude/settings.json` へコピー+再起動を案内。詳細は [reference.md](reference.md)。
 
 ### Step 7: Pre-commit Hook確認（推奨）

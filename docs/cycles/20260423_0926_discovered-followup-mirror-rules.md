@@ -5,10 +5,10 @@ phase: COMMIT
 complexity: standard
 test_count: 109
 risk_level: low
-retro_status: captured
+retro_status: resolved
 codex_session_id: "019db7be-8fe9-7440-9ec8-a3fabf622646"
 created: 2026-04-23 09:26
-updated: 2026-04-23 10:30
+updated: 2026-04-23 10:45
 ---
 
 # DISCOVERED 3 Items Follow-up (mirror + plan-discipline + test-patterns)
@@ -252,3 +252,35 @@ Evidence: (orchestrate が自動記入)
 - **Final fix**: N/A (observation のみ)
 - **Insight**: **Codex BLOCK は投資対効果が高い**。特に plan review の BLOCK は、GREEN で scope が +N file 発覚するより遥かに安価に修正できる段階での検出。BLOCK を回避する方向の対応ではなく、BLOCK 内容を scope 取り込みで吸収する運用が正解。
 - **一般化**: 2nd-order dogfood observation (cycle 1313 Insight 6 と同系統)。rule 化して他 cycle に強制するものではないが、BLOCK 対応方針として暗黙に共有すべき。
+
+## Codify Decisions
+
+### Insight 1
+- **Decision**: no-codify
+- **Reason**: Codex code review が今回検出した行動規則のみで十分。rule として一般化する前に、同様の検出が複数 cycle で再発するか様子見
+- **Decided**: 2026-04-23 10:45
+
+### Insight 2
+- **Decision**: no-codify
+- **Reason**: cycle 20260422_1313 Insight 1 (既に plan-discipline.md に codify 済) と実質重複。2 連続再発の meta-insight は現時点では rule 化せず、再発パターンとして Retrospective で記録のみ
+- **Decided**: 2026-04-23 10:45
+
+### Insight 3
+- **Decision**: no-codify
+- **Reason**: 現行運用 (plan + code の 2 段 Codex competitive review) で既に実践済み。rule 化せずとも継続される運用慣習
+- **Decided**: 2026-04-23 10:45
+
+### Insight 4
+- **Decision**: no-codify
+- **Reason**: section_grep ヘルパは今回の局所パターン、現時点で他 test に波及させるほどの一般性はまだ確認していない
+- **Decided**: 2026-04-23 10:45
+
+### Insight 5
+- **Decision**: no-codify
+- **Reason**: meta-linter は将来案 (Step 1.5 関連)。現時点は Codex code review で検出できており rule 化不要
+- **Decided**: 2026-04-23 10:45
+
+### Insight 6
+- **Decision**: no-codify
+- **Reason**: 2nd-order dogfood observation (cycle 1313 Insight 6 と同系統)、元から no-codify 候補
+- **Decided**: 2026-04-23 10:45

@@ -25,6 +25,7 @@ echo ""
 echo "TC-01: rules/*.md each file exists in .claude/rules/ with identical content (forward)"
 TC01_PASS=true
 for src_file in "$RULES_DIR"/*.md; do
+  [ -e "$src_file" ] || continue
   fname="$(basename "$src_file")"
   dst_file="$CLAUDE_RULES_DIR/$fname"
   if [ ! -f "$dst_file" ]; then
@@ -47,6 +48,7 @@ echo ""
 echo "TC-02: .claude/rules/*.md each file is in rules/ OR in CLAUDE_ONLY_FILES allowlist (backward)"
 TC02_PASS=true
 for dst_file in "$CLAUDE_RULES_DIR"/*.md; do
+  [ -e "$dst_file" ] || continue
   fname="$(basename "$dst_file")"
   # Check if this file is in the explicit allowlist
   in_allowlist=false
@@ -65,6 +67,15 @@ for dst_file in "$CLAUDE_RULES_DIR"/*.md; do
 done
 if [ "$TC02_PASS" = "true" ]; then
   pass "TC-02: All .claude/rules/*.md files are either mirrored from rules/ or in allowlist"
+fi
+
+# TC-03: CLAUDE_ONLY_FILES allowlist self-assertion
+echo ""
+echo "TC-03: CLAUDE_ONLY_FILES allowlist is exactly ('post-approve.md')"
+if [ "${#CLAUDE_ONLY_FILES[@]}" -eq 1 ] && [ "${CLAUDE_ONLY_FILES[0]}" = "post-approve.md" ]; then
+  pass "TC-03: CLAUDE_ONLY_FILES allowlist integrity OK"
+else
+  fail "TC-03: CLAUDE_ONLY_FILES corrupted (size=${#CLAUDE_ONLY_FILES[@]}, content=${CLAUDE_ONLY_FILES[*]})"
 fi
 
 # Summary

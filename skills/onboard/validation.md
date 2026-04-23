@@ -10,10 +10,9 @@ onboard完了時の健全性チェック。FAILは警告のみ（修正は強制
 | 2 | AGENTS.md | Post-Approve Action | grep -q "Post-Approve Action" AGENTS.md |
 | 3 | CLAUDE.md | @AGENTS.md import | head -1 CLAUDE.md \| grep -q "@AGENTS.md" |
 | 4 | docs/STATUS.md | 存在 | test -f docs/STATUS.md |
-| 5 | .claude/rules/ | git-safety存在 | test -f .claude/rules/git-safety.md |
-| 6 | .claude/rules/ | security存在 | test -f .claude/rules/security.md |
-| 7 | CONSTITUTION.md | 存在確認 | test -f CONSTITUTION.md |
-| 8 | docs/cycles/ | 命名規約 | `ls docs/cycles/*.md 2>/dev/null \| xargs -I{} basename {} \| grep -vE '^[0-9]{8}_[0-9]{4}_.+\.md$'` が空 |
+| 5 | .claude/rules/ | rules/*.md 全ファイル mirror | bash tests/test-rules-mirror.sh (TC-01 PASS) |
+| 6 | CONSTITUTION.md | 存在確認 | test -f CONSTITUTION.md |
+| 7 | docs/cycles/ | 命名規約 | `ls docs/cycles/*.md 2>/dev/null \| xargs -I{} basename {} \| grep -vE '^[0-9]{8}_[0-9]{4}_.+\.md$'` が空 |
 
 ## 実行方法
 
