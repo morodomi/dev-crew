@@ -5,10 +5,10 @@ phase: COMMIT
 complexity: standard
 test_count: 109
 risk_level: low
-retro_status: captured
+retro_status: resolved
 codex_session_id: "019db7be-8fe9-7440-9ec8-a3fabf622646"
 created: 2026-04-23 10:45
-updated: 2026-04-23 12:30
+updated: 2026-04-24 09:00
 ---
 
 # DISCOVERED 4 Items Follow-up (cycle 20260423_0926 派生)
@@ -282,3 +282,30 @@ Evidence: (orchestrate が自動記入)
 - **Final fix**: N/A (observation のみ)
 - **Insight**: full-suite baseline 実測は「真の regression + cascade + flaky」の 3 要素を同時に露呈させる。個別 test 実行では flaky は偶発的に PASS し、cascade は根源 test しか見えない。sync-plan / REFACTOR / REVIEW の各 gate で full-suite baseline を取得する投資は、cascade 分析と flaky 識別のためにも正当化される。
 - **一般化**: test の健全性は個別 PASS ではなく suite-level 統計 (FAIL 件数の時系列比較) で評価すべき。observation として蓄積、actionable rule 化の判断は dogfood 再現が複数 cycle で得られた段階。
+
+## Codify Decisions
+
+autonomous batch triage (cycle 20260424 integration-verification-rule cycle 起動時)。recurrence scan: 全 insight 初出 (novel)、recurrence 0-1。
+
+### Insight 1
+- **Decision**: codified
+- **Destination**: rule (plan-discipline.md)
+- **Reason**: REFACTOR Verification Gate を full-suite baseline 必須化する規律。plan-discipline.md の既存「逆向きテスト契約 / 事前 grep」系と同族。judgment-only record、実装は refactor skill 変更を伴う別 cycle
+- **Decided**: 2026-04-24 09:00
+
+### Insight 2
+- **Decision**: codified
+- **Destination**: rule (plan-discipline.md)
+- **Reason**: 「doc 変更 cycle は doc-consuming test を plan 段階で grep 逆検索」を plan-discipline.md に追記。cycle 20260422_1313 Insight 1 (逆向きテスト契約) の doc 版として明記。judgment-only record
+- **Decided**: 2026-04-24 09:00
+
+### Insight 3
+- **Decision**: codified
+- **Destination**: rule (skill-authoring.md)
+- **Reason**: 「新 rule codify は書いた file 内の self-apply mandatory」を skill-authoring.md に追記。cycle 20260422_1313 Insight 3 (原文引用) の範囲拡大。judgment-only record
+- **Decided**: 2026-04-24 09:00
+
+### Insight 4
+- **Decision**: no-codify
+- **Reason**: 元から observation marked。full-suite baseline の価値は既に Insight 1 で codify 済、重複回避
+- **Decided**: 2026-04-24 09:00

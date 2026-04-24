@@ -89,7 +89,7 @@ Skill(dev-crew:refactor)
 ### VERIFY (Product Verification)
 
 PdM が直接 Bash で実行（参考エビデンス、委譲不要）。
-Cycle doc `## Verification` セクション不在 → サイレントスキップ。
+Cycle doc `## Verification` セクション不在 or real-path invocation なし → WARN ログを出力しつつ非ブロッキングスキップ (rules/integration-verification.md)。
 詳細: [reference.md](reference.md#product-verification)
 
 ### REVIEW via Codex (competitive)

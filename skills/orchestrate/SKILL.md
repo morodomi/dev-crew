@@ -71,7 +71,7 @@ Task(green-worker, sonnet): Cycle doc → テストを通す最小実装・全PA
 Skill(dev-crew:refactor): Verification Gate通過（テスト全PASS + 静的解析0件 + フォーマット）
 
 #### Block 2c.5: VERIFY (Product Verification)
-`## Verification` セクションのコマンドを実行。advisory evidence（非ブロッキング）。セクション不在 → スキップ。詳細: [reference.md](reference.md#product-verification)
+`## Verification` セクションのコマンドを実行。advisory evidence（非ブロッキング）。real-path invocation なしの場合 WARN ログ (rules/integration-verification.md)。セクション不在 → WARN スキップ。詳細: [reference.md](reference.md#product-verification)
 
 #### Block 2d: REVIEW
 Skill(dev-crew:review, args: "--code"): competitive review（Codex利用可能時）

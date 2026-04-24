@@ -91,12 +91,24 @@ updated: YYYY-MM-DD HH:MM
 
 ## Verification
 
-Product Verification コマンド（省略可能）。orchestrate が REFACTOR 後に実行し、結果を Evidence として保存する。
-advisory evidence（非ブロッキング）。セクション不在またはコマンドなし → サイレントスキップ。
+**Real-path invocation を最低 1 件含めること** (rules/integration-verification.md)。
+テストコード実行だけでは config-wire gap を見逃す (can miss when tests bypass runtime wiring)。
 
 ```bash
-# 例: curl -s http://localhost:8080/api/health | jq .status
-# 例: npx playwright test e2e/smoke.spec.ts
+# CLI 例
+python -m myapp --config config.yaml && grep "loaded: value" /tmp/myapp.log
+
+# Web 例
+docker compose up -d && curl -fsS localhost:8080/health && docker compose down
+
+# Config 変更時 (motivating bug)
+python -m myapp --config new.yaml && grep "loaded_from: new.yaml" /tmp/myapp.log
+
+# Library 例
+python -c "from mymod import run; run('config.yaml')"
+
+# テスト実行 (補完)
+for f in tests/test-*.sh; do bash "$f"; done
 ```
 
 Evidence: (orchestrate が自動記入)

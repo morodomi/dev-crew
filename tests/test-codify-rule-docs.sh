@@ -382,6 +382,63 @@ else
   fi
 fi
 
+# TC-19: rules/integration-verification.md exists + structure validation
+echo ""
+echo "TC-19: rules/integration-verification.md exists + H1 + 禁止事項/推奨/出典 sections + key phrases + size >= 300 bytes"
+FILE="$RULES_DIR/integration-verification.md"
+if [ ! -f "$FILE" ]; then
+  fail "TC-19: rules/integration-verification.md does not exist"
+else
+  has_h1=$(grep -cE "^# " "$FILE" || true)
+  # 禁止事項 section に real-invocation なしの禁止文言 (bash tests/test or mock or echo)
+  count_kinshi_bash=$(section_grep "$FILE" "禁止事項" "bash tests/test")
+  count_kinshi_mock=$(section_grep "$FILE" "禁止事項" "mock")
+  count_kinshi_echo=$(section_grep "$FILE" "禁止事項" "echo")
+  if [ "$count_kinshi_bash" -ge 1 ] || [ "$count_kinshi_mock" -ge 1 ] || [ "$count_kinshi_echo" -ge 1 ]; then
+    kinshi_ok=1
+  else
+    kinshi_ok=0
+  fi
+  # 推奨 section に real-path invocation 例 (docker or curl or python -m)
+  count_suishou_docker=$(section_grep "$FILE" "推奨" "docker")
+  count_suishou_curl=$(section_grep "$FILE" "推奨" "curl")
+  count_suishou_python=$(section_grep "$FILE" "推奨" "python -m")
+  if [ "$count_suishou_docker" -ge 1 ] || [ "$count_suishou_curl" -ge 1 ] || [ "$count_suishou_python" -ge 1 ]; then
+    suishou_ok=1
+  else
+    suishou_ok=0
+  fi
+  # 出典 section に Kyotei or 20260424 reference
+  count_shuten_kyotei=$(section_grep "$FILE" "出典" "Kyotei")
+  count_shuten_cycle=$(section_grep "$FILE" "出典" "20260424")
+  if [ "$count_shuten_kyotei" -ge 1 ] || [ "$count_shuten_cycle" -ge 1 ]; then
+    shuten_ok=1
+  else
+    shuten_ok=0
+  fi
+  # file size >= 300 bytes
+  size=$(wc -c < "$FILE" | tr -d ' ')
+  if [ "$size" -ge 300 ]; then
+    size_ok=1
+  else
+    size_ok=0
+  fi
+
+  if [ "$has_h1" -ge 1 ] && [ "$kinshi_ok" -ge 1 ] && [ "$suishou_ok" -ge 1 ] && [ "$shuten_ok" -ge 1 ] && [ "$size_ok" -ge 1 ]; then
+    pass "TC-19: rules/integration-verification.md exists + H1 + 禁止事項/推奨/出典 + key phrases + size >= 300 bytes"
+  elif [ "$has_h1" -lt 1 ]; then
+    fail "TC-19: rules/integration-verification.md missing H1 title"
+  elif [ "$kinshi_ok" -lt 1 ]; then
+    fail "TC-19: rules/integration-verification.md 禁止事項 section missing 'bash tests/test' or 'mock' or 'echo'"
+  elif [ "$suishou_ok" -lt 1 ]; then
+    fail "TC-19: rules/integration-verification.md 推奨 section missing 'docker' or 'curl' or 'python -m'"
+  elif [ "$shuten_ok" -lt 1 ]; then
+    fail "TC-19: rules/integration-verification.md 出典 section missing 'Kyotei' or '20260424' reference"
+  else
+    fail "TC-19: rules/integration-verification.md is too small ($size bytes, need >= 300)"
+  fi
+fi
+
 # Summary
 echo ""
 echo "=== Summary ==="

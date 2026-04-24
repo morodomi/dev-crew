@@ -157,7 +157,7 @@ Skill(dev-crew:refactor)
 > NOTE: PdM が直接 Bash で実行する（advisory evidence のため、委譲不要）。
 
 Cycle doc の `## Verification` セクションからコマンドを抽出して実行する。
-セクション不在 or コマンドなし → サイレントスキップ。
+Cycle doc `## Verification` セクション不在 or real-path invocation なし → WARN ログを出力しつつ advisory 非ブロッキングスキップ (rules/integration-verification.md)。
 コマンド失敗は `|| true` で吸収（advisory: ブロッキングしない）。
 結果を Evidence ディレクトリ (`/tmp/dev-crew-verify-{cycle-id}/`) に保存し、Progress Log に記録後、REVIEW へ進行する。
 詳細: [reference.md](reference.md#product-verification)
