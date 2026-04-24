@@ -495,3 +495,7 @@ REFACTOR (Block 2c) → **VERIFY (Block 2c.5)** → REVIEW (Block 2d)
 ### スキップ時
 
 Progress Checklist に "(skipped)" 表示のみ。Progress Log には記録しない。
+
+### real-path invocation 原則 (rules/integration-verification.md)
+
+`## Verification` section には real-path invocation (CLI/docker/curl 等、実 production path 呼出) を最低 1 件含めることを strong recommended。real-path invocation なしの場合 orchestrate は WARN ログを出力するが、advisory spirit を維持し cycle を block しない。詳細: rules/integration-verification.md

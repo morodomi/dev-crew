@@ -108,6 +108,25 @@ else
   fail "Skip behavior not documented"
 fi
 
+# TC-10: orchestrate docs describe WARN log in VERIFY section (section-specific, not whole-file)
+# Codex code review 指摘: whole-file grep では unrelated WARN 文言で偽 PASS。VERIFY block 内に限定して検査。
+echo ""
+echo "TC-10: orchestrate docs describe WARN log in VERIFY block specifically (all 4 docs)"
+FILES="skills/orchestrate/SKILL.md skills/orchestrate/steps-subagent.md skills/orchestrate/steps-teams.md skills/orchestrate/steps-codex.md"
+has_warn=0
+for f in $FILES; do
+  # Extract VERIFY block: from heading matching "VERIFY" to next "###"/"####" heading
+  verify_block=$(awk '/^####* .*VERIFY/{in_block=1; next} in_block && /^####* /{in_block=0} in_block' "$BASE_DIR/$f" 2>/dev/null || true)
+  if echo "$verify_block" | grep -qE "WARN.*real-path invocation|real-path invocation.*WARN"; then
+    has_warn=$((has_warn + 1))
+  fi
+done
+if [ "$has_warn" -ge 4 ]; then
+  pass "WARN contract present in VERIFY section of all 4 orchestrate docs"
+else
+  fail "WARN contract missing in VERIFY section of $((4 - has_warn)) of 4 orchestrate docs (found $has_warn, requires section-specific match)"
+fi
+
 # Summary
 echo ""
 echo "=== Summary ==="
