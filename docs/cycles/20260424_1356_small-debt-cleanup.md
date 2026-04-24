@@ -5,10 +5,10 @@ phase: COMMIT
 complexity: trivial
 risk_level: low
 test_count: 6
-retro_status: captured
+retro_status: resolved
 codex_session_id: "019dbddb-4d06-7460-b81a-25d2f0c179d9"
 created: 2026-04-24 13:56
-updated: 2026-04-24 14:50
+updated: 2026-04-24 15:37
 ---
 
 # Cycle: small debt cleanup (B + C + E)
@@ -395,3 +395,40 @@ grep -n "cycle 20260423_1045 Insight" rules/integration-verification.md .claude/
 - **Final fix**: N/A (observation)
 - **Insight**: cycle 複雑性の leading indicator として「regex 変更 + multi-file + reverse contract」の AND 条件を認識。plan 時点で risk-classifier が検出できれば予防可能だが、現行 classifier はこれらを評価しない (複合条件 scoring の未実装)
 - **一般化**: 2nd-order observation。risk-classifier の拡張候補だが、現状 "6 BLOCK は許容" 運用で rule 化不要
+
+## Codify Decisions
+
+### Insight 1
+- **Decision**: no-codify
+- **Reason**: "codify → 即 dogfood → rule refinement" という meta-observation。rule 化して強制するよりも PdM 運用原則として暗黙共有する性質。cycle 20260424_0900 Insight 4 (3 cycle 連続 Codex BLOCK 観察) と同系統の 2nd-order pattern
+- **Decided**: 2026-04-24 15:37
+
+### Insight 2
+- **Decision**: deferred
+- **Reason**: 新 cycle (new-cycle) で test-patterns.md に「regex word boundary 問題は text-only では解けない。filename classifier には path/context boundary を使え」を追加。本 cycle (Cycle B) scope は cycle 20260424_0900 / 20260424_1119 の 7 codify 決定に focus しており、Cycle A insight 追加は scope 拡大になるため後続 cycle で実装
+- **Decided**: 2026-04-24 15:37
+
+### Insight 3
+- **Decision**: deferred
+- **Reason**: 新 cycle で `doc-mutations.md` の "SSOT 即時同期" rule を拡張。trigger を "GREEN collateral fix" から "code review resolution" にも拡張する。Cycle A で 3 回 BLOCK を triggered した実証 evidence があり rule 化する価値は高いが、Cycle B scope 外のため後続 cycle で実装
+- **Decided**: 2026-04-24 15:37
+
+### Insight 4
+- **Decision**: deferred
+- **Reason**: 新 cycle で orchestrate reference.md または VERIFY pre-gate に「baseline sequential 実行の強制」を追加。`pkill -f "bash.*tests/test-"` で prior runs clean を pre-gate 化。新しい gate 追加なので Cycle B scope 外
+- **Decided**: 2026-04-24 15:37
+
+### Insight 5
+- **Decision**: deferred
+- **Reason**: 新 cycle で orchestrate Block 0 に pre-existing FAIL snapshot (`git stash && baseline && git stash pop`) を追加。現行 Block 0 に新しい step を追加するため Cycle B scope 外
+- **Decided**: 2026-04-24 15:37
+
+### Insight 6
+- **Decision**: deferred
+- **Reason**: 新 cycle で `scripts/gates/pre-commit-gate.sh` に「数値 contract の逆向き検査」を追加。STATUS.md 等の数値変更時、`grep -rn "$old_value" tests/` が 0 件を自動 gate 化。gate script 実装変更なので Cycle B scope 外
+- **Decided**: 2026-04-24 15:37
+
+### Insight 7
+- **Decision**: no-codify
+- **Reason**: Insight heading に明示された `(observation、no-codify)`。Codex BLOCK 回数 indicator は current risk-classifier 拡張候補だが rule 化は過剰 (cycle 20260424_0900 Insight 4 の同類)
+- **Decided**: 2026-04-24 15:37

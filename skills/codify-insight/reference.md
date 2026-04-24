@@ -79,6 +79,31 @@ default: **2 回**。同じ insight key phrase が過去 N cycles で threshold 
 
 この場合 `## Codify Decisions` を書き出して summary のみ print。
 
+### Reason-aware duplicate-negative 例外 (cycle 20260424_1119 #4)
+
+既存 frequency table の `1+ で過去 no-codify 判定` 行は、過去 reason が時限的
+(「一般性未確認」「localized pattern」「運用習慣で十分」等) な場合、recurrence で
+根拠が実証的に invalidate されうる。strict な duplicate-negative 適用は "永久に
+codify できない" lock-in を生むため、pre-triage phase で past reason を LLM に読ませ
+「この reason は recurrence で invalidate されるか？」を判定する。invalidate されれば
+normal autonomous triage へ fallback、そうでなければ既存 duplicate-negative を維持。
+
+**原文引用** (cycle 20260424_1119 Insight 4):
+> recurrence-aware triage の "duplicate negative" rule には「過去 no-codify 理由が
+> recurrence で無効化されたか」を判定する例外が必要。現行 rule は reason を unread で
+> duplicate-negative 適用するが、recurrence 自体が reason を validate/invalidate する
+> signal なので、reason-aware の判定に拡張する。
+
+**generalize 理由**: cycle 20260424_1119 の Insight 2 処理 (過去 no-codify を recurrence
+で上書きしてユーザー確認で codify 昇格) が cycle 特有の一度きりの運用判断ではなく、
+「過去判断の根拠が時限的か恒常的か」という LLM triage の一般問題。rule 化で strict
+duplicate-negative の機械適用を防ぎ、reason-aware 判定を標準化する。
+
+**判定例** (reason が recurrence で invalidate されるケース):
+- 「一般性未確認」 → 2 回目再発で一般性は実証済 → invalidate
+- 「localized pattern」 → 他 context で再発 → invalidate
+- 「運用習慣で十分」 → 運用違反が再発 → invalidate
+
 ## TDD Timing Heuristics
 
 - pre-TDD / 次 cycle hardening（gate, checklist, prompt, test discipline）→ `codified` + `rule` or `inline-update`

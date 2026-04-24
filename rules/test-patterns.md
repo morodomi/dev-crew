@@ -10,6 +10,12 @@
 - **meta test で logic copy-paste**: テスト対象と同じロジックをコピーすると drift する。subject script を直接実行する (cycle 20260421_1043 #2)
 - **whole-file grep で frontmatter state**: body 内の同一文字列を誤検出する。awk で frontmatter 範囲限定で parse せよ (cycle 20260422_1146 #1)
 - **command substitution 内の `||` fallback**: `$(grep -cF "A" || grep -ciE "B" || true)` は第1 grep が 0 件 (exit 1) でも第2 grep が実行され stdout が連結される (例: `0\n1`)。後続の `[ "$var" -ge 1 ]` で `integer expression expected` エラー。短絡動作と数値取得を混同しない (cycle 20260422_1313 #4)
+- **whole-file grep で structured doc の contract assertion**: VERIFY block 等 section 内の
+  記述を検査する際、whole-file grep では section 外の unrelated 記述で偽 PASS する
+  (cycle 20260424_0900 #2)
+- **`grep -E "a\|b"` の escape alternation**: ERE mode では `|` が直接 alternation、
+  `\|` はリテラル pipe となり alternation 無効化 (実測 rc=1 で silent no-match)
+  (cycle 20260424_1119 #2)
 
 ## 推奨
 
@@ -21,6 +27,12 @@
 - meta test から既存 test を invoke する場合、recursive runner への skip 登録を plan 段階で設計する (cycle 20260421_1043 #5)
 - frontmatter scan: `awk '/^---$/{c++;next} c==1{print}'` で body から分離 (cycle 20260422_1146 #1)
 - 条件分岐は `if/elif/else` で明示。数値取得は 1 回のみ: `count=$(grep -cF "pattern" file || true)` (cycle 20260422_1313 #4)
+- section-specific grep: `section_grep` helper (tests/test-codify-rule-docs.sh) を再利用。
+  structured doc に対しては awk で H2/H3 heading 範囲を抽出 → grep pattern 適用
+  (cycle 20260424_0900 #2)
+- regex alternation: `grep -E "a|b|c"` (non-escaped、ERE の標準) を使う。mode 決定時は
+  `printf` oracle 実測で rc 確認 (例: `printf 'x\nb\n' | grep -E "a|b"; echo rc=$?`)
+  (cycle 20260424_1119 #2)
 
 ## 具体例
 
