@@ -4,7 +4,7 @@ architect や subagent へ委譲する際のプロンプト設計規律。scope 
 
 ## 禁止事項
 
-- **sloppy な Files list 伝達**: architect 依頼時に「plan の Files to Change 参照」とだけ書き、全量列挙を省略しない。scope drift の原因になる (eval-2 #1, A2b #2)
+- **sloppy な Files list 伝達**: architect 依頼時に「plan の Files to Change 参照」とだけ書き、全量列挙を省略しない。scope drift の原因になる (cycle 20260421_1809 #1, cycle 20260420_1752 #2)
 - **間接的ファイルの黙示**: agents/*.md など間接的に影響するファイルは明示列挙せよ。暗黙期待は落とされやすい
 
 ## 推奨

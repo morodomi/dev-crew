@@ -5,10 +5,10 @@ phase: COMMIT
 complexity: standard
 test_count: 109
 risk_level: low
-retro_status: captured
+retro_status: resolved
 codex_session_id: "019dbcfd-b821-7de2-a8b7-980e430b767b"
 created: 2026-04-24 09:00
-updated: 2026-04-24 10:20
+updated: 2026-04-24 11:19
 ---
 
 # Integration Verification Rule — real-path invocation mandatory in Verification Gate
@@ -266,3 +266,28 @@ Evidence: (orchestrate が自動記入)
 - **Final fix**: N/A (observation)
 - **Insight**: Codex plan review BLOCK は「plan を通さない拒否」ではなく「plan を広げる機会」として 3 cycle 連続で機能している。scope 拡大の invest を plan 段階で吸収する運用は定着。
 - **一般化**: 2nd-order dogfood observation。rule 化して強制するものではないが、PdM の運用判断として BLOCK は常に scope 拡大で応答する方針を暗黙に共有。
+
+## Codify Decisions
+
+### Insight 1
+- **Decision**: codified
+- **Destination**: inline-update (rules/integration-verification.md)
+- **Reason**: 同 cycle 内 self-apply 欠落 → Codex BLOCK を triggered の pattern。integration-verification.md の「適用範囲」節に「新 rule を定義する cycle 自身の Verification section にも同 rule の real-path invocation pattern を適用する (self-apply mandatory)」を追加。cycle 20260423_1045 Insight 3 (file 内 self-apply) の cycle-level 拡張
+- **Decided**: 2026-04-24 11:19
+
+### Insight 2
+- **Decision**: codified
+- **Destination**: rule (rules/test-patterns.md)
+- **Reason**: 2 回目の再発 (cycle 20260423_0926 Insight 4 が初出、no-codify 判定済)。「一般性未確認」の根拠は test-product-verify.sh での独自実装 drift 発生で無効化。section_grep helper 再利用規律を test-patterns.md に codify 昇格。follow-up cycle で実装
+- **Decided**: 2026-04-24 11:19
+
+### Insight 3
+- **Decision**: codified
+- **Destination**: rule (rules/plan-discipline.md)
+- **Reason**: 新 rule cycle で「同 concept を重複記述している他 doc」の sweep が plan scope に漏れる pattern。cycle 20260422_1313 Insight 1 (逆向き grep 契約) の doc 版として `grep -rlF '<既存概念>' skills/` を plan-discipline.md に追加。follow-up cycle で実装
+- **Decided**: 2026-04-24 11:19
+
+### Insight 4
+- **Decision**: no-codify
+- **Reason**: 元から Insight heading に `(observation、no-codify)` と明示された 2nd-order dogfood observation。Codex plan review BLOCK の運用は既に定着しており、rule 化で強制する性質ではない
+- **Decided**: 2026-04-24 11:19

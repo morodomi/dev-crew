@@ -1,6 +1,7 @@
 ---
 name: careful
 description: prod作業時に破壊コマンドをブロック。rm -rf /, DROP TABLE, force-push, git reset --hard, kubectl deleteを検出しexit 2でBLOCK。
+allowed-tools:
 hooks:
   PreToolUse:
     - matcher: "Bash"
