@@ -28,4 +28,4 @@ non-trivial cycle で strong recommended (advisory spirit 維持、non-blocking)
 
 - Kyotei YAML config wire-gap bug (別 repo、2026-04-24 発見)
 - `docs/cycles/20260424_0900_integration-verification-rule.md` — integration verification rule codify cycle
-- cycle 20260423_1045 Insight 1 (REFACTOR full-suite baseline 必須) の対称ルール
+- `docs/cycles/20260423_1045_discovered-cycle2-followup.md` Insight 1 (REFACTOR full-suite baseline 必須) の対称ルール

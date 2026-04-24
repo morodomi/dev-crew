@@ -5,10 +5,10 @@ phase: COMMIT
 complexity: standard
 test_count: 6
 risk_level: low
-retro_status: captured
+retro_status: resolved
 codex_session_id: "019dbd4e-b160-7450-b3cf-141978b8217a"
 created: 2026-04-24 11:19
-updated: 2026-04-24 12:02
+updated: 2026-04-24 13:56
 ---
 
 # DISCOVERED 3 項目 debt 解消 cycle
@@ -325,3 +325,34 @@ Advisory evidence 全 PASS。integration-verification rule 自己適用を dogfo
 - **Observation**: Codex code review #1 で、明示的に指示していないにもかかわらず `git status --short` を自発実行し、untracked file 検出を findings に含めた。これは Codex の review coverage が diff の内容だけでなく git index 状態まで及ぶことを示す 2nd-order evidence。cycle 20260424_0900 Insight 4 (3 cycle 連続 Codex plan review BLOCK で scope 拡大) の code review 版。
 - **Final fix**: N/A (observation)
 - **Insight**: Codex review は repo 状態を rich に検査する tool として運用が定着。rule 化して強制する性質ではないが、PdM として「Codex review は file tracking 状態の gate を含む」ことを前提に活用。
+
+## Codify Decisions
+
+### Insight 1
+- **Decision**: codified
+- **Destination**: rule (rules/plan-discipline.md)
+- **Reason**: cycle 20260422_0937 #2 "narrative baseline 記述禁止" の系として「除外数値の justification 明記」を追記。grep-based metric の再現可能性を要件化。follow-up cycle で実装 (Cycle B 候補、または更に後)
+- **Decided**: 2026-04-24 13:56
+
+### Insight 2
+- **Decision**: codified
+- **Destination**: rule (rules/test-patterns.md)
+- **Reason**: `grep -E` (ERE) vs BRE の `|` escape 要件逆転は test script 作成時に即ハマる実用知識。test-patterns.md の grep 節に追記候補。oracle 実測 (printf による rc 確認) パターンも合わせて追記。follow-up cycle で実装
+- **Decided**: 2026-04-24 13:56
+
+### Insight 3
+- **Decision**: codified
+- **Destination**: inline-update (skills/review/SKILL.md Gate section)
+- **Reason**: review skill の pre-gate に `git status --short` による untracked/unstaged deletion detection を追加。diff-based review の完全性保証。Codex dogfood 由来の実用ガード。follow-up cycle で実装
+- **Decided**: 2026-04-24 13:56
+
+### Insight 4
+- **Decision**: codified
+- **Destination**: inline-update (skills/codify-insight/reference.md Recurrence section)
+- **Reason**: recurrence-aware triage の duplicate-negative rule に「過去 no-codify 理由が recurrence で invalidate されたか」を判定する reason-aware 例外を追記。本 cycle の Insight 2 処理 (cycle 20260424_0900 の再発 no-codify → codified 昇格) の一般化。follow-up cycle で実装
+- **Decided**: 2026-04-24 13:56
+
+### Insight 5
+- **Decision**: no-codify
+- **Reason**: Insight heading に明示された `(observation、no-codify)` の 2nd-order dogfood observation。Codex review coverage が repo 状態に及ぶ事実確認のみで、rule 化で強制する性質ではない
+- **Decided**: 2026-04-24 13:56

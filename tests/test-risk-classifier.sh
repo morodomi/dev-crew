@@ -223,6 +223,31 @@ else
 fi
 rm -f "$TMPFILES9" "$TMPDIFF9"
 
+# T-10: skill-authoring.md is not matched by auth keyword (false-positive regression guard)
+# Given: FILES_LIST contains only "rules/skill-authoring.md"
+# When: risk-classifier.sh executed
+# Then: auth keyword +25 score is NOT added (score should be low, well below HIGH threshold 60)
+echo ""
+echo "T-10: skill-authoring.md does not trigger auth false-positive"
+
+TMPFILES10=$(mktemp)
+TMPDIFF10=$(mktemp)
+echo "rules/skill-authoring.md" > "$TMPFILES10"
+echo "+ test line" > "$TMPDIFF10"
+
+output10=$(bash "$SCRIPT" "$TMPFILES10" "$TMPDIFF10" 2>&1 || true)
+score10=$(echo "$output10" | grep -oE 'score:[0-9]+' | grep -oE '[0-9]+' || echo 0)
+
+rm -f "$TMPFILES10" "$TMPDIFF10"
+
+# expected: score < 25 (auth signal absent)
+# rule: skill-authoring.md should be treated as non-auth doc file
+if [ "$score10" -lt 25 ]; then
+  pass "T-10: skill-authoring.md does not trigger auth false-positive (score: $score10)"
+else
+  fail "T-10: skill-authoring.md falsely triggers auth +25 (score: $score10)"
+fi
+
 # Summary
 echo ""
 echo "=== Summary ==="
