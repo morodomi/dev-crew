@@ -2,9 +2,7 @@
 # test-plugin-data-paths.sh - Tests for CLAUDE_PLUGIN_DATA migration
 # T-01: observe.sh DATA_DIR uses CLAUDE_PLUGIN_DATA when set
 # T-02: observe.sh DATA_DIR falls back to ~/.claude/dev-crew when unset
-# T-03: plan-exit-flag.sh FLAG_DIR uses CLAUDE_PLUGIN_DATA when set
-# T-04: plan-exit-flag.sh FLAG_DIR falls back to ~/.claude/dev-crew when unset
-# T-05: post-approve-gate.sh FLAG_FILE uses CLAUDE_PLUGIN_DATA when set
+# T-03: deprecated scripts (plan-exit-flag.sh / post-approve-gate.sh) remain absent (cycle dc89b17 v2.6.6)
 # T-06: no ~/.claude/dev-crew hardcodes outside docs/cycles/ and ROADMAP.md
 
 set -uo pipefail
@@ -87,83 +85,21 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# T-03: Given CLAUDE_PLUGIN_DATA=/tmp/test-pd,
-#       When plan-exit-flag.sh resolves FLAG_DIR,
-#       Then FLAG_DIR uses CLAUDE_PLUGIN_DATA
+# T-03: deprecated scripts (plan-exit-flag.sh / post-approve-gate.sh) remain absent
+# Given: cycle dc89b17 (v2.6.6) で plan-exit-flag.sh と post-approve-gate.sh が削除された
+# When: scripts/hooks/ (歴史的削除パス、cycle dc89b17 で確認) を確認
+# Then: 両 deprecated script が存在しない
 # ---------------------------------------------------------------------------
 echo ""
-echo "T-03: plan-exit-flag.sh uses CLAUDE_PLUGIN_DATA when set"
+echo "T-03: deprecated scripts (plan-exit-flag.sh / post-approve-gate.sh) remain absent (cycle dc89b17 v2.6.6)"
 
-FLAG_SCRIPT="$BASE_DIR/scripts/hooks/plan-exit-flag.sh"
+PLAN_EXIT_FLAG="$BASE_DIR/scripts/hooks/plan-exit-flag.sh"
+POST_APPROVE_GATE="$BASE_DIR/scripts/hooks/post-approve-gate.sh"
 
-RESOLVED=$(
-  export HOME="$HOME"
-  export CLAUDE_PLUGIN_DATA="/tmp/test-pd"
-  line=$(grep "CLAUDE_PLUGIN_DATA" "$FLAG_SCRIPT" | grep "FLAG_DIR=" | head -1)
-  if [ -z "$line" ]; then echo "__NOT_FOUND__"; exit 0; fi
-  eval "$line"
-  echo "$FLAG_DIR"
-)
-
-if [ "$RESOLVED" = "/tmp/test-pd" ]; then
-  pass "T-03: FLAG_DIR=/tmp/test-pd when CLAUDE_PLUGIN_DATA is set"
+if [ ! -f "$PLAN_EXIT_FLAG" ] && [ ! -f "$POST_APPROVE_GATE" ]; then
+  pass "T-03: deprecated scripts absent (post-approve-gate flag removed in cycle dc89b17)"
 else
-  fail "T-03: expected FLAG_DIR=/tmp/test-pd, got: ${RESOLVED} (plan-exit-flag.sh missing CLAUDE_PLUGIN_DATA support)"
-fi
-
-# ---------------------------------------------------------------------------
-# T-04: Given CLAUDE_PLUGIN_DATA unset,
-#       When plan-exit-flag.sh resolves FLAG_DIR,
-#       Then FLAG_DIR falls back to ~/.claude/dev-crew
-# ---------------------------------------------------------------------------
-echo ""
-echo "T-04: plan-exit-flag.sh falls back to ~/.claude/dev-crew when CLAUDE_PLUGIN_DATA unset"
-
-RESOLVED=$(
-  export HOME="$HOME"
-  unset CLAUDE_PLUGIN_DATA 2>/dev/null || true
-  line=$(grep "CLAUDE_PLUGIN_DATA" "$FLAG_SCRIPT" | grep "FLAG_DIR=" | head -1)
-  if [ -z "$line" ]; then echo "__NOT_FOUND__"; exit 0; fi
-  eval "$line"
-  echo "$FLAG_DIR"
-)
-
-if [ "$RESOLVED" = "$EXPECTED_FALLBACK" ]; then
-  pass "T-04: FLAG_DIR falls back to $EXPECTED_FALLBACK"
-else
-  fail "T-04: expected FLAG_DIR=$EXPECTED_FALLBACK, got: ${RESOLVED}"
-fi
-
-# ---------------------------------------------------------------------------
-# T-05: Given CLAUDE_PLUGIN_DATA=/tmp/test-pd,
-#       When post-approve-gate.sh resolves FLAG_FILE path,
-#       Then FLAG_FILE uses CLAUDE_PLUGIN_DATA
-# ---------------------------------------------------------------------------
-echo ""
-echo "T-05: post-approve-gate.sh uses CLAUDE_PLUGIN_DATA when set"
-
-GATE_SCRIPT="$BASE_DIR/scripts/hooks/post-approve-gate.sh"
-
-RESOLVED=$(
-  export HOME="$HOME"
-  export CLAUDE_PLUGIN_DATA="/tmp/test-pd"
-  # post-approve-gate may use DATA_DIR or FLAG_DIR
-  line=$(grep "CLAUDE_PLUGIN_DATA" "$GATE_SCRIPT" | grep -E "FLAG_DIR=|DATA_DIR=" | head -1)
-  if [ -z "$line" ]; then echo "__NOT_FOUND__"; exit 0; fi
-  eval "$line"
-  if [ -n "${FLAG_DIR:-}" ]; then
-    echo "$FLAG_DIR"
-  elif [ -n "${DATA_DIR:-}" ]; then
-    echo "$DATA_DIR"
-  else
-    echo "__NOT_FOUND__"
-  fi
-)
-
-if [ "$RESOLVED" = "/tmp/test-pd" ]; then
-  pass "T-05: post-approve-gate.sh uses CLAUDE_PLUGIN_DATA"
-else
-  fail "T-05: expected /tmp/test-pd, got: ${RESOLVED} (post-approve-gate.sh missing CLAUDE_PLUGIN_DATA support)"
+  fail "T-03: deprecated script(s) reappeared, contradicting dc89b17 deprecation"
 fi
 
 # ---------------------------------------------------------------------------
