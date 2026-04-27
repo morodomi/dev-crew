@@ -6,6 +6,14 @@ unit test は mock/direct call を使うと「宣言された config/option が 
 
 non-trivial cycle で strong recommended (advisory spirit 維持、non-blocking)。Verification section 不在 or real-path invocation なしの場合は orchestrate が WARN ログを出力するが、cycle は block しない。
 
+### 新 rule cycle への self-apply
+
+新 rule を定義する cycle は、同 rule で定義した real-path invocation pattern を
+**cycle 自身の `## Verification` section にも適用** する (dogfood 必須)。rule file /
+template / skill docs だけでなく、自 cycle の Verification 実行でも self-apply を
+証明する。plan phase で「本 cycle の Verification section に自作 rule を適用できるか」
+を事前チェックする checklist が必要 (cycle 20260424_0900 #1)。
+
 ## 禁止事項
 
 - Verification section に `bash tests/test-*.sh` + `grep`/`diff` のみしか書かない (real-invocation ゼロ = structural test のみ)
@@ -28,4 +36,4 @@ non-trivial cycle で strong recommended (advisory spirit 維持、non-blocking)
 
 - Kyotei YAML config wire-gap bug (別 repo、2026-04-24 発見)
 - `docs/cycles/20260424_0900_integration-verification-rule.md` — integration verification rule codify cycle
-- cycle 20260423_1045 Insight 1 (REFACTOR full-suite baseline 必須) の対称ルール
+- `docs/cycles/20260423_1045_discovered-cycle2-followup.md` Insight 1 (REFACTOR full-suite baseline 必須) の対称ルール

@@ -91,3 +91,5 @@ Skill(dev-crew:cycle-retrospective): 失敗-成功 insight 抽出、retro_status
 ## Mode Selection
 
 詳細: [reference.md](reference.md) | [steps-codex.md](steps-codex.md) | [steps-teams.md](steps-teams.md) | [steps-subagent.md](steps-subagent.md)
+
+`codex_mode` は **RED/GREEN の委譲先のみ制御** する。Plan Review と Code Review は Codex 利用可能なら常時 competitive 実行 (`codex_mode` 値に依存しない)。

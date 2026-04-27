@@ -40,7 +40,11 @@ score=0
 
 if [ -f "$FILES_LIST" ]; then
   # auth/security file changes (+25)
-  if grep -qiE 'auth|security|login|password|session|permission|middleware.*auth|guard' "$FILES_LIST" 2>/dev/null; then
+  # Path-segment-prefix match: keyword が path segment 先頭に現れる場合のみ match
+  # (skill-authoring.md 等の FP を除去しつつ SecurityPolicy.ts / LoginController.php 等の
+  # compound TP を維持。Codex code review cycle 20260424_1356 対応)
+  if grep -qiE '(^|/)(auth|security|login|password|session|permission|guard)' "$FILES_LIST" 2>/dev/null \
+     || grep -qiE 'middleware.*auth' "$FILES_LIST" 2>/dev/null; then
     score=$((score + 25))
   fi
 

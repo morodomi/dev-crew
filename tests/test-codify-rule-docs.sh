@@ -439,6 +439,111 @@ else
   fi
 fi
 
+# TC-20: rules/integration-verification.md — 適用範囲 に「新 rule cycle」literal (0900-1 self-apply)
+echo ""
+echo "TC-20: rules/integration-verification.md 適用範囲 has '新 rule cycle' (0900-1)"
+FILE="$RULES_DIR/integration-verification.md"
+if [ ! -f "$FILE" ]; then
+  fail "TC-20: rules/integration-verification.md does not exist"
+else
+  count=$(section_grep "$FILE" "適用範囲" "新 rule cycle")
+  if [ "$count" -ge 1 ]; then
+    pass "TC-20: 新 rule cycle literal in integration-verification.md 適用範囲"
+  else
+    fail "TC-20: missing '新 rule cycle' in integration-verification.md 適用範囲 (0900-1 未実装)"
+  fi
+fi
+
+# TC-21: rules/test-patterns.md — 推奨 に「section_grep」literal (0900-2 section-specific grep)
+echo ""
+echo "TC-21: rules/test-patterns.md 推奨 has 'section_grep' (0900-2)"
+FILE="$RULES_DIR/test-patterns.md"
+if [ ! -f "$FILE" ]; then
+  fail "TC-21: rules/test-patterns.md does not exist"
+else
+  count=$(section_grep "$FILE" "推奨" "section_grep")
+  if [ "$count" -ge 1 ]; then
+    pass "TC-21: section_grep literal in test-patterns.md 推奨"
+  else
+    fail "TC-21: missing 'section_grep' in test-patterns.md 推奨 (0900-2 未実装)"
+  fi
+fi
+
+# TC-22: rules/plan-discipline.md — 推奨 に「grep -rlF」literal (0900-3 doc sweep)
+echo ""
+echo "TC-22: rules/plan-discipline.md 推奨 has 'grep -rlF' (0900-3)"
+FILE="$RULES_DIR/plan-discipline.md"
+if [ ! -f "$FILE" ]; then
+  fail "TC-22: rules/plan-discipline.md does not exist"
+else
+  count=$(section_grep "$FILE" "推奨" "grep -rlF")
+  if [ "$count" -ge 1 ]; then
+    pass "TC-22: grep -rlF literal in plan-discipline.md 推奨"
+  else
+    fail "TC-22: missing 'grep -rlF' in plan-discipline.md 推奨 (0900-3 未実装)"
+  fi
+fi
+
+# TC-23: rules/plan-discipline.md — 推奨 に「除外 category」literal (1119-1 除外数値明記)
+echo ""
+echo "TC-23: rules/plan-discipline.md 推奨 has '除外 category' (1119-1)"
+FILE="$RULES_DIR/plan-discipline.md"
+if [ ! -f "$FILE" ]; then
+  fail "TC-23: rules/plan-discipline.md does not exist"
+else
+  count=$(section_grep "$FILE" "推奨" "除外 category")
+  if [ "$count" -ge 1 ]; then
+    pass "TC-23: 除外 category literal in plan-discipline.md 推奨"
+  else
+    fail "TC-23: missing '除外 category' in plan-discipline.md 推奨 (1119-1 未実装)"
+  fi
+fi
+
+# TC-24: rules/test-patterns.md — 禁止事項 に「alternation」literal (1119-2 ERE alternation escape)
+echo ""
+echo "TC-24: rules/test-patterns.md 禁止事項 has 'alternation' (1119-2)"
+FILE="$RULES_DIR/test-patterns.md"
+if [ ! -f "$FILE" ]; then
+  fail "TC-24: rules/test-patterns.md does not exist"
+else
+  count=$(section_grep "$FILE" "禁止事項" "alternation")
+  if [ "$count" -ge 1 ]; then
+    pass "TC-24: alternation literal in test-patterns.md 禁止事項"
+  else
+    fail "TC-24: missing 'alternation' in test-patterns.md 禁止事項 (1119-2 未実装)"
+  fi
+fi
+
+# TC-25: skills/review/SKILL.md — Workflow に「git status --short」literal (1119-3 repo-state pre-check)
+echo ""
+echo "TC-25: skills/review/SKILL.md Workflow has 'git status --short' (1119-3)"
+REVIEW_SKILL="$BASE_DIR/skills/review/SKILL.md"
+if [ ! -f "$REVIEW_SKILL" ]; then
+  fail "TC-25: skills/review/SKILL.md does not exist"
+else
+  count=$(section_grep "$REVIEW_SKILL" "Workflow" "git status --short")
+  if [ "$count" -ge 1 ]; then
+    pass "TC-25: git status --short literal in skills/review/SKILL.md Workflow"
+  else
+    fail "TC-25: missing 'git status --short' in skills/review/SKILL.md Workflow (1119-3 未実装)"
+  fi
+fi
+
+# TC-26: skills/codify-insight/reference.md — Recurrence-aware Pre-triage に「Reason-aware」literal (1119-4)
+echo ""
+echo "TC-26: skills/codify-insight/reference.md Recurrence-aware Pre-triage has 'Reason-aware' (1119-4)"
+CODIFY_REF="$BASE_DIR/skills/codify-insight/reference.md"
+if [ ! -f "$CODIFY_REF" ]; then
+  fail "TC-26: skills/codify-insight/reference.md does not exist"
+else
+  count=$(section_grep "$CODIFY_REF" "Recurrence-aware Pre-triage" "Reason-aware")
+  if [ "$count" -ge 1 ]; then
+    pass "TC-26: Reason-aware literal in codify-insight/reference.md Recurrence-aware Pre-triage"
+  else
+    fail "TC-26: missing 'Reason-aware' in codify-insight/reference.md Recurrence-aware Pre-triage (1119-4 未実装)"
+  fi
+fi
+
 # Summary
 echo ""
 echo "=== Summary ==="

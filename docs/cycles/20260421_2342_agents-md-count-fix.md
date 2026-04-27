@@ -1,10 +1,13 @@
 ---
 feature: agents-md-count-fix
+cycle: 20260421_2342
 phase: COMMIT
 complexity: trivial
 risk_level: low
 test_count: 2
 retro_status: resolved
+created: 2026-04-21 23:52
+updated: 2026-04-22 12:59
 ---
 
 # Cycle: AGENTS.md agent count 整合 (eval-3)

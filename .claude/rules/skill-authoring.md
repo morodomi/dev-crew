@@ -2,7 +2,7 @@
 
 SKILL.md のサイズ管理と、skill 間呼び出しの exit contract 設計規律。
 
-## SKILL.md 100 行 hard limit (A2b #1)
+## SKILL.md 100 行 hard limit (cycle 20260420_1752 #1)
 
 SKILL.md は 100 行を超えてはならない (dev-crew quality standard):
 
@@ -17,7 +17,7 @@ wc -l skills/*/SKILL.md | sort -n | grep -v total
 wc -l skills/*/SKILL.md | awk '$1 > 100 && !/total/'
 ```
 
-## Inter-skill Exit Contract (Cycle B #5)
+## Inter-skill Exit Contract (cycle 20260422_1146 #5)
 
 skill が別 skill から invoke される場合、callee SKILL.md に exit code + 副作用を明記する:
 

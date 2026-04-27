@@ -4,11 +4,14 @@ plan 作成・承認・実行における規律。実測ベースの計画、逆
 
 ## 禁止事項
 
-- **未確認での Problem 記述**: 実コードを bash 実行せずに plan の Problem を書かない (eval-1 #1)
-- **narrative な baseline 記述**: 前 cycle 報告を鵜呑みにせず、必ず自分で実測する (eval-4 #2)
-- **逆向きテスト契約の無視**: `grep` が target 存在を要求するテストを見落として文字列を削除しない (eval-4 #1, Cycle B #2)
-- **test count sync の範囲外化**: 新 test file 追加時に STATUS.md の Test Scripts 更新を scope に含めない (eval-4 #4)
-- **pre-existing FAIL の先送り**: 本 cycle で 1 行 fix 可能か確認せずに DISCOVERED へ先送りしない (eval-2 #4)
+- **未確認での Problem 記述**: 実コードを bash 実行せずに plan の Problem を書かない (cycle 20260421_1043 #1)
+- **narrative な baseline 記述**: 前 cycle 報告を鵜呑みにせず、必ず自分で実測する (cycle 20260422_0937 #2)
+- **逆向きテスト契約の無視**: `grep` が target 存在を要求するテストを見落として文字列を削除しない (cycle 20260422_0937 #1, cycle 20260422_1146 #2)
+- **test count sync の範囲外化**: 新 test file 追加時に STATUS.md の Test Scripts 更新を scope に含めない (cycle 20260422_0937 #4)
+- **pre-existing FAIL の先送り**: 本 cycle で 1 行 fix 可能か確認せずに DISCOVERED へ先送りしない (cycle 20260421_1809 #4)
+- **baseline 実測の除外理由不明記**: `grep -c ... rules/*.md` 等で「N 件 (除外)」と書く際、
+  除外 category (例示 / historical reference / etc) と除外根拠 (どの rule に基づくか) を
+  本文に明記しないと、Codex plan review で必ず BLOCK される (cycle 20260424_1119 #1)
 
 ## 推奨
 
@@ -17,9 +20,15 @@ plan 作成・承認・実行における規律。実測ベースの計画、逆
 - plan 時に `grep -rn "<target_value>" tests/` で逆向き契約を検索する (count/state bump 時必須)
 - 新規 test file → STATUS.md の test count 更新を scope checklist に追加する
 - pre-existing FAIL 発見時「本 cycle 1 行 fix 可能？」を必ず確認する
-- `grep -r "<file>" tests/ skills/commit/` で既存 convention の影響範囲を事前洗い出しする (A2b #5)
+- `grep -r "<file>" tests/ skills/commit/` で既存 convention の影響範囲を事前洗い出しする (cycle 20260420_1752 #5)
 - count/status 変更時に `grep -rn "<old-value>" tests/` 実測結果を plan 本文に grep literal として貼付する (自動化 grep literal、cycle 20260422_1313 #1)
 - 「rule 参照済」と「rule 適用済」を区別し、plan review checklist で literal 貼付の有無を検証する (cycle 20260422_1313 #1)
+- 新 rule / concept 導入時は `grep -rlF '<既存概念>' skills/` で影響範囲 sweep を
+  scope に含める。orchestrate の SKILL.md + steps-subagent/teams/codex.md のような
+  DRY 違反の複数 doc 記述を検出 (cycle 20260424_0900 #3)
+- baseline 実測の数値は「含める数 + 除外する数 + 除外 category + 除外根拠 rule 参照」
+  の要素を本文に明記する。単一の "N 件" だけでは plan review で不明瞭扱い
+  (cycle 20260424_1119 #1)
 
 ## 具体例
 

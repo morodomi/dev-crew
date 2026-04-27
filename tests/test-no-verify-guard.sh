@@ -141,18 +141,17 @@ else
 fi
 
 # TC-11
-# Given: hooks/hooks.json が存在する
-# When: post-approve-gate と no-verify-guard の両エントリを検索
-# Then: 両方のエントリが共存している（既存 hook が保護されている）
+# Given: hooks/hooks.json が存在し、post-approve-gate は cycle dc89b17 (v2.6.6) で廃止済
+# When: post-approve-gate / no-verify-guard 両 entry を検索
+# Then: no-verify-guard が存在し、廃止済 post-approve-gate は混入していない
 if [ -f "$HOOKS_JSON" ]; then
-  HAS_GATE=false
-  HAS_GUARD=false
-  grep -q "post-approve-gate" "$HOOKS_JSON" 2>/dev/null && HAS_GATE=true
+  HAS_GUARD=false; HAS_DEPRECATED=false
   grep -q "no-verify-guard" "$HOOKS_JSON" 2>/dev/null && HAS_GUARD=true
-  if [ "$HAS_GATE" = "true" ] && [ "$HAS_GUARD" = "true" ]; then
-    assert_eq "TC-11: hooks.json has both post-approve-gate and no-verify-guard entries" "true" "true"
+  grep -q "post-approve-gate" "$HOOKS_JSON" 2>/dev/null && HAS_DEPRECATED=true
+  if [ "$HAS_GUARD" = "true" ] && [ "$HAS_DEPRECATED" = "false" ]; then
+    assert_eq "TC-11: hooks.json has no-verify-guard, deprecated post-approve-gate absent" "true" "true"
   else
-    assert_eq "TC-11: hooks.json has both post-approve-gate and no-verify-guard entries" "true" "false"
+    assert_eq "TC-11: hooks.json has no-verify-guard, deprecated post-approve-gate absent" "true" "false"
   fi
 else
   echo "FAIL: TC-11: hooks.json not found at $HOOKS_JSON"

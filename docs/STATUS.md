@@ -5,19 +5,20 @@
 | Metric | Value |
 |--------|-------|
 | In-Progress Cycles | 0 |
-| Done (unarchived) | 41 |
+| Done (unarchived) | 42 |
 | Archived Cycles | 37 |
 | Skills | 32 |
 | Agents | 41 |
-| Test Scripts | 109 |
+| Test Scripts | 110 |
 
-Last updated: 2026-04-22
+Last updated: 2026-04-24
 
 ## Completed (Recent)
 
 | Date | Cycle | Type |
 |------|-------|------|
-| 2026-04-22 | eval-3: AGENTS.md agent count 41→40 整合 (pre-existing FAIL 解消, v2.7.0 dogfood 3回目) | fix |
+| 2026-04-24 | 20260424_1119: DISCOVERED 3 項目 debt 解消 (careful allowed-tools + informal alias sweep 5 rule files × 2 mirror = 24 occurrences) | fix |
+| 2026-04-22 | 20260421_2342: AGENTS.md agent count 41→40 整合 (pre-existing FAIL 解消, v2.7.0 dogfood 3回目) | fix |
 | 2026-04-21 | eval-2: sync-plan.md Progress Log Format + cycle.md template INIT→KICKOFF 統一 + TC-14 kickoff word-boundary 修正 (v2.7.0 dogfood) | fix |
 | 2026-04-21 | eval-1: test-doc-consistency.sh TC-02 CONSTITUTION 準拠修正 + meta test 新設 (v2.7.0 dogfood) | fix |
 | 2026-04-21 | v2.7.0 リリース (Agile Loop Step 1: A1+A2a+A2b 統合 + post-commit fixes) | docs |
