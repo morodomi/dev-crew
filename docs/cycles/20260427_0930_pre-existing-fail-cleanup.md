@@ -5,10 +5,10 @@ phase: COMMIT
 complexity: standard
 test_count: 7
 risk_level: low
-retro_status: captured
+retro_status: resolved
 codex_session_id: "019dcc56-067f-7022-a019-3be9ea7718c3"
 created: 2026-04-27 09:26
-updated: 2026-04-27 10:35
+updated: 2026-05-25 10:25
 plan_file: /Users/morodomi/.claude/plans/1-precious-hammock.md
 ---
 
@@ -249,3 +249,31 @@ Files modified: 6 (scope 5 + test-factory-model-adaptation.sh timeout/skip fix)
 - **Final fix**: Cycle doc L50 と L168-170 の 2 箇所を staged code と一致するように同期
 - **Insight**: **collateral fix が複数 phase に渡って累積する場合、各 phase の collateral 増分を個別に記録するのではなく、cumulative state を 1 箇所にまとめる**。GREEN: timeout 30→60、REVIEW: timeout 60→90 のような phased annotation でなく「最終 timeout 90 + skip list 全件」を 1 文で表現。doc-mutations.md "SSOT 即時同期" rule (cycle 20260422_1313 #2) の実用上の含意 — 即時同期は「単発の sync」ではなく「累積状態の毎回 sync」
 - **一般化**: SSOT は時系列の append でなく現在状態の reflection。phase 横断の累積変更は最終状態を記述するのが drift 耐性が高い
+
+## Codify Decisions
+
+autonomous batch triage (cycle 20260525_1025 rule-and-review-synthesis-from-kimi-insight 起動時)。recurrence scan: 全 insight novel (初出) または同 cycle 内のみ recurrence。AskUserQuestion fallback 不要。
+
+### Insight 1
+- **Decision**: deferred
+- **Destination**: new-cycle (rules/plan-discipline.md 拡張)
+- **Reason**: plan-discipline.md の既存「逆向きテスト契約 / 事前 grep」系 (cycle 20260422_1313 #1, 20260423_1045 #2) の test-source 版拡張。「failing test fix plan を書く前に test source 内の `TARGET_FILE=` / `SUBJECT=` / `FILE=` 等を必ず grep 実測」を追記。本 cycle scope 外 (rule-and-review-synthesis-from-kimi-insight)
+- **Decided**: 2026-05-25 10:25
+
+### Insight 2
+- **Decision**: deferred
+- **Destination**: new-cycle (rules/test-patterns.md 拡張)
+- **Reason**: 「deprecated file 不在 assert は `git log --diff-filter=D --name-only -- '<pattern>'` で historical path を実測」を test-patterns.md に追記。file system invariant test の git history source of truth 化。novel pattern (初出) だが pattern が specific で明確、cycle 20260424_1119 Insight 2 (grep -E ERE vs BRE) と同類型の実用知識。本 cycle scope 外
+- **Decided**: 2026-05-25 10:25
+
+### Insight 3
+- **Decision**: deferred
+- **Destination**: new-cycle (rules/test-patterns.md or scripts/gates/pre-commit-gate.sh 拡張)
+- **Reason**: 「`for f in test-*.sh; do bash "$f"; done` pattern を持つ meta-test は cascade timeout を triggers するため、recursive meta-tests を skip list に明示登録」を test-patterns.md に追記、または pre-commit-gate.sh で自動検出 gate 化。cycle 20260424_1356 Insight 4 (baseline sequential 強制) と合流可能。本 cycle scope 外
+- **Decided**: 2026-05-25 10:25
+
+### Insight 4
+- **Decision**: deferred
+- **Destination**: new-cycle (rules/doc-mutations.md 拡張)
+- **Reason**: doc-mutations.md "SSOT 即時同期" rule (cycle 20260422_1313 #2) の実用上の含意拡張。「phase 横断累積変更は最終状態 reflection で記述、phased annotation を避ける」を追記。cycle 20260424_1356 Insight 3 (collateral fix の review-resolution 段階拡張) と合流可能。本 cycle scope 外
+- **Decided**: 2026-05-25 10:25

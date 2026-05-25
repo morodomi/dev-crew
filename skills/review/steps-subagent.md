@@ -124,7 +124,20 @@ PdM は Socrates の反論を踏まえ、Score Escalation 基準（reference.md 
 
 ## Step 5: Score Aggregation
 
-全エージェントの blocking_score を集計（designer はスコア対象外）:
+### Findings Synthesis
+
+Specialist Panel (Step 4) と Socrates (Step 4.5) 完了後、全 reviewer の findings を以下の手順で統合する。**Socrates は raw blocking_score (各 reviewer の個別最大値) を入力に取り、Synthesis は final blocking_score (重複排除後の category 別最大値) を確定する** — 時系列契約として両者を区別する。
+
+1. **重複排除**: 同一 file:line への複数 reviewer 指摘は最も詳細な 1 件に集約。集約元 reviewer 名を併記
+2. **3-category 分類** (`rules/review-triage.md` を SSOT として参照。定義は同 rule の Findings 3-Category Triage 節を verbatim 適用)
+3. **raw finding index 保持**: 重複排除で落とした原 findings を Cycle doc の `## Raw Findings` セクションに append (synthesis 段階で証拠を失わない)
+4. **集計入力**: final blocking_score は accept-apply + accept-defer (高 severity) の最大値で算出。下記 Score Aggregation サブセクションのスコアテーブルは **この final score** を判定基準とする (raw blocking_score ではない)
+
+並列 reviewer (HIGH tier で 7 agents) の出力を単純連結すると synthesis 段階で context overflow する。category 分類 + raw index 保持で「集約後の判断」と「証拠保全」を両立する。
+
+### Score Aggregation
+
+Findings Synthesis 後の **final blocking_score** (重複排除済 + accept-apply/defer の高 severity 最大値) を集計（designer はスコア対象外、reject カテゴリは集計外）:
 
 | 最大スコア | 判定 | アクション |
 |-----------|------|-----------|

@@ -14,6 +14,18 @@ architect や subagent へ委譲する際のプロンプト設計規律。scope 
 - 影響範囲に agents/*.md が含まれる場合は個別ファイル名を列挙する
 - scope が確定したら Files list を verbatim でコピー & paste して伝達する
 
+## 並列起動時の prompt 契約 (3+ subagent fan-out)
+
+3 以上の subagent / reviewer / worker を並列起動する場合、各 prompt に以下を明示する:
+
+- **担当範囲**: この subagent が扱う対象 (ファイル / モジュール / レイヤー)
+- **入力**: 共通 Brief + 担当範囲固有のコンテキスト
+- **出力形式**: 後段で統合可能な構造 (JSON / Markdown table / 固定 schema)
+- **統合キー**: 他 subagent との突合 ID (file path / issue ID / finding category)
+- **検証条件**: subagent 自身が出力前に確認すべき自己検証項目
+
+並列度が上がるほど曖昧な prompt は曖昧な出力を増幅する。単一委譲なら「Files list 全量列挙」で足りるが、N=3+ では統合可能性まで設計する必要がある。
+
 ## 具体例
 
 ```markdown
@@ -33,3 +45,4 @@ plan v3 の Files to Change を全量尊重し、独自判断で追加・削除�
 
 - `docs/cycles/20260420_1752_v2.8-orchestrate-integration.md` Insight 2
 - `docs/cycles/20260421_1809_sync-plan-progress-log-format.md` Insight 1
+- 会話レビュー (2026-05-25): Kimi Agent Swarm 記事の "synthesis bottleneck" 抽象原則 (`## 並列起動時の prompt 契約` の根拠)

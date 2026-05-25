@@ -5,18 +5,19 @@
 | Metric | Value |
 |--------|-------|
 | In-Progress Cycles | 0 |
-| Done (unarchived) | 42 |
+| Done (unarchived) | 43 |
 | Archived Cycles | 37 |
 | Skills | 32 |
 | Agents | 41 |
-| Test Scripts | 110 |
+| Test Scripts | 112 |
 
-Last updated: 2026-04-24
+Last updated: 2026-05-25
 
 ## Completed (Recent)
 
 | Date | Cycle | Type |
 |------|-------|------|
+| 2026-05-25 | 20260525_1249: rule-and-review-synthesis-from-kimi-insight (並列 prompt 契約 + Step 5 Findings Synthesis) | docs |
 | 2026-04-24 | 20260424_1119: DISCOVERED 3 項目 debt 解消 (careful allowed-tools + informal alias sweep 5 rule files × 2 mirror = 24 occurrences) | fix |
 | 2026-04-22 | 20260421_2342: AGENTS.md agent count 41→40 整合 (pre-existing FAIL 解消, v2.7.0 dogfood 3回目) | fix |
 | 2026-04-21 | eval-2: sync-plan.md Progress Log Format + cycle.md template INIT→KICKOFF 統一 + TC-14 kickoff word-boundary 修正 (v2.7.0 dogfood) | fix |
