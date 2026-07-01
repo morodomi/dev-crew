@@ -29,6 +29,7 @@ plan 作成・承認・実行における規律。実測ベースの計画、逆
 - baseline 実測の数値は「含める数 + 除外する数 + 除外 category + 除外根拠 rule 参照」
   の要素を本文に明記する。単一の "N 件" だけでは plan review で不明瞭扱い
   (cycle 20260424_1119 #1)
+- count/status 変更 cycle の GREEN 検証は curated 非回帰リストでなく `grep -rln "<old-value>" tests/` の逆向き契約 sweep 結果を全て実行する。curated リストは検証範囲を恣意的に狭め、test 内に hardcode された逆向き契約（count assertion 等）を見逃す (cycle 20260625_1101 #1、cycle 20260525_1249 #1 が予告)
 
 ## 具体例
 
@@ -53,3 +54,4 @@ grep -rn "107\|Test Scripts" tests/ skills/commit/
 - `docs/cycles/20260422_0937_advisory-terminology-fix.md` Insights 1, 2, 4
 - `docs/cycles/20260422_1146_codify-insight-skill.md` Insight 2
 - cycle 20260422_1313 Insight 1 — 自動化なき規律は破綻する
+- cycle 20260625_1101 #1 — count/status 変更の GREEN 検証は逆向き契約 sweep で全実行（curated リストは hardcode contract を見逃す。実 regression 事例）
