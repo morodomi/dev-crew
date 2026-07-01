@@ -5,10 +5,10 @@ phase: COMMIT
 complexity: standard
 test_count: 4
 risk_level: LOW
-retro_status: captured
+retro_status: resolved
 codex_session_id: "019efc89-e96b-7bc3-9d00-4004e6987657"
 created: 2026-06-25
-updated: 2026-06-25
+updated: 2026-07-01
 ---
 
 # Rules Path Scoping
@@ -229,3 +229,24 @@ Evidence: (orchestrate が自動記入)
 - **Final fix**: `timeout 60 bash "$f"` の per-test wrap で baseline 再取得 → real failure（#135 由来 1件 cascade）と timeout artifact を正しく分離
 - **Insight**: **full-suite baseline は per-test timeout（`timeout 60 bash "$f"`）で個別実行する**。集約メタテストの内部全実行 + 外側単一 timeout の組合せは「どの test が遅い/落ちた」を timeout artifact で誤判定させる
 - **一般化**: cycle 20260525_1249 Insight 2（Block 0 full-suite baseline 必須、#136）の実行手法を具体化。observation 寄り、#136 の follow-up cycle で手法として codify 候補
+
+## Codify Decisions
+
+triage 実施: 2026-07-01（後続 cycle plan-discipline-green-sweep の orchestrate Block 0 codify gate で処理）。
+
+### Insight 1
+- **Decision**: codified
+- **Destination**: rule (`rules/plan-discipline.md` 推奨 + 出典)
+- **Reason**: count/status 変更 cycle の GREEN 検証を逆向き契約 sweep で全実行する規律。recurring（20260525_1249 #1 が予告）かつ実害発生（本 cycle の TC-19 regression）。**後続 cycle plan-discipline-green-sweep で実装中**（本 codify を triggering する cycle）
+- **Decided**: 2026-07-01
+
+### Insight 2
+- **Decision**: no-codify
+- **Reason**: single reviewer の over-claim を competitive review が捕捉する observation。Claude + Codex competitive review は CONSTITUTION / feedback で既に必須運用。rule 化で強制する新規性は薄い（reviewer prompt への「非検出ケース明記」追加は将来 review-triage 改善時に検討）
+- **Decided**: 2026-07-01
+
+### Insight 3
+- **Decision**: deferred
+- **Destination**: new-cycle (#136)
+- **Reason**: full-suite baseline の per-test timeout wrap 手法。cycle 20260525_1249 Insight 2 / issue #136（orchestrate Block 0 baseline step 追加）の実行手法として同 follow-up cycle に統合するのが適切
+- **Decided**: 2026-07-01

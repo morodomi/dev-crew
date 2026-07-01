@@ -544,6 +544,30 @@ else
   fi
 fi
 
+# TC-27: rules/plan-discipline.md — 推奨 に GREEN 検証 sweep literals（curated/GREEN/逆向き契約 or sweep）+ 出典 に 20260625_1101
+echo ""
+echo "TC-27: rules/plan-discipline.md 推奨 has 'GREEN 検証は curated'+'逆向き契約 sweep' phrases + 出典 has '20260625_1101'"
+FILE="$RULES_DIR/plan-discipline.md"
+if [ ! -f "$FILE" ]; then
+  fail "TC-27: rules/plan-discipline.md does not exist"
+else
+  # 新規行にのみ現れる連続句で検査する。単体語 (逆向き契約 / sweep / curated / GREEN) は
+  # 推奨 section の既存項目にも出現し false-pass する (逆向き契約=L4, sweep=L10 既存)。
+  # Codex code review 指摘: 追記行を pin するため contiguous phrase を使う (本 cycle が codify する規律の自己適用)
+  count_green_curated=$(section_grep "$FILE" "推奨" "GREEN 検証は curated")
+  count_gyaku_sweep=$(section_grep "$FILE" "推奨" "逆向き契約 sweep")
+  count_cycle1101=$(section_grep "$FILE" "出典" "20260625_1101")
+  if [ "$count_green_curated" -ge 1 ] && [ "$count_gyaku_sweep" -ge 1 ] && [ "$count_cycle1101" -ge 1 ]; then
+    pass "TC-27: plan-discipline.md 推奨 has 'GREEN 検証は curated'+'逆向き契約 sweep' + 出典 has 20260625_1101"
+  elif [ "$count_green_curated" -lt 1 ]; then
+    fail "TC-27: plan-discipline.md 推奨 section missing 'GREEN 検証は curated' phrase (GREEN sweep 規律)"
+  elif [ "$count_gyaku_sweep" -lt 1 ]; then
+    fail "TC-27: plan-discipline.md 推奨 section missing '逆向き契約 sweep' phrase"
+  else
+    fail "TC-27: plan-discipline.md 出典 section missing '20260625_1101' reference"
+  fi
+fi
+
 # Summary
 echo ""
 echo "=== Summary ==="
