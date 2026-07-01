@@ -1,3 +1,7 @@
+---
+paths:
+  - "skills/**"
+---
 # Skill Authoring — SKILL.md 100 行制約と inter-skill exit contract
 
 SKILL.md のサイズ管理と、skill 間呼び出しの exit contract 設計規律。

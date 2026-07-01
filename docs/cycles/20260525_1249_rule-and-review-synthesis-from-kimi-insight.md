@@ -5,11 +5,11 @@ phase: DONE
 complexity: standard
 test_count: 2
 risk_level: high
-retro_status: captured
+retro_status: resolved
 codex_session_id: "019e5d42-08f5-7833-8c2c-3a99f123e305"
 plan_file: /Users/morodomi/.claude/plans/kind-yawning-gadget.md
 created: 2026-05-25 12:49
-updated: 2026-05-25 14:00
+updated: 2026-06-25
 ---
 
 # rule-and-review-synthesis-from-kimi-insight
@@ -377,3 +377,35 @@ Risk Classification: **HIGH (score 75)** (想定 LOW より上振れ)。HIGH tie
 - **Final fix**: HIGH tier で 5 Claude reviewers + Codex 並列実行 (`rules/review-triage.md` Risk-based Reviewer Scaling 準拠)、frontmatter `risk_level: low → high` 更新 (REVIEW phase で gold-standard を反映)
 - **Insight**: **risk_level は self-declared でなく risk-classifier.sh の結果を採用する**。PdM の想定 (doc-only = LOW) と classifier の判定 (rules/skills 変更 = HIGH) が乖離する場合、classifier 優先で reviewer をスケールする
 - **一般化**: risk-classifier.sh が rules/、skills/、tests/ 変更を HIGH 評価する設計 (decision: docs/cycles/...)。doc-only 想定でも rule/skill 変更は HIGH 扱いを尊重。observation 寄り、no-codify 候補
+
+## Codify Decisions
+
+triage 実施: 2026-06-25（後続 cycle rules-path-scoping の orchestrate Block 0 codify gate で処理）。方針: rule 編集を伴う insight は deferred（無関係 cycle の commit を汚さない）、observation は no-codify。
+
+### Insight 1
+- **Decision**: deferred
+- **Destination**: new-cycle
+- **Reason**: plan Files-list pre-check (test_count > 0 → tests/*.sh 明示 / rules/*.md → canonical + mirror 両方明示)。mirror contract は複数 cycle (20260423_0926, 20260423_1045) で再発する recurring theme であり `plan-discipline.md` への 1 行追加が妥当。ただし rule 編集 = mirror 両コピー + test 更新を伴うため独立 cycle に分離。本 insight は後続 path-scoping cycle の plan で既に手動遵守済み（両 mirror + 新 test を Files list に明示）
+- **Decided**: 2026-06-25
+
+### Insight 2
+- **Decision**: deferred
+- **Destination**: new-cycle (#136)
+- **Reason**: orchestrate Block 0 への full-suite baseline 実測 step 追加。既に DISCOVERED D2 / issue #136 起票済み。orchestrate SKILL.md 改修は独立 cycle
+- **Decided**: 2026-06-25
+
+### Insight 3
+- **Decision**: deferred
+- **Destination**: new-cycle
+- **Reason**: 新 rule cycle は REVIEW phase でも自 rule を dogfood する規律。`integration-verification.md` cycle 20260424_0900 #1 (Verification section self-apply) の REVIEW phase 拡張。rule 編集を伴うため独立 cycle へ
+- **Decided**: 2026-06-25
+
+### Insight 4
+- **Decision**: no-codify
+- **Reason**: plan IMMUTABLE 下で Cycle doc が事実上 plan v2 として機能する運用補完事例。doc-mutations.md 20260422_1146 #4 の暗黙運用で足り、rule 化で強制不要（observation、本人も no-codify 候補と明記）
+- **Decided**: 2026-06-25
+
+### Insight 5
+- **Decision**: no-codify
+- **Reason**: risk_level は risk-classifier.sh 結果を採用する観察。review-triage.md Risk-based Reviewer Scaling で既にカバー済みの運用事例（observation、本人も no-codify 候補と明記）
+- **Decided**: 2026-06-25
