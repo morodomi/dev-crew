@@ -1,6 +1,6 @@
 ---
 name: flask-quality
-description: Flaskプロジェクトの品質チェック。pytest-flask/mypy(strict)/Black/isortを実行。「Flaskの品質チェック」「Flask テスト」「Flaskのテスト実行」「Flask lint」「Flask型チェック」「Flaskフォーマット」で起動。Do NOT use for Django等の他フレームワーク。
+description: Flaskプロジェクトの品質チェック。pytest-flask/mypy(strict)/Black/isortを実行。「Flaskの品質チェック」「Flask テスト」「Flaskのテスト実行」「Flask lint」「Flask型チェック」「Flaskフォーマット」で起動。Do NOT use for Django等の他フレームワーク、汎用Python品質チェック（→ python-quality）。
 allowed-tools: Bash, Read, Grep, Glob
 ---
 

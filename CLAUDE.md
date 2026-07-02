@@ -5,7 +5,7 @@
 ## Claude Code Integration
 
 - plan mode: spec + design consolidated in plan file
-- /compact: phase-compact skill updates Cycle doc before compaction
+- /compact: PreCompact hook (scripts/hooks/pre-compact.sh) persists phase summary before compaction
 
 **Auto-orchestrate after plan approve (Post-Approve Action)**: plan approve後は `/orchestrate` を起動する。orchestrate が sync-plan → plan-review → TDDサイクルを全て管理する。
 
@@ -27,7 +27,7 @@ Codex 不在時は Claude fallback（既存スキルそのまま）。
 
 ## Skills
 
-Available skills (32 total): spec, red, green, refactor, review, commit, orchestrate, strategy, diagnose, parallel, onboard, phase-compact, reload, sync-skills, skill-maker, cycle-retrospective, codify-insight, learn, evolve, security-scan, attack-report, context-review, generate-e2e, security-audit, php-quality, python-quality, ts-quality, js-quality, flask-quality, flutter-quality, hugo-quality, careful
+Available skills (29 total): spec, red, green, refactor, review, commit, orchestrate, diagnose, parallel, onboard, sync-skills, skill-maker, cycle-retrospective, codify-insight, learn, evolve, security-scan, attack-report, context-review, generate-e2e, security-audit, php-quality, python-quality, ts-quality, js-quality, flask-quality, flutter-quality, hugo-quality, careful
 
 - **cycle-retrospective**: TDD サイクル末尾で失敗-成功ペアを抽出する advisory スキル (「retrospective」「振り返り」で起動)
 - **codify-insight**: retrospective insights を既定では自動 triage し、`skill` 候補/低確信時のみ確認する decide gate (「codify」「codify-insight」で起動)
@@ -52,9 +52,8 @@ Phase-boundary compaction:
 
 | Scenario | Mode | Context Management |
 |---------|--------|------------|
-| Task search | plan mode | search-task → strategy |
+| Task search | plan mode | search-task → spec |
 | Small-Medium | plan mode → accept edits on | spec → approve → /orchestrate (sync-plan + plan-review + TDD内包) |
-| Medium + compact | plan mode → accept edits on | phase-compact → /compact → /reload between phases |
 | Large (auto) | plan mode → accept edits on (AGENT_TEAMS=1) | spec → orchestrate (Task() for isolation) |
-| Session resume | accept edits on | /reload → continue from current phase |
+| Session resume | accept edits on | Cycle doc を読み IN_PROGRESS cycle を継続 |
 | auto-learn | accept edits on (DEV_CREW_AUTO_LEARN=1) | auto learn after commit (20+ observations) |

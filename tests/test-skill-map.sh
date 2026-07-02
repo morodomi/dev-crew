@@ -44,15 +44,6 @@ else
   fail "T-03: pre-commit-gate not found"
 fi
 
-# T-04: Given skill-map.md, Then Support Skills テーブルに phase-compact がある
-echo ""
-echo "T-04: skill-map.md has phase-compact in Support Skills"
-if grep -q 'phase-compact' "$SKILL_MAP" 2>/dev/null; then
-  pass "T-04: phase-compact found"
-else
-  fail "T-04: phase-compact not found"
-fi
-
 # T-05: Given skill-map.md, Then CONSTITUTION.md への参照がある
 echo ""
 echo "T-05: skill-map.md references CONSTITUTION.md"

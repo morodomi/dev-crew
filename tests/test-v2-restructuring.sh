@@ -1,7 +1,7 @@
 #!/bin/bash
 # test-v2-restructuring.sh - dev-crew v2 restructuring validation
 # Validates: new agents, risk classifier, unified review, orchestrate flow,
-#            retired agents/skills, strategy skill, commit update
+#            retired agents/skills, commit update
 
 set -euo pipefail
 
@@ -366,62 +366,6 @@ if [ -f "$REVIEW_SKILL" ]; then
   fi
 else
   fail "TC-21: review/SKILL.md not found"
-fi
-
-########################################
-# Step 7: Strategy Skill
-########################################
-
-echo ""
-echo "--- Step 7: Strategy Skill ---"
-
-# TC-22: strategy/SKILL.md exists with required frontmatter
-echo ""
-echo "TC-22: strategy/SKILL.md exists"
-STRATEGY="$BASE_DIR/skills/strategy/SKILL.md"
-if [ -f "$STRATEGY" ]; then
-  name_val=$(get_frontmatter "$STRATEGY" "name")
-  desc_val=$(get_frontmatter "$STRATEGY" "description")
-  if [ "$name_val" = "strategy" ] && [ -n "$desc_val" ]; then
-    pass "TC-22: strategy/SKILL.md has correct frontmatter"
-  else
-    fail "TC-22: strategy/SKILL.md frontmatter incorrect (name='$name_val')"
-  fi
-else
-  fail "TC-22: strategy/SKILL.md not found"
-fi
-
-# TC-23: strategy/SKILL.md under 100 lines
-echo ""
-echo "TC-23: strategy/SKILL.md line count"
-if [ -f "$STRATEGY" ]; then
-  line_count=$(wc -l < "$STRATEGY" | tr -d ' ')
-  if [ "$line_count" -le 100 ]; then
-    pass "TC-23: strategy/SKILL.md: $line_count lines (max 100)"
-  else
-    fail "TC-23: strategy/SKILL.md: $line_count lines (max 100)"
-  fi
-else
-  fail "TC-23: strategy/SKILL.md not found"
-fi
-
-# TC-24: strategy/SKILL.md covers research + design + issue creation
-echo ""
-echo "TC-24: strategy/SKILL.md workflow"
-if [ -f "$STRATEGY" ]; then
-  research_ok=false
-  design_ok=false
-  issue_ok=false
-  grep -qi "research\|リサーチ\|調査" "$STRATEGY" && research_ok=true
-  grep -qi "design\|設計\|アーキテクチャ" "$STRATEGY" && design_ok=true
-  grep -qi "issue\|チケット" "$STRATEGY" && issue_ok=true
-  if $research_ok && $design_ok && $issue_ok; then
-    pass "TC-24: strategy/SKILL.md covers research, design, and issue creation"
-  else
-    fail "TC-24: strategy missing: research=$research_ok, design=$design_ok, issue=$issue_ok"
-  fi
-else
-  fail "TC-24: strategy/SKILL.md not found"
 fi
 
 ########################################

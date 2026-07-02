@@ -124,24 +124,6 @@ else
   pass "terminology.md does not contain /simplify"
 fi
 
-# TC-11: reload/SKILL.md does NOT contain /simplify
-echo ""
-echo "TC-11: reload/SKILL.md does NOT contain /simplify"
-if grep -q '/simplify' "$BASE_DIR/skills/reload/SKILL.md"; then
-  fail "reload/SKILL.md still contains /simplify"
-else
-  pass "reload/SKILL.md does not contain /simplify"
-fi
-
-# TC-12: reload/reference.md does NOT contain /simplify
-echo ""
-echo "TC-12: reload/reference.md does NOT contain /simplify"
-if grep -q '/simplify' "$BASE_DIR/skills/reload/reference.md"; then
-  fail "reload/reference.md still contains /simplify"
-else
-  pass "reload/reference.md does not contain /simplify"
-fi
-
 # TC-13: cycle.md template does NOT contain /simplify
 echo ""
 echo "TC-13: cycle.md template does NOT contain /simplify"

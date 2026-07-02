@@ -1,6 +1,6 @@
 ---
 name: context-review
-description: security-scan結果の曖昧な項目をユーザーに質問して確認する対話型レビュー。認証要否・エラー処理・データ露出・ビジネスロジックを選択肢形式で1問ずつ確認し、excluded/confirmed/needs_reviewに分類。「コンテキストレビュー」「context review」「誤検知を確認」「スキャン結果を確認したい」で起動。Do NOT use for 明確な誤検知除外（→ false-positive-filter）。
+description: security-scan結果の曖昧な項目をユーザーに質問して確認する対話型レビュー。認証要否・エラー処理・データ露出・ビジネスロジックを選択肢形式で1問ずつ確認し、excluded/confirmed/needs_reviewに分類。「コンテキストレビュー」「context review」「誤検知を確認」「スキャン結果を確認したい」で起動。Do NOT use for 明確な誤検知の自動除外（false-positive-filter agent が担当、ユーザー起動不可）。
 allowed-tools: Read, Write, AskUserQuestion
 ---
 

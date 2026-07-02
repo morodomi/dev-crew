@@ -5,10 +5,10 @@ phase: COMMIT
 complexity: simple
 test_count: 1
 risk_level: LOW
-retro_status: captured
+retro_status: resolved
 codex_session_id: "019f1b7c-a332-7493-a31c-384e3e05a4b0"
 created: 2026-07-01 11:21
-updated: 2026-07-01 11:21
+updated: 2026-07-02 12:00
 ---
 
 # Plan Discipline — GREEN 検証 sweep ルール codify
@@ -215,3 +215,30 @@ Evidence: (orchestrate が自動記入)
 
 ### メタパターン注記（codify 候補として強調）
 Codex competitive review が **3 cycle 連続で test-false-pass 級 BLOCK/regression を検出**: 20260625_1101 (TC-04 body drift + TC-19 count hardcode)、本 cycle (TC-27 単体語 false-pass)。RED test が「契約を pin するか」を書き手が adversarial に自己検証していない systemic gap を示唆。RED phase に「新規 test は fixture/ロジックで false-pass 不在を証明する」step を追加する higher-order codify 候補（Insight 1/2 を包含）
+
+## Codify Decisions
+
+triage 実施: 2026-07-02（後続 cycle skill-inventory-cleanup の orchestrate Block 0 codify gate で処理）。Recurrence pre-triage: test-false-pass 級 BLOCK が 3 cycle 連続（20260625_1101 / 本 cycle / 20260421_2342）で再発 2+ 該当。
+
+### Insight 1
+- **Decision**: codified
+- **Destination**: rule (rules/test-patterns.md + .claude/rules/ mirror)
+- **Reason**: 再発 2+ で promotion 確定（pre-triage 自動）。「追記検査 test は追記内容にのみ現れる contiguous phrase を literal にする」を test-patterns.md に追記。実装は次 cycle（20260525_1249 precedent: rule 編集を伴う insight は無関係 cycle の commit を汚さない）
+- **Decided**: 2026-07-02 12:00
+
+### Insight 2
+- **Decision**: codified
+- **Destination**: rule (rules/test-patterns.md + .claude/rules/ mirror、Insight 1 と同一節)
+- **Reason**: Insight 1 の予防手順（literal 採用前に section 内 pre-existing count=0 を実測）。同一 rule 節に統合して追記。実装は次 cycle（同上）
+- **Decided**: 2026-07-02 12:00
+
+### Insight 3
+- **Decision**: no-codify
+- **Reason**: 成功事例の observation。integration-verification.md 既存規律（self-apply dogfood）の追認であり新規 rule 化不要
+- **Decided**: 2026-07-02 12:00
+
+### Insight 4（Retrospective 補遺 メタパターン）
+- **Decision**: deferred
+- **Destination**: new-cycle
+- **Reason**: RED phase への「新規 test の false-pass 不在を自己証明する step」追加は red スキル変更を伴う skill 候補。ユーザー確認で deferred: new-cycle を選択。Insight 1/2 の rule 化で当面の防御は確保
+- **Decided**: 2026-07-02 12:00

@@ -7,16 +7,17 @@
 | In-Progress Cycles | 0 |
 | Done (unarchived) | 43 |
 | Archived Cycles | 37 |
-| Skills | 32 |
+| Skills | 29 |
 | Agents | 41 |
-| Test Scripts | 113 |
+| Test Scripts | 112 |
 
-Last updated: 2026-06-25
+Last updated: 2026-07-02
 
 ## Completed (Recent)
 
 | Date | Cycle | Type |
 |------|-------|------|
+| 2026-07-02 | 20260702_1200: skill-inventory-cleanup (phase-compact/reload/strategy 3スキル削除 + quality description 先鋭化) | chore |
 | 2026-05-25 | 20260525_1249: rule-and-review-synthesis-from-kimi-insight (並列 prompt 契約 + Step 5 Findings Synthesis) | docs |
 | 2026-04-24 | 20260424_1119: DISCOVERED 3 項目 debt 解消 (careful allowed-tools + informal alias sweep 5 rule files × 2 mirror = 24 occurrences) | fix |
 | 2026-04-22 | 20260421_2342: AGENTS.md agent count 41→40 整合 (pre-existing FAIL 解消, v2.7.0 dogfood 3回目) | fix |

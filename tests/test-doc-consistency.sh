@@ -1,6 +1,6 @@
 #!/bin/bash
 # test-doc-consistency.sh - Document consistency validation
-# TC-01 ~ TC-13
+# TC-01 ~ TC-15（欠番: 03, 06-10 — 削除済みTC）
 
 set -euo pipefail
 
@@ -52,15 +52,6 @@ fi
 echo ""
 echo "--- Missing Skill Listings ---"
 
-# TC-03: README.md lists "reload"
-echo ""
-echo "TC-03: README.md lists 'reload'"
-if grep -q "reload" "$BASE_DIR/README.md"; then
-  pass "README.md lists reload"
-else
-  fail "README.md does not list reload"
-fi
-
 # TC-04: README.md lists "skill-maker"
 echo ""
 echo "TC-04: README.md lists 'skill-maker'"
@@ -85,40 +76,6 @@ fi
 
 echo ""
 echo "--- Content Accuracy ---"
-
-# TC-09: architecture.md Session Continuity mentions "reload"
-echo ""
-echo "TC-09: architecture.md Session Continuity mentions 'reload'"
-# Check in the Session Continuity section (after the heading, before next ##)
-in_section=false
-found=false
-while IFS= read -r line; do
-  if echo "$line" | grep -q "## Session Continuity"; then
-    in_section=true
-    continue
-  fi
-  if $in_section && echo "$line" | grep -qE "^## [^#]" ; then
-    break
-  fi
-  if $in_section && echo "$line" | grep -q "reload"; then
-    found=true
-    break
-  fi
-done < "$BASE_DIR/docs/architecture.md"
-if $found; then
-  pass "architecture.md Session Continuity mentions reload"
-else
-  fail "architecture.md Session Continuity does not mention reload"
-fi
-
-# TC-10: phase-compact SKILL.md does NOT claim "orchestrateスキルから自動呼び出し"
-echo ""
-echo "TC-10: phase-compact SKILL.md does NOT claim 'orchestrateスキルから自動呼び出し'"
-if grep -q "orchestrateスキルから自動呼び出し" "$BASE_DIR/skills/phase-compact/SKILL.md"; then
-  fail "phase-compact SKILL.md still claims 'orchestrateスキルから自動呼び出し'"
-else
-  pass "phase-compact SKILL.md does not claim auto-invocation from orchestrate"
-fi
 
 # TC-11: sync-plan.md or archive has test category content
 echo ""

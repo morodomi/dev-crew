@@ -7,7 +7,6 @@
 
 | Phase | Skill/Gate | Primary | Fallback | Notes |
 |-------|-----------|---------|----------|-------|
-| 企画 | strategy | Claude | - | |
 | 設計 | spec | Claude | - | 曖昧性検出内蔵 |
 | plan review | review --plan | Codex | Claude | competitive |
 | Cycle doc生成 | sync-plan | Claude | - | agent |
@@ -24,8 +23,6 @@
 
 | Category | Skill | Purpose |
 |----------|-------|---------|
-| Context | phase-compact | Phase境界でCycle docに永続化 |
-| Context | reload | compact後のコンテキスト復元 |
 | Orchestration | orchestrate | TDDサイクル全体の自律管理 |
 | Diagnostic | diagnose | 複雑なバグの並列仮説調査 |
 | Diagnostic | parallel | クロスレイヤー並列開発 |

@@ -1,5 +1,5 @@
 #!/bin/bash
-# test-orchestrate-compact.sh - orchestrate phase-compact integration validation
+# test-orchestrate-compact.sh - orchestrate Phase Summary persistence validation
 # TC-01 ~ TC-14
 
 set -euo pipefail
@@ -21,7 +21,7 @@ between_sections() {
   awk "/$start/,/$end/" "$file" | grep -q "$search"
 }
 
-echo "=== Orchestrate Phase-Compact Integration Tests ==="
+echo "=== Orchestrate Phase Summary Persistence Tests ==="
 
 ########################################
 # steps-teams.md: Phase Summary persistence
