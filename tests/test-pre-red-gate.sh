@@ -177,6 +177,112 @@ else
   fail "Expected BLOCK (exit 1) on no-frontmatter doc, got rc=$rc output: $output"
 fi
 
+########################################
+# $1 polymorphic selection contract (T-08 ~ T-09)
+# Each TC uses an isolated fixture subdirectory under $TMPDIR
+########################################
+
+# T-08: Given multiple non-DONE Cycle docs (old: updated 早い + sync-plan/Plan Review
+# 完了 = 単独なら PASS 条件充足, new: updated 遅い + Plan Review 未完了),
+# When gate をディレクトリモードで実行, Then updated 最新の new doc が選択され
+# Plan Review 未完了で BLOCK する（現行実装は glob 先頭の old を選び PASS するため
+# FAIL = RED）
+echo ""
+echo "T-08: dir mode selects latest-updated non-DONE doc (new) over old"
+
+FIXTURE_T08="$TMPDIR/t08"
+mkdir -p "$FIXTURE_T08/docs/cycles"
+
+cat > "$FIXTURE_T08/docs/cycles/20260101_0000_old.md" <<'CYCLE'
+---
+phase: RED
+updated: 2026-01-02 10:00
+---
+# Old cycle
+
+## Progress Log
+
+### 2026-01-01 00:00 - SYNC-PLAN
+- Cycle doc generated
+- Phase completed
+
+### 2026-01-01 00:00 - Plan Review
+- Design review passed
+- Phase completed
+CYCLE
+
+cat > "$FIXTURE_T08/docs/cycles/20260601_0000_new.md" <<'CYCLE'
+---
+phase: SPEC
+updated: 2026-06-02 10:00
+---
+# New cycle
+
+## Progress Log
+
+### 2026-06-01 00:00 - SYNC-PLAN
+- Cycle doc generated
+- Phase completed
+CYCLE
+
+output_t08=$(bash "$SCRIPT" "$FIXTURE_T08" 2>&1) && rc_t08=$? || rc_t08=$?
+if [ "$rc_t08" -eq 1 ]; then
+  pass "T-08: dir mode selects newest-updated doc (new) and BLOCKs on missing Plan Review (rc=$rc_t08)"
+else
+  fail "T-08: expected BLOCK (rc=1) selecting new doc, got rc=$rc_t08 output: $output_t08"
+fi
+
+# T-09: Given 明示指定モード ($1 = 直接 doc パス), When 新 doc パスを指定,
+# Then その doc のみ検査され BLOCK。When old doc パスを指定, Then PASS
+# （現行実装は $1 をディレクトリ扱いするため両方 BLOCK になり old=PASS の期待が
+# 崩れるため FAIL = RED）
+echo ""
+echo "T-09: explicit \$1 doc path mode inspects only the specified doc"
+
+FIXTURE_T09="$TMPDIR/t09"
+mkdir -p "$FIXTURE_T09/docs/cycles"
+
+cat > "$FIXTURE_T09/docs/cycles/20260101_0000_old.md" <<'CYCLE'
+---
+phase: RED
+updated: 2026-01-02 10:00
+---
+# Old cycle
+
+## Progress Log
+
+### 2026-01-01 00:00 - SYNC-PLAN
+- Cycle doc generated
+- Phase completed
+
+### 2026-01-01 00:00 - Plan Review
+- Design review passed
+- Phase completed
+CYCLE
+
+cat > "$FIXTURE_T09/docs/cycles/20260601_0000_new.md" <<'CYCLE'
+---
+phase: SPEC
+updated: 2026-06-02 10:00
+---
+# New cycle
+
+## Progress Log
+
+### 2026-06-01 00:00 - SYNC-PLAN
+- Cycle doc generated
+- Phase completed
+CYCLE
+
+output_t09a=$(bash "$SCRIPT" "$FIXTURE_T09/docs/cycles/20260601_0000_new.md" 2>&1) && rc_t09a=$? || rc_t09a=$?
+output_t09b=$(bash "$SCRIPT" "$FIXTURE_T09/docs/cycles/20260101_0000_old.md" 2>&1) && rc_t09b=$? || rc_t09b=$?
+
+if [ "$rc_t09a" -eq 1 ] && [ "$rc_t09b" -eq 0 ]; then
+  pass "T-09: explicit new doc BLOCKs (rc=$rc_t09a), explicit old doc PASSes (rc=$rc_t09b)"
+else
+  fail "T-09: expected new=BLOCK(1)/old=PASS(0), got new rc=$rc_t09a output: $output_t09a / old rc=$rc_t09b output: $output_t09b"
+fi
+
 # Summary
 echo ""
 echo "=== Summary ==="

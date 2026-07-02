@@ -21,22 +21,57 @@
 
 set -euo pipefail
 
-PROJECT_ROOT="${1:-.}"
-
-# Find active Cycle doc (skip docs without phase field)
+ARG="${1:-.}"
+PROJECT_ROOT="."
 ACTIVE_CYCLE=""
-for f in "$PROJECT_ROOT"/docs/cycles/*.md; do
-  [ -f "$f" ] || continue
-  phase=$(awk '/^---$/{c++;next} c==1{print}' "$f" | grep '^phase:' | head -1 | sed 's/^phase: *//' || true)
-  [ -z "$phase" ] && continue  # Skip docs without phase field (old format / no frontmatter)
-  if [ "$phase" != "DONE" ]; then
-    ACTIVE_CYCLE="$f"
-    break
-  fi
-done
 
-if [ -z "$ACTIVE_CYCLE" ]; then
-  echo "BLOCK: No active Cycle doc found."
+# $1 is polymorphic: a `.md` file path selects that doc explicitly; a directory
+# falls back to picking the updated-latest non-DONE doc; anything else is rejected.
+if [ -f "$ARG" ] && case "$ARG" in *.md) true;; *) false;; esac; then
+  # Explicit mode: inspect only the given doc (enumerate-and-reject on bad state)
+  ACTIVE_CYCLE="$ARG"
+  # Normalize to absolute path (no realpath dependency) so the docs/cycles/
+  # containment check can't be bypassed via relative-path tricks.
+  ARG_ABS="$(cd "$(dirname "$ACTIVE_CYCLE")" && pwd)/$(basename "$ACTIVE_CYCLE")"
+  case "$ARG_ABS" in
+    */docs/cycles/*.md) : ;;
+    *) echo "BLOCK: cycle doc must reside under docs/cycles/ (got: $ARG)"; exit 1 ;;
+  esac
+  phase=$(awk '/^---$/{c++;next} c==1{print}' "$ACTIVE_CYCLE" | grep '^phase:' | head -1 | sed 's/^phase: *//' || true)
+  if [ -z "$phase" ]; then
+    echo "BLOCK: invalid cycle doc '$ACTIVE_CYCLE' (no phase field)"
+    exit 1
+  fi
+  if [ "$phase" = "DONE" ]; then
+    echo "BLOCK: cycle doc '$ACTIVE_CYCLE' is already DONE"
+    exit 1
+  fi
+  PROJECT_ROOT=$(dirname "$(dirname "$(dirname "$ARG_ABS")")")
+  echo "Active Cycle: $ACTIVE_CYCLE"
+elif [ -d "$ARG" ]; then
+  # Directory mode: fall back to updated-latest non-DONE doc (manual / legacy use)
+  PROJECT_ROOT="$ARG"
+  candidates=""
+  for f in "$PROJECT_ROOT"/docs/cycles/*.md; do
+    [ -f "$f" ] || continue
+    phase=$(awk '/^---$/{c++;next} c==1{print}' "$f" | grep '^phase:' | head -1 | sed 's/^phase: *//' || true)
+    [ -z "$phase" ] && continue  # Skip docs without phase field (old format / no frontmatter)
+    [ "$phase" = "DONE" ] && continue
+    updated=$(awk '/^---$/{c++;next} c==1{print}' "$f" | grep '^updated:' | head -1 | sed 's/^updated: *//' | tr 'T' ' ' || true)
+    [ -z "$updated" ] && updated="0000-00-00"
+    # ISO-T normalized to space so ISO-T and space-separated updated values
+    # compare consistently. Full-line lexicographic compare (no field-splitting
+    # sort -k) keeps the tie-break deterministic.
+    candidates="${candidates}${updated}"$'\t'"${f}"$'\n'
+  done
+  ACTIVE_CYCLE=$(printf '%s' "$candidates" | sort | tail -1 | cut -f2)
+  if [ -z "$ACTIVE_CYCLE" ]; then
+    echo "BLOCK: No active Cycle doc found."
+    exit 1
+  fi
+  echo "Active Cycle: $ACTIVE_CYCLE"
+else
+  echo "BLOCK: invalid argument '$ARG' (expected project root dir or cycle doc .md path)"
   exit 1
 fi
 
