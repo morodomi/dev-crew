@@ -699,6 +699,116 @@ else
   fi
 fi
 
+# TC-34: rules/test-patterns.md — 推奨 に「変数に受けて」「process substitution」+ 出典 に 20260703_1215
+echo ""
+echo "TC-34: rules/test-patterns.md 推奨 has '変数に受けて'+'process substitution' + 出典 has '20260703_1215'"
+FILE="$RULES_DIR/test-patterns.md"
+if [ ! -f "$FILE" ]; then
+  fail "TC-34: rules/test-patterns.md does not exist"
+else
+  count_hensuu=$(section_grep "$FILE" "推奨" "変数に受けて")
+  count_procsub=$(section_grep "$FILE" "推奨" "process substitution")
+  count_cycle1215=$(section_grep "$FILE" "出典" "20260703_1215")
+  if [ "$count_hensuu" -ge 1 ] && [ "$count_procsub" -ge 1 ] && [ "$count_cycle1215" -ge 1 ]; then
+    pass "TC-34: test-patterns.md 推奨 has 変数に受けて + process substitution + 出典 has 20260703_1215"
+  elif [ "$count_hensuu" -lt 1 ]; then
+    fail "TC-34: test-patterns.md 推奨 section missing '変数に受けて'"
+  elif [ "$count_procsub" -lt 1 ]; then
+    fail "TC-34: test-patterns.md 推奨 section missing 'process substitution'"
+  else
+    fail "TC-34: test-patterns.md 出典 section missing '20260703_1215' reference"
+  fi
+fi
+
+# TC-35: rules/plan-discipline.md — 推奨 に「自動契約に昇格」「2-strike」+ 出典 に 20260703_1215
+echo ""
+echo "TC-35: rules/plan-discipline.md 推奨 has '自動契約に昇格'+'2-strike' + 出典 has '20260703_1215'"
+FILE="$RULES_DIR/plan-discipline.md"
+if [ ! -f "$FILE" ]; then
+  fail "TC-35: rules/plan-discipline.md does not exist"
+else
+  count_shoukaku=$(section_grep "$FILE" "推奨" "自動契約に昇格")
+  count_2strike=$(section_grep "$FILE" "推奨" "2-strike")
+  count_cycle1215=$(section_grep "$FILE" "出典" "20260703_1215")
+  if [ "$count_shoukaku" -ge 1 ] && [ "$count_2strike" -ge 1 ] && [ "$count_cycle1215" -ge 1 ]; then
+    pass "TC-35: plan-discipline.md 推奨 has 自動契約に昇格 + 2-strike + 出典 has 20260703_1215"
+  elif [ "$count_shoukaku" -lt 1 ]; then
+    fail "TC-35: plan-discipline.md 推奨 section missing '自動契約に昇格'"
+  elif [ "$count_2strike" -lt 1 ]; then
+    fail "TC-35: plan-discipline.md 推奨 section missing '2-strike'"
+  else
+    fail "TC-35: plan-discipline.md 出典 section missing '20260703_1215' reference"
+  fi
+fi
+
+# TC-36: rules/integration-verification.md — 適用範囲 (H2、H3「新 rule cycle への self-apply」を包含) に
+# 「全成果物」「checklist 適用」+ 出典 に 20260703_1215
+echo ""
+echo "TC-36: rules/integration-verification.md 適用範囲 has '全成果物'+'checklist 適用' + 出典 has '20260703_1215'"
+FILE="$RULES_DIR/integration-verification.md"
+if [ ! -f "$FILE" ]; then
+  fail "TC-36: rules/integration-verification.md does not exist"
+else
+  count_zenseika=$(section_grep "$FILE" "適用範囲" "全成果物")
+  count_checklist=$(section_grep "$FILE" "適用範囲" "checklist 適用")
+  count_cycle1215=$(section_grep "$FILE" "出典" "20260703_1215")
+  if [ "$count_zenseika" -ge 1 ] && [ "$count_checklist" -ge 1 ] && [ "$count_cycle1215" -ge 1 ]; then
+    pass "TC-36: integration-verification.md 適用範囲 has 全成果物 + checklist 適用 + 出典 has 20260703_1215"
+  elif [ "$count_zenseika" -lt 1 ]; then
+    fail "TC-36: integration-verification.md 適用範囲 section missing '全成果物'"
+  elif [ "$count_checklist" -lt 1 ]; then
+    fail "TC-36: integration-verification.md 適用範囲 section missing 'checklist 適用'"
+  else
+    fail "TC-36: integration-verification.md 出典 section missing '20260703_1215' reference"
+  fi
+fi
+
+# TC-37: rules/agent-prompts.md — 並列起動時の prompt 契約 に「委譲 prompt」「テンプレートを疑」+ 出典 に 20260703_1650
+# section_grep のheading matchはawkの正規表現なので括弧付き見出し
+# "並列起動時の prompt 契約 (3+ subagent fan-out)" は match しない（実測確認済み）。
+# 括弧を含まない前方一致部分のみ渡す
+echo ""
+echo "TC-37: rules/agent-prompts.md 並列起動時の prompt 契約 has '委譲 prompt'+'テンプレートを疑' + 出典 has '20260703_1650'"
+FILE="$RULES_DIR/agent-prompts.md"
+if [ ! -f "$FILE" ]; then
+  fail "TC-37: rules/agent-prompts.md does not exist"
+else
+  count_itaku=$(section_grep "$FILE" "並列起動時の prompt 契約" "委譲 prompt")
+  count_utagau=$(section_grep "$FILE" "並列起動時の prompt 契約" "テンプレートを疑")
+  count_cycle1650=$(section_grep "$FILE" "出典" "20260703_1650")
+  if [ "$count_itaku" -ge 1 ] && [ "$count_utagau" -ge 1 ] && [ "$count_cycle1650" -ge 1 ]; then
+    pass "TC-37: agent-prompts.md 並列起動時の prompt 契約 has 委譲 prompt + テンプレートを疑 + 出典 has 20260703_1650"
+  elif [ "$count_itaku" -lt 1 ]; then
+    fail "TC-37: agent-prompts.md 並列起動時の prompt 契約 section missing '委譲 prompt'"
+  elif [ "$count_utagau" -lt 1 ]; then
+    fail "TC-37: agent-prompts.md 並列起動時の prompt 契約 section missing 'テンプレートを疑'"
+  else
+    fail "TC-37: agent-prompts.md 出典 section missing '20260703_1650' reference"
+  fi
+fi
+
+# TC-38: rules/doc-mutations.md — SSOT 即時同期 に「実行した主体」「Test List 遷移」+ 出典 に 20260703_1650
+# TC-37 と同じ理由で、見出しの括弧付き補足部分は section_grep に渡さない
+echo ""
+echo "TC-38: rules/doc-mutations.md SSOT 即時同期 has '実行した主体'+'Test List 遷移' + 出典 has '20260703_1650'"
+FILE="$RULES_DIR/doc-mutations.md"
+if [ ! -f "$FILE" ]; then
+  fail "TC-38: rules/doc-mutations.md does not exist"
+else
+  count_shutai=$(section_grep "$FILE" "SSOT 即時同期" "実行した主体")
+  count_iko=$(section_grep "$FILE" "SSOT 即時同期" "Test List 遷移")
+  count_cycle1650=$(section_grep "$FILE" "出典" "20260703_1650")
+  if [ "$count_shutai" -ge 1 ] && [ "$count_iko" -ge 1 ] && [ "$count_cycle1650" -ge 1 ]; then
+    pass "TC-38: doc-mutations.md SSOT 即時同期 has 実行した主体 + Test List 遷移 + 出典 has 20260703_1650"
+  elif [ "$count_shutai" -lt 1 ]; then
+    fail "TC-38: doc-mutations.md SSOT 即時同期 section missing '実行した主体'"
+  elif [ "$count_iko" -lt 1 ]; then
+    fail "TC-38: doc-mutations.md SSOT 即時同期 section missing 'Test List 遷移'"
+  else
+    fail "TC-38: doc-mutations.md 出典 section missing '20260703_1650' reference"
+  fi
+fi
+
 # Summary
 echo ""
 echo "=== Summary ==="

@@ -157,7 +157,7 @@ regression_fail=0
 for test_file in "$BASE_DIR"/tests/test-*.sh; do
   [ -f "$test_file" ] || continue
   test_name=$(basename "$test_file")
-  # Skip self and known recursive / slow tests (cascade timeout 対応、cycle 20260427_0930)
+  # Skip self and known recursive / slow tests (cascade timeout 対応)
   [ "$test_name" = "test-factory-model-adaptation.sh" ] && continue
   [ "$test_name" = "test-doc-consistency.sh" ] && continue
   [ "$test_name" = "test-meta-doc-consistency.sh" ] && continue

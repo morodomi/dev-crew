@@ -178,6 +178,48 @@ else
 fi
 
 ########################################
+# Tracking Label Inverse Contract (追跡ラベル自動契約)
+########################################
+
+echo ""
+echo "--- Tracking Label Inverse Contract ---"
+
+# TC-17: tests/*.sh のコメント行に追跡番号ラベル（cycle 番号 / issue 番号）が混入していないことを
+# 保証する逆向き契約。委譲 prompt テンプレート由来で 3 cycle 連続再発した違反
+# (rules/plan-discipline.md 2-strike rule の初適用対象) を自動契約に昇格する。
+# 対象ファイル一覧を配列に受けて件数を直後検査する（glob 失敗が空ループで
+# 黙って 0 件 PASS になるのを防ぐ、rules/test-patterns.md 準拠）。
+# nullglob を一時的に有効化し、no-match 時に glob パターンの literal 文字列が
+# 配列に残ってしまう bash デフォルト挙動を避ける（TEST_FILE_COUNT を実効的に 0 にする）。
+# grep 結果も変数受け + rc 直後検査し、rc>=2（grep 自体のエラー）を
+# 0 件 PASS に紛れ込ませない（process substitution ではなく command substitution で受ける）。
+echo ""
+echo "TC-17: tests/*.sh comment lines have 0 tracking-label hits (cycle NNNNNNNN / issue #N)"
+TRACKING_LABEL_PATTERN='^[[:space:]]*#.*(cycle[: (]+2026[0-9]{4}|issue #[0-9]+)'
+shopt -s nullglob
+TEST_FILES=("$BASE_DIR"/tests/*.sh)
+shopt -u nullglob
+TEST_FILE_COUNT=${#TEST_FILES[@]}
+if [ "$TEST_FILE_COUNT" -eq 0 ]; then
+  fail "TC-17: tests/*.sh glob matched 0 files — glob likely failed, cannot verify inverse contract"
+else
+  # grep rc=1 (no match, the expected post-GREEN state) must not trip `set -e` and
+  # silently abort the whole subject script — capture rc via `||` instead of a bare
+  # $(...) assignment (rules/test-patterns.md 変数に受けて + rc 直後検査 の self-apply)
+  LABEL_HITS_RC=0
+  LABEL_HITS=$(grep -nEi "$TRACKING_LABEL_PATTERN" "${TEST_FILES[@]}" 2>/dev/null) || LABEL_HITS_RC=$?
+  if [ "$LABEL_HITS_RC" -ge 2 ]; then
+    fail "TC-17: grep failed with rc=$LABEL_HITS_RC (not a clean match/no-match) — cannot verify inverse contract"
+  elif [ "$LABEL_HITS_RC" -eq 1 ]; then
+    pass "TC-17: No tracking-label hits in tests/*.sh comment lines ($TEST_FILE_COUNT files checked)"
+  else
+    HIT_COUNT=$(echo "$LABEL_HITS" | grep -c . || true)
+    fail "TC-17: $HIT_COUNT tracking-label hit(s) found in tests/*.sh comment lines"
+    echo "$LABEL_HITS"
+  fi
+fi
+
+########################################
 # Regression
 ########################################
 

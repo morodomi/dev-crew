@@ -28,6 +28,8 @@ architect や subagent へ委譲する際のプロンプト設計規律。scope 
 
 「読み取り並列・実行直列」の原則（テストを実行するプロセスは tree 書き込み・他のテスト実行と直列化）を守り、各並列 prompt に「テスト実行可否」（full suite / 個別 / 禁止）を明示する (cycle 20260702_1200 #2)。
 
+同じ規約違反が複数 worker で再発する場合、原因は worker ではなく委譲 prompt の共通テンプレートにある。違反除去と同時に指示テンプレートを疑い grep 監査する (cycle 20260703_1650 #1)。
+
 ## 具体例
 
 ```markdown
@@ -49,3 +51,4 @@ plan v3 の Files to Change を全量尊重し、独自判断で追加・削除�
 - `docs/cycles/20260421_1809_sync-plan-progress-log-format.md` Insight 1
 - 会話レビュー (2026-05-25): Kimi Agent Swarm 記事の "synthesis bottleneck" 抽象原則 (`## 並列起動時の prompt 契約` の根拠)
 - cycle 20260702_1200 #2
+- cycle 20260703_1650 #1 — 再発違反の原因は委譲 prompt テンプレート

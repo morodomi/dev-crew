@@ -1,6 +1,5 @@
 #!/bin/bash
 # test-skill-maker.sh - skill-maker skill validation
-# Cycle: 20260215_1500_skill-maker
 # TC-01 to TC-16
 
 set -uo pipefail
