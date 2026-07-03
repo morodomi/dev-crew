@@ -11,13 +11,15 @@ REFACTOR="$BASE_DIR/skills/refactor/SKILL.md"
 REVIEW="$BASE_DIR/skills/review/SKILL.md"
 COMMIT="$BASE_DIR/skills/commit/SKILL.md"
 CYCLE_TMPL="$BASE_DIR/skills/spec/templates/cycle.md"
+STEPS_SUBAGENT="$BASE_DIR/skills/orchestrate/steps-subagent.md"
+STEPS_TEAMS="$BASE_DIR/skills/orchestrate/steps-teams.md"
 PASS=0
 FAIL=0
 
 pass() { PASS=$((PASS + 1)); printf "  \033[32mPASS\033[0m %s\n" "$1"; }
 fail() { FAIL=$((FAIL + 1)); printf "  \033[31mFAIL\033[0m %s\n" "$1"; }
 
-for f in "$RED" "$GREEN" "$REFACTOR" "$REVIEW" "$COMMIT" "$CYCLE_TMPL"; do
+for f in "$RED" "$GREEN" "$REFACTOR" "$REVIEW" "$COMMIT" "$CYCLE_TMPL" "$STEPS_SUBAGENT" "$STEPS_TEAMS"; do
   [ -f "$f" ] || { echo "FATAL: $f not found"; exit 1; }
 done
 
@@ -292,6 +294,57 @@ if grep -q "Progress Log Completeness" "$COMMIT_REF" && grep -q "RED" "$COMMIT_R
   pass "commit/reference.md has Progress Log Completeness Gate details"
 else
   fail "commit/reference.md missing Progress Log Completeness Gate details"
+fi
+
+########################################
+# Selection Snippet Consistency (TC-09, gate-active-cycle-fix sweep)
+########################################
+
+echo ""
+echo "--- Selection Snippet Consistency ---"
+
+# TC-09: 7 ファイルの cycle 探索行 (docs/cycles/*.md を参照し phase: DONE で
+# フィルタする行) が新スニペット (contiguous phrase "sort | tail -1 | cut -f2") を
+# 使い、旧 first-match 型の "| head -1" が残存しないことを assert する。
+# 探索行の特定は「docs/cycles/*.md」+「phase: DONE」の両方を含む行に限定し、
+# 無関係な head -1 (例: red/green SKILL.md の Current State 表示行、
+# orchestrate の retro_status codify-gate ループ) を誤検出しないようにする。
+echo ""
+echo "TC-09: cycle selection lines use new sort|tail|cut-f2 snippet (no head -1 remnant)"
+
+ALL_SNIPPETS_OK=true
+check_selection_snippet() {
+  local file="$1"
+  local label="$2"
+  local target
+  target=$(grep -F 'docs/cycles/*.md' "$file" | grep -F 'phase: DONE' || true)
+  local line_count
+  line_count=$(printf '%s\n' "$target" | grep -c '.' || true)
+  if [ "$line_count" -ne 1 ]; then
+    echo "    - $label: expected exactly 1 phase:DONE selection line referencing docs/cycles/*.md, found $line_count"
+    ALL_SNIPPETS_OK=false
+    return
+  fi
+  if echo "$target" | grep -qF 'sort | tail -1 | cut -f2' && ! echo "$target" | grep -qF 'head -1'; then
+    :
+  else
+    echo "    - $label: selection line missing new snippet or still has head -1: $target"
+    ALL_SNIPPETS_OK=false
+  fi
+}
+
+check_selection_snippet "$RED" "red/SKILL.md"
+check_selection_snippet "$GREEN" "green/SKILL.md"
+check_selection_snippet "$REFACTOR" "refactor/SKILL.md"
+check_selection_snippet "$COMMIT" "commit/SKILL.md"
+check_selection_snippet "$REVIEW" "review/SKILL.md"
+check_selection_snippet "$STEPS_SUBAGENT" "orchestrate/steps-subagent.md"
+check_selection_snippet "$STEPS_TEAMS" "orchestrate/steps-teams.md"
+
+if $ALL_SNIPPETS_OK; then
+  pass "All 7 files use new sort|tail|cut-f2 selection snippet, no head -1 remnant"
+else
+  fail "One or more files still use old head -1 first-match snippet (see details above)"
 fi
 
 # Summary

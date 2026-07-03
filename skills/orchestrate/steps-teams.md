@@ -32,7 +32,7 @@ planファイルに `## TDD Context` セクションがあるか確認する。
 frontmatter のみを対象に `phase: DONE` でないファイルを抽出（本文中の文字列に影響されない）:
 
 ```bash
-for f in docs/cycles/*.md; do awk '/^---$/{c++;next} c==1{print}' "$f" | grep -q 'phase: DONE' || echo "$f"; done 2>/dev/null | head -1
+for f in docs/cycles/*.md; do [ -f "$f" ] || continue; fm=$(awk '/^---$/{c++;next} c==1{print}' "$f"); echo "$fm" | grep -q '^phase:' || continue; echo "$fm" | grep -q 'phase: DONE' && continue; printf '%s\t%s\n' "$(echo "$fm" | awk 'sub(/^updated: */,""){gsub(/T/," ");print;exit}')" "$f"; done 2>/dev/null | sort | tail -1 | cut -f2
 ```
 
 - **未完了 cycle doc あり** →

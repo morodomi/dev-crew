@@ -26,7 +26,7 @@ template / skill docs だけでなく、自 cycle の Verification 実行でも 
 - **Web**: `docker compose up -d && curl -fsS localhost:PORT/health && docker compose down`
 - **Config 変更時** (motivating bug): `python -m myapp --config new.yaml && grep "loaded_from: new.yaml" /tmp/myapp.log`
 - **Library**: `python -c "from mymod import run; run('config.yaml')"`
-- **dev-crew 内 (bash/doc project)**: gate/consumer/validator を real path で実行 — 例 `bash scripts/gates/pre-commit-gate.sh $cycle_doc` or `bash scripts/validate-yaml-frontmatter.sh`。grep/diff のみは structural test として扱う
+- **dev-crew 内 (bash/doc project)**: gate/consumer/validator を real path で実行 — 例 `bash scripts/gates/pre-commit-gate.sh $cycle_doc`（$1 に cycle doc パスを渡すと当該 doc を直接検査。明示指定・推奨。project root を渡すと updated 最新の non-DONE を自動選択）or `bash scripts/validate-yaml-frontmatter.sh`。grep/diff のみは structural test として扱う
 
 ## Evidence 記録
 

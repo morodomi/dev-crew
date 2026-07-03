@@ -5,10 +5,10 @@ phase: COMMIT
 complexity: standard
 test_count: 6
 risk_level: medium
-retro_status: captured
+retro_status: resolved
 codex_session_id: "019f2131-5169-75e1-a43b-c2efa87040f0"
 created: 2026-07-02 12:00
-updated: 2026-07-02 18:10
+updated: 2026-07-02 19:20
 ---
 
 # Skill Inventory Cleanup — phase-compact/reload/strategy 削除 + quality description 修正
@@ -351,7 +351,7 @@ Evidence: (orchestrate が自動記入)
 - REVIEW 修正適用後の最終 full suite: **112/112 全 rc=0**（scratchpad/final.txt）
 - repo 外対応完了: ~/.claude/skills/search-task/SKILL.md 振り分け表（reload→orchestrate 継続、strategy→spec）、Claude メモリ project_phase_compact_status.md + MEMORY.md index 更新
 - branch feature/skill-inventory-cleanup で commit、PR を main 向けに作成（git-safety: main 直接 push 禁止準拠）
-- pre-commit-gate 契約の self-enforce（D4=#145 の弱点があるため PdM が本 cycle doc で直接確認）: REVIEW Progress Log 記録済み / Codex code review session 記録済み / retro_status: captured
+- pre-commit-gate 契約の self-enforce（D4=#145 の弱点があるため PdM が本 cycle doc で直接確認）: REVIEW Progress Log 記録済み / Codex code review session 記録済み / retro_status: resolved
 - Phase completed
 
 ---
@@ -389,3 +389,25 @@ Evidence: (orchestrate が自動記入)
 - **Final fix**: script ヘッダの Usage コメントを確認して `pre-commit-gate.sh .` に訂正。副産物として gate が「最初の non-DONE doc しか検査しない」弱点も発見（DISCOVERED D4 = #145）
 - **Insight**: **Verification block に書く script 呼び出しは、plan 段階でヘッダコメント/--help/実行で usage を実測確認してから記載する**。gate/hook script の引数契約を名前から推測すると、Verification 自体が false negative（誤った BLOCK/PASS）になる
 - **一般化**: plan-discipline「未確認での記述禁止」の Verification-script 版。integration-verification.md の real-path invocation 要件に「invocation 契約の事前実測」を補完する候補
+
+## Codify Decisions
+
+triage 実施: 2026-07-02 19:20（後続 cycle gate-active-cycle-fix の orchestrate Block 0 codify gate で処理）。Recurrence pre-triage: Insight 1 は 20260424_1356 #5（git stash baseline snapshot、deferred）、Insight 2 は 20260424_1356 #4（test の sequential 前提・prior run leak、deferred）の各 2 回目再発に該当し promotion 確定。
+
+### Insight 1
+- **Decision**: codified
+- **Destination**: rule (rules/plan-discipline.md + .claude/rules/ mirror)
+- **Reason**: baseline snapshot テーマの再発 2 回目（前回は stash 方式、今回 copy 方式で並行作業と共存可能に洗練）。「baseline は immutable snapshot 複製上で実測し evidence を並行プロセスから隔離する」を推奨に追記。実装は次の test-hardening cycle（rule 編集を無関係 cycle の commit に混ぜない慣行）
+- **Decided**: 2026-07-02 19:20
+
+### Insight 2
+- **Decision**: codified
+- **Destination**: rule (rules/agent-prompts.md + .claude/rules/ mirror、並列起動時の prompt 契約節)
+- **Reason**: 「読み取り並列・実行直列」原則 + 並列 prompt への「テスト実行可否の明示」。20260424_1356 #4（sequential 前提）の再発 2 回目で、今回は Codex 偽 BLOCK という実害 evidence あり。実装は次の test-hardening cycle
+- **Decided**: 2026-07-02 19:20
+
+### Insight 3
+- **Decision**: codified
+- **Destination**: rule (rules/integration-verification.md + .claude/rules/ mirror)
+- **Reason**: novel だが high-confidence の TDD hardening。「Verification に書く script 呼び出しは usage を実測確認してから記載する」を real-path invocation 要件に補完。なお本 insight の motivating bug（gate 引数契約）自体は次 cycle（gate-active-cycle-fix、#145）が polymorphic 引数で恒久解消する。実装は次の test-hardening cycle
+- **Decided**: 2026-07-02 19:20
