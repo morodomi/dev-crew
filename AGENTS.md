@@ -15,7 +15,7 @@ AI development team as a single Claude Code plugin.
 
 ## Skills
 
-Skills available: spec, red, green, refactor, review, commit, orchestrate, diagnose, parallel, onboard, sync-skills, skill-maker, cycle-retrospective, codify-insight, learn, evolve, security-scan, attack-report, context-review, generate-e2e, security-audit, php-quality, python-quality, ts-quality, js-quality, flask-quality, flutter-quality, hugo-quality, careful
+Skills available: spec, red, green, refactor, review, commit, orchestrate, diagnose, onboard, sync-skills, skill-maker, cycle-retrospective, codify-insight, learn, evolve, security-scan, attack-report, context-review, generate-e2e, security-audit, php-quality, python-quality, ts-quality, js-quality, flask-quality, flutter-quality, hugo-quality, careful
 
 ## Quick Start
 
@@ -63,7 +63,7 @@ Plan mode を抜けたら `/orchestrate` を起動する。Edit/Write は hook �
 ```
 dev-crew/
 ├── agents/          # 40 agents (flat), 19 security agents
-├── skills/          # 29 skills (each: SKILL.md + reference.md)
+├── skills/          # 28 skills (each: SKILL.md + reference.md)
 ├── scripts/gates/   # Deterministic gate scripts (pre-red, pre-commit)
 ├── rules/           # Always-applied rules (git-safety, security, git-conventions)
 ├── tests/           # Shell test scripts

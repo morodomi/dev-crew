@@ -5,10 +5,10 @@ phase: COMMIT
 complexity: complex
 test_count: 10
 risk_level: medium
-retro_status: captured
+retro_status: resolved
 codex_session_id: ""
 created: 2026-07-03 12:15
-updated: 2026-07-03 16:00
+updated: 2026-07-03 16:40
 ---
 
 # test hardening — codify 済み insight 9 件の rule/skill 実装 + inverse contract（#143）
@@ -71,7 +71,7 @@ updated: 2026-07-03 16:00
 ### Reference Documents
 - `docs/cycles/20260701_1120_plan-discipline-green-sweep.md` - A1/A2（test-patterns.md）+ F（RED false-pass 自己証明、Insight 4 deferred:new-cycle）の出典
 - `docs/cycles/20260702_1200_skill-inventory-cleanup.md` - B（plan-discipline.md）/ C（agent-prompts.md）/ D（integration-verification.md）の出典
-- `docs/cycles/20260702_1930_gate-active-cycle-fix.md` - E（multi-file-consistency.md）/ A3・A4（test-patterns.md）の出典。Codify Decisions は本 cycle 冒頭の orchestrate Block 0 codify gate で triage 済み（retro_status: captured → resolved、2026-07-03 12:10）。3 insight 全て codified→rule、Destination は plan の想定（E→multi-file-consistency.md、A3/A4→test-patterns.md）と完全一致を確認
+- `docs/cycles/20260702_1930_gate-active-cycle-fix.md` - E（multi-file-consistency.md）/ A3・A4（test-patterns.md）の出典。Codify Decisions は本 cycle 冒頭の orchestrate Block 0 codify gate で triage 済み（retro_status: resolved → resolved、2026-07-03 12:10）。3 insight 全て codified→rule、Destination は plan の想定（E→multi-file-consistency.md、A3/A4→test-patterns.md）と完全一致を確認
 - `rules/test-patterns.md` / `rules/plan-discipline.md` / `rules/agent-prompts.md` / `rules/integration-verification.md` / `rules/multi-file-consistency.md` - 追記対象の既存 rule 5 件
 - `skills/red/SKILL.md` / `skills/red/reference.md` - Stage 3.5 追加対象
 
@@ -163,7 +163,7 @@ Evidence: (orchestrate が自動記入)
   - tests/test-doc-consistency.sh: TC 一覧は TC-01/02/04/05/11-15（欠番あり、既存の連番慣行）。BASE_DIR override 対応済み（L7）を確認。次連番 TC-16 を確認
   - tests/test-phase-gate.sh: TC-01〜22 が既存。次連番 TC-23（plan の「次連番」は数値未確定だったため本 KICKOFF で確定）
   - live tree 逆向き契約実測: `grep -rEl "skills/(phase-compact|reload|strategy)" . --exclude-dir=.git --exclude-dir=docs/cycles --exclude-dir=docs/decisions --exclude-dir=docs/archive --exclude=CHANGELOG.md` は **0 hit**（plan 記載の「live tree 0 hit 確認済み」と一致）
-  - 20260702_1930 の Codify Decisions（本 KICKOFF 開始前に orchestrate Block 0 codify gate で処理済み、retro_status: captured → resolved、2026-07-03 12:10）: Insight 1（E→multi-file-consistency.md）/ Insight 2（A3→test-patterns.md）/ Insight 3（A4→test-patterns.md）の Destination は plan の想定と完全一致。成功事例 observation は no-codify（想定通り）
+  - 20260702_1930 の Codify Decisions（本 KICKOFF 開始前に orchestrate Block 0 codify gate で処理済み、retro_status: resolved → resolved、2026-07-03 12:10）: Insight 1（E→multi-file-consistency.md）/ Insight 2（A3→test-patterns.md）/ Insight 3（A4→test-patterns.md）の Destination は plan の想定と完全一致。成功事例 observation は no-codify（想定通り）
   - 20260701_1120 / 20260702_1200 の Codify Decisions も遡って確認: A1/A2→test-patterns.md（Insight 1/2）、F→red skill deferred:new-cycle（Insight 4）、B→plan-discipline.md（Insight 1）、C→agent-prompts.md 並列契約節（Insight 2）、D→integration-verification.md（Insight 3）— 全て plan のテーブルと 1:1 一致
   - issue #143 本文を実測確認: タイトル「削除スキル名の inverse contract テスト追加（stale-ref 検査）」、20260702_1200 Codex code review F3 起点、「20260701_1120 Codify Decisions と同一ファミリーであり同一 cycle での実装を推奨」と明記 — plan の G destination 記述と一致
 - Cycle doc created
@@ -327,3 +327,25 @@ Evidence: (orchestrate が自動記入)
 - **Final fix**: `tracked=$(git -C "$BASE_DIR" ls-files 2>/dev/null)` で変数に受けて rc を直後検査 + filter 後の対象 0 件も FAIL 化
 - **Insight**: **外部コマンドの出力を while で消費するテストは、command substitution で変数に受けて rc を直後検査してからループする**。process substitution / pipe への直結は上流失敗を silent skip にする（rules/test-patterns.md の rc 記録パターンの while-loop 版）
 - **一般化**: test-patterns.md 追記候補（次の codify triage で判定）
+
+## Codify Decisions
+
+triage 実施: 2026-07-03 16:40（後続 cycle parallel-skill-removal の orchestrate Block 0 codify gate で処理）。autonomous triage、質問 0 件。
+
+### Insight 1
+- **Decision**: codified
+- **Destination**: rule (rules/integration-verification.md + .claude/rules/ mirror、self-apply 節の拡張)
+- **Reason**: 「新 rule を定義する cycle は REVIEW 前に全成果物へ新 rule を checklist 適用する」— 既存 self-apply 節（Verification への適用）のテスト設計版拡張。実装は次の codify 実装 cycle（本 parallel 削除 cycle は無関係のため混ぜない）
+- **Decided**: 2026-07-03 16:40
+
+### Insight 2
+- **Decision**: deferred
+- **Destination**: new-cycle（#151 実装 cycle に束ねる）
+- **Reason**: 「2 回失敗した規約は自動契約に昇格する（2-strike rule）」の初適用先が #151（追跡ラベルの自動 inverse contract）そのもの。rule 文の codify と初適用を同一 cycle で行うのが最も検証しやすい
+- **Decided**: 2026-07-03 16:40
+
+### Insight 3
+- **Decision**: codified
+- **Destination**: rule (rules/test-patterns.md + .claude/rules/ mirror)
+- **Reason**: 「外部コマンド出力を while で消費する時は変数に受けて rc を直後検査」— process substitution の rc 握り潰しは既存 rc 記録パターンの while-loop 版。実装は次の codify 実装 cycle
+- **Decided**: 2026-07-03 16:40

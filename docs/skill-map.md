@@ -25,7 +25,6 @@
 |----------|-------|---------|
 | Orchestration | orchestrate | TDDサイクル全体の自律管理 |
 | Diagnostic | diagnose | 複雑なバグの並列仮説調査 |
-| Diagnostic | parallel | クロスレイヤー並列開発 |
 | Setup | onboard | プロジェクトTDD初期化 |
 | Setup | skill-maker | スキル作成支援 |
 | Setup | sync-skills | Codex用symlinkセットアップ |

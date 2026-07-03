@@ -12,7 +12,7 @@ pass() { PASS=$((PASS + 1)); printf "  \033[32mPASS\033[0m %s\n" "$1"; }
 fail() { FAIL=$((FAIL + 1)); printf "  \033[31mFAIL\033[0m %s\n" "$1"; }
 
 # Flow-control skills that ARE allowed to have Skill() chains
-FLOW_CONTROL_SKILLS="orchestrate init parallel security-audit"
+FLOW_CONTROL_SKILLS="orchestrate init security-audit"
 
 is_flow_control() {
   local skill_name="$1"
