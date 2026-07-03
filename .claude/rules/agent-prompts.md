@@ -26,6 +26,8 @@ architect や subagent へ委譲する際のプロンプト設計規律。scope 
 
 並列度が上がるほど曖昧な prompt は曖昧な出力を増幅する。単一委譲なら「Files list 全量列挙」で足りるが、N=3+ では統合可能性まで設計する必要がある。
 
+「読み取り並列・実行直列」の原則（テストを実行するプロセスは tree 書き込み・他のテスト実行と直列化）を守り、各並列 prompt に「テスト実行可否」（full suite / 個別 / 禁止）を明示する (cycle 20260702_1200 #2)。
+
 ## 具体例
 
 ```markdown
@@ -46,3 +48,4 @@ plan v3 の Files to Change を全量尊重し、独自判断で追加・削除�
 - `docs/cycles/20260420_1752_v2.8-orchestrate-integration.md` Insight 2
 - `docs/cycles/20260421_1809_sync-plan-progress-log-format.md` Insight 1
 - 会話レビュー (2026-05-25): Kimi Agent Swarm 記事の "synthesis bottleneck" 抽象原則 (`## 並列起動時の prompt 契約` の根拠)
+- cycle 20260702_1200 #2

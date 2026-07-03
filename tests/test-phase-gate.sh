@@ -297,6 +297,30 @@ else
 fi
 
 ########################################
+# RED False-pass Self-proof
+########################################
+
+echo ""
+echo "--- RED False-pass Self-proof ---"
+
+# TC-23: red/SKILL.md has Stage 3.5 "False-pass 自己証明" step as a contiguous phrase
+# (RED False-pass Self-proof の存在検査。単体語 pin では section 既存項目にも
+# 出現しうるため contiguous phrase で pin する、rules/test-patterns.md 準拠) +
+# SKILL.md stays within the 100-line hard limit (rules/skill-authoring.md)
+echo ""
+echo "TC-23: red/SKILL.md has 'false-pass 不在を自己証明' step + wc -l <= 100"
+if grep -qF "false-pass 不在を自己証明" "$RED"; then
+  RED_LINES=$(wc -l < "$RED")
+  if [ "$RED_LINES" -le 100 ]; then
+    pass "red/SKILL.md has false-pass self-proof step + $RED_LINES lines (<= 100)"
+  else
+    fail "red/SKILL.md has false-pass self-proof step but exceeds 100 lines ($RED_LINES)"
+  fi
+else
+  fail "red/SKILL.md missing 'false-pass 不在を自己証明' step (Stage 3.5 未実装)"
+fi
+
+########################################
 # Selection Snippet Consistency (TC-09, gate-active-cycle-fix sweep)
 ########################################
 

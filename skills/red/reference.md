@@ -151,6 +151,16 @@ DISCOVERED項目はTest ListのTODOに追加し、次のStage 1実行で詳細�
 
 プロジェクトのテストコマンドで実行（*-quality スキル参照）。
 
+## False-pass Self-Proof {#false-pass-self-proof}
+
+新規 test の literal が false-pass しないことを自己証明する手順。
+
+1. literal 候補について、対象 section 内の pre-existing count が 0 であることを実測する（[rules/test-patterns.md](../../rules/test-patterns.md) 推奨: `section_grep` helper で section 内 count を取得）
+2. 追記対象行を一時的に除去する（または未実装状態の fixture を使う）。この状態で test を実行し、count が 0 に落ちる、または test が FAIL することを実証する
+3. 実測した count 値（除去前後）を Cycle doc の RED エントリに記録する
+
+この 3 手順により、対象文字列が既存の記述に偶然マッチして誤って PASS する false-pass を排除する。
+
 ## red-worker並列実行
 
 ### 概要

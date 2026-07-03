@@ -12,6 +12,7 @@
 - N ファイル並行実装では「section A が section B より前に出現するか」を行番号比較でテスト契約化する
 - deterministic gate は case 文で期待値を enumerate し、それ以外の値は明示的に reject する
 - gate script は単体で `bash gate.sh <input>` として全検証を完了できる設計にする
+- パス引数の enumerate-and-reject は値の形式だけでなく位置 —「信頼するディレクトリ境界」— も列挙対象にする (cycle 20260702_1930 #1)
 
 ## 具体例
 
@@ -31,3 +32,4 @@ esac
 ## 出典
 
 - `docs/cycles/20260420_1752_v2.8-orchestrate-integration.md` Insights 3, 4
+- cycle 20260702_1930 #1

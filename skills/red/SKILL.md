@@ -59,6 +59,10 @@ Cycle doc の Test List を Given/When/Then + 具体テストデータに展開�
 テストファイル依存関係分析 → red-worker並列起動 → 結果収集・マージ → テスト実行で**失敗**確認。
 詳細: [reference.md](reference.md#dependency-analysis)
 
+### Stage 3.5: False-pass 自己証明
+
+新規 test の literal が「false-pass 不在を自己証明」できることを確認（対象行除去 → count 0 / FAIL の実証）。手順: [reference.md](reference.md#false-pass-self-proof)
+
 ### exspec check (optional)
 
 `command -v exspec` で存在確認。インストール済みかつ対応言語なら `scripts/gates/exspec-check.sh` を実行。
