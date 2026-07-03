@@ -233,16 +233,16 @@ if [ "$TC13_PASS" = "true" ]; then
   pass "TC-13: All 4 files mention cycle-retrospective"
 fi
 
-# TC-14: docs/STATUS.md shows Skills count = 32
+# TC-14: docs/STATUS.md shows Skills count = 29
 echo ""
-echo "TC-14: docs/STATUS.md Skills count = 32"
+echo "TC-14: docs/STATUS.md Skills count = 29"
 if [ ! -f "$STATUS_MD" ]; then
   fail "TC-14: docs/STATUS.md does not exist"
-elif grep -qE "Skills[[:space:]]*\|[[:space:]]*32" "$STATUS_MD"; then
-  pass "TC-14: docs/STATUS.md Skills count is 32"
+elif grep -qE "Skills[[:space:]]*\|[[:space:]]*29" "$STATUS_MD"; then
+  pass "TC-14: docs/STATUS.md Skills count is 29"
 else
   current_count=$(grep -oE "Skills[[:space:]]*\|[[:space:]]*[0-9]+" "$STATUS_MD" | grep -oE "[0-9]+$" | head -1 || echo "not found")
-  fail "TC-14: docs/STATUS.md Skills count is NOT 32 (current: $current_count)"
+  fail "TC-14: docs/STATUS.md Skills count is NOT 29 (current: $current_count)"
 fi
 
 # TC-15: README.md "N skills" matches actual skills/ directory count

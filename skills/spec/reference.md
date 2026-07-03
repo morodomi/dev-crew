@@ -405,7 +405,7 @@ Add project-specific sections to `templates/cycle.md`.
 
 ## Ambiguity Detection {#ambiguity-detection}
 
-Step 4.8 で実行する仕様曖昧性の検出・解消プロセス。strategy skill の Questioning Protocol パターンを再利用する。
+Step 4.8 で実行する仕様曖昧性の検出・解消プロセス。AskUserQuestion による Questioning Protocol で不足情報を選択肢形式で解消する。
 
 ### トリガー条件
 

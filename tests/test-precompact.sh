@@ -1,13 +1,12 @@
 #!/bin/bash
-# test-precompact-reload.sh - PreCompact Hook + reload skill validation
-# TC-01 ~ TC-14
+# test-precompact.sh - PreCompact Hook validation
+# TC-01 ~ TC-07, TC-13 ~ TC-14
 
 set -euo pipefail
 
 BASE_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 HOOKS_FILE="$BASE_DIR/hooks/hooks.json"
 SCRIPT_FILE="$BASE_DIR/scripts/hooks/pre-compact.sh"
-RELOAD_DIR="$BASE_DIR/skills/reload"
 PASS=0
 FAIL=0
 
@@ -20,7 +19,7 @@ get_frontmatter() {
   awk '/^---$/{n++; next} n==1{print}' "$file" | grep "^${key}: " | head -1 | sed "s/^${key}: *//" || true
 }
 
-echo "=== PreCompact Hook + Reload Skill Tests ==="
+echo "=== PreCompact Hook Tests ==="
 
 ########################################
 # hooks.json: PreCompact entry
@@ -122,78 +121,6 @@ if echo "$log_entry" | grep -qE 'PreCompact.*phase=.*GREEN' && \
   pass "Progress Log entry contains phase and timestamp"
 else
   fail "Progress Log entry format incorrect (got: '$log_entry')"
-fi
-
-########################################
-# skills/reload/
-########################################
-
-echo ""
-echo "--- skills/reload/ ---"
-
-# TC-08: skills/reload/ directory exists
-echo ""
-echo "TC-08: skills/reload/ directory exists"
-if [ -d "$RELOAD_DIR" ]; then
-  pass "skills/reload/ exists"
-else
-  fail "skills/reload/ not found"
-fi
-
-# TC-09: reload SKILL.md exists and < 100 lines
-echo ""
-echo "TC-09: reload SKILL.md exists and < 100 lines"
-if [ -f "$RELOAD_DIR/SKILL.md" ]; then
-  line_count=$(wc -l < "$RELOAD_DIR/SKILL.md" | tr -d ' ')
-  if [ "$line_count" -le 100 ]; then
-    pass "SKILL.md exists ($line_count lines)"
-  else
-    fail "SKILL.md has $line_count lines (max 100)"
-  fi
-else
-  fail "SKILL.md not found"
-fi
-
-# TC-10: reload SKILL.md has name/description frontmatter
-echo ""
-echo "TC-10: reload SKILL.md frontmatter"
-if [ -f "$RELOAD_DIR/SKILL.md" ]; then
-  name_val=$(get_frontmatter "$RELOAD_DIR/SKILL.md" "name")
-  desc_val=$(get_frontmatter "$RELOAD_DIR/SKILL.md" "description")
-  if [ -n "$name_val" ] && [ -n "$desc_val" ]; then
-    pass "frontmatter: name='$name_val'"
-  else
-    [ -z "$name_val" ] && fail "missing 'name' frontmatter"
-    [ -z "$desc_val" ] && fail "missing 'description' frontmatter"
-  fi
-else
-  fail "SKILL.md not found"
-fi
-
-# TC-11: reload SKILL.md contains Workflow section
-echo ""
-echo "TC-11: reload SKILL.md Workflow section"
-if [ -f "$RELOAD_DIR/SKILL.md" ]; then
-  if grep -q "## Workflow" "$RELOAD_DIR/SKILL.md"; then
-    pass "Workflow section present"
-  else
-    fail "Workflow section missing"
-  fi
-else
-  fail "SKILL.md not found"
-fi
-
-# TC-12: reload SKILL.md references Cycle doc loading
-echo ""
-echo "TC-12: reload SKILL.md references Cycle doc"
-if [ -f "$RELOAD_DIR/SKILL.md" ]; then
-  if grep -qi "cycle doc\|Cycle doc" "$RELOAD_DIR/SKILL.md"; then
-    pass "Cycle doc reference found"
-  else
-    fail "Cycle doc reference not found"
-  fi
-else
-  fail "SKILL.md not found"
 fi
 
 ########################################

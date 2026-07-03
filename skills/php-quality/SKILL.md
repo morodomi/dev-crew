@@ -1,6 +1,6 @@
 ---
 name: php-quality
-description: PHP品質チェック。PHPStan/Pint/PHPUnit実行時に使用。「PHPの品質チェック」「静的解析」で起動。
+description: PHP品質チェック。PHPStan/Pint/PHPUnit実行時に使用。「PHPの品質チェック」「PHPの静的解析」で起動。Do NOT use for 他言語の静的解析（→ python-quality / js-quality / ts-quality）。
 allowed-tools: Bash, Read, Grep, Glob
 ---
 

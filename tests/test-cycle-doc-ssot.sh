@@ -1,13 +1,11 @@
 #!/bin/bash
 # test-cycle-doc-ssot.sh - Cycle doc SSOT + hybrid delegation validation
-# TC-01 ~ TC-09
+# TC-04 ~ TC-08
 
 set -euo pipefail
 
 # Constants
 BASE_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-PHASE_COMPACT_SKILL="$BASE_DIR/skills/phase-compact/SKILL.md"
-PHASE_COMPACT_REF="$BASE_DIR/skills/phase-compact/reference.md"
 ORCHESTRATE_SUBAGENT="$BASE_DIR/skills/orchestrate/steps-subagent.md"
 ORCHESTRATE_TEAMS="$BASE_DIR/skills/orchestrate/steps-teams.md"
 ORCHESTRATE_REF="$BASE_DIR/skills/orchestrate/reference.md"
@@ -17,9 +15,7 @@ PASS=0
 FAIL=0
 
 # Reusable patterns
-METRICS_PATTERN="line_count\|file_count\|test_count\|\*\*Metrics\*\*"
 DELEGATION_PATTERN="Phase Summary.*metrics\|delegation decision\|lightweight.*threshold\|evaluate.*line_count\|evaluate.*file_count"
-MAX_SKILL_LINES=100
 
 # Test result helpers
 pass() { PASS=$((PASS + 1)); printf "  \033[32mPASS\033[0m %s\n" "$1"; }
@@ -34,62 +30,6 @@ check_block0_preserved() {
 }
 
 echo "=== Cycle doc SSOT + Hybrid Delegation Tests ==="
-
-########################################
-# Phase Compact Structure
-########################################
-
-echo ""
-echo "--- Phase Compact Structure ---"
-
-# TC-01: phase-compact/SKILL.md contains structured Phase Summary format definition
-# Given: SKILL.md has Phase Summary Format section
-# When: checking for structured metrics fields (line_count, file_count, test_count or **Metrics**)
-# Then: should find metrics field definitions for hybrid delegation decisions
-echo ""
-echo "TC-01: phase-compact/SKILL.md contains structured Phase Summary format with metrics"
-if [ -f "$PHASE_COMPACT_SKILL" ]; then
-  if grep -q "$METRICS_PATTERN" "$PHASE_COMPACT_SKILL" 2>/dev/null; then
-    pass "SKILL.md has structured metrics fields"
-  else
-    fail "SKILL.md missing structured metrics fields (line_count, file_count, test_count)"
-  fi
-else
-  fail "SKILL.md not found"
-fi
-
-# TC-02: phase-compact/SKILL.md remains under 100 lines (guard test)
-# Given: SKILL.md file exists
-# When: counting total lines
-# Then: should be under 100 lines (Progressive Disclosure requirement)
-echo ""
-echo "TC-02: phase-compact/SKILL.md remains under 100 lines"
-if [ -f "$PHASE_COMPACT_SKILL" ]; then
-  LINE_COUNT=$(wc -l < "$PHASE_COMPACT_SKILL")
-  if [ "$LINE_COUNT" -lt "$MAX_SKILL_LINES" ]; then
-    pass "SKILL.md is $LINE_COUNT lines (under $MAX_SKILL_LINES)"
-  else
-    fail "SKILL.md is $LINE_COUNT lines (exceeds $MAX_SKILL_LINES)"
-  fi
-else
-  fail "SKILL.md not found"
-fi
-
-# TC-03: phase-compact/reference.md contains updated Phase Summary templates with metrics
-# Given: reference.md has Phase Summary Details section
-# When: checking for structured metrics in templates
-# Then: should find metrics fields in at least one phase template
-echo ""
-echo "TC-03: phase-compact/reference.md contains Phase Summary templates with metrics"
-if [ -f "$PHASE_COMPACT_REF" ]; then
-  if grep -q "$METRICS_PATTERN" "$PHASE_COMPACT_REF" 2>/dev/null; then
-    pass "reference.md has metrics in Phase Summary templates"
-  else
-    fail "reference.md missing metrics fields in templates"
-  fi
-else
-  fail "reference.md not found"
-fi
 
 ########################################
 # Orchestrate Cycle Doc SSOT
@@ -185,33 +125,6 @@ if [ -f "$ORCHESTRATE_TEAMS" ]; then
   fi
 else
   fail "steps-teams.md not found"
-fi
-
-########################################
-# Test Infrastructure Validation
-########################################
-
-echo ""
-echo "--- Test Infrastructure Validation ---"
-
-# TC-09: test-cycle-doc-ssot.sh validates Phase Summary structured fields meaningfully
-# Given: this test script exists and TC-01, TC-03 exist
-# When: running the metrics validation tests
-# Then: TC-01 and TC-03 should both PASS (structured fields exist in actual files)
-echo ""
-echo "TC-09: test-cycle-doc-ssot.sh validates Phase Summary structured fields meaningfully"
-TEST_SCRIPT="$BASE_DIR/tests/test-cycle-doc-ssot.sh"
-if [ -f "$TEST_SCRIPT" ]; then
-  # TC-09 succeeds only if TC-01 and TC-03 both pass (actual files have metrics)
-  # This is a meta-validation: the test script is meaningful when it passes on real content
-  if grep -q "$METRICS_PATTERN" "$PHASE_COMPACT_SKILL" 2>/dev/null && \
-     grep -q "$METRICS_PATTERN" "$PHASE_COMPACT_REF" 2>/dev/null; then
-    pass "test script validates structured metrics fields meaningfully"
-  else
-    fail "test script validation not yet meaningful (TC-01/TC-03 prerequisite)"
-  fi
-else
-  fail "test-cycle-doc-ssot.sh not found"
 fi
 
 # Summary

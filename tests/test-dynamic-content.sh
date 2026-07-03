@@ -51,11 +51,11 @@ else
   assert_eq "TC-06c: ADR has usage guidelines" "true" "false"
 fi
 
-# --- TC-07: SKILL.mdに動的注入構文が存在する（5スキル分）---
+# --- TC-07: SKILL.mdに動的注入構文が存在する（4スキル分）---
 echo ""
 echo "=== TC-07: Dynamic injection syntax in SKILL.md ==="
 
-SKILLS="orchestrate reload spec red green"
+SKILLS="orchestrate spec red green"
 for SKILL in $SKILLS; do
   SKILL_FILE="$SCRIPT_DIR/skills/$SKILL/SKILL.md"
   if awk '/^```/{in_code=!in_code; next} !in_code && /!\x60ls -t docs\/cycles\//' "$SKILL_FILE" 2>/dev/null | grep -q .; then

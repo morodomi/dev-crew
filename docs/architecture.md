@@ -69,8 +69,8 @@ dev-crew/
 │   ├── Security: *-attacker.md, recon-agent.md, etc.
 │   └── Meta: observer.md
 ├── skills/                       # Skills (flat, see STATUS.md for counts)
-│   ├── Workflow: spec/, red/, green/, refactor/, review/, commit/, reload/, cycle-retrospective/
-│   ├── Orchestration: orchestrate/, phase-compact/, strategy/
+│   ├── Workflow: spec/, red/, green/, refactor/, review/, commit/, cycle-retrospective/
+│   ├── Orchestration: orchestrate/
 │   ├── Diagnostic: diagnose/, parallel/
 │   ├── Setup: onboard/, skill-maker/
 │   ├── Security: security-scan/, attack-report/, context-review/, generate-e2e/, security-audit/
@@ -123,7 +123,7 @@ Phase N 完了
 
 | Strategy | Expected Reduction | Implementation |
 |----------|-------------------|----------------|
-| Phase-compact | ~50% per phase | phase-compact skill |
+| Phase-boundary compaction | ~50% per phase | PreCompact hook (scripts/hooks/pre-compact.sh) |
 | Haiku for simple tasks | ~70% cost reduction | model: "haiku" in Task tool |
 | Progressive Disclosure | SKILL.md loading only | Already implemented |
 | Tool output filtering | ~70% per git command | Hook-based preprocessing |
@@ -134,15 +134,15 @@ Phase N 完了
 
 Task()委譲で各フェーズのcontextは自動分離。PdMが直接Phase SummaryをCycle docに書き込む。
 
-### Manual Mode (PreCompact + reload)
+### Manual Mode (PreCompact)
 
 1. PreCompact hook → Phase Summary自動追記
 2. `/compact` で会話履歴を圧縮
-3. `/reload` でCycle docからコンテキスト復元
+3. 新セッションで Cycle doc（docs/cycles/）から IN_PROGRESS cycle を読み継続する
 
 ### Across Sessions
 
-- `/reload` で前回セッションのCycle docからコンテキスト復元
+- Cycle doc（docs/cycles/）が phase 状態を永続化し、セッションを跨いだ作業再開の起点になる
 - memory/ files for cross-session knowledge
 - meta plugin learn/evolve for pattern accumulation
 
