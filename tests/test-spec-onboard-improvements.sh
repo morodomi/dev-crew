@@ -1,6 +1,5 @@
 #!/bin/bash
 # Test: spec template ordering fix + onboard template improvements
-# Cycle: 20260315_1500_spec-onboard-improvements
 
 set -euo pipefail
 

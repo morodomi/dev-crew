@@ -42,6 +42,7 @@ paths:
 - literal 採用前に `section_grep` で section 内「pre-existing count」= 0 を実測してから確定する (cycle 20260701_1120 #2)
 - 「分岐 × 既存チェック」の組み合わせ経路それぞれに「出力文字列 assert」を置く。rc のみでは非ブロッキング WARN の silent skip を検出できない (cycle 20260702_1930 #2)
 - 同一セマンティクスを複数実装に要求する時は先に「挙動チェックリスト」（空入力・欠落フィールド・形式混在・異常系）を列挙し各実装に適用する (cycle 20260702_1930 #3)
+- 外部コマンド出力を while で消費する時は command substitution で変数に受けて rc を直後検査してからループする。process substitution / pipe 直結は上流失敗を silent skip にする (cycle 20260703_1215 #3)
 
 ## 具体例
 
@@ -76,3 +77,4 @@ echo "$output" | grep -q "expected"
 - cycle 20260422_1313 Insight 4 — bash $(cmd1 || cmd2) fallback pitfall
 - `docs/cycles/20260701_1120_plan-discipline-green-sweep.md` Insights 1, 2
 - `docs/cycles/20260702_1930_gate-active-cycle-fix.md` Insights 2, 3
+- `docs/cycles/20260703_1215_test-hardening-rule-codify.md` Insight 3

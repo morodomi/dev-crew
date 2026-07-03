@@ -5,10 +5,10 @@ phase: COMMIT
 complexity: standard
 test_count: 6
 risk_level: medium
-retro_status: captured
+retro_status: resolved
 codex_session_id: ""
 created: 2026-07-03 16:50
-updated: 2026-07-03 19:55
+updated: 2026-07-03 20:30
 ---
 
 # parallel スキル削除（issue #142、29→28）
@@ -195,7 +195,7 @@ live tree（cycles/archive/decisions/CHANGELOG.md 除外後）の in-edge = 0 �
 
 **テスト実行**: 本 KICKOFF では tests/ の実行は行っていない（PdM が snapshot baseline を並行取得中のため、読み取りのみに限定。teammate 指示に基づく）。
 
-**判定**: Design Review Gate PASS。plan の実測事実・Files to Change・Test List・Verification の記載は全て現物と一致し、齟齬・虚偽記載なし。frontmatter 初期化完了（phase: KICKOFF、retro_status: captured）。
+**判定**: Design Review Gate PASS。plan の実測事実・Files to Change・Test List・Verification の記載は全て現物と一致し、齟齬・虚偽記載なし。frontmatter 初期化完了（phase: KICKOFF、retro_status: none）。
 ### 2026-07-03 17:10 - PLAN REVIEW (Codex competitive)
 - Codex plan review: **BLOCK 1件** → triage:
 - **F1 (BLOCK: TC-20 の scope 漏れ) → accept-apply**: tests/test-codify-insight.sh TC-20（L408 近傍 — test-cycle-retrospective.sh TC-14 が Skills=29 を check することを check するメタ契約）が plan の Files to Change から漏れていた。TC-14 だけ 28 化すると GREEN 後に TC-20 が FAIL する。前例 cycle 20260702_1200 では更新済みの箇所で、PdM の sweep 転記漏れ。**Files to Change item 2 に TC-20（コメント・echo・pass/fail メッセージ・判定 literal の 29→28）を追加**（本エントリで scope 拡張、SSOT 即時同期）
@@ -340,3 +340,35 @@ TC-16 相当の直接 grep（4 除外 + parallel 拡張パターン） => invers
 - PR は #152 の状態を確認して判断（stacked PR は作らない — 前例 #149 の auto-close 教訓）
 - Phase completed
 
+## Codify Decisions
+
+triage 実施: 2026-07-03 20:30（後続 cycle tracking-label-contract の orchestrate Block 0 codify gate で処理）。autonomous triage、質問 0 件。Insight 1/2 は実装先が本 cycle（rule 実装 cycle）のため decision と implementation を同時実施。
+
+### Insight 1
+- **Decision**: codified
+- **Destination**: rule (rules/agent-prompts.md + .claude/rules/ mirror)
+- **Reason**: 「複数 worker で再発する規約違反は worker ではなく委譲 prompt の共通テンプレートを疑い、grep 監査する」。追跡ラベル 3 cycle 連続再発の root cause 特定 evidence あり。実装は同 cycle（tracking-label-contract）
+- **Decided**: 2026-07-03 20:30
+
+### Insight 2
+- **Decision**: codified
+- **Destination**: rule (rules/doc-mutations.md + .claude/rules/ mirror、SSOT 即時同期の項)
+- **Reason**: 「フェーズを実行した主体がそのフェーズで完了した Test List 遷移まで行う」。TC-06 bookkeeping 漏れ → Codex BLOCK の実害 evidence あり。実装は同 cycle
+- **Decided**: 2026-07-03 20:30
+
+### Insight 3
+- **Decision**: no-codify
+- **Reason**: 削除 cycle の予告 FAIL 列挙は observation 寄りの委譲 prompt 改善 tip。red-worker が自力で正しく原因分析できており、rule 強制の必要性は未実証
+- **Decided**: 2026-07-03 20:30
+
+## 訂正記録 (2026-07-03 23:40、tracking-label-contract cycle の REVIEW で検出)
+
+KICKOFF Progress Log エントリ（「frontmatter 初期化完了（phase: KICKOFF、retro_status: …）」行）の本文が、PdM の frontmatter 遷移処理の whole-file 置換により 2 度汚染されていた:
+
+1. RETROSPECTIVE 処理（none→captured の一括置換）が本文の同一文字列を巻き込み、汚染状態（captured）のまま commit 684537a に混入
+2. 後続 cycle の codify gate 処理（captured→resolved）で二重汚染（resolved）
+3. tracking-label-contract cycle の correctness review が検出。本文を KICKOFF 当時の真の値（none）に復元し、本訂正記録を APPEND-ONLY 準拠の形で追記
+
+REVIEW エントリ（「COMMIT 時に phase: COMMIT + retro_status: captured で状態が揃う」行）も同様に codify 処理で汚染（resolved 化）されていたが、こちらは commit 時点の正しい値（captured）に復元済みで HEAD と一致する。
+
+原因: frontmatter の状態遷移を Python の全文 str.replace で行ったこと。frontmatter 範囲限定の編集にすべき（test-patterns.md の「whole-file grep で frontmatter state」禁止則の編集版 — 後続 retro で codify 判定予定）。

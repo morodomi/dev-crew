@@ -14,6 +14,8 @@ template / skill docs だけでなく、自 cycle の Verification 実行でも 
 証明する。plan phase で「本 cycle の Verification section に自作 rule を適用できるか」
 を事前チェックする checklist が必要 (cycle 20260424_0900 #1)。
 
+- 新 rule を定義する cycle は REVIEW 前に全成果物（テスト・スクリプト・doc）へ新 rule を checklist 適用する (cycle 20260703_1215 #1)
+
 ## 禁止事項
 
 - Verification section に `bash tests/test-*.sh` + `grep`/`diff` のみしか書かない (real-invocation ゼロ = structural test のみ)
@@ -39,3 +41,4 @@ template / skill docs だけでなく、自 cycle の Verification 実行でも 
 - `docs/cycles/20260424_0900_integration-verification-rule.md` — integration verification rule codify cycle
 - `docs/cycles/20260423_1045_discovered-cycle2-followup.md` Insight 1 (REFACTOR full-suite baseline 必須) の対称ルール
 - cycle 20260702_1200 #3
+- cycle 20260703_1215 #1 — 新 rule cycle の全成果物 checklist 適用（self-apply 拡張）

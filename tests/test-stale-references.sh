@@ -1,6 +1,6 @@
 #!/bin/bash
 # test-stale-references.sh - verify stale references from auto-transition removal are cleaned up
-# Issue #28: update stale references after auto-transition removal (#27)
+# update stale references after auto-transition removal
 # TC-01 ~ TC-09
 
 set -euo pipefail

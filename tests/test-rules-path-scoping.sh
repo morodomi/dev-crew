@@ -1,6 +1,6 @@
 #!/bin/bash
 # test-rules-path-scoping.sh - rules path-scoping frontmatter tests
-# TC-01 to TC-04 for rules-path-scoping cycle (20260625_1101)
+# TC-01 to TC-04 for rules-path-scoping cycle
 
 set -uo pipefail
 

@@ -28,6 +28,8 @@ plan approve 後は plan file を編集しない (`rules/state-ownership.md` L7-
 
 GREEN phase の collateral fix (scope +1) は検出した瞬間に Cycle doc Files list も即時更新する。「GREEN 完了後まとめて更新」は drift を生む。orchestrator (PdM) の責務: scope 変更の瞬間に SSOT を sync する規律。SSOT 宣言は片方向更新の discipline を要求し、更新タイミングをフェーズ終了時に遅延させると必ず drift する。
 
+フェーズを実行した主体がそのフェーズで完了した Test List 遷移まで行う。遷移の先送りは Codex review BLOCK の実害を生んだ (cycle 20260703_1650 #2)。
+
 ## Cycle 参照 format (cycle 20260422_1313 #5)
 
 rule 内の cycle 参照は **full filename prefix** (例: `20260422_1313`) または **cycle_id frontmatter 値** を使う。informal 略称 (eval-N、A2b、Cycle B) は会話では許容だが永続 artifact (rule/doc) では使わない。cross-reference は絶対識別子で行う。
@@ -37,3 +39,4 @@ rule 内の cycle 参照は **full filename prefix** (例: `20260422_1313`) ま�
 - `docs/cycles/20260422_1146_codify-insight-skill.md` Insights 3, 4
 - `docs/cycles/20260422_1313_rule-docs-codify-followup.md` Insight 2 — GREEN collateral fix は Cycle doc Files list を即時同期
 - `docs/cycles/20260422_1313_rule-docs-codify-followup.md` Insight 5 — cycle 参照は full filename or cycle_id のみ使用
+- cycle 20260703_1650 #2 — フェーズ実行主体が Test List 遷移まで担う
