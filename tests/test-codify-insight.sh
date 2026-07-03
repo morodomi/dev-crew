@@ -383,49 +383,50 @@ if [ "$TC18_PASS" = "true" ]; then
   pass "TC-18: All 4 files mention codify-insight"
 fi
 
-# TC-19: docs/STATUS.md contains "Skills | 29" AND "Test Scripts | 112", README.md contains "29 skills"
-# Updated 2026-05-25 cycle 20260525_1249: Test Scripts 110 → 112 (TC01+TC02 added)
-# Updated 2026-06-25 cycle 20260625_1101: Test Scripts 112 → 113 (test-rules-path-scoping.sh added)
-# Updated 2026-07-02 cycle 20260702_1200: Skills 32→29, Test Scripts 113→112 (3 skills + 1 test deleted)
+# TC-19: docs/STATUS.md contains "Skills | 28" AND "Test Scripts | 112", README.md contains "28 skills"
+# Updated 2026-05-25: Test Scripts 110 → 112 (TC01+TC02 added)
+# Updated 2026-06-25: Test Scripts 112 → 113 (test-rules-path-scoping.sh added)
+# Updated 2026-07-02: Skills 32→29, Test Scripts 113→112 (3 skills + 1 test deleted)
+# Updated 2026-07-03: Skills 29→28 (parallel deleted)
 echo ""
-echo "TC-19: STATUS.md Skills=29 + Test Scripts=112, README.md 29 skills"
+echo "TC-19: STATUS.md Skills=28 + Test Scripts=112, README.md 28 skills"
 if [ ! -f "$STATUS_MD" ]; then
   fail "TC-19: docs/STATUS.md does not exist"
 else
-  has_skills29=$(grep -qE "Skills[[:space:]]*\|[[:space:]]*29" "$STATUS_MD" && echo "yes" || echo "no")
+  has_skills28=$(grep -qE "Skills[[:space:]]*\|[[:space:]]*28" "$STATUS_MD" && echo "yes" || echo "no")
   has_scripts112=$(grep -qE "Test Scripts[[:space:]]*\|[[:space:]]*112" "$STATUS_MD" && echo "yes" || echo "no")
-  has_readme29=$(grep -qE "29 skills" "$README_MD" 2>/dev/null && echo "yes" || echo "no")
-  if [ "$has_skills29" = "yes" ] && [ "$has_scripts112" = "yes" ] && [ "$has_readme29" = "yes" ]; then
-    pass "TC-19: STATUS.md Skills=29 + Test Scripts=112, README.md 29 skills"
+  has_readme28=$(grep -qE "28 skills" "$README_MD" 2>/dev/null && echo "yes" || echo "no")
+  if [ "$has_skills28" = "yes" ] && [ "$has_scripts112" = "yes" ] && [ "$has_readme28" = "yes" ]; then
+    pass "TC-19: STATUS.md Skills=28 + Test Scripts=112, README.md 28 skills"
   else
     skills_current=$(grep -oE "Skills[[:space:]]*\|[[:space:]]*[0-9]+" "$STATUS_MD" | grep -oE "[0-9]+$" | head -1 || echo "not found")
     scripts_current=$(grep -oE "Test Scripts[[:space:]]*\|[[:space:]]*[0-9]+" "$STATUS_MD" | grep -oE "[0-9]+$" | head -1 || echo "not found")
     readme_current=$(grep -oE "[0-9]+ skills" "$README_MD" 2>/dev/null | head -1 || echo "not found")
-    fail "TC-19: STATUS.md Skills=$skills_current (need 29), Test Scripts=$scripts_current (need 112), README=$readme_current (need '29 skills')"
+    fail "TC-19: STATUS.md Skills=$skills_current (need 28), Test Scripts=$scripts_current (need 112), README=$readme_current (need '28 skills')"
   fi
 fi
 
-# TC-20: tests/test-cycle-retrospective.sh TC-14 has Skills count 29 (not 32 hardcode)
-# Strategy: search TC-14 block for literal "32" (old) vs "29" (new)
-# The file contains shell code like: grep -qE "Skills[[:space:]]*\|[[:space:]]*32" "$STATUS_MD"
+# TC-20: tests/test-cycle-retrospective.sh TC-14 has Skills count 28 (not 29 hardcode)
+# Strategy: search TC-14 block for literal "29" (old) vs "28" (new)
+# The file contains shell code like: grep -qE "Skills[[:space:]]*\|[[:space:]]*29" "$STATUS_MD"
 # We search for the literal digit string in TC-14's grep command.
 echo ""
-echo "TC-20: test-cycle-retrospective.sh TC-14 checks Skills count 29 (not 32)"
+echo "TC-20: test-cycle-retrospective.sh TC-14 checks Skills count 28 (not 29)"
 if [ ! -f "$RETRO_TEST" ]; then
   fail "TC-20: tests/test-cycle-retrospective.sh does not exist"
 else
   # Extract TC-14 block: from "# TC-14" to "# TC-15"
   tc14_block=$(awk '/^# TC-14:/,/^# TC-15:/{if(/^# TC-15:/)exit; print}' "$RETRO_TEST" || true)
-  # The TC-14 grep command looks like: grep -qE "Skills[[:space:]]*\|[[:space:]]*32" or 29
-  # Search for the literal count digit at the end of the pattern (e.g. *32" or *29")
-  if echo "$tc14_block" | grep -qE '\*32"'; then
-    fail "TC-20: test-cycle-retrospective.sh still hardcodes Skills=32 in TC-14 (needs bump to 29)"
-  elif echo "$tc14_block" | grep -qE '\*29"'; then
-    pass "TC-20: test-cycle-retrospective.sh TC-14 checks Skills count 29"
-  elif echo "$tc14_block" | grep -q "Skills count = 32"; then
-    fail "TC-20: test-cycle-retrospective.sh TC-14 still references Skills count 32"
+  # The TC-14 grep command looks like: grep -qE "Skills[[:space:]]*\|[[:space:]]*29" or 28
+  # Search for the literal count digit at the end of the pattern (e.g. *29" or *28")
+  if echo "$tc14_block" | grep -qE '\*29"'; then
+    fail "TC-20: test-cycle-retrospective.sh still hardcodes Skills=29 in TC-14 (needs bump to 28)"
+  elif echo "$tc14_block" | grep -qE '\*28"'; then
+    pass "TC-20: test-cycle-retrospective.sh TC-14 checks Skills count 28"
   elif echo "$tc14_block" | grep -q "Skills count = 29"; then
-    pass "TC-20: test-cycle-retrospective.sh TC-14 references Skills count 29"
+    fail "TC-20: test-cycle-retrospective.sh TC-14 still references Skills count 29"
+  elif echo "$tc14_block" | grep -q "Skills count = 28"; then
+    pass "TC-20: test-cycle-retrospective.sh TC-14 references Skills count 28"
   else
     fail "TC-20: test-cycle-retrospective.sh TC-14 Skills count check not found (pattern not recognized)"
   fi

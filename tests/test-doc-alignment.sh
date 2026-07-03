@@ -75,7 +75,7 @@ fi
 # T-07: Given architecture.md, Then エージェント/スキルの具体数値がハードコードされていない
 echo ""
 echo "T-07: architecture.md has no hardcoded agent/skill counts"
-if grep -qE '34 agents|29 skills' "$ARCH_FILE"; then
+if grep -qE '34 agents|28 skills' "$ARCH_FILE"; then
   fail "T-07: hardcoded counts found in architecture.md"
 else
   pass "T-07: no hardcoded counts in architecture.md"

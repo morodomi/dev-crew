@@ -143,7 +143,7 @@ echo "--- Inverse Contract: Deleted Skill Stale-ref ---"
 
 # TC-16: tracked live files (git ls-files, excluding docs/cycles|decisions|archive +
 # CHANGELOG.md — historical/changelog references to deleted skills are expected there)
-# have zero path-form references to deleted skills phase-compact/reload/strategy.
+# have zero path-form references to deleted skills phase-compact/reload/strategy/parallel.
 # git ls-files ベース: grep --exclude-dir 方式は ignored local file
 # (.claude/settings.local.json 等) にも hit し、path prune が不完全なため使わない。
 # xargs は空入力時の macOS 挙動が不安定なため使わず、while ループで1ファイルずつ
@@ -151,7 +151,7 @@ echo "--- Inverse Contract: Deleted Skill Stale-ref ---"
 # 空出力を生み while ループが黙って 0 回実行され false-pass する経路を防ぐため、
 # git 呼び出しの rc と filter 後の対象ファイル数を先に検証してから判定する
 echo ""
-echo "TC-16: tracked live files have 0 hits for 'skills/(phase-compact|reload|strategy)'"
+echo "TC-16: tracked live files have 0 hits for 'skills/(phase-compact|reload|strategy|parallel)'"
 tracked=$(git -C "$BASE_DIR" ls-files 2>/dev/null)
 tracked_rc=$?
 if [ "$tracked_rc" -ne 0 ]; then
@@ -165,14 +165,14 @@ else
     STALE_HITS=0
     while IFS= read -r f; do
       [ -f "$BASE_DIR/$f" ] || continue
-      if grep -qE "skills/(phase-compact|reload|strategy)" "$BASE_DIR/$f" 2>/dev/null; then
+      if grep -qE "skills/(phase-compact|reload|strategy|parallel)" "$BASE_DIR/$f" 2>/dev/null; then
         STALE_HITS=$((STALE_HITS + 1))
       fi
     done < <(echo "$targets")
     if [ "$STALE_HITS" -eq 0 ]; then
-      pass "No tracked live file references deleted skills phase-compact/reload/strategy ($target_count files checked)"
+      pass "No tracked live file references deleted skills phase-compact/reload/strategy/parallel ($target_count files checked)"
     else
-      fail "$STALE_HITS tracked live file(s) reference deleted skills phase-compact/reload/strategy"
+      fail "$STALE_HITS tracked live file(s) reference deleted skills phase-compact/reload/strategy/parallel"
     fi
   fi
 fi

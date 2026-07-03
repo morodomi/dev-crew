@@ -56,7 +56,7 @@ fi
 # T-06: Given skill-map.md, Then ハードコード数値がない
 echo ""
 echo "T-06: skill-map.md has no hardcoded agent/skill counts"
-if grep -qE '34 agents|29 skills' "$SKILL_MAP" 2>/dev/null; then
+if grep -qE '34 agents|28 skills' "$SKILL_MAP" 2>/dev/null; then
   fail "T-06: hardcoded counts found"
 else
   pass "T-06: no hardcoded counts"

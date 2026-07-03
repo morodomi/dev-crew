@@ -71,7 +71,7 @@ dev-crew/
 ├── skills/                       # Skills (flat, see STATUS.md for counts)
 │   ├── Workflow: spec/, red/, green/, refactor/, review/, commit/, cycle-retrospective/
 │   ├── Orchestration: orchestrate/
-│   ├── Diagnostic: diagnose/, parallel/
+│   ├── Diagnostic: diagnose/
 │   ├── Setup: onboard/, skill-maker/
 │   ├── Security: security-scan/, attack-report/, context-review/, generate-e2e/, security-audit/
 │   ├── Language Quality: php-quality/, python-quality/, ts-quality/, etc.
