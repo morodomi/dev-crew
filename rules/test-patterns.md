@@ -4,7 +4,7 @@ paths:
 ---
 # Test Patterns — bash 落とし穴と meta test 設計
 
-テストスクリプト作成時の再発防止パターン集。cycle 20260421_1043 〜 20260422_0937 + cycle 20260422_1146 から抽出した 8 つの insight を具体的な禁止事項と推奨実装としてまとめる。
+テストスクリプト作成時の再発防止パターン集。cycle 20260421_1043 〜 20260702_1930 の複数 cycle から抽出した insight を具体的な禁止事項と推奨実装としてまとめる。
 
 ## 禁止事項
 
@@ -20,6 +20,7 @@ paths:
 - **`grep -E "a\|b"` の escape alternation**: ERE mode では `|` が直接 alternation、
   `\|` はリテラル pipe となり alternation 無効化 (実測 rc=1 で silent no-match)
   (cycle 20260424_1119 #2)
+- **単体語で pin**: doc/rule への追記を検査する test で、section 既存項目にも出現し得る単体語を literal にしない。false-pass する (cycle 20260701_1120 #1)
 
 ## 推奨
 
@@ -37,6 +38,10 @@ paths:
 - regex alternation: `grep -E "a|b|c"` (non-escaped、ERE の標準) を使う。mode 決定時は
   `printf` oracle 実測で rc 確認 (例: `printf 'x\nb\n' | grep -E "a|b"; echo rc=$?`)
   (cycle 20260424_1119 #2)
+- 追記検査 test は追記内容にのみ現れる「contiguous phrase」を literal に使う (cycle 20260701_1120 #1)
+- literal 採用前に `section_grep` で section 内「pre-existing count」= 0 を実測してから確定する (cycle 20260701_1120 #2)
+- 「分岐 × 既存チェック」の組み合わせ経路それぞれに「出力文字列 assert」を置く。rc のみでは非ブロッキング WARN の silent skip を検出できない (cycle 20260702_1930 #2)
+- 同一セマンティクスを複数実装に要求する時は先に「挙動チェックリスト」（空入力・欠落フィールド・形式混在・異常系）を列挙し各実装に適用する (cycle 20260702_1930 #3)
 
 ## 具体例
 
@@ -69,3 +74,5 @@ echo "$output" | grep -q "expected"
 - `docs/cycles/20260422_0937_advisory-terminology-fix.md` Insight 3
 - `docs/cycles/20260422_1146_codify-insight-skill.md` Insight 1
 - cycle 20260422_1313 Insight 4 — bash $(cmd1 || cmd2) fallback pitfall
+- `docs/cycles/20260701_1120_plan-discipline-green-sweep.md` Insights 1, 2
+- `docs/cycles/20260702_1930_gate-active-cycle-fix.md` Insights 2, 3

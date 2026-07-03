@@ -568,6 +568,137 @@ else
   fi
 fi
 
+# TC-28: rules/test-patterns.md — 禁止事項 に「単体語で pin」(A1 禁止形連続句) + 推奨 に
+# 「contiguous phrase」「pre-existing count」+ 出典 に 20260701_1120
+# A1 の禁止事項も pin する（推奨のみだと禁止形を落としても PASS するため）
+echo ""
+echo "TC-28: rules/test-patterns.md 禁止事項 has '単体語で pin' + 推奨 has 'contiguous phrase'+'pre-existing count' + 出典 has '20260701_1120'"
+FILE="$RULES_DIR/test-patterns.md"
+if [ ! -f "$FILE" ]; then
+  fail "TC-28: rules/test-patterns.md does not exist"
+else
+  count_tandaigo=$(section_grep "$FILE" "禁止事項" "単体語で pin")
+  count_contiguous=$(section_grep "$FILE" "推奨" "contiguous phrase")
+  count_preexisting=$(section_grep "$FILE" "推奨" "pre-existing count")
+  count_cycle0701=$(section_grep "$FILE" "出典" "20260701_1120")
+  if [ "$count_tandaigo" -ge 1 ] && [ "$count_contiguous" -ge 1 ] && [ "$count_preexisting" -ge 1 ] && [ "$count_cycle0701" -ge 1 ]; then
+    pass "TC-28: test-patterns.md 禁止事項 has 単体語で pin + 推奨 has contiguous phrase + pre-existing count + 出典 has 20260701_1120"
+  elif [ "$count_tandaigo" -lt 1 ]; then
+    fail "TC-28: test-patterns.md 禁止事項 section missing '単体語で pin' phrase (A1 禁止形 pin 未実装)"
+  elif [ "$count_contiguous" -lt 1 ]; then
+    fail "TC-28: test-patterns.md 推奨 section missing 'contiguous phrase'"
+  elif [ "$count_preexisting" -lt 1 ]; then
+    fail "TC-28: test-patterns.md 推奨 section missing 'pre-existing count'"
+  else
+    fail "TC-28: test-patterns.md 出典 section missing '20260701_1120' reference"
+  fi
+fi
+
+# TC-29: rules/test-patterns.md — 推奨 に「分岐 × 既存チェック」「出力文字列 assert」
+# 「挙動チェックリスト」+ 出典 に 20260702_1930
+echo ""
+echo "TC-29: rules/test-patterns.md 推奨 has '分岐 × 既存チェック'+'出力文字列 assert'+'挙動チェックリスト' + 出典 has '20260702_1930'"
+FILE="$RULES_DIR/test-patterns.md"
+if [ ! -f "$FILE" ]; then
+  fail "TC-29: rules/test-patterns.md does not exist"
+else
+  count_bunki=$(section_grep "$FILE" "推奨" "分岐 × 既存チェック")
+  count_shutsuryoku=$(section_grep "$FILE" "推奨" "出力文字列 assert")
+  count_kyodo=$(section_grep "$FILE" "推奨" "挙動チェックリスト")
+  count_cycle1930=$(section_grep "$FILE" "出典" "20260702_1930")
+  if [ "$count_bunki" -ge 1 ] && [ "$count_shutsuryoku" -ge 1 ] && [ "$count_kyodo" -ge 1 ] && [ "$count_cycle1930" -ge 1 ]; then
+    pass "TC-29: test-patterns.md 推奨 has 分岐×既存チェック + 出力文字列 assert + 挙動チェックリスト + 出典 has 20260702_1930"
+  elif [ "$count_bunki" -lt 1 ]; then
+    fail "TC-29: test-patterns.md 推奨 section missing '分岐 × 既存チェック'"
+  elif [ "$count_shutsuryoku" -lt 1 ]; then
+    fail "TC-29: test-patterns.md 推奨 section missing '出力文字列 assert'"
+  elif [ "$count_kyodo" -lt 1 ]; then
+    fail "TC-29: test-patterns.md 推奨 section missing '挙動チェックリスト'"
+  else
+    fail "TC-29: test-patterns.md 出典 section missing '20260702_1930' reference"
+  fi
+fi
+
+# TC-30: rules/plan-discipline.md — 推奨 に「immutable snapshot 複製」「並行プロセスから隔離」
+# + 出典 に 20260702_1200
+echo ""
+echo "TC-30: rules/plan-discipline.md 推奨 has 'immutable snapshot 複製'+'並行プロセスから隔離' + 出典 has '20260702_1200'"
+FILE="$RULES_DIR/plan-discipline.md"
+if [ ! -f "$FILE" ]; then
+  fail "TC-30: rules/plan-discipline.md does not exist"
+else
+  count_snapshot=$(section_grep "$FILE" "推奨" "immutable snapshot 複製")
+  count_kakuri=$(section_grep "$FILE" "推奨" "並行プロセスから隔離")
+  count_cycle1200=$(section_grep "$FILE" "出典" "20260702_1200")
+  if [ "$count_snapshot" -ge 1 ] && [ "$count_kakuri" -ge 1 ] && [ "$count_cycle1200" -ge 1 ]; then
+    pass "TC-30: plan-discipline.md 推奨 has immutable snapshot 複製 + 並行プロセスから隔離 + 出典 has 20260702_1200"
+  elif [ "$count_snapshot" -lt 1 ]; then
+    fail "TC-30: plan-discipline.md 推奨 section missing 'immutable snapshot 複製'"
+  elif [ "$count_kakuri" -lt 1 ]; then
+    fail "TC-30: plan-discipline.md 推奨 section missing '並行プロセスから隔離'"
+  else
+    fail "TC-30: plan-discipline.md 出典 section missing '20260702_1200' reference"
+  fi
+fi
+
+# TC-31: rules/agent-prompts.md — 並列起動時の prompt 契約 に「読み取り並列・実行直列」
+# 「テスト実行可否」+ 出典 に 20260702_1200
+echo ""
+echo "TC-31: rules/agent-prompts.md 並列起動時の prompt 契約 has '読み取り並列・実行直列'+'テスト実行可否' + 出典 has '20260702_1200'"
+FILE="$RULES_DIR/agent-prompts.md"
+if [ ! -f "$FILE" ]; then
+  fail "TC-31: rules/agent-prompts.md does not exist"
+else
+  count_yomikaki=$(section_grep "$FILE" "並列起動時の prompt 契約" "読み取り並列・実行直列")
+  count_kahi=$(section_grep "$FILE" "並列起動時の prompt 契約" "テスト実行可否")
+  count_cycle1200=$(section_grep "$FILE" "出典" "20260702_1200")
+  if [ "$count_yomikaki" -ge 1 ] && [ "$count_kahi" -ge 1 ] && [ "$count_cycle1200" -ge 1 ]; then
+    pass "TC-31: agent-prompts.md 並列起動時の prompt 契約 has 読み取り並列・実行直列 + テスト実行可否 + 出典 has 20260702_1200"
+  elif [ "$count_yomikaki" -lt 1 ]; then
+    fail "TC-31: agent-prompts.md 並列起動時の prompt 契約 section missing '読み取り並列・実行直列'"
+  elif [ "$count_kahi" -lt 1 ]; then
+    fail "TC-31: agent-prompts.md 並列起動時の prompt 契約 section missing 'テスト実行可否'"
+  else
+    fail "TC-31: agent-prompts.md 出典 section missing '20260702_1200' reference"
+  fi
+fi
+
+# TC-32: rules/integration-verification.md — 推奨 に「usage を実測」+ 出典 に 20260702_1200
+echo ""
+echo "TC-32: rules/integration-verification.md 推奨 has 'usage を実測' + 出典 has '20260702_1200'"
+FILE="$RULES_DIR/integration-verification.md"
+if [ ! -f "$FILE" ]; then
+  fail "TC-32: rules/integration-verification.md does not exist"
+else
+  count_usage=$(section_grep "$FILE" "推奨" "usage を実測")
+  count_cycle1200=$(section_grep "$FILE" "出典" "20260702_1200")
+  if [ "$count_usage" -ge 1 ] && [ "$count_cycle1200" -ge 1 ]; then
+    pass "TC-32: integration-verification.md 推奨 has usage を実測 + 出典 has 20260702_1200"
+  elif [ "$count_usage" -lt 1 ]; then
+    fail "TC-32: integration-verification.md 推奨 section missing 'usage を実測'"
+  else
+    fail "TC-32: integration-verification.md 出典 section missing '20260702_1200' reference"
+  fi
+fi
+
+# TC-33: rules/multi-file-consistency.md — 推奨 に「信頼するディレクトリ境界」+ 出典 に 20260702_1930
+echo ""
+echo "TC-33: rules/multi-file-consistency.md 推奨 has '信頼するディレクトリ境界' + 出典 has '20260702_1930'"
+FILE="$RULES_DIR/multi-file-consistency.md"
+if [ ! -f "$FILE" ]; then
+  fail "TC-33: rules/multi-file-consistency.md does not exist"
+else
+  count_kyokai=$(section_grep "$FILE" "推奨" "信頼するディレクトリ境界")
+  count_cycle1930=$(section_grep "$FILE" "出典" "20260702_1930")
+  if [ "$count_kyokai" -ge 1 ] && [ "$count_cycle1930" -ge 1 ]; then
+    pass "TC-33: multi-file-consistency.md 推奨 has 信頼するディレクトリ境界 + 出典 has 20260702_1930"
+  elif [ "$count_kyokai" -lt 1 ]; then
+    fail "TC-33: multi-file-consistency.md 推奨 section missing '信頼するディレクトリ境界'"
+  else
+    fail "TC-33: multi-file-consistency.md 出典 section missing '20260702_1930' reference"
+  fi
+fi
+
 # Summary
 echo ""
 echo "=== Summary ==="

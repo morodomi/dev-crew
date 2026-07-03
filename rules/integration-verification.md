@@ -27,6 +27,7 @@ template / skill docs だけでなく、自 cycle の Verification 実行でも 
 - **Config 変更時** (motivating bug): `python -m myapp --config new.yaml && grep "loaded_from: new.yaml" /tmp/myapp.log`
 - **Library**: `python -c "from mymod import run; run('config.yaml')"`
 - **dev-crew 内 (bash/doc project)**: gate/consumer/validator を real path で実行 — 例 `bash scripts/gates/pre-commit-gate.sh $cycle_doc`（$1 に cycle doc パスを渡すと当該 doc を直接検査。明示指定・推奨。project root を渡すと updated 最新の non-DONE を自動選択）or `bash scripts/validate-yaml-frontmatter.sh`。grep/diff のみは structural test として扱う
+- **共通 (全 project type)**: Verification に書く script 呼び出しは「usage を実測」（ヘッダコメント / --help / 実行）で確認してから記載する。引数契約を名前から推測しない (cycle 20260702_1200 #3)
 
 ## Evidence 記録
 
@@ -37,3 +38,4 @@ template / skill docs だけでなく、自 cycle の Verification 実行でも 
 - Kyotei YAML config wire-gap bug (別 repo、2026-04-24 発見)
 - `docs/cycles/20260424_0900_integration-verification-rule.md` — integration verification rule codify cycle
 - `docs/cycles/20260423_1045_discovered-cycle2-followup.md` Insight 1 (REFACTOR full-suite baseline 必須) の対称ルール
+- cycle 20260702_1200 #3

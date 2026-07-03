@@ -5,10 +5,10 @@ phase: COMMIT
 complexity: standard
 test_count: 9
 risk_level: medium
-retro_status: captured
+retro_status: resolved
 codex_session_id: ""
 created: 2026-07-02 19:30
-updated: 2026-07-02 22:40
+updated: 2026-07-03 12:10
 ---
 
 # Gate Active Cycle Fix — pre-commit/pre-red gate の ACTIVE_CYCLE 選択修正（issue #145）
@@ -346,3 +346,30 @@ Format for each phase entry (**strict, required by pre-commit-gate.sh**):
 
 ### 成功事例（observation）: perspective-diverse review の相補性
 - 4 系統が互いに排他的な欠陥を検出: security=偽造パス、correctness=dirname off-by-one、Codex=one-liner セマンティクス乖離、maintainability=追跡番号混入。重複指摘は dirname 1 件のみ。レンズ分離設計（rules/review-triage.md MED tier）の有効性を実証
+
+## Codify Decisions
+
+triage 実施: 2026-07-03 12:10（後続 cycle test-hardening-rule-codify の orchestrate Block 0 codify gate で処理）。全件 high-confidence の autonomous triage（skill 候補なし、質問 0 件）。実装は同 cycle（test-hardening-rule-codify が rule 実装 cycle そのものであるため、decision と implementation を同時に行う — 無関係 cycle の commit を汚さない慣行と矛盾しない）。
+
+### Insight 1
+- **Decision**: codified
+- **Destination**: rule (rules/multi-file-consistency.md + .claude/rules/ mirror)
+- **Reason**: enumerate-and-reject 原則の拡張 —「パス引数の enumerate は値の形式だけでなく位置（信頼するディレクトリ境界）も列挙対象」。偽造 doc で gate 通過という実害 evidence あり
+- **Decided**: 2026-07-03 12:10
+
+### Insight 2
+- **Decision**: codified
+- **Destination**: rule (rules/test-patterns.md + .claude/rules/ mirror)
+- **Reason**: 「分岐追加時は分岐 × 既存チェックの組み合わせ経路に出力文字列 assert を置く」。非ブロッキング WARN の silent skip という実害 evidence あり
+- **Decided**: 2026-07-03 12:10
+
+### Insight 3
+- **Decision**: codified
+- **Destination**: rule (rules/test-patterns.md + .claude/rules/ mirror)
+- **Reason**: 「同一セマンティクスの複数実装は挙動チェックリスト列挙後に各実装へ適用」。one-liner セマンティクス乖離の実害 evidence あり
+- **Decided**: 2026-07-03 12:10
+
+### 成功事例（observation）
+- **Decision**: no-codify
+- **Reason**: perspective-diverse review の相補性は rules/review-triage.md 既存 tier 設計の実証であり、新規 rule 化は不要
+- **Decided**: 2026-07-03 12:10
