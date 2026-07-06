@@ -1,5 +1,47 @@
 # Changelog
 
+## [2.11.0] - 2026-07-06
+
+スキル棚卸しと品質規律の自動契約化。skill-audit（外部レビュー）を起点に、
+死蔵スキルの削除・ゲート機構の修復・「指示で防げない規約の契約テスト化」を一括で実施。
+
+### Removed
+- 死蔵スキル 4 種を削除（32→28）: phase-compact / reload / strategy / parallel（#142）。PreCompact hook は存続
+- テストコメントの追跡ラベル（cycle 番号・issue 番号）を全除去し、自動 inverse contract（TC-17）で再混入を禁止（#151）
+
+### Fixed
+- pre-commit/pre-red gate の ACTIVE_CYCLE 選択を latest-updated + 明示指定に修正（#145）。first-non-DONE 選択により 2 ヶ月前の doc を検査していた穴を解消。skill 文書 7 ファイルの同型探索も統一
+- commit 時の phase: DONE 遷移を orchestrate 全モード（SKILL.md / steps-subagent / steps-codex / steps-teams）で commit skill 委譲に統一（#147）。完了済み 19 doc を DONE へ migration し「non-DONE = active」の意味論を修復（TC-18 invariant）
+
+### Added
+- codified insight 14 件を rules 8 ファイル + red skill に実装: contiguous phrase pin / pre-existing count 実測 / baseline snapshot 隔離 / 読み取り並列・実行直列 / usage 実測 / 信頼ディレクトリ境界 / process-substitution rc 検査 / 2-strike rule / 委譲 prompt テンプレート監査 / Test List 遷移責務ほか
+- red skill に Stage 3.5「False-pass 自己証明」を新設
+- 削除スキル名の path-form inverse contract（TC-16、#143）
+- quality 系スキル 6 種の description 先鋭化（トリガー語衝突の解消）
+
+## [2.10.0] - 2026-07-01
+
+### Added
+- plan-discipline: count/status 変更 cycle の GREEN 検証を逆向き契約 sweep で全実行する規律（curated リスト禁止、#140）
+- rules の path-scoping（#139）
+
+## [2.9.0] - 2026-05-25
+
+### Added
+- agent-prompts: 並列起動時の prompt 契約（3+ subagent fan-out の担当範囲・出力形式・統合キー・検証条件）
+- review: Step 5 Findings Synthesis
+
+## [2.8.0] - 2026-04-27
+
+### Added
+- rules/ ⇄ .claude/rules/ の byte-identical mirror 体制（#132）
+- integration-verification rule: Verification Gate に real-path invocation を必須化（#133）
+- 蓄積 codify 決定 7 件の rule/skill 実装
+
+### Fixed
+- pre-existing 6 FAIL の全解消（full baseline 0 FAIL 達成）
+- careful allowed-tools / informal alias sweep / risk-classifier FP ほか debt 解消
+
 ## [2.7.0] - 2026-04-21
 
 Agile Loop Step 1: cycle-retrospective ループの実用完成。
