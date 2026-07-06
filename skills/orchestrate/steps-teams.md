@@ -305,11 +305,9 @@ Skill(dev-crew:cycle-retrospective)
 
 ### COMMIT
 
-PdM (Lead) が直接実行:
-
 ```
-git add <files>
-git commit -m "..."
+Skill(dev-crew:commit)
+→ commit skill Step 3 が Cycle doc frontmatter を phase: DONE へ遷移させてから git add & commit
 ```
 
 ### Auto-Learn (COMMIT 後)

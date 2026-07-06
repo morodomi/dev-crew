@@ -1,14 +1,14 @@
 ---
 feature: rules-path-scoping
 cycle: 20260625_1101
-phase: COMMIT
+phase: DONE
 complexity: standard
 test_count: 4
 risk_level: LOW
 retro_status: resolved
 codex_session_id: "019efc89-e96b-7bc3-9d00-4004e6987657"
 created: 2026-06-25
-updated: 2026-07-01
+updated: 2026-07-06 11:40
 ---
 
 # Rules Path Scoping

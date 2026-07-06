@@ -31,4 +31,4 @@ Cycle doc records what was done; source files define what is.
 | green | phase, updated |
 | refactor | phase, updated |
 | review | Body log only (no frontmatter changes except phase, updated) |
-| commit | phase, updated |
+| commit | phase (COMMIT→DONE 終端), updated |

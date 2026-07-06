@@ -1,14 +1,14 @@
 ---
 feature: test-hardening-rule-codify
 cycle: 20260703_1215
-phase: COMMIT
+phase: DONE
 complexity: complex
 test_count: 10
 risk_level: medium
 retro_status: resolved
 codex_session_id: ""
 created: 2026-07-03 12:15
-updated: 2026-07-03 16:40
+updated: 2026-07-06 11:40
 ---
 
 # test hardening — codify 済み insight 9 件の rule/skill 実装 + inverse contract（#143）

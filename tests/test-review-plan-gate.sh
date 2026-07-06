@@ -190,6 +190,50 @@ else
   fi
 fi
 
+########################################
+# Block 3: COMMIT time DONE transition (commit skill 契約整合、全モード)
+########################################
+
+echo ""
+echo "--- Block 3: COMMIT time DONE transition (all modes) ---"
+
+# TC-14: orchestrate 全モード（SKILL.md / steps-teams.md / steps-subagent.md / steps-codex.md）の
+# Block 3 が commit skill への委譲（Skill(dev-crew:commit)）または Cycle doc frontmatter の
+# DONE 遷移（phase: DONE へ遷移）を明記していることを contiguous phrase で pin する。
+# commit skill 側の既存契約（phase: DONE、skills/commit/SKILL.md Step 3）に orchestrate 側の
+# 全モードの Block 3 記述を整合させる（teams モードのみ raw git commit が残存していた不整合の是正）
+STEPS_CODEX="$BASE_DIR/skills/orchestrate/steps-codex.md"
+[ -f "$STEPS_CODEX" ] || { echo "FATAL: $STEPS_CODEX not found"; exit 1; }
+
+block3_section=$(awk '/^### Block 3/,/^## /' "$ORCH_SKILL" 2>/dev/null || true)
+teams_commit_section=$(awk '/^### COMMIT/,/^### Auto-Learn/' "$ORCH_TEAMS" 2>/dev/null || true)
+subagent_block3=$(awk '/^## Block 3/,/^## Fallback/' "$ORCH_SUB" 2>/dev/null || true)
+codex_block3=$(awk '/^## Block 3/,/^## Fallback/' "$STEPS_CODEX" 2>/dev/null || true)
+
+echo ""
+echo "TC-14a: SKILL.md Block 3 describes phase: DONE transition + commit skill delegation"
+if echo "$block3_section" | grep -q "phase: DONE へ遷移" && echo "$block3_section" | grep -qF "Skill(dev-crew:commit)"; then
+  pass "TC-14a: SKILL.md Block 3 describes phase: DONE transition + delegation"
+else
+  fail "TC-14a: SKILL.md Block 3 missing phase: DONE transition and/or Skill(dev-crew:commit) delegation"
+fi
+
+echo ""
+echo "TC-14b: steps-teams.md COMMIT section delegates to commit skill or describes DONE transition"
+if echo "$teams_commit_section" | grep -qF "Skill(dev-crew:commit)" || echo "$teams_commit_section" | grep -q "phase: DONE へ遷移"; then
+  pass "TC-14b: steps-teams.md COMMIT section delegates or describes DONE transition"
+else
+  fail "TC-14b: steps-teams.md COMMIT section still uses raw git commit without delegation"
+fi
+
+echo ""
+echo "TC-14c: steps-subagent.md / steps-codex.md Block 3 use Skill(dev-crew:commit) (regression pin)"
+if echo "$subagent_block3" | grep -qF "Skill(dev-crew:commit)" && echo "$codex_block3" | grep -qF "Skill(dev-crew:commit)"; then
+  pass "TC-14c: steps-subagent.md and steps-codex.md Block 3 use Skill(dev-crew:commit)"
+else
+  fail "TC-14c: steps-subagent.md and/or steps-codex.md Block 3 missing Skill(dev-crew:commit)"
+fi
+
 # Summary
 echo ""
 echo "=== Summary ==="

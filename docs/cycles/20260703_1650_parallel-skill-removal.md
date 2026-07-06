@@ -1,14 +1,14 @@
 ---
 feature: parallel-skill-removal
 cycle: 20260703_1650
-phase: COMMIT
+phase: DONE
 complexity: standard
 test_count: 6
 risk_level: medium
 retro_status: resolved
 codex_session_id: ""
 created: 2026-07-03 16:50
-updated: 2026-07-03 20:30
+updated: 2026-07-06 11:40
 ---
 
 # parallel スキル削除（issue #142、29→28）

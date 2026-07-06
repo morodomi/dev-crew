@@ -1,14 +1,14 @@
 ---
 feature: codify-insight
 cycle: cycle-b-codify-insight
-phase: REVIEW
+phase: DONE
 complexity: standard
 test_count: 20
 risk_level: medium
 retro_status: resolved
 codex_session_id: "019db316-9c2c-74f0-b32d-0b7d92de9e17"
 created: 2026-04-22 11:46
-updated: 2026-04-22 14:00
+updated: 2026-07-06 11:40
 ---
 
 # Cycle B: codify-insight skill 新設 (ROADMAP Step 1b)

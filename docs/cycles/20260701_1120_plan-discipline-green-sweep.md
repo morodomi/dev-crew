@@ -1,14 +1,14 @@
 ---
 feature: plan-discipline-green-sweep
 cycle: 20260701_1120
-phase: COMMIT
+phase: DONE
 complexity: simple
 test_count: 1
 risk_level: LOW
 retro_status: resolved
 codex_session_id: "019f1b7c-a332-7493-a31c-384e3e05a4b0"
 created: 2026-07-01 11:21
-updated: 2026-07-02 12:00
+updated: 2026-07-06 11:40
 ---
 
 # Plan Discipline — GREEN 検証 sweep ルール codify
