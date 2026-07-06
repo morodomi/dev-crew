@@ -1,6 +1,6 @@
 #!/bin/bash
 # test-phase-gate.sh - Phase Gate + Progress Log + Commit doc update + Completion validation
-# TC-01 ~ TC-22
+# TC-01 ~ TC-24
 
 set -euo pipefail
 
@@ -369,6 +369,47 @@ if $ALL_SNIPPETS_OK; then
   pass "All 7 files use new sort|tail|cut-f2 selection snippet, no head -1 remnant"
 else
   fail "One or more files still use old head -1 first-match snippet (see details above)"
+fi
+
+########################################
+# ACTIVE_CYCLE Selection Block Drift Guard (TC-24)
+########################################
+
+echo ""
+echo "--- ACTIVE_CYCLE Selection Block Drift Guard ---"
+
+# TC-24: pre-commit-gate.sh と pre-red-gate.sh の ACTIVE_CYCLE 選択ロジックが
+# drift していないことを構造アンカー抽出 + 既知1行除外 diff で検証する。
+# アンカーは「# $1 is polymorphic」コメント行から最初の行頭 fi までの区間
+# (行番号 hardcode 禁止 — awk range pattern でアンカー抽出する)。
+echo ""
+echo "TC-24: pre-commit-gate.sh and pre-red-gate.sh ACTIVE_CYCLE selection blocks match (known 1-line diff excluded)"
+PRE_COMMIT_GATE="$BASE_DIR/scripts/gates/pre-commit-gate.sh"
+PRE_RED_GATE="$BASE_DIR/scripts/gates/pre-red-gate.sh"
+if [ ! -f "$PRE_COMMIT_GATE" ]; then
+  fail "TC-24: scripts/gates/pre-commit-gate.sh does not exist"
+elif [ ! -f "$PRE_RED_GATE" ]; then
+  fail "TC-24: scripts/gates/pre-red-gate.sh does not exist"
+else
+  commit_block=$(awk '/# \$1 is polymorphic/,/^fi$/' "$PRE_COMMIT_GATE")
+  red_block=$(awk '/# \$1 is polymorphic/,/^fi$/' "$PRE_RED_GATE")
+  commit_lines=$(printf '%s\n' "$commit_block" | grep -c '.' || true)
+  red_lines=$(printf '%s\n' "$red_block" | grep -c '.' || true)
+  if [ "$commit_lines" -lt 40 ]; then
+    fail "TC-24: pre-commit-gate.sh anchor extraction returned only $commit_lines lines (need >= 40 — anchor may have silently failed to match)"
+  elif [ "$red_lines" -lt 40 ]; then
+    fail "TC-24: pre-red-gate.sh anchor extraction returned only $red_lines lines (need >= 40 — anchor may have silently failed to match)"
+  else
+    diff_out=$(diff \
+      <(printf '%s\n' "$commit_block" | grep -vF 'BLOCK: No active Cycle doc found') \
+      <(printf '%s\n' "$red_block" | grep -vF 'BLOCK: No active Cycle doc found') || true)
+    if [ -z "$diff_out" ]; then
+      pass "TC-24: ACTIVE_CYCLE selection blocks match ($commit_lines / $red_lines lines, known 1-line diff excluded)"
+    else
+      fail "TC-24: ACTIVE_CYCLE selection blocks diverge beyond the known 1-line diff:
+$diff_out"
+    fi
+  fi
 fi
 
 # Summary

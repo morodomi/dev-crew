@@ -216,13 +216,13 @@ else
 fi
 
 # Section-specific grep: extract content under a given H2 heading until next H2.
-# Usage: section_grep <file> <heading_regex> <pattern> → emits matching lines.
+# Usage: section_grep <file> <heading_prefix (fixed-string)> <pattern> → emits matching lines.
 section_grep() {
   local file="$1"
   local heading="$2"
   local pattern="$3"
   awk -v h="$heading" '
-    $0 ~ "^## " h {in_sec=1; next}
+    index($0, "## " h) == 1 {in_sec=1; next}
     in_sec && /^## /{in_sec=0}
     in_sec
   ' "$file" | grep -cF "$pattern" || true
@@ -806,6 +806,65 @@ else
     fail "TC-38: doc-mutations.md SSOT 即時同期 section missing 'Test List 遷移'"
   else
     fail "TC-38: doc-mutations.md 出典 section missing '20260703_1650' reference"
+  fi
+fi
+
+# TC-39: rules/doc-mutations.md — 「Frontmatter 遷移の区間限定編集」に「全文一括置換」+ 出典 に 20260703_2035
+echo ""
+echo "TC-39: rules/doc-mutations.md Frontmatter 遷移の区間限定編集 has '全文一括置換' + 出典 has '20260703_2035'"
+FILE="$RULES_DIR/doc-mutations.md"
+if [ ! -f "$FILE" ]; then
+  fail "TC-39: rules/doc-mutations.md does not exist"
+else
+  count_zenbun=$(section_grep "$FILE" "Frontmatter 遷移の区間限定編集" "全文一括置換")
+  count_cycle2035=$(section_grep "$FILE" "出典" "20260703_2035")
+  if [ "$count_zenbun" -ge 1 ] && [ "$count_cycle2035" -ge 1 ]; then
+    pass "TC-39: doc-mutations.md Frontmatter 遷移の区間限定編集 has 全文一括置換 + 出典 has 20260703_2035"
+  elif [ "$count_zenbun" -lt 1 ]; then
+    fail "TC-39: doc-mutations.md Frontmatter 遷移の区間限定編集 section missing '全文一括置換' (cycle 20260703_2035 #1 未実装)"
+  else
+    fail "TC-39: doc-mutations.md 出典 section missing '20260703_2035' reference"
+  fi
+fi
+
+# TC-40: rules/test-patterns.md — 禁止事項 に「ERE メタ文字」、推奨 に「短縮見出し」+ 出典 に 20260703_2035
+echo ""
+echo "TC-40: rules/test-patterns.md 禁止事項 has 'ERE メタ文字' + 推奨 has '短縮見出し' + 出典 has '20260703_2035'"
+FILE="$RULES_DIR/test-patterns.md"
+if [ ! -f "$FILE" ]; then
+  fail "TC-40: rules/test-patterns.md does not exist"
+else
+  count_ere=$(section_grep "$FILE" "禁止事項" "ERE メタ文字")
+  count_tanshuku=$(section_grep "$FILE" "推奨" "短縮見出し")
+  count_cycle2035=$(section_grep "$FILE" "出典" "20260703_2035")
+  if [ "$count_ere" -ge 1 ] && [ "$count_tanshuku" -ge 1 ] && [ "$count_cycle2035" -ge 1 ]; then
+    pass "TC-40: test-patterns.md 禁止事項 has ERE メタ文字 + 推奨 has 短縮見出し + 出典 has 20260703_2035"
+  elif [ "$count_ere" -lt 1 ]; then
+    fail "TC-40: test-patterns.md 禁止事項 section missing 'ERE メタ文字' (cycle 20260703_2035 #2 未実装)"
+  elif [ "$count_tanshuku" -lt 1 ]; then
+    fail "TC-40: test-patterns.md 推奨 section missing '短縮見出し'"
+  else
+    fail "TC-40: test-patterns.md 出典 section missing '20260703_2035' reference"
+  fi
+fi
+
+# TC-41: rules/agent-prompts.md（既存・無変更）— section_grep をフル括弧見出し
+# 「並列起動時の prompt 契約 (3+ subagent fan-out)」× literal「担当範囲」で呼ぶ回帰契約。
+# 意図的にメタ文字（括弧・+）を含むフル見出しを section_grep に渡す。旧 ERE 実装
+# ($0 ~ "^## " h) では見出し文字列が動的正規表現として解釈され silent no-match
+# (count=0) になっていた — 現行の fixed-string 実装 (index($0, "## " h) == 1) では
+# count>=1 となる。ERE 解釈への退行を検出する回帰契約
+echo ""
+echo "TC-41: rules/agent-prompts.md section_grep with full parenthesized heading has '担当範囲' (fixed-string regression contract)"
+FILE="$RULES_DIR/agent-prompts.md"
+if [ ! -f "$FILE" ]; then
+  fail "TC-41: rules/agent-prompts.md does not exist"
+else
+  count_tantou=$(section_grep "$FILE" "並列起動時の prompt 契約 (3+ subagent fan-out)" "担当範囲")
+  if [ "$count_tantou" -ge 1 ]; then
+    pass "TC-41: section_grep with full parenthesized heading matches '担当範囲' (fixed-string 化済み)"
+  else
+    fail "TC-41: section_grep with full parenthesized heading returns count=0 for '担当範囲' (section_grep が ERE 解釈のまま — fixed-string 化未実装)"
   fi
 fi
 

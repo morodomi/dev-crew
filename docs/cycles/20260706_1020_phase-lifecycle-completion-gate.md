@@ -5,10 +5,10 @@ phase: DONE
 complexity: standard
 test_count: 5
 risk_level: medium
-retro_status: captured
+retro_status: resolved
 codex_session_id: ""
 created: 2026-07-06 10:20
-updated: 2026-07-06 14:10
+updated: 2026-07-06 12:16
 ---
 
 # cycle doc phase lifecycle — completion gate 新設 + non-DONE 19 doc の DONE 遷移（#147）
@@ -313,4 +313,25 @@ Evidence: (orchestrate が自動記入)
 - 最終 full suite: 112/112 全 rc=0、baseline-lifecycle.txt との diff 空（回帰ゼロ）
 - pre-commit-gate（明示指定）PASS → **commit skill 経由で phase: DONE へ遷移してから commit（新 Block 3 手順の初 self-apply）** — 本 doc が「commit 時点で DONE」となる最初の cycle doc
 - Phase completed
+
+## Codify Decisions
+
+triage 実施: 2026-07-06 12:16（後続 cycle codify-rules-impl-and-gate-drift-guard の orchestrate Block 0 codify gate で処理）。autonomous triage、質問 0 件。frontmatter 遷移は区間限定編集（周辺行コンテキスト付き unique match）で実施。
+
+### Insight 1
+- **Decision**: codified
+- **Destination**: rule (rules/plan-discipline.md + .claude/rules/ mirror)
+- **Reason**: 「否定形の plan 前提（〜が未定義/存在しない）は、定義があるべき場所の全 grep 結果を plan に貼付し、発生機序を 1 件実測特定してから書く」。虚偽前提が approve まで通過した実害 evidence あり。plan-discipline「未確認での Problem 記述禁止」の否定形前提版として同 rule への追記が適切。実装は次の codify 実装 cycle（進行中 cycle は codified rule 2 件 + #148 が確定 scope のため混ぜない）
+- **Decided**: 2026-07-06 12:16
+
+### Insight 2
+- **Decision**: codified
+- **Destination**: rule (rules/multi-file-consistency.md + .claude/rules/ mirror)
+- **Reason**: 「multi-mode skill（SKILL.md + steps-*.md）への動作変更は全モード doc への契約テストで pin する（TC-14a/b/c 型）」。steps-* DRY テーマは cycle 20260424_0900 #3 で codified 済みの rule が 2 度破られた再発（recurrence-aware pre-triage: 2+ 回 → 自動 codified）。契約テスト本体は origin cycle で実装済みのため、rule 追記は template 参照の明文化。実装は次の codify 実装 cycle
+- **Decided**: 2026-07-06 12:16
+
+### 成功事例（observation）
+- **Decision**: no-codify
+- **Reason**: Socrates fallback の有効性実証は observation-only。既存の review pipeline 設計（Codex 不在時 Socrates fallback）の追認であり新規 rule 不要。「Codex 復旧後も高リスク cycle では併用」は運用判断として orchestrate の既存 Risk-based scaling 内で吸収可能
+- **Decided**: 2026-07-06 12:16
 

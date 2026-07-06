@@ -21,6 +21,7 @@ paths:
   `\|` はリテラル pipe となり alternation 無効化 (実測 rc=1 で silent no-match)
   (cycle 20260424_1119 #2)
 - **単体語で pin**: doc/rule への追記を検査する test で、section 既存項目にも出現し得る単体語を literal にしない。false-pass する (cycle 20260701_1120 #1)
+- **section_grep へ ERE メタ文字を含む見出しを渡す**: heading 引数が awk 動的 regex として解釈される実装では、丸括弧・+・. を含むフル見出しが silent no-match（count=0）になる (cycle 20260703_2035 #2)
 
 ## 推奨
 
@@ -43,6 +44,7 @@ paths:
 - 「分岐 × 既存チェック」の組み合わせ経路それぞれに「出力文字列 assert」を置く。rc のみでは非ブロッキング WARN の silent skip を検出できない (cycle 20260702_1930 #2)
 - 同一セマンティクスを複数実装に要求する時は先に「挙動チェックリスト」（空入力・欠落フィールド・形式混在・異常系）を列挙し各実装に適用する (cycle 20260702_1930 #3)
 - 外部コマンド出力を while で消費する時は command substitution で変数に受けて rc を直後検査してからループする。process substitution / pipe 直結は上流失敗を silent skip にする (cycle 20260703_1215 #3)
+- section_grep の heading はメタ文字を含まない短縮見出し（前方一致）で渡す。helper 自体は fixed-string 比較（awk index() の prefix 判定）にして ERE 解釈を排除する (cycle 20260703_2035 #2)
 
 ## 具体例
 
@@ -78,3 +80,4 @@ echo "$output" | grep -q "expected"
 - `docs/cycles/20260701_1120_plan-discipline-green-sweep.md` Insights 1, 2
 - `docs/cycles/20260702_1930_gate-active-cycle-fix.md` Insights 2, 3
 - `docs/cycles/20260703_1215_test-hardening-rule-codify.md` Insight 3
+- cycle 20260703_2035 #2 — section_grep heading の ERE 解釈と fixed-string 化

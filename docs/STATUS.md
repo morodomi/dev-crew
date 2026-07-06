@@ -5,7 +5,7 @@
 | Metric | Value |
 |--------|-------|
 | In-Progress Cycles | 0 |
-| Done (unarchived) | 62 |
+| Done (unarchived) | 63 |
 | Archived Cycles | 37 |
 | Skills | 28 |
 | Agents | 41 |
@@ -17,6 +17,7 @@ Last updated: 2026-07-06
 
 | Date | Cycle | Type |
 |------|-------|------|
+| 2026-07-06 | 20260706_1216: codify-rules-impl-and-gate-drift-guard (codified rule 2 件実装 + section_grep fixed-string 化 + gate drift guard TC-24 + TC-16 rc ガード修正、#148) | feat |
 | 2026-07-06 | 20260706_1020: phase-lifecycle-completion-gate (commit 時 DONE 遷移の orchestrate 整合 + 19 doc migration、#147) | fix |
 | 2026-07-03 | 20260703_1650: parallel-skill-removal (parallel スキル削除 29→28、#142) | chore |
 | 2026-07-03 | 20260703_1215: test-hardening-rule-codify (codify 済み insight 9 件実装 + inverse contract #143) | feat |
