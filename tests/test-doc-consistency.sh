@@ -152,12 +152,12 @@ echo "--- Inverse Contract: Deleted Skill Stale-ref ---"
 # git 呼び出しの rc と filter 後の対象ファイル数を先に検証してから判定する
 echo ""
 echo "TC-16: tracked live files have 0 hits for 'skills/(phase-compact|reload|strategy|parallel)'"
-tracked=$(git -C "$BASE_DIR" ls-files 2>/dev/null)
-tracked_rc=$?
+tracked_rc=0
+tracked=$(git -C "$BASE_DIR" ls-files 2>/dev/null) || tracked_rc=$?
 if [ "$tracked_rc" -ne 0 ]; then
   fail "TC-16: git ls-files failed (rc=$tracked_rc) — cannot verify inverse contract"
 else
-  targets=$(echo "$tracked" | grep -vE "^docs/(cycles|decisions|archive)/|^CHANGELOG\.md$")
+  targets=$(echo "$tracked" | grep -vE "^docs/(cycles|decisions|archive)/|^CHANGELOG\.md$") || targets=""
   target_count=$(echo "$targets" | grep -c . || true)
   if [ "$target_count" -eq 0 ]; then
     fail "TC-16: filtered target file list is empty — filter likely over-excludes (0 files to check)"

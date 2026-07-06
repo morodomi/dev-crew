@@ -30,6 +30,14 @@ GREEN phase の collateral fix (scope +1) は検出した瞬間に Cycle doc Fil
 
 フェーズを実行した主体がそのフェーズで完了した Test List 遷移まで行う。遷移の先送りは Codex review BLOCK の実害を生んだ (cycle 20260703_1650 #2)。
 
+## Frontmatter 遷移の区間限定編集 (cycle 20260703_2035 #1)
+
+frontmatter の状態遷移（phase / retro_status / updated）は frontmatter 区間限定で編集する:
+
+- **禁止**: 全文一括置換（whole-file str.replace / sed 全域置換）での frontmatter 遷移。本文中の記録的言及（Progress Log の「retro_status: none」等）を巻き込み、commit 済み本文の無言書き換えを生む
+- **正しい対応**: 行頭アンカー + count=1 の区間限定置換（re.MULTILINE の `^...$` 一致）、または awk 区間抽出で frontmatter のみを対象にする
+- 根拠: cycle doc は「状態」と「状態についての記録」が同居する文書。状態遷移操作は構造を認識して行う
+
 ## Cycle 参照 format (cycle 20260422_1313 #5)
 
 rule 内の cycle 参照は **full filename prefix** (例: `20260422_1313`) または **cycle_id frontmatter 値** を使う。informal 略称 (eval-N、A2b、Cycle B) は会話では許容だが永続 artifact (rule/doc) では使わない。cross-reference は絶対識別子で行う。
@@ -40,3 +48,4 @@ rule 内の cycle 参照は **full filename prefix** (例: `20260422_1313`) ま�
 - `docs/cycles/20260422_1313_rule-docs-codify-followup.md` Insight 2 — GREEN collateral fix は Cycle doc Files list を即時同期
 - `docs/cycles/20260422_1313_rule-docs-codify-followup.md` Insight 5 — cycle 参照は full filename or cycle_id のみ使用
 - cycle 20260703_1650 #2 — フェーズ実行主体が Test List 遷移まで担う
+- cycle 20260703_2035 #1 — frontmatter 遷移の区間限定編集（全文一括置換の本文汚染）
