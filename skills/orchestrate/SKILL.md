@@ -85,7 +85,7 @@ Skill(dev-crew:cycle-retrospective): 失敗-成功 insight 抽出、retro_status
 
 ### Block 3: Finalization
 
-1. **COMMIT**: git add & commit（PdM 直接実行）
+1. **COMMIT**: pre-commit-gate（cycle doc 明示指定）PASS → `Skill(dev-crew:commit)` へ委譲（commit skill Step 3 が Cycle doc を phase: DONE へ遷移させてから git add & commit）
 2. **完了報告**: サイクル完了をユーザーに報告
 
 ## Mode Selection

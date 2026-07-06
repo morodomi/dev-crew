@@ -1,14 +1,14 @@
 ---
 feature: skill-inventory-cleanup
 cycle: 20260702_1200
-phase: COMMIT
+phase: DONE
 complexity: standard
 test_count: 6
 risk_level: medium
 retro_status: resolved
 codex_session_id: "019f2131-5169-75e1-a43b-c2efa87040f0"
 created: 2026-07-02 12:00
-updated: 2026-07-02 19:20
+updated: 2026-07-06 11:40
 ---
 
 # Skill Inventory Cleanup — phase-compact/reload/strategy 削除 + quality description 修正

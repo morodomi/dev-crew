@@ -5,18 +5,19 @@
 | Metric | Value |
 |--------|-------|
 | In-Progress Cycles | 0 |
-| Done (unarchived) | 43 |
+| Done (unarchived) | 62 |
 | Archived Cycles | 37 |
 | Skills | 28 |
 | Agents | 41 |
 | Test Scripts | 112 |
 
-Last updated: 2026-07-03
+Last updated: 2026-07-06
 
 ## Completed (Recent)
 
 | Date | Cycle | Type |
 |------|-------|------|
+| 2026-07-06 | 20260706_1020: phase-lifecycle-completion-gate (commit 時 DONE 遷移の orchestrate 整合 + 19 doc migration、#147) | fix |
 | 2026-07-03 | 20260703_1650: parallel-skill-removal (parallel スキル削除 29→28、#142) | chore |
 | 2026-07-03 | 20260703_1215: test-hardening-rule-codify (codify 済み insight 9 件実装 + inverse contract #143) | feat |
 | 2026-07-02 | 20260702_1930: gate-active-cycle-fix (ACTIVE_CYCLE 選択修正 #145) | fix |

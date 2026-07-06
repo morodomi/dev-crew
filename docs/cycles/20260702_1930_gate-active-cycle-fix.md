@@ -1,14 +1,14 @@
 ---
 feature: gate-active-cycle-fix
 cycle: 20260702_1930
-phase: COMMIT
+phase: DONE
 complexity: standard
 test_count: 9
 risk_level: medium
 retro_status: resolved
 codex_session_id: ""
 created: 2026-07-02 19:30
-updated: 2026-07-03 12:10
+updated: 2026-07-06 11:40
 ---
 
 # Gate Active Cycle Fix — pre-commit/pre-red gate の ACTIVE_CYCLE 選択修正（issue #145）

@@ -220,6 +220,43 @@ else
 fi
 
 ########################################
+# Cycle Doc Phase Lifecycle (completion invariant)
+########################################
+
+echo ""
+echo "--- Cycle Doc Phase Lifecycle ---"
+
+# TC-18: live docs/cycles/*.md（非再帰 glob のため archive/ は自動除外）の frontmatter phase を
+# awk 区間抽出で判定し、DONE でない doc が定常状態で最大 1 件（進行中 cycle）であることを保証する
+# 逆向き契約。phase フィールド自体が無い旧形式 doc は集計対象外（既存 gate と同じ扱い）。
+# glob 0 件は前提破綻のため FAIL 扱い（rules/test-patterns.md nullglob 方式、直前の契約踏襲）。
+echo ""
+echo "TC-18: live docs/cycles/ non-DONE doc count <= 1"
+shopt -s nullglob
+CYCLE_DOCS=("$BASE_DIR"/docs/cycles/*.md)
+shopt -u nullglob
+CYCLE_DOC_COUNT=${#CYCLE_DOCS[@]}
+if [ "$CYCLE_DOC_COUNT" -eq 0 ]; then
+  fail "TC-18: docs/cycles/*.md glob matched 0 files — glob likely failed, cannot verify invariant"
+else
+  NON_DONE_DOCS=()
+  for f in "${CYCLE_DOCS[@]}"; do
+    fm=$(awk '/^---$/{c++;next} c==1{print}' "$f")
+    phase_line=$(echo "$fm" | grep '^phase:' || true)
+    [ -z "$phase_line" ] && continue
+    echo "$phase_line" | grep -q 'DONE' && continue
+    NON_DONE_DOCS+=("$f")
+  done
+  NON_DONE_COUNT=${#NON_DONE_DOCS[@]}
+  if [ "$NON_DONE_COUNT" -le 1 ]; then
+    pass "TC-18: non-DONE doc count ($NON_DONE_COUNT) <= 1 ($CYCLE_DOC_COUNT docs checked)"
+  else
+    fail "TC-18: non-DONE doc count ($NON_DONE_COUNT) > 1"
+    printf '%s\n' "${NON_DONE_DOCS[@]}"
+  fi
+fi
+
+########################################
 # Regression
 ########################################
 

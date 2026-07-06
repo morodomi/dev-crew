@@ -1,14 +1,14 @@
 ---
 feature: rule-docs-codify-followup
 cycle: follow-up-codify-23-insights
-phase: REVIEW
+phase: DONE
 complexity: standard
 test_count: 10
 risk_level: low
 retro_status: resolved
 codex_session_id: "019db366-3682-7823-a9ee-978eee20bb0f"
 created: 2026-04-22 13:13
-updated: 2026-04-23 09:25
+updated: 2026-07-06 11:40
 ---
 
 # Follow-up Cycle: codify→rule 23 insights を rule document 化 + skill-maker 強化

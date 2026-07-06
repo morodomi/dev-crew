@@ -1,14 +1,14 @@
 ---
 feature: tracking-label-contract
 cycle: 20260703_2035
-phase: COMMIT
+phase: DONE
 complexity: standard
 test_count: 8
 risk_level: medium
-retro_status: captured
+retro_status: resolved
 codex_session_id: ""
 created: 2026-07-03 20:35
-updated: 2026-07-04 00:20
+updated: 2026-07-06 11:40
 ---
 
 # codify 実装 (2) — #151 追跡ラベル自動契約 + codified/captured insight 5 件の rule 実装
@@ -371,3 +371,24 @@ diff -q rules/{test-patterns,plan-discipline,integration-verification,agent-prom
 
 ### 成功事例（observation）: 新契約を書く worker の自己違反を Stage 3.5 が即検出
 - TC-17（追跡ラベル禁止契約）を実装する red-worker 自身のコメントが TC-17 に違反する 2 箇所を、Stage 3.5（False-pass 自己証明）の実行過程で自主検出・修正。前 cycle で追加した red skill step と 2-strike rule が設計通り機能した実証。「契約を書く者が最初の違反者になる」パターンは自動契約の即時自己適用でのみ防げる
+
+## Codify Decisions
+
+triage 実施: 2026-07-06 10:10（後続 cycle phase-lifecycle-completion-gate の orchestrate Block 0 codify gate で処理）。autonomous triage、質問 0 件。frontmatter 遷移は行アンカー + count=1 の範囲限定編集で実施（本 doc の Insight 1 の即時適用）。
+
+### Insight 1
+- **Decision**: codified
+- **Destination**: rule (rules/doc-mutations.md + .claude/rules/ mirror)
+- **Reason**: 「frontmatter の状態遷移は frontmatter 区間限定で編集する。全文一括置換は本文中の記録的言及を巻き込む」。二重汚染 + commit 混入の実害 evidence あり。実装は次の codify 実装 cycle（本 cycle は #147 phase lifecycle が scope のため混ぜない）
+- **Decided**: 2026-07-06 10:10
+
+### Insight 2
+- **Decision**: codified
+- **Destination**: rule (rules/test-patterns.md + .claude/rules/ mirror)
+- **Reason**: 「section_grep の heading 引数は ERE 解釈される。メタ文字を含む見出しは短縮形で渡す」。silent no-match の実測 evidence あり。実装は次の codify 実装 cycle（helper の fixed-string 化は #148 と同時が効率的、と origin insight が示唆）
+- **Decided**: 2026-07-06 10:10
+
+### 成功事例（observation）
+- **Decision**: no-codify
+- **Reason**: Stage 3.5 + 2-strike rule の有効性実証は前 2 cycle で codify 済みの rule 群の追認であり、新規 rule 化は不要
+- **Decided**: 2026-07-06 10:10

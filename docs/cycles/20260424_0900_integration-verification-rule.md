@@ -1,14 +1,14 @@
 ---
 feature: integration-verification-rule
 cycle: 20260424_0900
-phase: COMMIT
+phase: DONE
 complexity: standard
 test_count: 109
 risk_level: low
 retro_status: resolved
 codex_session_id: "019dbcfd-b821-7de2-a8b7-980e430b767b"
 created: 2026-04-24 09:00
-updated: 2026-04-24 11:19
+updated: 2026-07-06 11:40
 ---
 
 # Integration Verification Rule — real-path invocation mandatory in Verification Gate

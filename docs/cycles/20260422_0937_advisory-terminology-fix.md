@@ -1,14 +1,14 @@
 ---
 feature: advisory-terminology-fix
 cycle: eval-4
-phase: REVIEW
+phase: DONE
 complexity: trivial
 test_count: 6
 risk_level: low
 retro_status: resolved
 codex_session_id: "019db29f-ab0e-7632-a181-e52b68ce33ac"
 created: 2026-04-22 09:37
-updated: 2026-04-22 14:00
+updated: 2026-07-06 11:40
 ---
 
 # eval-4: TC-09 "advisory" 用語置換 (Revised after Codex plan review round 1)
