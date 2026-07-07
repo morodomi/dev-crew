@@ -12,6 +12,7 @@ plan 作成・承認・実行における規律。実測ベースの計画、逆
 - **baseline 実測の除外理由不明記**: `grep -c ... rules/*.md` 等で「N 件 (除外)」と書く際、
   除外 category (例示 / historical reference / etc) と除外根拠 (どの rule に基づくか) を
   本文に明記しないと、Codex plan review で必ず BLOCK される (cycle 20260424_1119 #1)
+- **否定形前提の未検証記述**: 「X が未定義/存在しない」という plan 前提は、定義があるべき場所（skill/rule/steps/reference）の全 grep 結果を根拠として plan に貼付し、「なぜ現状が壊れているか」の発生機序を 1 件実測特定してから書く。機序未診断の対策は症状への回避策になる (cycle 20260706_1020 #1)
 
 ## 推奨
 
@@ -32,6 +33,7 @@ plan 作成・承認・実行における規律。実測ベースの計画、逆
 - count/status 変更 cycle の GREEN 検証は curated 非回帰リストでなく `grep -rln "<old-value>" tests/` の逆向き契約 sweep 結果を全て実行する。curated リストは検証範囲を恣意的に狭め、test 内に hardcode された逆向き契約（count assertion 等）を見逃す (cycle 20260625_1101 #1、cycle 20260525_1249 #1 が予告)
 - baseline は「immutable snapshot 複製」上で実測し、evidence ファイルを「並行プロセスから隔離」した path に保存する (cycle 20260702_1200 #1)。live tree での baseline は並行 agent に破壊・汚染される
 - 指示・rule 文書で 2 回防げなかった規約違反は 3 回目を待たず自動契約に昇格する（2-strike rule、cycle 20260703_1215 #2）
+- 隔離 snapshot baseline は複製前に repo 外依存を洗い（例: grep -rln '\.\./\.\.' tests/）、依存する親構造ごと複製する。N 件同時 FAIL は単一根本原因の nested cascade をまず疑い、第一仮説は棄却実験を経てから採用する (cycle 20260706_1216 #1)
 
 ## 具体例
 
@@ -64,3 +66,5 @@ grep -rn "107\|Test Scripts" tests/ skills/commit/
 - cycle 20260625_1101 #1 — count/status 変更の GREEN 検証は逆向き契約 sweep で全実行（curated リストは hardcode contract を見逃す。実 regression 事例）
 - cycle 20260702_1200 #1 — baseline snapshot 隔離
 - cycle 20260703_1215 #2 — 2-strike rule（指示文書での繰り返し違反の自動契約化）
+- cycle 20260706_1020 #1 — 否定形 plan 前提の全 grep 貼付 + 発生機序実測
+- cycle 20260706_1216 #1 — 隔離 snapshot の親構造複製 + 単一根本原因 cascade + 棄却実験

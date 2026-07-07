@@ -5,10 +5,10 @@ phase: DONE
 complexity: standard
 test_count: 5
 risk_level: low
-retro_status: captured
+retro_status: resolved
 codex_session_id: "019f3573-1ba3-7040-a140-58b97fb1c0d3"
 created: 2026-07-06 12:16
-updated: 2026-07-06 16:16
+updated: 2026-07-06 17:11
 ---
 
 # codify 実装 + #148 gate drift guard 統合サイクル
@@ -406,3 +406,30 @@ bash -n tests/test-doc-consistency.sh → rc=0（単体実行禁止のため syn
 - commit 同梱: 本 cycle 変更 8 ファイル + docs/cycles/20260706_1020（Block 0 codify gate 出力、REVIEW W2 で明記済み）+ STATUS.md
 - feature branch → PR → merge（Closes #148）
 - Phase completed
+
+## Codify Decisions
+
+triage 実施: 2026-07-06 17:11（次 codify 実装 cycle の planning に先立ち手動起動。autonomous triage、質問 0 件。frontmatter 遷移は区間限定編集）。
+
+### Insight 1
+- **Decision**: codified
+- **Destination**: rule (rules/plan-discipline.md + .claude/rules/ mirror)
+- **Reason**: 「隔離 snapshot は repo 外依存を先に洗い親構造ごと複製する / N 件同時 FAIL は単一根本原因の cascade をまず疑う / 第一仮説は棄却実験を経てから採用」。baseline snapshot テーマは cycle 20260702_1200 #1 で codified 済み rule の補強（recurrence 2+ → pre-triage 自動 codified）。誤診 → 再診の実害 evidence あり。実装は直後の codify 実装 cycle
+- **Decided**: 2026-07-06 17:11
+
+### Insight 2
+- **Decision**: codified
+- **Destination**: rule (rules/test-patterns.md + .claude/rules/ mirror)
+- **Reason**: 「set -e 下の裸 command-substitution 代入は file 内同型 sweep とセットで直す / dead code を蘇生させる fix は蘇生経路の再検査必須」。rc 取得テーマは cycle 20260422_0937 #3・20260703_1215 #3 と 2+ 回再発（pre-triage 自動 codified）。TC-16 fix の 1 行隣に同型が残存した実害 evidence あり。実装は直後の codify 実装 cycle
+- **Decided**: 2026-07-06 17:11
+
+### Insight 3
+- **Decision**: codified
+- **Destination**: rule (rules/agent-prompts.md + .claude/rules/ mirror)
+- **Reason**: 「委譲 worker のフェーズ記録 timestamp は date 実測必須（プロンプト契約の完了時義務に明記）」。timestamp 乖離は cycle 20260706_1020（updated 14:10）と本 cycle（GREEN 13:45）の 2 cycle 連続で観測 — 2-strike rule 適用で自動契約化対象。updated は gate 選択キーであり決定性汚染の実害経路あり。実装は直後の codify 実装 cycle
+- **Decided**: 2026-07-06 17:11
+
+### 成功事例（observation: FP 由来の HIGH tier review が真の findings を検出）
+- **Decision**: no-codify
+- **Reason**: risk-classifier FP の是正は issue #164 が追跡（rule 化ではなく classifier 修正が正）。「review 厚みは正しい入力に基づくべき」は既存 review-triage rule の範囲内
+- **Decided**: 2026-07-06 17:11

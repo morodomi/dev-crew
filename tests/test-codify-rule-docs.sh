@@ -868,6 +868,111 @@ else
   fi
 fi
 
+# TC-42: rules/plan-discipline.md — 禁止事項 に「否定形前提」「発生機序」+ 出典 に 20260706_1020
+echo ""
+echo "TC-42: rules/plan-discipline.md 禁止事項 has '否定形前提'+'発生機序' + 出典 has '20260706_1020'"
+FILE="$RULES_DIR/plan-discipline.md"
+if [ ! -f "$FILE" ]; then
+  fail "TC-42: rules/plan-discipline.md does not exist"
+else
+  count_hitei=$(section_grep "$FILE" "禁止事項" "否定形前提")
+  count_kijo=$(section_grep "$FILE" "禁止事項" "発生機序")
+  count_cycle1020=$(section_grep "$FILE" "出典" "20260706_1020")
+  if [ "$count_hitei" -ge 1 ] && [ "$count_kijo" -ge 1 ] && [ "$count_cycle1020" -ge 1 ]; then
+    pass "TC-42: plan-discipline.md 禁止事項 has 否定形前提 + 発生機序 + 出典 has 20260706_1020"
+  elif [ "$count_hitei" -lt 1 ]; then
+    fail "TC-42: plan-discipline.md 禁止事項 section missing '否定形前提' (cycle 20260706_1020 #1 未実装)"
+  elif [ "$count_kijo" -lt 1 ]; then
+    fail "TC-42: plan-discipline.md 禁止事項 section missing '発生機序'"
+  else
+    fail "TC-42: plan-discipline.md 出典 section missing '20260706_1020' reference"
+  fi
+fi
+
+# TC-43: rules/plan-discipline.md — 推奨 に「親構造ごと複製」「棄却実験」+ 出典 に 20260706_1216
+echo ""
+echo "TC-43: rules/plan-discipline.md 推奨 has '親構造ごと複製'+'棄却実験' + 出典 has '20260706_1216'"
+FILE="$RULES_DIR/plan-discipline.md"
+if [ ! -f "$FILE" ]; then
+  fail "TC-43: rules/plan-discipline.md does not exist"
+else
+  count_oyakouzou=$(section_grep "$FILE" "推奨" "親構造ごと複製")
+  count_kikyaku=$(section_grep "$FILE" "推奨" "棄却実験")
+  count_cycle1216=$(section_grep "$FILE" "出典" "20260706_1216")
+  if [ "$count_oyakouzou" -ge 1 ] && [ "$count_kikyaku" -ge 1 ] && [ "$count_cycle1216" -ge 1 ]; then
+    pass "TC-43: plan-discipline.md 推奨 has 親構造ごと複製 + 棄却実験 + 出典 has 20260706_1216"
+  elif [ "$count_oyakouzou" -lt 1 ]; then
+    fail "TC-43: plan-discipline.md 推奨 section missing '親構造ごと複製' (cycle 20260706_1216 #1 未実装)"
+  elif [ "$count_kikyaku" -lt 1 ]; then
+    fail "TC-43: plan-discipline.md 推奨 section missing '棄却実験'"
+  else
+    fail "TC-43: plan-discipline.md 出典 section missing '20260706_1216' reference"
+  fi
+fi
+
+# TC-44: rules/multi-file-consistency.md — 推奨 に「multi-mode」「契約テストで pin」+ 出典 に 20260706_1020
+echo ""
+echo "TC-44: rules/multi-file-consistency.md 推奨 has 'multi-mode'+'契約テストで pin' + 出典 has '20260706_1020'"
+FILE="$RULES_DIR/multi-file-consistency.md"
+if [ ! -f "$FILE" ]; then
+  fail "TC-44: rules/multi-file-consistency.md does not exist"
+else
+  count_multimode=$(section_grep "$FILE" "推奨" "multi-mode")
+  count_pin=$(section_grep "$FILE" "推奨" "契約テストで pin")
+  count_cycle1020=$(section_grep "$FILE" "出典" "20260706_1020")
+  if [ "$count_multimode" -ge 1 ] && [ "$count_pin" -ge 1 ] && [ "$count_cycle1020" -ge 1 ]; then
+    pass "TC-44: multi-file-consistency.md 推奨 has multi-mode + 契約テストで pin + 出典 has 20260706_1020"
+  elif [ "$count_multimode" -lt 1 ]; then
+    fail "TC-44: multi-file-consistency.md 推奨 section missing 'multi-mode' (cycle 20260706_1020 #2 未実装)"
+  elif [ "$count_pin" -lt 1 ]; then
+    fail "TC-44: multi-file-consistency.md 推奨 section missing '契約テストで pin'"
+  else
+    fail "TC-44: multi-file-consistency.md 出典 section missing '20260706_1020' reference"
+  fi
+fi
+
+# TC-45: rules/test-patterns.md — 禁止事項 に「同型 sweep」、推奨 に「検証重量」+ 出典 に 20260706_1216
+echo ""
+echo "TC-45: rules/test-patterns.md 禁止事項 has '同型 sweep' + 推奨 has '検証重量' + 出典 has '20260706_1216'"
+FILE="$RULES_DIR/test-patterns.md"
+if [ ! -f "$FILE" ]; then
+  fail "TC-45: rules/test-patterns.md does not exist"
+else
+  count_doukei=$(section_grep "$FILE" "禁止事項" "同型 sweep")
+  count_kenshou=$(section_grep "$FILE" "推奨" "検証重量")
+  count_cycle1216=$(section_grep "$FILE" "出典" "20260706_1216")
+  if [ "$count_doukei" -ge 1 ] && [ "$count_kenshou" -ge 1 ] && [ "$count_cycle1216" -ge 1 ]; then
+    pass "TC-45: test-patterns.md 禁止事項 has 同型 sweep + 推奨 has 検証重量 + 出典 has 20260706_1216"
+  elif [ "$count_doukei" -lt 1 ]; then
+    fail "TC-45: test-patterns.md 禁止事項 section missing '同型 sweep' (cycle 20260706_1216 #2 未実装)"
+  elif [ "$count_kenshou" -lt 1 ]; then
+    fail "TC-45: test-patterns.md 推奨 section missing '検証重量'"
+  else
+    fail "TC-45: test-patterns.md 出典 section missing '20260706_1216' reference"
+  fi
+fi
+
+# TC-46: rules/agent-prompts.md — 推奨 に「実測値で記録」「date "+%Y-%m-%d %H:%M"」+ 出典 に 20260706_1216
+echo ""
+echo 'TC-46: rules/agent-prompts.md 推奨 has 実測値で記録 + date "+%Y-%m-%d %H:%M" + 出典 has 20260706_1216'
+FILE="$RULES_DIR/agent-prompts.md"
+if [ ! -f "$FILE" ]; then
+  fail "TC-46: rules/agent-prompts.md does not exist"
+else
+  count_jissoku=$(section_grep "$FILE" "推奨" "実測値で記録")
+  count_dateformat=$(section_grep "$FILE" "推奨" 'date "+%Y-%m-%d %H:%M"')
+  count_cycle1216=$(section_grep "$FILE" "出典" "20260706_1216")
+  if [ "$count_jissoku" -ge 1 ] && [ "$count_dateformat" -ge 1 ] && [ "$count_cycle1216" -ge 1 ]; then
+    pass 'TC-46: agent-prompts.md 推奨 has 実測値で記録 + date "+%Y-%m-%d %H:%M" + 出典 has 20260706_1216'
+  elif [ "$count_jissoku" -lt 1 ]; then
+    fail "TC-46: agent-prompts.md 推奨 section missing '実測値で記録' (cycle 20260706_1216 #3 未実装)"
+  elif [ "$count_dateformat" -lt 1 ]; then
+    fail 'TC-46: agent-prompts.md 推奨 section missing date "+%Y-%m-%d %H:%M" literal'
+  else
+    fail "TC-46: agent-prompts.md 出典 section missing '20260706_1216' reference"
+  fi
+fi
+
 # Summary
 echo ""
 echo "=== Summary ==="

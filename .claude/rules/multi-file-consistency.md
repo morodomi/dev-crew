@@ -13,6 +13,7 @@
 - deterministic gate は case 文で期待値を enumerate し、それ以外の値は明示的に reject する
 - gate script は単体で `bash gate.sh <input>` として全検証を完了できる設計にする
 - パス引数の enumerate-and-reject は値の形式だけでなく位置 —「信頼するディレクトリ境界」— も列挙対象にする (cycle 20260702_1930 #1)
+- multi-mode skill（SKILL.md + steps-*.md）への動作変更は、変更点を全モード doc に対する契約テストで pin する（TC-14a/b/c 型が template）。rule 文書による注意喚起は 2 度破られた — 契約テスト化が唯一の恒久防御 (cycle 20260706_1020 #2)
 
 ## 具体例
 
@@ -33,3 +34,4 @@ esac
 
 - `docs/cycles/20260420_1752_v2.8-orchestrate-integration.md` Insights 3, 4
 - cycle 20260702_1930 #1
+- cycle 20260706_1020 #2 — multi-mode skill の全モード契約テスト pin

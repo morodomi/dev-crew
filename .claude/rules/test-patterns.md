@@ -22,6 +22,7 @@ paths:
   (cycle 20260424_1119 #2)
 - **単体語で pin**: doc/rule への追記を検査する test で、section 既存項目にも出現し得る単体語を literal にしない。false-pass する (cycle 20260701_1120 #1)
 - **section_grep へ ERE メタ文字を含む見出しを渡す**: heading 引数が awk 動的 regex として解釈される実装では、丸括弧・+・. を含むフル見出しが silent no-match（count=0）になる (cycle 20260703_2035 #2)
+- **set -e 下の裸 command-substitution 代入の単発修正**: 1 箇所直す時は同ファイル内の全 $(...) 代入を同型 sweep してから閉じる。1 箇所の fix は隣の同型を「次に踏まれる地雷」に変える (cycle 20260706_1216 #2)
 
 ## 推奨
 
@@ -45,6 +46,7 @@ paths:
 - 同一セマンティクスを複数実装に要求する時は先に「挙動チェックリスト」（空入力・欠落フィールド・形式混在・異常系）を列挙し各実装に適用する (cycle 20260702_1930 #3)
 - 外部コマンド出力を while で消費する時は command substitution で変数に受けて rc を直後検査してからループする。process substitution / pipe 直結は上流失敗を silent skip にする (cycle 20260703_1215 #3)
 - section_grep の heading はメタ文字を含まない短縮見出し（前方一致）で渡す。helper 自体は fixed-string 比較（awk index() の prefix 判定）にして ERE 解釈を排除する (cycle 20260703_2035 #2)
+- dead code だった検証ロジックを蘇生させる fix は、蘇生した経路の実行時間・副作用・下流の未検証コードを再検査する。「動いていなかったコードが動き出す」は機能追加と同じ検証重量で扱う (cycle 20260706_1216 #2)
 
 ## 具体例
 
@@ -81,3 +83,4 @@ echo "$output" | grep -q "expected"
 - `docs/cycles/20260702_1930_gate-active-cycle-fix.md` Insights 2, 3
 - `docs/cycles/20260703_1215_test-hardening-rule-codify.md` Insight 3
 - cycle 20260703_2035 #2 — section_grep heading の ERE 解釈と fixed-string 化
+- cycle 20260706_1216 #2 — 裸 command-substitution 同型 sweep + dead code 蘇生の再検査
