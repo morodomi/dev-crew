@@ -13,6 +13,7 @@ architect や subagent へ委譲する際のプロンプト設計規律。scope 
   「plan v\<N\> の Files to Change を全量尊重すること。独自判断で追加・削除しないこと」
 - 影響範囲に agents/*.md が含まれる場合は個別ファイル名を列挙する
 - scope が確定したら Files list を verbatim でコピー & paste して伝達する
+- 委譲 prompt の「完了時の義務」に、フェーズ記録（Progress Log 見出し・frontmatter updated）の timestamp を date "+%Y-%m-%d %H:%M" の実測値で記録する契約を明記する。LLM は実測なしでは「もっともらしい時刻」を推定生成する。updated は gate の選択キーであり逆行・未来値は決定性を汚染する (cycle 20260706_1216 #3)
 
 ## 並列起動時の prompt 契約 (3+ subagent fan-out)
 
@@ -52,3 +53,4 @@ plan v3 の Files to Change を全量尊重し、独自判断で追加・削除�
 - 会話レビュー (2026-05-25): Kimi Agent Swarm 記事の "synthesis bottleneck" 抽象原則 (`## 並列起動時の prompt 契約` の根拠)
 - cycle 20260702_1200 #2
 - cycle 20260703_1650 #1 — 再発違反の原因は委譲 prompt テンプレート
+- cycle 20260706_1216 #3 — 委譲 worker のフェーズ記録 timestamp は date 実測必須
