@@ -5,10 +5,10 @@ phase: DONE
 complexity: standard
 test_count: 5
 risk_level: low
-retro_status: captured
+retro_status: resolved
 codex_session_id: "019f3a05-38ab-7440-ba90-7d8770fb41b3"
 created: 2026-07-07 09:36
-updated: 2026-07-07 11:43
+updated: 2026-07-09 11:26
 ---
 
 # codified rule 5 件実装サイクル（20260706_1020 ×2 + 20260706_1216 ×3）
@@ -310,3 +310,22 @@ Evidence: (orchestrate が自動記入)
 - commit 同梱: 本 cycle 変更 9 ファイル（rule 8 + test 1）+ STATUS.md + docs/cycles/20260706_1216（planning 前 codify gate 出力、Files to Change #12）
 - feature branch → PR → --admin merge（ユーザー恒久承認済み）
 - Phase completed
+
+## Codify Decisions
+
+triage 実施: 2026-07-09 11:26（後続 cycle #164 の orchestrate Block 0 codify gate で処理）。autonomous triage、質問 0 件。全 3 件 no-codify。frontmatter 遷移は区間限定編集。
+
+### Insight 1（architect/sync-plan 委譲の gate 完了マーカー明記）
+- **Decision**: no-codify
+- **Reason**: 初出（recurrence scan で 20260707_0936 のみ、1 回）。retro 自身が「単発事象のため recurrence 監視対象（2 回目で codify）」と明記。2-strike rule（rules/plan-discipline.md）に従い、2 回目の発生で agent-prompts.md へ codify する。今回は監視のみ
+- **Decided**: 2026-07-09 11:26
+
+### Insight 2（rule E は PdM/検証者にも適用）
+- **Decision**: no-codify
+- **Reason**: 既 codify 済み rule E（agent-prompts.md「委譲 worker の timestamp は date 実測」、cycle 20260707_0936 で実装）の運用注記であり、新規 rule 化は不要。「検証者も date 実測」は同 rule の適用範囲の自然な読みで追認的
+- **Decided**: 2026-07-09 11:26
+
+### 成功事例（observation: verbatim 実装が全 PASS を生んだ）
+- **Decision**: no-codify
+- **Reason**: observation-only。「設計判断は source cycle で完了、実装 cycle は忠実転記」は既存 workflow（codify → 実装 cycle 分離）の追認であり新規 rule 不要
+- **Decided**: 2026-07-09 11:26

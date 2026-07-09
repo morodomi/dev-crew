@@ -91,40 +91,39 @@ level=$(echo "$output" | awk '{print $1}')
 assert "TC-03" "auth + migration → MEDIUM or HIGH (got: $output)" \
   "$([ "$level" = "MEDIUM" ] || [ "$level" = "HIGH" ] && echo true || echo false)"
 
-# TC-04: 広範囲 (4ディレクトリ) → MEDIUM+
+# TC-04: wide change with >5 modified real files → MEDIUM+
+# FP非依存の legitimate シグナルで到達させる (fixture は docs/d.md の "Updated." に
+# 依存していた FP casualty を修正。filecount>5(+15) + dirspread>=3(+15) + test(+10) = 40)
 echo ""
-echo "TC-04: Wide change (4 dirs) → MEDIUM+"
+echo "TC-04: Wide change with >5 modified real files (3 dirs, incl. test file) → MEDIUM+"
 cat > "$tmpfiles" << 'FILES'
 src/a.ts
-lib/b.ts
-tests/c.ts
-docs/d.md
+src/b.ts
+lib/c.ts
+lib/d.ts
+tests/e.ts
+tests/f.ts
 FILES
 cat > "$tmpdiff" << 'DIFF'
 --- a/src/a.ts
 +++ b/src/a.ts
 @@ -1 +1,2 @@
  export const a = 1;
-+export const b = 2;
---- a/lib/b.ts
-+++ b/lib/b.ts
++export const aa = 2;
+--- a/lib/c.ts
++++ b/lib/c.ts
 @@ -1 +1,2 @@
  export const c = 3;
-+export const d = 4;
---- a/tests/c.ts
-+++ b/tests/c.ts
++export const cc = 4;
+--- a/tests/e.ts
++++ b/tests/e.ts
 @@ -1 +1,2 @@
  test('foo', () => {});
 +test('bar', () => {});
---- a/docs/d.md
-+++ b/docs/d.md
-@@ -1 +1,2 @@
- # Doc
-+Updated.
 DIFF
 output=$(bash "$CLASSIFIER" "$tmpfiles" "$tmpdiff" 2>/dev/null)
 level=$(echo "$output" | awk '{print $1}')
-assert "TC-04" "Wide change → MEDIUM or HIGH (got: $output)" \
+assert "TC-04" "Wide change (FP非依存) → MEDIUM or HIGH (got: $output)" \
   "$([ "$level" = "MEDIUM" ] || [ "$level" = "HIGH" ] && echo true || echo false)"
 
 # TC-05: セキュリティ集中 → HIGH
@@ -191,6 +190,116 @@ output=$(bash "$CLASSIFIER" "$tmpfiles" "$tmpdiff" 2>/dev/null)
 level=$(echo "$output" | awk '{print $1}')
 assert "TC-06" "New files only → LOW (got: $output)" \
   "$([ "$level" = "LOW" ] && echo true || echo false)"
+
+# TC-07: doc-only diff (rules/*.md + docs/*.md, updated:/deleted 含む, 8 files, 3 dirs)
+# → not HIGH (score<60)
+# Given: doc-only diff with SQL-FP-triggering prose ("updated:", "deleted")
+# When: classifier 実行
+# Then: code_only_diff 導入後は SQL FP が code hunk から除外され level != HIGH
+echo ""
+echo "TC-07: doc-only diff (prose FP) → not HIGH (score<60)"
+cat > "$tmpfiles" << 'FILES'
+rules/a.md
+rules/b.md
+docs/c.md
+docs/d.md
+docs/e.md
+notes/f.md
+notes/g.md
+notes/test-notes.md
+FILES
+cat > "$tmpdiff" << 'DIFF'
+--- a/rules/a.md
++++ b/rules/a.md
+@@ -1,3 +1,4 @@
+ # Rule A
++updated: 2026-07-09
+ content here
++more content
+--- a/docs/c.md
++++ b/docs/c.md
+@@ -1,2 +1,3 @@
+ # Doc C
++Old section deleted and replaced.
+DIFF
+output=$(bash "$CLASSIFIER" "$tmpfiles" "$tmpdiff" 2>/dev/null)
+level=$(echo "$output" | awk '{print $1}')
+assert "TC-07" "doc-only diff (prose FP) → not HIGH (got: $output)" \
+  "$([ "$level" != "HIGH" ] && echo true || echo false)"
+
+# TC-08: mixed diff (code .sh に real SQL + doc .md に updated:)
+# → SQL シグナルは code 部から発火し score に反映される (regression guard)
+# Given: code hunk (DB::query SELECT) + doc hunk (updated: prose)
+# When: classifier 実行
+# Then: SQL シグナル (+25) が score に含まれる (score>=25)
+echo ""
+echo "TC-08: mixed diff (code SQL + doc prose) → SQL fires from code part"
+cat > "$tmpfiles" << 'FILES'
+src/query.sh
+docs/notes.md
+FILES
+cat > "$tmpdiff" << 'DIFF'
+--- a/src/query.sh
++++ b/src/query.sh
+@@ -1,2 +1,3 @@
+ echo "start"
++DB::query("SELECT * FROM users")
+--- a/docs/notes.md
++++ b/docs/notes.md
+@@ -1,2 +1,3 @@
+ # Notes
++updated: today
+DIFF
+output=$(bash "$CLASSIFIER" "$tmpfiles" "$tmpdiff" 2>/dev/null)
+score=$(echo "$output" | sed 's/.*score://')
+assert "TC-08" "mixed diff → SQL reflected in score (score>=25, got: $output)" \
+  "$([ "$score" -ge 25 ] && echo true || echo false)"
+
+# TC-09: doc hunk + 削除 code ファイル (+++ /dev/null) の混在 diff
+# → 削除 code の SQL が score に反映される (under-score なしの回帰 pin)
+# Given: doc hunk (no signal) + deleted src/legacy.php hunk with SELECT/DB::
+# When: classifier 実行 (堅牢版 code_only_diff は old path 由来で code 判定)
+# Then: SQL シグナルが score に反映 (score>=25)
+echo ""
+echo "TC-09: deleted code file (+++ /dev/null) → SQL not under-scored"
+cat > "$tmpfiles" << 'FILES'
+docs/a.md
+src/legacy.php
+FILES
+cat > "$tmpdiff" << 'DIFF'
+--- a/docs/a.md
++++ b/docs/a.md
+@@ -1,2 +1,3 @@
+ # Notes
++doc note only
+--- a/src/legacy.php
++++ /dev/null
+@@ -1,3 +0,0 @@
+-<?php
+-$stmt = DB::select("SELECT * FROM users");
+-echo "bye";
+DIFF
+output=$(bash "$CLASSIFIER" "$tmpfiles" "$tmpdiff" 2>/dev/null)
+score=$(echo "$output" | sed 's/.*score://')
+assert "TC-09" "deleted code file → SQL reflected (score>=25, got: $output)" \
+  "$([ "$score" -ge 25 ] && echo true || echo false)"
+
+# TC-10: binary diff (`Binary files ... differ`, +++ ヘッダなし) の堅牢性
+# → クラッシュせず正常な level:score を返す
+echo ""
+echo "TC-10: binary diff → no crash, valid level:score output"
+cat > "$tmpfiles" << 'FILES'
+assets/img.png
+FILES
+cat > "$tmpdiff" << 'DIFF'
+diff --git a/assets/img.png b/assets/img.png
+index abc1234..def5678 100644
+Binary files a/assets/img.png and b/assets/img.png differ
+DIFF
+rc=0
+output=$(bash "$CLASSIFIER" "$tmpfiles" "$tmpdiff" 2>/dev/null) || rc=$?
+assert "TC-10" "binary diff → no crash, rc=0 valid output (rc=$rc, got: $output)" \
+  "$([ "$rc" -eq 0 ] && echo "$output" | grep -qE '^(LOW|MEDIUM|HIGH) score:[0-9]+$' && echo true || echo false)"
 
 echo ""
 echo "=== Results: $passed passed, $failed failed ==="

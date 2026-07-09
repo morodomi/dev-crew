@@ -5,18 +5,19 @@
 | Metric | Value |
 |--------|-------|
 | In-Progress Cycles | 0 |
-| Done (unarchived) | 64 |
+| Done (unarchived) | 65 |
 | Archived Cycles | 37 |
 | Skills | 28 |
 | Agents | 41 |
 | Test Scripts | 112 |
 
-Last updated: 2026-07-07
+Last updated: 2026-07-09
 
 ## Completed (Recent)
 
 | Date | Cycle | Type |
 |------|-------|------|
+| 2026-07-09 | 20260709_1125: risk-classifier-doc-diff-fix (content signal を code hunk 限定化し doc-diff FP 解消、#164。SIGPIPE bug も修正) | fix |
 | 2026-07-07 | 20260707_0936: codified-rules-batch-impl (codified rule 5 件実装 — plan-discipline/multi-file-consistency/test-patterns/agent-prompts + TC-42〜46) | feat |
 | 2026-07-06 | 20260706_1216: codify-rules-impl-and-gate-drift-guard (codified rule 2 件実装 + section_grep fixed-string 化 + gate drift guard TC-24 + TC-16 rc ガード修正、#148) | feat |
 | 2026-07-06 | 20260706_1020: phase-lifecycle-completion-gate (commit 時 DONE 遷移の orchestrate 整合 + 19 doc migration、#147) | fix |
