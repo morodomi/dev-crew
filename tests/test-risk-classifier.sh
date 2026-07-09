@@ -248,6 +248,30 @@ else
   fail "T-10: skill-authoring.md falsely triggers auth +25 (score: $score10)"
 fi
 
+# T-11: headerless crypto fixture retains fail-open scan (regression guard for code_only_diff)
+# Given: same fixture as T-02 (headerless diff "+password = hash(input)", file=src/auth/login.php)
+# When: risk-classifier.sh executed (code_only_diff must not silently drop headerless hunks)
+# Then: crypto signal (+30) fires and combined with auth path signal (+25) → score:55 exactly
+echo ""
+echo "T-11: Headerless crypto fixture keeps fail-open scan after code_only_diff"
+
+TMPFILES11=$(mktemp)
+TMPDIFF11=$(mktemp)
+echo "src/auth/login.php" > "$TMPFILES11"
+echo "+password = hash(input)" > "$TMPDIFF11"
+
+output11=$(bash "$SCRIPT" "$TMPFILES11" "$TMPDIFF11" 2>&1)
+score11=$(echo "$output11" | grep -oE 'score:[0-9]+' | grep -oE '[0-9]+')
+
+rm -f "$TMPFILES11" "$TMPDIFF11"
+
+# expected: score==55 (auth path +25 + crypto content +30, fail-open scan unbroken)
+if [ "$score11" -eq 55 ]; then
+  pass "T-11: Headerless crypto fixture fail-open scan intact (score: $score11)"
+else
+  fail "T-11: Headerless crypto fixture regressed, expected score:55, got score:$score11"
+fi
+
 # Summary
 echo ""
 echo "=== Summary ==="
