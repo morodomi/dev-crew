@@ -30,7 +30,7 @@ Mode を判定し出力: `[REVIEW] Mode: plan` or `[REVIEW] Mode: code`
 1. **Risk Classification**: `risk-classifier.sh` で決定論的判定
 2. **Review Brief**: review-briefer (haiku) で圧縮 Brief 生成
 3. **Lint-as-Code** (code mode のみ): 静的解析ツール実行
-4. **Specialist Panel**: Always-on: security-reviewer + correctness-reviewer (code) / design-reviewer (plan)。Risk-gated: performance/product/usability-reviewer。詳細: [steps-subagent.md](steps-subagent.md)
+4. **Specialist Panel**: Always-on: security-reviewer + correctness-reviewer (code) / design-reviewer (plan)。Risk-gated: performance/product/usability-reviewer。起動前に `.claude/dev-crew.json` の review_policy を読みモデルを解決する（self=orchestrator の現モデル、explicit=指定モデル、HIGH tierはescalate_high_to）。詳細: [steps-subagent.md](steps-subagent.md) / [reference.md](reference.md#review_policy-解決規則)
 5. **Score Aggregation**: 80-100=BLOCK(plan→PLAN再設計/code→RED/GREEN/REFACTOR) / 50-79=WARN / 0-49=PASS
 
 ### Cycle doc更新

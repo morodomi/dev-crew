@@ -95,6 +95,44 @@ SKILL.mdの詳細情報。必要時のみ参照。
 | 50-79 | WARN | 警告確認後、次フェーズへ |
 | 0-49 | PASS | 次フェーズへ自動進行 |
 
+## review_policy 解決規則
+
+`.claude/dev-crew.json` の top-level `review_policy` が、policy 制御対象 reviewer（Code Mode の security-reviewer / correctness-reviewer / maintainability-reviewer、risk-gated の performance-reviewer / api-contract-reviewer / observability-reviewer、および flags-based の test-reviewer）が走るモデルを決定する。
+
+```json
+{
+  "review_policy": {
+    "reviewer_model": "self",
+    "escalate_high_to": null
+  }
+}
+```
+
+### フィールド
+
+| フィールド | allowlist | 既定 | 意味 |
+|-----------|-----------|------|------|
+| `reviewer_model` | `self \| sonnet \| haiku \| opus \| fable` (enumerate-and-reject) | `self` | LOW/MED tier で reviewer が走るモデル |
+| `escalate_high_to` | `null \| self \| sonnet \| haiku \| opus \| fable` | `null` | HIGH tier で **代わりに**使うモデル。`null` = escalation なし |
+
+### 解決順（precedence）
+
+1. risk tier が **HIGH** かつ `escalate_high_to` が非 null → `escalate_high_to` を**下記 2 と同じ規則で解決してから** Task の `model:` に渡す（`escalate_high_to` が `self` の場合も 2 の self 解決を適用し、生の `self` を渡さない）
+2. それ以外（LOW/MED、または `escalate_high_to` が `null`）→ `reviewer_model` を解決
+   - `self`: reviewer agent の frontmatter が sonnet に pin されているため、Task で `model:` を省略すると frontmatter の sonnet に落ちる（orchestrator の現モデルには自動継承されない）。そのため **self なら orchestrator 自身が現在動いているモデルを Task の `model:` に明示的に渡す**（省略しない）
+   - **allowlist 外の値**（`self|sonnet|haiku|opus|fable` 以外）: `self` にフォールバック（fail-safe。未定義 model literal を Task に渡さず、floor の起動を壊さない）
+   - `sonnet | haiku | opus | fable`: その値をそのまま Task の `model:` に渡す
+3. **Codex（peer-vendor）は直交で常時 always-on**（`which codex` gate、既存の competitive review 機構）。review_policy はモデル選択の対象ではなく、Codex 実行有無に影響しない
+4. `human` policy（人間レビューへの一時停止）は v1 対象外（follow-up issue）
+
+### NON-NEGOTIABLE floor（不変）
+
+security-reviewer と correctness-reviewer は `review_policy`/risk score に関係なく常時起動する。policy が制御するのは「どのモデルで走るか」であって「起動するか」ではない。config でこの起動を無効化することはできない（security review bypass 防止）。
+
+### 実行時制約
+
+実行時にどのモデルが実際に選ばれるかは Claude Code の env / org allowlist に依存するため決定論的に pin できない。契約テスト（`tests/test-review-policy.sh`）が pin するのは schema/allowlist・手順文の存在・固定 model literal の除去・NON-NEGOTIABLE 記述であり、実モデル選択そのものではない。
+
 ## Score Escalation (PdM 判断基準)
 
 Step 4.5 で Socrates が返した反論に基づき、PdM が verdict の昇格を判断する。Socrates は反論+選択肢を返すのみで、スコアや verdict は付けない（advisor 原則維持）。
