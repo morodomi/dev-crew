@@ -60,6 +60,19 @@ npx eslint . 2>&1 || true
 
 Lint 結果は Specialist Panel に渡す（旧ガイドラインレビューの代替）。
 
+## Step 3.5: Reviewer Model 解決 (review_policy)
+
+Specialist Panel 起動前に、policy 制御対象 reviewer（Code Mode の security-reviewer / correctness-reviewer / maintainability-reviewer、risk-gated の performance-reviewer / api-contract-reviewer / observability-reviewer、および flags-based の test-reviewer）について、`.claude/dev-crew.json` の review_policy を読みモデルを解決する:
+
+1. `review_policy.reviewer_model`（既定 `self`）を読む
+2. **`self` の場合**: reviewer は sonnet frontmatter に pin されているため、Task に `model:` を省略すると orchestrator の現行モデルではなく frontmatter の sonnet に落ちる。そのため **self なら orchestrator 自身の現モデルを Task に明示的に渡す**（省略しない）
+3. **explicit 値**（sonnet/haiku/opus/fable）の場合: その model をそのまま Task に渡す
+4. `escalate_high_to` が非 null かつ risk tier が HIGH の場合: reviewer_model の代わりに `escalate_high_to` を**同じ規則で解決してから**渡す（`self` なら手順2と同様に orchestrator の現モデルを明示。生の `self` を Task に渡さない）
+5. **allowlist 外の値**（`self|sonnet|haiku|opus|fable` 以外）は `self` にフォールバック（fail-safe: 未定義 model literal を Task に渡さない）
+6. **NON-NEGOTIABLE floor**: security-reviewer と correctness-reviewer は review_policy を読み model を解決した上でも、policy/score 不問で常時起動する。policy が制御するのはどのモデルで走るかであって、起動有無ではない（security review bypass を config で作らない）
+
+**非対象（model literal 維持、policy 解決対象外）**: **Plan Mode の全 reviewer**（design-reviewer / test-reviewer / security-reviewer / performance-reviewer / change-safety-reviewer / impact-reviewer / resiliency-reviewer / designer 等）+ review-briefer（haiku）+ Code Mode の product-reviewer・usability-reviewer（haiku）。これらは既存の固定 model literal をそのまま使う。
+
 ## Step 4: Specialist Panel (並行起動)
 
 Risk level と mode に応じてエージェントを選択し、**全エージェントを一括並行起動**:
@@ -67,20 +80,20 @@ Risk level と mode に応じてエージェントを選択し、**全エージ�
 ### Code Mode
 
 ```
-# Always-on (NON-NEGOTIABLE)
-Task(subagent_type: "dev-crew:security-reviewer", model: "sonnet", prompt: "Review Brief: [brief]. Lint results: [lint]. コードをセキュリティ観点でレビューせよ。")
-Task(subagent_type: "dev-crew:correctness-reviewer", model: "sonnet", prompt: "Review Brief: [brief]. コードの正確性をレビューせよ。")
-Task(subagent_type: "dev-crew:maintainability-reviewer", model: "sonnet", prompt: "Review Brief: [brief]. Lint results: [lint]. コードを保守性観点でレビューせよ。Fowler Code Smells 5カテゴリ（Bloaters, OO Abusers, Change Preventers, Dispensables, Couplers）+ SRP + 命名。")
+# Always-on (NON-NEGOTIABLE: security-reviewer/correctness-reviewer は policy/score 不問で常時起動)
+Task(subagent_type: "dev-crew:security-reviewer", prompt: "Review Brief: [brief]. Lint results: [lint]. コードをセキュリティ観点でレビューせよ。")  # model: Step 3.5 の review_policy 解決モデル
+Task(subagent_type: "dev-crew:correctness-reviewer", prompt: "Review Brief: [brief]. コードの正確性をレビューせよ。")  # model: Step 3.5 の review_policy 解決モデル
+Task(subagent_type: "dev-crew:maintainability-reviewer", prompt: "Review Brief: [brief]. Lint results: [lint]. コードを保守性観点でレビューせよ。Fowler Code Smells 5カテゴリ（Bloaters, OO Abusers, Change Preventers, Dispensables, Couplers）+ SRP + 命名。")  # model: Step 3.5 の review_policy 解決モデル
 
 # Risk-gated (MEDIUM/HIGH のみ)
-Task(subagent_type: "dev-crew:performance-reviewer", model: "sonnet", prompt: "...")  # DB/perf flags
-Task(subagent_type: "dev-crew:api-contract-reviewer", model: "sonnet", prompt: "Review Brief: [brief]. Lint results: [lint]. APIの契約品質をレビューせよ。破壊的変更検出、REST設計品質、エラー構造の一貫性。")  # API/endpoint flags
-Task(subagent_type: "dev-crew:observability-reviewer", model: "sonnet", prompt: "Review Brief: [brief]. Lint results: [lint]. 可観測性をレビューせよ。エラーパスのログ有無、構造化ログ、trace ID伝播、メトリクス計装。correctness-reviewerとのdedup: 例外処理の存在有無はcorrectness担当、ログ出力品質はobservability担当。")  # error-handling/logging flags
+Task(subagent_type: "dev-crew:performance-reviewer", prompt: "...")  # model: Step 3.5 解決モデル、DB/perf flags
+Task(subagent_type: "dev-crew:api-contract-reviewer", prompt: "Review Brief: [brief]. Lint results: [lint]. APIの契約品質をレビューせよ。破壊的変更検出、REST設計品質、エラー構造の一貫性。")  # model: Step 3.5 解決モデル、API/endpoint flags
+Task(subagent_type: "dev-crew:observability-reviewer", prompt: "Review Brief: [brief]. Lint results: [lint]. 可観測性をレビューせよ。エラーパスのログ有無、構造化ログ、trace ID伝播、メトリクス計装。correctness-reviewerとのdedup: 例外処理の存在有無はcorrectness担当、ログ出力品質はobservability担当。")  # model: Step 3.5 解決モデル、error-handling/logging flags
 Task(subagent_type: "dev-crew:product-reviewer", model: "haiku", prompt: "...")       # API/user-facing flags
 Task(subagent_type: "dev-crew:usability-reviewer", model: "haiku", prompt: "...")      # UI flags
 
 # Flags-based (Risk level に関係なく、ファイルタイプフラグで起動)
-Task(subagent_type: "dev-crew:test-reviewer", model: "sonnet", prompt: "Review Brief: [brief]. テストコード品質をレビューせよ。xUnit Test Patterns テストスメル（Fragile Test, Obscure Test, Mystery Guest, Conditional Test Logic, Test Code Duplication）、テスト独立性。")  # test-file flags
+Task(subagent_type: "dev-crew:test-reviewer", prompt: "Review Brief: [brief]. テストコード品質をレビューせよ。xUnit Test Patterns テストスメル（Fragile Test, Obscure Test, Mystery Guest, Conditional Test Logic, Test Code Duplication）、テスト独立性。")  # model: Step 3.5 解決モデル、test-file flags
 ```
 
 ### Plan Mode

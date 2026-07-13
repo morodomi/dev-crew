@@ -8,11 +8,13 @@ review のコストはリスクスコアに比例させる (cycle 20260421_2342 
 
 | Score | Tier | Reviewer |
 |-------|------|----------|
-| 0–30  | LOW  | Codex + correctness + security (3 views)。trivial 案件 (1 file / 1 line / Codex approve 一発) では Claude correctness 省略可 |
+| 0–30  | LOW  | Codex + correctness + security (3 views)。security+correctness は floor として trivial (1 file / 1 line / Codex approve 一発) でも常時必須（省略しない） |
 | 30–60 | MED  | LOW + maintainability |
 | 60+   | HIGH | MED + architectural / design-reviewer 候補 |
 
-**根拠**: cycle 20260421_2342 #3 は「Risk LOW + Codex approve 一発 → correctness skip 可」の運用評価。cycle 20260422_1146 #6 は Score 115 (HIGH) の dogfood で「LOW: 2 views + Codex」「MEDIUM: +maintainability」「HIGH: +architectural」を明文化。両者は重複せず階段状に厚くする指針。
+**根拠**: cycle 20260421_2342 #3 は「Risk LOW + Codex approve 一発 → correctness skip 可」の運用評価だったが、cycle 20260709_1313（reviewer-model-policy-v1）で security+correctness を NON-NEGOTIABLE floor として維持する方針に改め、trivial 案件の省略対象を maintainability に限定した。cycle 20260422_1146 #6 は Score 115 (HIGH) の dogfood で「LOW: 2 views + Codex」「MEDIUM: +maintainability」「HIGH: +architectural」を明文化。両者は重複せず階段状に厚くする指針。
+
+**モデル tier との合成**: 上記の risk tier（LOW/MED/HIGH、reviewer 起動数の制御）と `review_policy`（reviewer_model/escalate_high_to、reviewer が走るモデルの制御）は直交する別軸。HIGH tier では `review_policy.escalate_high_to` が設定されていればそのモデルへエスカレーションする。詳細: `skills/review/reference.md` の review_policy 解決規則。
 
 ## Findings 3-Category Triage
 

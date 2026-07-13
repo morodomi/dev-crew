@@ -5,10 +5,10 @@ phase: DONE
 complexity: standard
 test_count: 6
 risk_level: low
-retro_status: captured
+retro_status: resolved
 codex_session_id: "019f44b8-2415-7870-93ec-cec1ef1fef71"
 created: 2026-07-09 11:30
-updated: 2026-07-09 12:13
+updated: 2026-07-09 13:14
 ---
 
 # #164: risk-classifier の doc-diff 過大スコア修正（code-scoped content signals）
@@ -340,3 +340,24 @@ plan/architect の予測（85−25(SQL)−20(行数)=40=MEDIUM）と完全一致
 - commit 同梱: skills/review/risk-classifier.sh + tests/test-risk-calibration.sh + tests/test-risk-classifier.sh + 本 cycle doc + STATUS.md
 - feature branch → PR → --admin merge。Closes #164
 - Phase completed
+
+## Codify Decisions
+
+triage 実施: 2026-07-09 13:14（後続 cycle reviewer-policy の orchestrate Block 0 codify gate で処理）。autonomous triage、質問 0 件。frontmatter 遷移は区間限定編集。実装は次の codify 実装 cycle（本 cycle scope=reviewer-policy とは混ぜない）。
+
+### Insight 1（pipe + grep -q が set -o pipefail 下で SIGPIPE により match を失敗判定）
+- **Decision**: codified
+- **Destination**: rule (rules/test-patterns.md + .claude/rules/ mirror)
+- **Reason**: pipefail-masking テーマの再発（recurrence: 20260421_2342 #1 の「`bash subject | grep -q` pipefail masking」+ 本 cycle、2+ 回 → pre-triage 自動 codified）。既存 bullet の具体化として「早期終了 consumer（grep -q 等）は upstream を SIGPIPE(141) させ、pipefail が pipeline rc をそれに書き換えて『match したのに if が false』になる。fix は file/変数に materialize して pipe を消す or `grep >/dev/null`。set -e の if 免除は pipefail の rc 書き換えを免除しない」を追記。5001 行 fixture で under-score 実証済みの実バグ evidence あり
+- **Decided**: 2026-07-09 13:14
+
+### Insight 2（reviewer 判定分岐は多数決でなく機構分解 + 実測 oracle で tie-break）
+- **Decision**: codified
+- **Destination**: rule (rules/review-triage.md + .claude/rules/ mirror)
+- **Reason**: 「competitive review で判定が割れたら多数決/権威でなく機構レベルの分解 + 実測 oracle で決着させる。特に bash の rc 伝播（pipefail/set -e/SIGPIPE/command substitution）は reviewer ごとに mental model が違う」。Codex(BLOCK) vs correctness(PASS) の正反対判定を 5001 行 fixture で決着させた実例。review-triage は reviewer 運用の rule なので destination 適合
+- **Decided**: 2026-07-09 13:14
+
+### 成功事例（observation: plan-review BLOCK を Cycle doc に記録し plan IMMUTABLE を守った）
+- **Decision**: no-codify
+- **Reason**: doc-mutations.md「plan IMMUTABLE、Codex 指摘は Cycle doc に反映」の既 codified rule の追認。新規 rule 不要
+- **Decided**: 2026-07-09 13:14
