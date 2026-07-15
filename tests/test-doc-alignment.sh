@@ -1,6 +1,6 @@
 #!/bin/bash
 # test-doc-alignment.sh - CONSTITUTION.md / workflow.md との整合テスト
-# T-01 ~ T-07
+# T-01 ~ T-09
 
 set -euo pipefail
 
@@ -15,6 +15,7 @@ AGENTS_FILE="$BASE_DIR/AGENTS.md"
 CLAUDE_FILE="$BASE_DIR/CLAUDE.md"
 ARCH_FILE="$BASE_DIR/docs/architecture.md"
 ROADMAP_FILE="$BASE_DIR/ROADMAP.md"
+WORKFLOW_FILE="$BASE_DIR/docs/workflow.md"
 
 echo "=== Document Alignment Tests ==="
 echo ""
@@ -79,6 +80,62 @@ if grep -qE '34 agents|28 skills' "$ARCH_FILE"; then
   fail "T-07: hardcoded counts found in architecture.md"
 else
   pass "T-07: no hardcoded counts in architecture.md"
+fi
+
+# T-08: Given docs/workflow.md 開発フロー図（COMMIT (Claude) box）、
+#       When そのfenced blockをCOMMIT行以降で走査、
+#       Then DONE終端がCOMMITより後の行として存在する（#157 順序契約）
+echo ""
+echo "T-08: workflow.md phase flow has COMMIT -> DONE terminal order"
+wf_flow_heading=$(grep -n '^## 開発フロー$' "$WORKFLOW_FILE" | head -1 | cut -d: -f1 || true)
+wf_fence_open=""
+wf_fence_close=""
+if [ -n "$wf_flow_heading" ]; then
+  wf_fence_open=$(awk -v s="$wf_flow_heading" 'NR>s && /^```$/{print NR; exit}' "$WORKFLOW_FILE" || true)
+fi
+if [ -n "$wf_fence_open" ]; then
+  wf_fence_close=$(awk -v s="$wf_fence_open" 'NR>s && /^```$/{print NR; exit}' "$WORKFLOW_FILE" || true)
+fi
+if [ -n "$wf_fence_open" ] && [ -n "$wf_fence_close" ]; then
+  wf_block=$(sed -n "${wf_fence_open},${wf_fence_close}p" "$WORKFLOW_FILE")
+  wf_commit_line=$(printf '%s\n' "$wf_block" | grep -n 'COMMIT (Claude)' | head -1 | cut -d: -f1 || true)
+  # 特異トークン 'DONE (cycle' で pin（任意の "phase: DONE" 記述等での偽 PASS 回避）
+  wf_done_line=$(printf '%s\n' "$wf_block" | grep -n 'DONE (cycle' | head -1 | cut -d: -f1 || true)
+  if [ -n "$wf_commit_line" ] && [ -n "$wf_done_line" ] && [ "$wf_done_line" -gt "$wf_commit_line" ]; then
+    pass "T-08: workflow.md phase flow has DONE after COMMIT (Claude)"
+  else
+    fail "T-08: workflow.md phase flow missing COMMIT->DONE order (commit_line=${wf_commit_line:-none} done_line=${wf_done_line:-none})"
+  fi
+else
+  fail "T-08: workflow.md 開発フロー fenced block not found"
+fi
+
+# T-09: Given docs/architecture.md System Architecture box diagram（COMMIT box）、
+#       When そのfenced blockをCOMMIT行以降で走査、
+#       Then DONE box がCOMMIT boxより後の行として存在する（#157 順序契約）
+echo ""
+echo "T-09: architecture.md System Architecture diagram has COMMIT -> DONE box order"
+arch_sys_heading=$(grep -n '^## System Architecture$' "$ARCH_FILE" | head -1 | cut -d: -f1 || true)
+arch_fence_open=""
+arch_fence_close=""
+if [ -n "$arch_sys_heading" ]; then
+  arch_fence_open=$(awk -v s="$arch_sys_heading" 'NR>s && /^```$/{print NR; exit}' "$ARCH_FILE" || true)
+fi
+if [ -n "$arch_fence_open" ]; then
+  arch_fence_close=$(awk -v s="$arch_fence_open" 'NR>s && /^```$/{print NR; exit}' "$ARCH_FILE" || true)
+fi
+if [ -n "$arch_fence_open" ] && [ -n "$arch_fence_close" ]; then
+  arch_block=$(sed -n "${arch_fence_open},${arch_fence_close}p" "$ARCH_FILE")
+  # box ノードに限定（'│ ... COMMIT' / '│ ... DONE' の box 内トークンで pin）
+  arch_commit_line=$(printf '%s\n' "$arch_block" | grep -nE '│ +COMMIT' | head -1 | cut -d: -f1 || true)
+  arch_done_line=$(printf '%s\n' "$arch_block" | grep -nE '│ +DONE' | head -1 | cut -d: -f1 || true)
+  if [ -n "$arch_commit_line" ] && [ -n "$arch_done_line" ] && [ "$arch_done_line" -gt "$arch_commit_line" ]; then
+    pass "T-09: architecture.md System Architecture diagram has DONE box after COMMIT box"
+  else
+    fail "T-09: architecture.md System Architecture diagram missing COMMIT->DONE box order (commit_line=${arch_commit_line:-none} done_line=${arch_done_line:-none})"
+  fi
+else
+  fail "T-09: architecture.md System Architecture fenced block not found"
 fi
 
 # Summary

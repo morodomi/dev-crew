@@ -5,7 +5,7 @@
 
 ## 現在地
 
-v2.10.0 リリース済み。main には v2.11.0 向けの品質規律強化が蓄積中（下記）。全完了済みバージョン:
+v2.11.0 リリース済み（2026-07-06）。main には v2.12.0（本リリース）向けに4サイクル（#148/#165、codified rule/#166、#164/#169、reviewer-policy v1/#173）が蓄積済み。全完了済みバージョン:
 - v2 (Phase 11-13): Claude + Codex 統合開発フロー
 - v2.4 (Phase 14-17): Review Taxonomy 体系化 (33→40 agents)
 - v2.5 (Phase 18): Constitution-Driven Enforcement
@@ -17,43 +17,19 @@ v2.10.0 リリース済み。main には v2.11.0 向けの品質規律強化が�
 - v2.8.0: orchestrate 統合 (sync-plan → plan-review → TDD を orchestrate が一元管理、post-fix 群 #125-#127)
 - v2.9.0: rules path-scoping (#139)
 - v2.10.0: plan-discipline GREEN 検証の逆向き契約 sweep 規律 (#140)
+- v2.11.0: スキル棚卸し + 品質規律強化 (2026-07-06)
 - v3-pre (Phase 1-8, archive label): Constitution-Driven Development
 
-次: **v2.11.0 — スキル棚卸し + 品質規律強化**（下記）
+次候補（v2.12.0 リリース後）: codify 実装2件 / #156 legacy 正規化 / reviewer-policy follow-up #170-172 / #144 flaky / Agile Loop 1.5
 
 ---
 
-## v2.11 スキル棚卸し + 品質規律強化
+## v2.11.0 / v2.12.0（リリース済み）
 
-skill-audit（2026-07-02 外部レビュー）を起点に、死蔵スキルの削除と「規律の自動契約化」を一括で進めるリリース。
+- **v2.11.0**（2026-07-06）: スキル棚卸し（32→28）+ 品質規律の自動契約化。skill-audit を起点に死蔵スキル削除・gate 修復（#145/#150）・codified insight 実装（#143）・parallel 削除（#142）。詳細は [CHANGELOG](../CHANGELOG.md) [2.11.0]。
+- **v2.12.0**（2026-07-15）: reviewer モデル設定機構（reviewer-policy v1、#173）+ codified rule 7件（#165/#166）+ gate drift guard（#148）+ risk-classifier 精度改善（#164/#169）+ phase 図 DONE 終端（#157）。詳細は [CHANGELOG](../CHANGELOG.md) [2.12.0]。
 
-### 実施済み（main マージ済み or PR/branch 上）
-
-| 項目 | 内容 | 状態 |
-|------|------|------|
-| スキル棚卸し | phase-compact / reload / strategy 削除（32→29）+ quality 系 description 先鋭化 | main マージ済み (#146) |
-| gate 修正 | pre-commit/pre-red gate の ACTIVE_CYCLE 選択を latest-updated + 明示指定に修正（#145）。skill 文書 7 ファイルの同型バグ一掃 | main マージ済み (#150) |
-| codify 実装 | 直近 cycle の codified insight 9 件を rules 5 ファイル + red skill Stage 3.5 に実装。削除スキル名の inverse contract（#143） | PR #152 レビュー中 |
-| parallel 削除 | parallel スキル削除（29→28、#142）。worktree 並行実装の実用性なし + 読み取り並列・実行直列の原則と衝突 | branch push 済み（#152 マージ後に PR） |
-
-### リリースまでの残タスク
-
-| # | Cycle | 内容 | 目安 |
-|---|-------|------|------|
-| 1 | codify 実装 (2) | #151 追跡ラベルの自動 inverse contract（2-strike rule の初適用）+ codified 済み 2 件（integration-verification self-apply 拡張 / test-patterns の process-substitution rc 検査）+ 20260703_1650 captured 3 insight の triage・実装 | 0.5 日 |
-| 2 | phase lifecycle | #147 non-DONE cycle doc 15 件の DONE 遷移 + COMMIT→DONE 遷移責務の workflow 明文化 | 0.5 日 |
-| 3 | リリース準備 | CHANGELOG 補完（v2.8.0〜v2.10.0 のエントリが欠落中 — 本リリースで v2.11.0 と合わせて追記）+ docs/STATUS.md 整合 | 0.25 日 |
-| 4 | リリース | release-skill で v2.11.0（marketplace.json 更新 + tag、`--follow-tags` で同時 push） | 即日 |
-
-前提: PR #152 と parallel 削除 PR の main マージ。スケジュール目安: **2026-07-04〜07-05 リリース**。
-
-### v2.11 に含めない（v2.12 以降候補）
-
-| 項目 | 理由 |
-|------|------|
-| #148 gate 間選択ロジックの drift guard | 共有 lib 化 vs 行範囲 diff の設計判断が必要。急がない |
-| #144 test-hooks-structure の standalone/full-suite 不一致調査 | staleness 解消で実害なし。再現条件の調査から |
-| Agile Loop Step 1.5 以降（下記） | 規律基盤（v2.11）安定後に再開 |
+次候補は上記「現在地」を参照。
 
 ---
 

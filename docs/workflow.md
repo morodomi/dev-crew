@@ -54,6 +54,10 @@ cycle-retrospective (Claude)
   ▼
 COMMIT (Claude)
   │  cycle N コミット完了
+  │
+  ▼
+DONE (cycle N 完了)
+  │  phase: DONE 遷移（commit skill Step 3）。cycle doc は完了 artifact として確定
   ╎
   ╎  ─── cycle N+1 起動 ───
   ╎
@@ -67,7 +71,7 @@ COMMIT (Claude)
   │  abort (exit 1) → BLOCK、/orchestrate 再起動案内
   │
   ▼
-sync-plan → RED → GREEN → ... → COMMIT (cycle N+1 本体フロー、以下同じ)
+sync-plan → RED → GREEN → ... → COMMIT → DONE (cycle N+1 本体フロー、以下同じ)
 ```
 
 ## 承認と確認
