@@ -5,10 +5,10 @@ phase: DONE
 complexity: standard
 test_count: 6
 risk_level: medium
-retro_status: captured
+retro_status: resolved
 codex_session_id: "019f4519-eff7-7f73-8bf4-f705ece58f32"
 created: 2026-07-09 13:13
-updated: 2026-07-13 16:02
+updated: 2026-07-15 13:46
 ---
 
 # reviewer-policy v1: reviewer のモデル方針を設定可能にする（repo-default + HIGH-gated escalation）
@@ -334,3 +334,24 @@ jq -r '.review_policy.escalate_high_to // "null"' .claude/dev-crew.json
 - commit 同梱: 実装 9 ファイル + test-review-policy.sh（新規）+ 本 cycle doc + docs/cycles/20260709_1125（Block 0 codify gate 出力）
 - feature branch → PR → --admin merge
 - Phase completed
+
+## Codify Decisions
+
+triage 実施: 2026-07-15 13:46（後続 cycle v2.12-docs-alignment の orchestrate Block 0 codify gate で処理）。autonomous triage、質問 0 件。実装は次の codify 実装 cycle。
+
+### Insight 1（継承/デフォルト前提は公式 doc で解決順を確認してから plan に書く）
+- **Decision**: codified
+- **Destination**: rule (rules/plan-discipline.md + .claude/rules/ mirror)
+- **Reason**: plan-discipline の「未検証前提を plan に書かない」テーマの肯定形版（既存は「否定形前提の未検証記述」）。「省略/デフォルトで上位（executor/親）を継承する」という前提は framework の解決順を一次ソース（公式 doc）で確認してから書く。model/config/env の継承は直感と逆が多い。Codex plan review が公式 doc 引用で反証した実害 evidence あり
+- **Decided**: 2026-07-15 13:46
+
+### Insight 2（テーブル/リスト項目の置換投入は当該行/tier への実在を構造突合してから）
+- **Decision**: codified
+- **Destination**: rule (rules/review-triage.md + .claude/rules/ mirror)
+- **Reason**: 「A を B に置換」は A と B が同じ文脈（tier/行/scope）に属する時のみ意味を持つ。異なる tier の項目を持ち込むと省略対象不在・二重定義等の構造矛盾を生む。review-triage の tier テーブル変更で「LOW に存在しない maintainability を省略可」と書いた実害（correctness reviewer が検出）。tier テーブル変更時の checklist として review-triage.md に codify
+- **Decided**: 2026-07-15 13:46
+
+### 成功事例（observation: plan/code 2段階 adversarial review が別層の誤りを捕捉）
+- **Decision**: no-codify
+- **Reason**: 既存の competitive review pipeline（Codex plan review + code review + 専任 reviewer）の設計が機能した追認。config スキーマは plan では見えず code で露出する層の違いの実証だが、新規 rule 化は不要
+- **Decided**: 2026-07-15 13:46

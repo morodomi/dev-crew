@@ -1,5 +1,25 @@
 # Changelog
 
+## [2.12.0] - 2026-07-15
+
+reviewer モデルの設定機構 + 品質規律の codify + risk-classifier 精度改善。v2.11.0 リリース後に main へ蓄積した4サイクル（#148/#165、codified rule/#166、#164/#169、reviewer-policy v1/#173）を一括リリース。
+
+### Breaking
+- Code Mode の policy 対象 reviewer が、従来の `model: "sonnet"` 固定から `self`（orchestrator 自身の現在モデルを Task に明示指定）へ変更（#173）。既存 install（`.claude/dev-crew.json` に `review_policy` 未設定）でも既定 `self` が適用され、reviewer は sonnet ではなく実行中モデルで走る。品質・コストへの影響は実行モデルと環境の allowlist 次第。従来挙動に戻すには `review_policy.reviewer_model` を `"sonnet"` に、HIGH のみ上位にするには `escalate_high_to` を設定する。Plan Mode の固定 reviewer は対象外
+
+### Added
+- reviewer-policy v1（#173）: `.claude/dev-crew.json` の `review_policy` で Code Mode の reviewer モデルを設定可能に（`reviewer_model` / `escalate_high_to`、allowlist self/sonnet/haiku/opus/fable）。HIGH tier のみ上位モデルへ escalation。security+correctness の NON-NEGOTIABLE floor を初の契約テスト化（TC-04/06）。onboard が dev-crew.json + CLAUDE.md 宣言を生成
+- codified rule 7件を rules に実装: (1) 否定形前提の全 grep 根拠 (2) multi-mode skill の全モード契約テスト pin (3) 隔離 snapshot の親構造複製 + N件同時 FAIL の cascade 切り分け (4) 裸 command-substitution の同型 sweep (5) 委譲 worker の timestamp date 実測（以上 #166）(6) frontmatter 区間限定編集 (7) section_grep heading の fixed-string 化（以上 #165）
+- gate 選択ロジック drift guard（#148、test-phase-gate TC-24）
+
+### Changed
+- review-triage の LOW tier を correctness floor 厳格化（trivial でも security+correctness は常時必須）
+
+### Fixed
+- risk-classifier の doc-diff 過大スコア FP（#164/#169）: SQL/external/行数シグナルを code hunk 限定に。doc-centric cycle が誤って HIGH 判定される問題を修正。pipefail 下の pipe+grep -q SIGPIPE under-score bug も修正
+- section_grep の ERE 解釈を fixed-string 化（#165、括弧付き見出しの silent no-match 解消）
+- phase 図（workflow.md / architecture.md）に COMMIT→DONE 終端を反映（#157）
+
 ## [2.11.0] - 2026-07-06
 
 スキル棚卸しと品質規律の自動契約化。skill-audit（外部レビュー）を起点に、
