@@ -37,7 +37,7 @@ Cycle docs: `docs/cycles/YYYYMMDD_HHMM_<topic>.md`
 
 ### Post-Approve Action
 
-Plan mode を抜けたら `/orchestrate` を起動する。Edit/Write は hook でブロックされる。
+Plan mode を抜けたら `/orchestrate` を起動する。Edit/Write は直接行わず、必ず /orchestrate に委譲する（プロンプトベースの規律。hook による強制ブロックではない）。
 
 ## Quality Standards
 

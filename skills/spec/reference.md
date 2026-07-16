@@ -491,7 +491,7 @@ approve後は `/orchestrate` を起動する。orchestrate が全フェーズを
 - Codex plan review (codex exec --full-auto, 委譲確認不要)
 - plan-review (Claude)
 
-Edit/Write は orchestrate 起動まで hook (post-approve-gate.sh) でブロックされる。
+Edit/Write は直接行わず、必ず /orchestrate に委譲する（プロンプトベースの規律。hook による強制ではない）。
 ```
 
 この後、plan mode内で探索・設計・Test List定義・QAチェックを続行する。

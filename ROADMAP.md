@@ -5,7 +5,7 @@
 
 ## 現在地
 
-v2.11.0 リリース済み（2026-07-06）。main には v2.12.0（本リリース）向けに4サイクル（#148/#165、codified rule/#166、#164/#169、reviewer-policy v1/#173）が蓄積済み。全完了済みバージョン:
+v2.12.0 リリース済み（2026-07-15）。全完了済みバージョン:
 - v2 (Phase 11-13): Claude + Codex 統合開発フロー
 - v2.4 (Phase 14-17): Review Taxonomy 体系化 (33→40 agents)
 - v2.5 (Phase 18): Constitution-Driven Enforcement
@@ -18,6 +18,7 @@ v2.11.0 リリース済み（2026-07-06）。main には v2.12.0（本リリー�
 - v2.9.0: rules path-scoping (#139)
 - v2.10.0: plan-discipline GREEN 検証の逆向き契約 sweep 規律 (#140)
 - v2.11.0: スキル棚卸し + 品質規律強化 (2026-07-06)
+- v2.12.0: reviewer モデル設定機構 (reviewer-policy v1) + codified rule 群 + gate drift guard + risk-classifier 精度改善 (2026-07-15)
 - v3-pre (Phase 1-8, archive label): Constitution-Driven Development
 
 次候補（v2.12.0 リリース後）: codify 実装2件 / #156 legacy 正規化 / reviewer-policy follow-up #170-172 / #144 flaky / Agile Loop 1.5

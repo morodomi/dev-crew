@@ -426,7 +426,7 @@ orchestrate が以下を全て内部で管理する:
 - RED → GREEN → REFACTOR → REVIEW → COMMIT
 
 sync-plan や review --plan を直接呼ばないこと（orchestrate 経由で呼ばれる）。
-Edit/Write は orchestrate 起動まで hook でブロックされる。
+Edit/Write は直接行わず、必ず /orchestrate に委譲する（プロンプトベースの規律。hook による強制ではない）。
 ```
 
 ### CLAUDE.md 必須セクション
