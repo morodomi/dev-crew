@@ -1,6 +1,6 @@
 # dev-crew
 
-> **Not Maintained.** This repository is published as-is for reference. No issues, PRs, or feature requests will be addressed.
+> **No external support.** This repository is developed for personal use and published as-is for reference. No issues, PRs, or feature requests will be addressed.
 
 AI development team environment for Claude Code. Install once, use across all projects.
 

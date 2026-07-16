@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Test: Post-Approve Action ordering matches workflow.md
-# Plan review MUST come before Cycle doc (sync-plan)
+# sync-plan (Cycle doc) MUST come before plan review (v2.8 orchestrate integration)
 
 set -euo pipefail
 PASS=0; FAIL=0
@@ -45,14 +45,14 @@ check_three_steps() {
   fi
 }
 
-# TC-01: reference.md - Plan review before Cycle doc
+# TC-01: reference.md - sync-plan before plan review
 if check_ordering "$BASE/skills/spec/reference.md"; then
   pass "TC-01: reference.md sync-plan before plan-review"
 else
   fail "TC-01: reference.md sync-plan should be before plan-review"
 fi
 
-# TC-02: reference.ja.md - Plan review before Cycle doc
+# TC-02: reference.ja.md - sync-plan before plan review
 if check_ordering "$BASE/skills/spec/reference.ja.md"; then
   pass "TC-02: reference.ja.md sync-plan before plan-review"
 else

@@ -1,6 +1,6 @@
 # Security Policy
 
-This repository is published as-is for reference and is **not maintained**.
+This repository is published as-is for reference with **no external support**.
 
 - Security vulnerabilities will not be patched.
 - No security advisories will be issued.

@@ -1,6 +1,6 @@
 #!/bin/bash
 # test-doc-consistency.sh - Document consistency validation
-# TC-01 ~ TC-15（欠番: 03, 06-10 — 削除済みTC）
+# TC-01 ~ TC-19（欠番: 03, 06-10 — 削除済みTC）
 
 set -euo pipefail
 
@@ -254,6 +254,36 @@ else
     fail "TC-18: non-DONE doc count ($NON_DONE_COUNT) > 1"
     printf '%s\n' "${NON_DONE_DOCS[@]}"
   fi
+fi
+
+########################################
+# External Support Wording (stale support-status wording inverse contract)
+########################################
+
+echo ""
+echo "--- External Support Wording ---"
+
+# TC-19: README.md/SECURITY.md の外部サポート文言が新表現（No external support /
+# no external support）に統一され、旧表現（Not Maintained / not maintained）が
+# 残っていないことを保証する逆向き契約。case-sensitive literal（grep -F）で
+# 大文字/小文字の両形を個別に検査する (rules/test-patterns.md: case-insensitive grep 禁止)
+echo ""
+echo "TC-19: README.md/SECURITY.md の外部サポート文言が更新済み（stale 0件・新文言各1件以上）"
+stale_upper=$(grep -cF "Not Maintained" "$BASE_DIR/README.md" "$BASE_DIR/SECURITY.md" 2>/dev/null | awk -F: '{s+=$2} END{print s+0}' || true)
+stale_lower=$(grep -cF "not maintained" "$BASE_DIR/README.md" "$BASE_DIR/SECURITY.md" 2>/dev/null | awk -F: '{s+=$2} END{print s+0}' || true)
+[ -z "$stale_upper" ] && stale_upper=0
+[ -z "$stale_lower" ] && stale_lower=0
+stale_total=$((stale_upper + stale_lower))
+
+readme_new=$(grep -cF "No external support" "$BASE_DIR/README.md" 2>/dev/null || true)
+[ -z "$readme_new" ] && readme_new=0
+security_new=$(grep -cF "no external support" "$BASE_DIR/SECURITY.md" 2>/dev/null || true)
+[ -z "$security_new" ] && security_new=0
+
+if [ "$stale_total" -eq 0 ] && [ "$readme_new" -ge 1 ] && [ "$security_new" -ge 1 ]; then
+  pass "TC-19: stale 外部サポート文言 0 件 かつ README/SECURITY 新文言 各1件以上"
+else
+  fail "TC-19: stale=${stale_total} 件（Not Maintained=${stale_upper}, not maintained=${stale_lower}）/ README new=${readme_new} / SECURITY new=${security_new}"
 fi
 
 ########################################
