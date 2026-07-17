@@ -21,6 +21,8 @@ v2.12.0 リリース済み（2026-07-15）。全完了済みバージョン:
 - v2.12.0: reviewer モデル設定機構 (reviewer-policy v1) + codified rule 群 + gate drift guard + risk-classifier 精度改善 (2026-07-15)
 - v3-pre (Phase 1-8, archive label): Constitution-Driven Development
 
+v2.12.0 リリース後、未リリース分として approval-reorder（#176、2026-07-17）を実装中: plan review の実行タイミングを人間承認の前（plan mode 内、spec Step 8）へ変更する承認ゲート意味論変更。Cycle 1（機構・実行時 memory・権威 doc）は PR #182 で merge 済み、Cycle 2（narrative doc・onboard 生成テンプレート伝播）は本 cycle で完了。CHANGELOG `[Unreleased]` に Breaking 明記済み、正式バージョンタグは次回リリースで付与
+
 次候補（v2.12.0 リリース後）: codify 実装2件 / #156 legacy 正規化 / reviewer-policy follow-up #170-172 / #144 flaky / Agile Loop 1.5
 
 ---

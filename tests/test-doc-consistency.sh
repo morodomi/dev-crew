@@ -1,6 +1,6 @@
 #!/bin/bash
 # test-doc-consistency.sh - Document consistency validation
-# TC-01 ~ TC-19（欠番: 03, 06-10 — 削除済みTC）
+# TC-01 ~ TC-19（欠番: 03, 06-10 — 削除済みTC）+ TC-C2-3 ~ TC-C2-5
 
 set -euo pipefail
 
@@ -284,6 +284,132 @@ if [ "$stale_total" -eq 0 ] && [ "$readme_new" -ge 1 ] && [ "$security_new" -ge 
   pass "TC-19: stale 外部サポート文言 0 件 かつ README/SECURITY 新文言 各1件以上"
 else
   fail "TC-19: stale=${stale_total} 件（Not Maintained=${stale_upper}, not maintained=${stale_lower}）/ README new=${readme_new} / SECURITY new=${security_new}"
+fi
+
+########################################
+# Approval Reorder Cycle 2 — narrative doc sync (usability / ROADMAP / CHANGELOG)
+########################################
+
+echo ""
+echo "--- Approval Reorder Cycle 2 ---"
+
+# section extraction helper: extracts lines within a fixed-string H2 heading section.
+# Heading matched via awk index() prefix (fixed-string), not regex — avoids ERE
+# metachar pitfalls with headings like "[Unreleased]" (rules/test-patterns.md).
+section_grep() {
+  local file="$1"
+  local heading="$2"
+  local pattern="$3"
+  awk -v h="$heading" '
+    index($0, "## " h) == 1 {in_sec=1; next}
+    in_sec && /^## /{in_sec=0}
+    in_sec
+  ' "$file" | grep -cF "$pattern" || true
+}
+
+# TC-C2-3: usability.md Phase Transition フロー図の plan mode 区間に
+# plan-review が approve より前に存在することを検査。
+# 見出し範囲（## Phase Transition UX）を先に抽出してから code block を探すことで、
+# 別 section に偶然 "plan mode:" を含む fenced block があっても誤って拾わない
+# （section 外の記述による偽 PASS 防止、rules/test-patterns.md 準拠）
+echo ""
+echo "TC-C2-3: usability.md flow diagram — plan-review precedes approve in plan mode line"
+FILE="$BASE_DIR/docs/usability.md"
+if [ ! -f "$FILE" ]; then
+  fail "TC-C2-3: docs/usability.md not found"
+else
+  PHASE_TRANSITION_SECTION=$(awk '
+    index($0, "## Phase Transition UX") == 1 {in_sec=1; next}
+    in_sec && /^## /{in_sec=0}
+    in_sec
+  ' "$FILE")
+  if [ -z "$PHASE_TRANSITION_SECTION" ]; then
+    fail "TC-C2-3: '## Phase Transition UX' section not found (extraction failed)"
+  else
+    FLOW_BLOCK=$(printf '%s\n' "$PHASE_TRANSITION_SECTION" | awk '
+      /^```/ {
+        if (capturing) {
+          if (index(buf, "plan mode:") > 0) { print buf; exit }
+          capturing = 0
+          next
+        } else {
+          capturing = 1
+          buf = ""
+          next
+        }
+      }
+      capturing { buf = buf $0 "\n" }
+    ')
+    PLAN_MODE_LINE=$(printf '%s\n' "$FLOW_BLOCK" | grep -F 'plan mode:' || true)
+    if [ -z "$PLAN_MODE_LINE" ]; then
+      fail "TC-C2-3: 'plan mode:' line not found in Phase Transition UX flow diagram block (extraction failed)"
+    else
+      pr_idx=$(printf '%s' "$PLAN_MODE_LINE" | awk '{print index($0, "plan-review")}')
+      ap_idx=$(printf '%s' "$PLAN_MODE_LINE" | awk '{print index($0, "approve")}')
+      if [ "$pr_idx" -gt 0 ] && [ "$ap_idx" -gt 0 ] && [ "$pr_idx" -lt "$ap_idx" ]; then
+        pass "TC-C2-3: plan-review precedes approve in plan mode line"
+      else
+        fail "TC-C2-3: plan-review does not precede approve (plan-review idx=$pr_idx, approve idx=$ap_idx)"
+      fi
+    fi
+  fi
+fi
+
+# TC-C2-4: ROADMAP.md 現在地 section が approval-reorder または #176 に言及
+echo ""
+echo "TC-C2-4: ROADMAP.md 現在地 section mentions approval-reorder or #176"
+FILE="$BASE_DIR/ROADMAP.md"
+if [ ! -f "$FILE" ]; then
+  fail "TC-C2-4: ROADMAP.md not found"
+else
+  count_approval=$(section_grep "$FILE" "現在地" "approval-reorder")
+  count_issue176=$(section_grep "$FILE" "現在地" "#176")
+  if [ "$count_approval" -ge 1 ] || [ "$count_issue176" -ge 1 ]; then
+    pass "TC-C2-4: ROADMAP.md 現在地 mentions approval-reorder or #176"
+  else
+    fail "TC-C2-4: ROADMAP.md 現在地 section missing approval-reorder/#176 reference"
+  fi
+fi
+
+# TC-C2-5: CHANGELOG.md [Unreleased] の "### Breaking" subsection 内に
+# approval-reorder または #176 の言及があることを検査。
+# [Unreleased] section 全体で approval-reorder と Breaking を独立カウントすると、
+# 別機能の Breaking 項目が残っている限り approval-reorder 側の Breaking 記述を
+# 消しても PASS してしまう（両者の関連性が pin されない）ため、
+# Breaking subsection を先に抽出しその中限定で言及有無を判定する
+echo ""
+echo "TC-C2-5: CHANGELOG.md [Unreleased] '### Breaking' subsection mentions approval-reorder or #176"
+FILE="$BASE_DIR/CHANGELOG.md"
+if [ ! -f "$FILE" ]; then
+  fail "TC-C2-5: CHANGELOG.md not found"
+else
+  UNRELEASED_SECTION=$(awk '
+    index($0, "## [Unreleased]") == 1 {in_sec=1; next}
+    in_sec && /^## /{in_sec=0}
+    in_sec
+  ' "$FILE")
+  if [ -z "$UNRELEASED_SECTION" ]; then
+    fail "TC-C2-5: '## [Unreleased]' section not found (extraction failed)"
+  else
+    BREAKING_SUBSECTION=$(printf '%s\n' "$UNRELEASED_SECTION" | awk '
+      index($0, "### Breaking") == 1 {in_sub=1; next}
+      in_sub && /^#/{in_sub=0}
+      in_sub
+    ')
+    if [ -z "$BREAKING_SUBSECTION" ]; then
+      fail "TC-C2-5: '### Breaking' subsection not found within [Unreleased] (extraction failed)"
+    else
+      count_approval=$(printf '%s\n' "$BREAKING_SUBSECTION" | grep -cF "approval-reorder" || true)
+      count_issue176=$(printf '%s\n' "$BREAKING_SUBSECTION" | grep -cF "#176" || true)
+      [ -z "$count_approval" ] && count_approval=0
+      [ -z "$count_issue176" ] && count_issue176=0
+      if [ "$count_approval" -ge 1 ] || [ "$count_issue176" -ge 1 ]; then
+        pass "TC-C2-5: CHANGELOG.md [Unreleased] Breaking subsection mentions approval-reorder or #176"
+      else
+        fail "TC-C2-5: CHANGELOG.md [Unreleased] Breaking subsection missing approval-reorder/#176 reference"
+      fi
+    fi
+  fi
 fi
 
 ########################################

@@ -5,11 +5,11 @@ phase: DONE
 complexity: complex
 test_count: 15
 risk_level: medium
-retro_status: captured
+retro_status: resolved
 codex_session_id: "019f6d8e-f689-7410-9af6-f30413a8d46a"
 plan_file: /Users/morodomi/.claude/plans/twinkly-wishing-parasol.md
 created: 2026-07-17 11:26
-updated: 2026-07-17 14:37
+updated: 2026-07-17 16:04
 ---
 
 # approval-reorder — Codex plan review を人間承認前（plan mode 内）へ移動する
@@ -527,3 +527,36 @@ PASS: All pre-RED gate checks passed. の明示実行へ統一。steps-teams に
 - issue: #176 実装 / #179（Cycle 2）/ #180（3分岐 SSOT）/ #181（TC prefix）起票
 - feature/approval-reorder → PR → --admin merge
 - Phase completed
+
+## Codify Decisions
+
+triage 実施: 2026-07-17 16:04（後続 cycle approval-reorder-cycle2 の orchestrate Block 0 codify gate）。recurrence pre-triage + autonomous triage、質問 0 件。実装は次の codify 実装 cycle。
+
+### Insight 1（hash/署名の canonical boundary は fixture pin 後に値記録、二次検証者に別実装を使わせる）
+- **Decision**: codified
+- **Destination**: rule (rules/test-patterns.md + rules/agent-prompts.md、両 mirror)
+- **Reason**: boundary の行アンカー pin は test-patterns の「pin は実体を狙う」family、二次検証者の実装独立性は agent-prompts の委譲契約。部分文字列 split の誤切断 + 検証者の実装流用による false MATCH の実害 evidence あり
+- **Decided**: 2026-07-17 16:04
+
+### Insight 2（gate 強化は全モードから呼ばれるまで pin して初めて成立）
+- **Decision**: codified
+- **Destination**: rule (rules/integration-verification.md + mirror)
+- **Reason**: 「gate ロジック強化」と「全 caller が強化 gate を呼ぶ」を分離して両方 pin。real-path invocation の gate 版。steps-subagent/codex が inline 弱チェックで強化 gate を bypass していた実害
+- **Decided**: 2026-07-17 16:04
+
+### Insight 3（順序反転は旧 caller 記述の除去を negative assert で pin）
+- **Decision**: codified
+- **Destination**: rule (rules/multi-file-consistency.md + mirror)
+- **Reason**: A→B 反転時、B 定義に残る「B が A を呼ぶ」旧記述を negative assert で pin。architect が旧 charter で sync-plan 二重実行の実害。positive assert だけでは旧記述と共存する
+- **Decided**: 2026-07-17 16:04
+
+### Insight 4（委譲 worker のフェーズ完了マーカー必須明記）
+- **Decision**: codified
+- **Destination**: rule (rules/agent-prompts.md + mirror)
+- **Reason**: 20260707_0936 の 2 回目再発 → 2-strike rule で自動昇格。委譲 prompt テンプレートに「担当フェーズの Progress Log 完了マーカー（`<PHASE> ... Phase completed`）を gate が読める形で記録」を必須項目化
+- **Decided**: 2026-07-17 16:04
+
+### 成功事例（observation: pre-approval plan review の dogfood が scope を承認前に固めた）
+- **Decision**: no-codify
+- **Reason**: 新フローの設計意図どおりの動作実証 + 既存 competitive review pipeline の追認（Retrospective 内で no-codify 明記済み）
+- **Decided**: 2026-07-17 16:04

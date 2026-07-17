@@ -26,6 +26,10 @@ A phase is a step in the TDD cycle (UPPERCASE). A skill is the implementation th
 - "The REFACTOR phase" = the step in the workflow
 - "Run the refactor skill" = the command that executes it
 
+### plan-review
+
+`plan-review` は正式な Phase 名ではなく、plan mode 内で承認前に実施するレビュー工程を指す用語。Naming Layers の Phase 表（UPPERCASE）には含めない。
+
 ## Language Policy
 
 | Context | Language | Rationale |

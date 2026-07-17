@@ -59,7 +59,7 @@
 
 ```
 User: 「ログイン機能を追加して」
-  -> plan mode: INIT -> 探索 -> 設計 -> Test List -> QA -> approve
+  -> plan mode: INIT -> 探索 -> 設計 -> Test List -> QA -> plan-review -> approve
   -> normal mode: SYNC-PLAN -> RED -> GREEN -> REFACTOR -> review(code) -> COMMIT
   -> PdM: 「完了しました。PRを作成しますか？」
 ```
@@ -115,7 +115,7 @@ StatusLineに現在フェーズとtoken使用量を表示:
 ### WARN (50-79)
 
 ```
-PdM: 「review(plan)でWARN(score: 65)が出ました。」
+PdM: 「plan-reviewでWARN(score: 65)が出ました。」
 Socrates: 「この設計には3つの懸念があります:
   1. ...
   2. ...
