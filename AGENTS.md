@@ -30,14 +30,14 @@ bash tests/test-plugin-structure.sh
 ## TDD Workflow
 
 ```
-spec → approve → /orchestrate (sync-plan → plan-review → pre-red-gate → RED → GREEN → REFACTOR → REVIEW → cycle-retrospective → pre-commit-gate → COMMIT)
+spec → plan-review → approve → /orchestrate (sync-plan → pre-red-gate → RED → GREEN → REFACTOR → REVIEW → cycle-retrospective → pre-commit-gate → COMMIT)
 ```
 
 Cycle docs: `docs/cycles/YYYYMMDD_HHMM_<topic>.md`
 
 ### Post-Approve Action
 
-Plan mode を抜けたら `/orchestrate` を起動する。Edit/Write は直接行わず、必ず /orchestrate に委譲する（プロンプトベースの規律。hook による強制ブロックではない）。
+plan review（Claude 設計レビュー + Codex利用可能時は competitive review）は承認前の spec 内（Step 8）で完了済み。Plan mode を抜けたら `/orchestrate` を起動する。Edit/Write は直接行わず、必ず /orchestrate に委譲する（プロンプトベースの規律。hook による強制ブロックではない）。
 
 ## Quality Standards
 

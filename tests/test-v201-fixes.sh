@@ -6,13 +6,15 @@
 #
 # TC-01: sync-plan.md does NOT have Debate Workflow section
 # TC-02: sync-plan.md does NOT have Human Clarification section
-# TC-03: spec reference.md Post-Approve Action has Codex plan review (not tied to codex_mode)
+# TC-03: spec reference.md Post-Approve Action has NO Codex plan review (moved to
+#        pre-approval spec Step 8)
 # TC-04: steps-subagent.md REVIEW section has Codex competitive review
 # TC-05: commit SKILL.md has findings summary step after commit
 # TC-06: steps-codex.md states codex_mode controls RED/GREEN only
 # TC-07: SKILL.md Mode Selection describes codex_mode as RED/GREEN scope
 # TC-08: reference.md TDD Gate codex_mode description says RED/GREEN only
-# TC-09: spec reference.ja.md Post-Approve Action matches reference.md
+# TC-09: spec reference.ja.md Post-Approve Action has NO Codex plan review, matching
+#        reference.md
 # TC-10: Existing tests pass (regression)
 
 set -euo pipefail
@@ -44,18 +46,15 @@ else
   pass "sync-plan.md has no Human Clarification"
 fi
 
-# TC-03: spec reference.md Post-Approve Action has Codex plan review NOT tied to codex_mode
+# TC-03: spec reference.md Post-Approve Action has NO Codex plan review
+# (plan review moved to pre-approval spec Step 8)
 echo ""
-echo "TC-03: Post-Approve Action Codex plan review not tied to codex_mode"
+echo "TC-03: Post-Approve Action has NO Codex plan review (moved to pre-approval Step 8)"
 post_approve=$(sed -n '/## Post-Approve Action/,/^## /p' "$BASE_DIR/skills/spec/reference.md")
-# Codex plan review should exist
-if ! echo "$post_approve" | grep -qi 'codex.*plan.*review\|codex.*exec.*plan'; then
-  fail "Post-Approve Action missing Codex plan review"
-# codex_mode should NOT determine plan review (it's about RED/GREEN only)
-elif echo "$post_approve" | grep -qi 'codex_mode.*plan.*review\|plan.*review.*codex_mode'; then
-  fail "Codex plan review is tied to codex_mode"
+if echo "$post_approve" | grep -qi 'codex.*plan.*review\|codex.*exec.*plan'; then
+  fail "Post-Approve Action still contains Codex plan review (should be pre-approval only)"
 else
-  pass "Codex plan review exists and is not tied to codex_mode"
+  pass "Post-Approve Action has no Codex plan review reference"
 fi
 
 # TC-04: steps-subagent.md REVIEW has Codex competitive review
@@ -106,19 +105,16 @@ else
   fail "reference.md TDD Gate missing RED/GREEN scope"
 fi
 
-# TC-09: spec reference.ja.md Post-Approve Action matches reference.md
+# TC-09: spec reference.ja.md Post-Approve Action has NO Codex plan review, matching
+# reference.md
 echo ""
-echo "TC-09: reference.ja.md Post-Approve Action matches"
+echo "TC-09: reference.ja.md Post-Approve Action has no Codex plan review (matches reference.md)"
 post_approve_ja=$(sed -n '/## Post-Approve Action/,/^## /p' "$BASE_DIR/skills/spec/reference.ja.md")
-# Check sync-plan before plan-review (same as reference.md)
-sync_ja=$(echo "$post_approve_ja" | grep -n -i 'sync-plan\|Cycle doc' | head -1 | cut -d: -f1)
-review_ja=$(echo "$post_approve_ja" | grep -n -i 'plan.review\|Plan review' | head -1 | cut -d: -f1)
-# Check Codex plan review exists
 has_codex_ja=$(echo "$post_approve_ja" | grep -ci 'codex.*plan.*review\|codex.*exec.*plan' || true)
-if [ -n "$sync_ja" ] && [ -n "$review_ja" ] && [ "$sync_ja" -lt "$review_ja" ] && [ "$has_codex_ja" -gt 0 ]; then
-  pass "reference.ja.md Post-Approve Action matches"
+if [ "$has_codex_ja" -eq 0 ]; then
+  pass "reference.ja.md Post-Approve Action has no Codex plan review reference"
 else
-  fail "reference.ja.md Post-Approve Action mismatch (sync=$sync_ja review=$review_ja codex=$has_codex_ja)"
+  fail "reference.ja.md Post-Approve Action still contains Codex plan review (count=$has_codex_ja)"
 fi
 
 # TC-10: Existing tests pass (regression)

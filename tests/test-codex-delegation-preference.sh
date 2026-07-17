@@ -6,10 +6,11 @@
 # TC-04: steps-codex.md Gate 2 has "full" skip condition
 # TC-05: steps-codex.md Test Plan consistency check is always executed
 # TC-06: reference.md TDD Gate has delegation mode explanation
-# TC-07: spec reference.md Post-Approve Action has sync-plan before plan-review
+# TC-07: spec reference.md Post-Approve Action has NO plan-review mention (moved to
+#        pre-approval Step 8)
 # TC-08: spec reference.md Post-Approve Action has Codex delegation confirmation step
-# TC-09: PHILOSOPHY.md flow diagram has sync-plan before plan-review
-# TC-10: PHILOSOPHY.md flow diagram has Claude plan-review
+# TC-09: docs/workflow.md flow diagram has plan-review before sync-plan
+# TC-10: docs/workflow.md has Claude plan-review before 承認ゲート(1)
 # TC-11: Existing test-orchestrate-codex.sh passes (regression)
 # TC-12: SKILL.md Mode Selection has user choice priority rule
 # TC-13: spec reference.ja.md Post-Approve Action matches reference.md order
@@ -85,16 +86,15 @@ else
   fail "reference.md TDD Gate missing delegation mode explanation"
 fi
 
-# TC-07: spec reference.md Post-Approve Action has sync-plan before plan-review
+# TC-07: spec reference.md Post-Approve Action has NO plan-review mention
+# (plan review moved to pre-approval Step 8)
 echo ""
-echo "TC-07: spec reference.md sync-plan before plan-review in Post-Approve"
+echo "TC-07: spec reference.md Post-Approve Action has no plan-review mention"
 post_approve=$(sed -n '/## Post-Approve Action/,/```$/p' "$BASE_DIR/skills/spec/reference.md")
-sync_line=$(echo "$post_approve" | grep -n -i 'sync-plan\|Cycle doc' | head -1 | cut -d: -f1)
-review_line=$(echo "$post_approve" | grep -n -i 'plan.review\|Plan review' | head -1 | cut -d: -f1)
-if [ -n "$sync_line" ] && [ -n "$review_line" ] && [ "$sync_line" -lt "$review_line" ]; then
-  pass "sync-plan ($sync_line) before plan-review ($review_line)"
+if echo "$post_approve" | grep -qi 'plan.review\|Plan review'; then
+  fail "Post-Approve Action still mentions plan-review (should be pre-approval only)"
 else
-  fail "sync-plan ($sync_line) is NOT before plan-review ($review_line)"
+  pass "Post-Approve Action has no plan-review mention"
 fi
 
 # TC-08: spec reference.md Post-Approve Action has Codex delegation confirmation
@@ -106,25 +106,27 @@ else
   fail "Post-Approve Action missing Codex delegation confirmation"
 fi
 
-# TC-09: workflow.md flow diagram has sync-plan before plan-review
+# TC-09: workflow.md flow diagram has plan-review before sync-plan (flipped: new order)
 echo ""
-echo "TC-09: workflow.md sync-plan before plan-review"
+echo "TC-09: workflow.md plan-review before sync-plan (new order)"
 flow_section=$(sed -n '/^```$/,/^```$/p' "$BASE_DIR/docs/workflow.md" | head -40)
 sync_line_p=$(echo "$flow_section" | grep -n -i 'sync-plan' | head -1 | cut -d: -f1)
 review_line_p=$(echo "$flow_section" | grep -n -i 'plan.review\|plan review' | head -1 | cut -d: -f1)
-if [ -n "$sync_line_p" ] && [ -n "$review_line_p" ] && [ "$sync_line_p" -lt "$review_line_p" ]; then
-  pass "sync-plan ($sync_line_p) before plan-review ($review_line_p) in workflow.md"
+if [ -n "$sync_line_p" ] && [ -n "$review_line_p" ] && [ "$review_line_p" -lt "$sync_line_p" ]; then
+  pass "plan-review ($review_line_p) before sync-plan ($sync_line_p) in workflow.md"
 else
-  fail "sync-plan ($sync_line_p) NOT before plan-review ($review_line_p) in workflow.md"
+  fail "plan-review ($review_line_p) NOT before sync-plan ($sync_line_p) in workflow.md"
 fi
 
-# TC-10: workflow.md flow diagram has Claude plan-review
+# TC-10: workflow.md has Claude plan-review before 承認ゲート(1) (flipped: pre-approval)
 echo ""
-echo "TC-10: workflow.md has Claude plan-review"
-if grep -qi 'Claude.*plan.review\|plan.review.*(Claude)' "$BASE_DIR/docs/workflow.md"; then
-  pass "workflow.md has Claude plan-review"
+echo "TC-10: workflow.md Claude plan-review precedes 承認ゲート(1)"
+claude_review_line=$(grep -n -i 'Claude.*plan.review\|plan.review.*(Claude)' "$BASE_DIR/docs/workflow.md" | head -1 | cut -d: -f1)
+gate_line_10=$(grep -nF '承認ゲート(1)' "$BASE_DIR/docs/workflow.md" | head -1 | cut -d: -f1)
+if [ -n "$claude_review_line" ] && [ -n "$gate_line_10" ] && [ "$claude_review_line" -lt "$gate_line_10" ]; then
+  pass "Claude plan-review ($claude_review_line) precedes 承認ゲート(1) ($gate_line_10)"
 else
-  fail "workflow.md missing Claude plan-review"
+  fail "Claude plan-review ($claude_review_line) does NOT precede 承認ゲート(1) ($gate_line_10)"
 fi
 
 # TC-11: Existing test-orchestrate-codex.sh passes (regression)

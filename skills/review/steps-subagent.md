@@ -22,7 +22,7 @@ bash skills/review/risk-classifier.sh
 # Output: "LOW|MEDIUM|HIGH score:NN"
 ```
 
-plan mode の場合は Cycle doc の変更予定ファイルとPLANセクションからファイルリストを生成する。
+plan mode は **plan file 前提**（Cycle doc 不在でも動作する。Cycle doc は sync-plan/承認後にのみ生成されるため、承認前の plan mode review はplan ファイル単体で完結する必要がある）: plan ファイルの Files to Change と PLAN セクションからファイルリストを生成する。
 
 ### Risk-Based Agent Scaling
 
@@ -125,7 +125,7 @@ phase: review:[plan|code]
 score: [max blocking_score]
 reviewer_summary: [各reviewerのスコアとissuesサマリ]
 pdm_proposal: [auto-verdictに基づく判断提案: PASS/WARN/BLOCK]
-cycle_doc: [cycle docパス]
+cycle_doc: [cycle docパス。plan mode で Cycle doc 不在時（承認前）は plan ファイルパスを代わりに渡す]
 
 各 reviewer の判定が忖度で甘くなっていないか検証せよ。
 特に: important/critical の issue 数に対してスコアが不当に低い場合、
@@ -143,7 +143,7 @@ Specialist Panel (Step 4) と Socrates (Step 4.5) 完了後、全 reviewer の f
 
 1. **重複排除**: 同一 file:line への複数 reviewer 指摘は最も詳細な 1 件に集約。集約元 reviewer 名を併記
 2. **3-category 分類** (`rules/review-triage.md` を SSOT として参照。定義は同 rule の Findings 3-Category Triage 節を verbatim 適用)
-3. **raw finding index 保持**: 重複排除で落とした原 findings を Cycle doc の `## Raw Findings` セクションに append (synthesis 段階で証拠を失わない)
+3. **raw finding index 保持**: 重複排除で落とした原 findings を Cycle doc の `## Raw Findings` セクションに append (synthesis 段階で証拠を失わない)。plan mode で Cycle doc 不在時（承認前）は append 先がないため、raw findings をそのターンの応答に含めて出力する（skip）
 4. **集計入力**: final blocking_score は accept-apply + accept-defer (高 severity) の最大値で算出。下記 Score Aggregation サブセクションのスコアテーブルは **この final score** を判定基準とする (raw blocking_score ではない)
 
 並列 reviewer (HIGH tier で 7 agents) の出力を単純連結すると synthesis 段階で context overflow する。category 分類 + raw index 保持で「集約後の判断」と「証拠保全」を両立する。
@@ -172,14 +172,16 @@ code mode:
 指摘事項: ...
 ```
 
-Cycle doc の Progress Log に記録:
+code mode、または plan mode で Cycle doc が既に存在する場合、Cycle doc の Progress Log に記録:
 ```
 - YYYY-MM-DD HH:MM [REVIEW] review MODE (score NN): verdict
 ```
+plan mode で Cycle doc 不在時（承認前）は記録先がないため skip（レビュー結果はそのターンの応答で報告する）。
 
 ## Step 6: DISCOVERED
 
-PASS/WARN の場合、Cycle doc の DISCOVERED セクションを確認し、未起票項目を `gh issue create` で起票。
+code mode、または plan mode で Cycle doc が既に存在する場合: PASS/WARN なら Cycle doc の DISCOVERED セクションを確認し、未起票項目を `gh issue create` で起票。
+plan mode で Cycle doc 不在時（承認前）: skip（DISCOVERED 追跡は承認後の Cycle doc 生成後に一元化する）。
 詳細: [reference.md](reference.md#discovered-issue-起票)
 
 ## エラーハンドリング

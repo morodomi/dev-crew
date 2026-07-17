@@ -13,7 +13,8 @@ complexity: [trivial|standard|complex]
 test_count: [number]
 risk_level: [low|medium|high]
 retro_status: none
-codex_session_id: ""
+codex_session_id: ""  # plan の Plan Review Record から転記（sync-plan が実施。抽出失敗時は空文字のまま）
+plan_file: [plan mode で承認された plan ファイルの絶対パス]
 created: YYYY-MM-DD HH:MM
 updated: YYYY-MM-DD HH:MM
 ---

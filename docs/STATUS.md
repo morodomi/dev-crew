@@ -5,18 +5,19 @@
 | Metric | Value |
 |--------|-------|
 | In-Progress Cycles | 0 |
-| Done (unarchived) | 69 |
+| Done (unarchived) | 70 |
 | Archived Cycles | 37 |
 | Skills | 28 |
 | Agents | 41 |
 | Test Scripts | 113 |
 
-Last updated: 2026-07-16
+Last updated: 2026-07-17
 
 ## Completed (Recent)
 
 | Date | Cycle | Type |
 |------|-------|------|
+| 2026-07-17 | 20260717_1126: approval-reorder (Codex plan review を承認前へ移動。spec Step 8 + Plan Review Record 転記 + hash 同一性保証 + pre-red-gate 硬化。#176 実装、#179/#180/#181 起票) | feat |
 | 2026-07-16 | 20260716_1328: doc-drift-fix (stale hook 記述3箇所 + 外部サポート文言 No external support 化 + ROADMAP 現在地 v2.12.0 + 再発ガード TC-07/08/19。#176/#177 起票) | docs |
 | 2026-07-15 | 20260715_1346: v2.12-docs-alignment (CHANGELOG [2.12.0] + ROADMAP 現在地更新 + phase 図 COMMIT→DONE 終端、#157。v2.12.0 リリース準備) | docs |
 | 2026-07-13 | 20260709_1313: reviewer-model-policy-v1 (review_policy で reviewer モデルを設定可能に。self=orchestrator 現モデル明示、HIGH escalation、NON-NEGOTIABLE floor 初契約化) | feat |

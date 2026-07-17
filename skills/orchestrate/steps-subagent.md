@@ -43,7 +43,8 @@ for f in docs/cycles/*.md; do [ -f "$f" ] || continue; fm=$(awk '/^---$/{c++;nex
 ```
 
 - **未完了 cycle doc あり** →
-  - plan-review 記録あり (Cycle doc に `plan_review` セクション存在)? → Block 1 スキップ → Block 2a (RED) へ
+  - plan-review 記録 **かつ** architect の Post-Transfer Verification 記録あり? → Block 1 スキップ → Block 2a (RED) へ
+  - plan-review 記録はあるが architect の Post-Transfer Verification 記録なし? → Block 1 から再開（sync-plan はスキップし architect のみ実行 — resume gap: sync-plan 完了直後に中断した場合、転記後検証を取りこぼさない）
   - plan-review 記録なし? → Progress Log の最終完了 Phase の次から再開
 - **なし (DONE のみ or cycle doc なし)** → Block 1 (sync-plan) へ直行
 
@@ -67,20 +68,21 @@ plan ファイルが存在しない場合、plan mode で新規開始:
 
 ### SYNC-PLAN
 
-> **MUST**: Task() で委譲すること。PdM による Skill() 直接呼び出し禁止。
+> **MUST**: Task() で委譲すること。PdM による Skill() 直接呼び出し禁止。sync-plan（転記）→ architect（転記後検証）の順で呼び出す。
 
 ```
-Task(subagent_type: "dev-crew:architect", model: "sonnet", prompt: "planファイルを読み取り、Design Review Gate を実施した後、PASS/WARN なら Task(dev-crew:sync-plan) を実行して Cycle doc を生成せよ。BLOCK の場合は Cycle doc を生成せず、問題点を報告せよ。")
-→ architect が Design Review Gate を実施
-→ PASS/WARN: Task(sync-plan) 実行 → 結果 JSON 返却（pre_review 付き）
-→ BLOCK: 失敗 JSON 返却（pre_review.verdict = "BLOCK"）
+Task(subagent_type: "dev-crew:sync-plan", model: "sonnet", prompt: "planファイル: [path]。Cycle doc を生成し、plan の Plan Review Record（codex_session_id / reviewed_plan_hash 含む）を frontmatter/Progress Log へ転記せよ。")
+→ sync-plan が Cycle doc 生成 + Plan Review Record 転記 → 結果 JSON 返却
+
+Task(subagent_type: "dev-crew:architect", model: "sonnet", prompt: "plan ファイルと生成された Cycle doc [path] を比較し、Post-Transfer Verification を実施せよ。転記欠落=BLOCK / scope 実質変更=AskUserQuestion で再承認 / 観察のみ=DISCOVERED に記録。")
+→ architect が転記後検証を実施 → 結果 JSON 返却（pre_review 付き）
 ```
 
 architect の結果 JSON の `pre_review.verdict` で分岐:
 
 - PASS → Phase Summary 永続化 → Block 2a へ
 - WARN → 警告ログ出力 → Phase Summary 永続化 → Block 2a へ（v5.0 互換）
-- BLOCK → Task() を再起動して sync-plan 再実行（max 1回）→ 再度 BLOCK ならユーザーに報告
+- BLOCK → Task(sync-plan) を再起動して転記をやり直す（max 1回）→ 再度 BLOCK ならユーザーに報告
 
 ### Delegation Decision
 
@@ -111,11 +113,13 @@ PdM が Cycle doc に Phase Summary を追記:
 
 ### Pre-RED Gate (deterministic)
 
-Cycle doc Progress Log を確認:
-1. sync-plan: `awk '/SYNC.PLAN|sync-plan/,/Phase completed/' "$CYCLE_DOC" | grep -qi 'Phase completed'`
-2. Plan Review: `grep -qiE 'Plan Review|review.*plan' "$CYCLE_DOC"`
+```bash
+bash scripts/gates/pre-red-gate.sh "$CYCLE_DOC"
+```
 
-いずれか失敗 → BLOCK（不足ステップを案内）。全PASS → RED へ。
+exit 0 → RED へ。exit 1 → BLOCK（gate の出力メッセージで不足ステップを案内。sync-plan 未完了 / Plan Review (pre-approval) の strict 契約違反等）。
+
+> **MUST**: inline の awk/grep による弱チェックを直書きしない。強化された gate script が唯一の判定源（deterministic gate の単独完結原則、rules/multi-file-consistency.md 準拠）。
 
 ### RED
 

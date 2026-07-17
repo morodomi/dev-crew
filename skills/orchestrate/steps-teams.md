@@ -36,7 +36,8 @@ for f in docs/cycles/*.md; do [ -f "$f" ] || continue; fm=$(awk '/^---$/{c++;nex
 ```
 
 - **未完了 cycle doc あり** →
-  - plan-review 記録あり (Cycle doc に `plan_review` セクション存在)? → Block 1 スキップ → Block 2a (RED) へ
+  - plan-review 記録 **かつ** architect の Post-Transfer Verification 記録あり? → Block 1 スキップ → Block 2a (RED) へ
+  - plan-review 記録はあるが architect の Post-Transfer Verification 記録なし? → Phase 2 から再開（sync-plan はスキップし architect のみ実行 — resume gap: sync-plan 完了直後に中断した場合、転記後検証を取りこぼさない）
   - plan-review 記録なし? → Progress Log の最終完了 Phase の次から再開
 - **なし (DONE のみ or cycle doc なし)** → Phase 1 (Team 作成) → Phase 2 (sync-plan) へ直行
 
@@ -69,13 +70,15 @@ socrates は WARN/BLOCK 時のみ on-demand で起動する。PASS サイクル 
 
 ### SYNC-PLAN
 
-architect teammate を起動し、Design Review Gate + Cycle doc 生成を委譲:
+sync-plan teammate（転記）→ architect teammate（転記後検証）の順で起動する:
 
 ```
-Task(subagent_type: "dev-crew:architect", team_name: "dev-cycle", name: "architect", model: "sonnet", prompt: "planファイルを読み取り、Design Review Gate を実施した後、PASS/WARN なら Task(dev-crew:sync-plan) を実行して Cycle doc を生成せよ。BLOCK の場合は Cycle doc を生成せず、問題点を報告せよ。")
-→ Design Review Gate 実施
-→ PASS/WARN: Task(sync-plan) 実行 → 結果報告
-→ BLOCK: 失敗報告
+Task(subagent_type: "dev-crew:sync-plan", team_name: "dev-cycle", name: "sync-plan", model: "sonnet", prompt: "planファイル: [path]。Cycle doc を生成し、plan の Plan Review Record を frontmatter/Progress Log へ転記せよ。")
+→ sync-plan が Cycle doc 生成 + Plan Review Record 転記 → 結果報告
+→ SendMessage(type: "shutdown_request", recipient: "sync-plan")
+
+Task(subagent_type: "dev-crew:architect", team_name: "dev-cycle", name: "architect", model: "sonnet", prompt: "plan ファイルと Cycle doc [path] を比較し、Post-Transfer Verification を実施せよ。転記欠落=BLOCK / scope 実質変更=AskUserQuestion で再承認 / 観察のみ=DISCOVERED に記録。")
+→ architect が転記後検証を実施 → 結果報告
 → SendMessage(type: "shutdown_request", recipient: "architect")
 ```
 
@@ -129,6 +132,16 @@ Phase Summary の metrics を評価し、次 Phase の実行方法を決定す�
 - Default: always delegate to teammate (safest for token budget)
 
 ## Phase 3: Block 2 - Implementation
+
+### Pre-RED Gate (deterministic)
+
+```bash
+bash scripts/gates/pre-red-gate.sh "$CYCLE_DOC"
+```
+
+exit 0 → RED へ。exit 1 → BLOCK（gate の出力メッセージで不足ステップを案内。sync-plan 未完了 / Plan Review (pre-approval) の strict 契約違反等）。
+
+> **MUST**: inline の awk/grep による弱チェックを直書きしない。強化された gate script が唯一の判定源（deterministic gate の単独完結原則、rules/multi-file-consistency.md 準拠。3 モード全てが同一 gate を通る）。
 
 ### RED
 

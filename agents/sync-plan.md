@@ -84,12 +84,38 @@ planファイルのTest ListをCycle docのTest Listセクションに転記。
 (none)
 ```
 
+### Step 3.5: Transfer Plan Review Record (pre-approval)
+
+planファイルの `## Plan Review Record`（spec Step 8 で記録済み）をCycle docへ転記する:
+
+1. frontmatter の codex_session_id を転記する（plan の `codex_session_id` フィールド値。空文字 or `extraction_failed: true` の場合もそのまま転記する）
+2. frontmatter `plan_file` に plan ファイルの絶対パスを記録する
+3. Progress Log に固定フィールドで転記エントリを追記する。`review_attempts` は**ネスト様式**（`  - {started: ..., completed: ..., verdict: ...}` 行の列挙、attempt 毎に1行）で転記する。`extraction_failed` / `codex_unavailable` は plan 側 Record に存在する場合のみ転記する（存在しない場合はフィールド自体を省略、`false` 等のダミー値を書かない）:
+
+```
+### <ts> - Plan Review (pre-approval)
+- codex_session_id: [転記値]
+- review_attempts:
+  - {started: [転記値], completed: [転記値], verdict: [転記値]}
+  - {started: [転記値], completed: [転記値], verdict: [転記値]}
+- findings 要約: [転記値]
+- unresolved_blocks: [転記値]
+- plan_presented: [転記値]
+- reviewed_plan_hash: [転記値]
+- extraction_failed: true  ## plan側 Record に存在する場合のみ
+- codex_unavailable: true  ## plan側 Record に存在する場合のみ
+- verdict: [転記値]
+- Phase completed
+```
+
+4. **hash 一次照合**: 正準アルゴリズム（`awk '$0=="## Plan Review Record"{exit}{print}' <plan_file> | shasum -a 256`、行全体が `## Plan Review Record` に一致する最初の行より前の全内容の sha256）で plan ファイルの実 hash を再計算し、Record 記載の `reviewed_plan_hash` と比較する。**不一致**の場合は転記を中断し、architect へ不一致を報告する（gate 側の決定論的最終防衛は pre-red-gate.sh の二次照合が担う）。**supersede 規約**: Cycle doc に hash 訂正エントリ（boundary 訂正等）が既に存在する場合は、その訂正エントリに記載された正準値を正としてこの照合に用いる（plan 側の初出値ではなく Cycle doc 側の最新訂正値が優先）
+
 ### Step 4: Complete
 
 Output: Cycle doc生成完了。結果JSONを返却。
 
-> Note: Codex Plan Review は sync-plan ではなく Post-Approve Action で実行される。
-> sync-plan は Cycle doc 生成に専念する。
+> Note: Codex Plan Review は承認前（plan mode 内、spec Step 8）に実行済み。
+> sync-plan は plan の `## Plan Review Record` を Cycle doc へ転記する（Step 3.5）。
 
 ## Frontmatter Initialization
 
@@ -102,7 +128,8 @@ Output: Cycle doc生成完了。結果JSONを返却。
 | test_count | Test Listのカウント |
 | risk_level | low/medium/high |
 | retro_status | none (Cycle 完了後に cycle-retrospective が captured/resolved に遷移) |
-| codex_session_id | "" (空文字。plan review 時に記録) |
+| codex_session_id | plan の Plan Review Record から転記（Step 3.5。抽出失敗時は空文字のまま） |
+| plan_file | plan ファイルの絶対パス（frontmatter に記録） |
 | created | 現在日時 |
 | updated | 現在日時 |
 

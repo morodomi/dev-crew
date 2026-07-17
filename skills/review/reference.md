@@ -2,6 +2,10 @@
 
 SKILL.mdの詳細情報。必要時のみ参照。
 
+## plan mode 前提
+
+plan mode review は **plan file 前提**で動作する（Cycle doc 不在でも動作する）。Cycle doc は承認後に sync-plan が生成するため、承認前の plan mode review（Codex plan review より前、または人間承認前の Claude design review）は Cycle doc に依存できない。ファイルリスト・PLAN セクションは plan ファイル単体から抽出する。
+
 ## Mode 判定詳細
 
 | コンテキスト | Mode | 判定方法 |
@@ -159,7 +163,7 @@ BLOCK 判定時、mode に応じて復帰先が異なる。
 
 ### plan mode の BLOCK 復帰
 
-1. BLOCK 指摘事項を Cycle doc の DISCOVERED に記録
+1. BLOCK 指摘事項を記録する。Cycle doc が既に存在する場合は DISCOVERED セクションへ、承認前で Cycle doc 不在の場合はそのターンの応答に含めて出力する（plan file 前提、skip）
 2. PLAN フェーズに戻って再設計
 3. 再設計後、再度 review --plan を実行
 
