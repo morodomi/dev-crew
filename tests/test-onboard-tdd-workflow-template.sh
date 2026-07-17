@@ -1,6 +1,6 @@
 #!/bin/bash
 # test-onboard-tdd-workflow-template.sh - TDD Workflow + Codex Integration template tests
-# TC-01 ~ TC-08
+# TC-01 ~ TC-08, TC-C2-2
 
 set -euo pipefail
 
@@ -19,13 +19,43 @@ REF_CONTENT=$(cat "$REFERENCE_FILE")
 echo "=== Onboard TDD Workflow Template Tests ==="
 echo ""
 
-# TC-01: Given reference.md, When reading AGENTS.md template section,
-# Then TDD Workflow literal template with "spec → sync-plan → plan-review" followed by RED exists
-echo "TC-01: TDD Workflow literal template has correct workflow line"
-if echo "$REF_CONTENT" | grep -q 'spec → sync-plan → plan-review →.*RED'; then
-  pass "TC-01: TDD Workflow template has 'spec → sync-plan → plan-review → ... RED'"
+# TC-01: Given onboard reference.md distributes the new-order AGENTS.md template,
+# When extracting the AGENTS.md TDD Workflow template block (section extraction, not
+# whole-file grep) and comparing it against the canonical Workflow line in AGENTS.md,
+# Then the template Workflow line matches AGENTS.md verbatim and the stale
+# "sync-plan → plan-review" ordering is absent from that block
+echo "TC-01: TDD Workflow literal template matches canonical AGENTS.md order"
+
+AGENTS_MD="$BASE_DIR/AGENTS.md"
+CANONICAL_WORKFLOW_LINE=$(awk '
+  /^## TDD Workflow/ { f = 1; next }
+  f && /^```/ { c++; if (c == 2) exit; next }
+  f && c == 1 { print; exit }
+' "$AGENTS_MD")
+
+AGENTS_TEMPLATE_BLOCK=$(awk '
+  /^```markdown/ { capturing = 1; buf = ""; next }
+  capturing && /^```$/ {
+    if (index(buf, "## TDD Workflow") > 0) { print buf; exit }
+    capturing = 0
+  }
+  capturing { buf = buf $0 "\n" }
+' "$REFERENCE_FILE")
+
+if [ -z "$CANONICAL_WORKFLOW_LINE" ]; then
+  fail "TC-01: could not extract canonical Workflow line from AGENTS.md (## TDD Workflow section)"
+elif [ -z "$AGENTS_TEMPLATE_BLOCK" ]; then
+  fail "TC-01: could not extract AGENTS.md template block from reference.md (## TDD Workflow marker not found)"
 else
-  fail "TC-01: TDD Workflow template missing 'spec → sync-plan → plan-review → ... RED'"
+  has_canonical=$(printf '%s\n' "$AGENTS_TEMPLATE_BLOCK" | grep -cFx "$CANONICAL_WORKFLOW_LINE" || true)
+  has_stale=$(printf '%s\n' "$AGENTS_TEMPLATE_BLOCK" | grep -cF 'sync-plan → plan-review' || true)
+  [ -z "$has_canonical" ] && has_canonical=0
+  [ -z "$has_stale" ] && has_stale=0
+  if [ "$has_canonical" -ge 1 ] && [ "$has_stale" -eq 0 ]; then
+    pass "TC-01: onboard template Workflow line matches AGENTS.md canonical order, stale order absent"
+  else
+    fail "TC-01: onboard template mismatch (canonical_match=$has_canonical stale_hits=$has_stale)"
+  fi
 fi
 
 # TC-02: Given reference.md TDD Workflow template,
@@ -96,6 +126,47 @@ if echo "$REF_CONTENT" | grep -q '@AGENTS.md'; then
   pass "TC-08: @AGENTS.md import template preserved"
 else
   fail "TC-08: @AGENTS.md import template missing"
+fi
+
+# TC-C2-2: Given the Codex セッション作成 bullet is updated to read-only
+# on both sides, When extracting that bullet item from reference.md,
+# Then (a) the initial review-plan invocation uses --sandbox read-only, (b) the resume
+# invocation uses --sandbox read-only, (c) --full-auto is absent from that bullet, and
+# (d) the general --full-auto invocation elsewhere in reference.md (non-review-plan
+# usage) is retained
+echo ""
+echo "TC-C2-2: Codex セッション作成 bullet uses read-only both sides, --full-auto absent; general --full-auto retained"
+
+CODEX_SESSION_SECTION=$(awk '
+  index($0, "**Codex セッション作成**") > 0 { capture = 1; print; next }
+  capture && /^- \*\*/ { exit }
+  capture && /^#/ { exit }
+  capture { print }
+' "$REFERENCE_FILE")
+
+if [ -z "$CODEX_SESSION_SECTION" ]; then
+  fail "TC-C2-2: Codex セッション作成 bullet not found (extraction failed)"
+else
+  c2_ok=1
+  if ! printf '%s\n' "$CODEX_SESSION_SECTION" | grep -qF 'codex exec --sandbox read-only "review plan'; then
+    fail "TC-C2-2a: initial review-plan invocation is not --sandbox read-only"
+    c2_ok=0
+  fi
+  if ! printf '%s\n' "$CODEX_SESSION_SECTION" | grep -qF 'codex exec --sandbox read-only resume'; then
+    fail "TC-C2-2b: resume invocation is not --sandbox read-only"
+    c2_ok=0
+  fi
+  if printf '%s\n' "$CODEX_SESSION_SECTION" | grep -qF -- '--full-auto'; then
+    fail "TC-C2-2c: --full-auto still present in Codex セッション作成 bullet"
+    c2_ok=0
+  fi
+  general_count=$(grep -cF 'codex exec --full-auto' "$REFERENCE_FILE" || true)
+  [ -z "$general_count" ] && general_count=0
+  if [ "$general_count" -lt 1 ]; then
+    fail "TC-C2-2d: general 'codex exec --full-auto' invocation (Codex Integration bullet, non-review-plan usage) missing from reference.md"
+    c2_ok=0
+  fi
+  [ "$c2_ok" -eq 1 ] && pass "TC-C2-2: Codex セッション作成 bullet read-only both sides + --full-auto absent + general retained"
 fi
 
 # Summary

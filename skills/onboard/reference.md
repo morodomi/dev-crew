@@ -384,7 +384,7 @@ Step 2 のセクション差分検出結果に基づき、以下を具体的に�
 | # | チェック項目 | 対象 | 判定基準 |
 |---|-------------|------|---------|
 | 1 | Post-Approve Action 形式チェック | CLAUDE.md / plan テンプレート | `## Post-Approve Action` セクションが plan テンプレートに存在し、compact-safe 注記があるか |
-| 2 | Workflow 行の sync-plan / plan-review 更新チェック | AGENTS.md TDD Workflow | Workflow 行が `sync-plan → plan-review` を含む最新版か確認し、旧表記ならマージ戦略テーブル通り TDD Workflow セクションをテンプレートで新規で上書き提案 |
+| 2 | Workflow 行の plan-review / approve 順序更新チェック | AGENTS.md TDD Workflow | Workflow 行が `plan-review → approve` を含む最新版（plan review が承認前）か確認し、旧表記（`sync-plan → plan-review`）ならマージ戦略テーブル通り TDD Workflow セクションをテンプレートで新規で上書き提案 |
 | 3 | Codex Integration セクション有無チェック | CLAUDE.md | `## Codex Integration` セクションが存在するか。不在なら追加提案（テンプレートから生成） |
 | 4 | sync-skills ガイダンス有無 | CLAUDE.md / AGENTS.md | Codex 連携時の sync-skills 実行案内があるか |
 | 5 | Quick Commands 上書きチェック | AGENTS.md Quick Commands | コマンド差分があればマージ戦略テーブル通り Quick Commands セクションをテンプレートで新規で上書き提案 |
@@ -411,22 +411,14 @@ Project Structure は自動検出成功時のみ追加 (最大5セクション)�
 ## TDD Workflow
 
 \```
-spec → sync-plan → plan-review → orchestrate(RED → GREEN → REFACTOR → REVIEW → COMMIT)
+spec → plan-review → approve → /orchestrate (sync-plan → pre-red-gate → RED → GREEN → REFACTOR → REVIEW → cycle-retrospective → pre-commit-gate → COMMIT)
 \```
 
 Cycle docs: `docs/cycles/YYYYMMDD_HHMM_<topic>.md`
 
 ### Post-Approve Action
 
-Plan mode を抜けたら `/orchestrate` を起動する。それだけ。
-
-orchestrate が以下を全て内部で管理する:
-- sync-plan（Cycle doc 生成）
-- plan-review（設計レビュー）
-- RED → GREEN → REFACTOR → REVIEW → COMMIT
-
-sync-plan や review --plan を直接呼ばないこと（orchestrate 経由で呼ばれる）。
-Edit/Write は直接行わず、必ず /orchestrate に委譲する（プロンプトベースの規律。hook による強制ではない）。
+plan review（Claude 設計レビュー + Codex利用可能時は competitive review）は承認前の spec 内（Step 8）で完了済み。Plan mode を抜けたら `/orchestrate` を起動する。Edit/Write は直接行わず、必ず /orchestrate に委譲する（プロンプトベースの規律。hook による強制ブロックではない）。
 ```
 
 ### CLAUDE.md 必須セクション
@@ -518,7 +510,7 @@ Codex Integration リテラルテンプレート:
 #### Codex セットアップガイダンス
 
 - **sync-skills**: プロジェクトで dev-crew プラグインを使用している場合、Codex が dev-crew のスキル定義を参照できるよう、`sync-skills` でスキル情報を AGENTS.md に同期する。Codex は Claude Code プラグインを直接読めないため、この同期が必要。
-- **Codex セッション作成**: 初回は `codex exec --full-auto "review plan <planファイルパス>"` で新規セッションを作成する。以降は `codex exec resume --last --full-auto "指示"` でセッションを継続し、Context Cache を活用する。
+- **Codex セッション作成**: 初回は `codex exec --sandbox read-only "review plan <planファイルパス>"` で新規セッションを作成する。以降は `codex exec --sandbox read-only resume <session-id> "指示"` でセッションを継続し、Context Cache を活用する（この read-only 継続は承認前 plan review セッション限定。RED/GREEN 実装委譲は CLAUDE.md テンプレートの Codex Integration 非対話実行コマンドを使う。read-only ではない）。
 
 ### Migration from Single-CLAUDE.md
 
