@@ -43,16 +43,17 @@ When Codex is available, Plan Review and Code Review always run competitively (C
 
 1. Enter plan mode
 2. `spec: <your task>` (e.g. "spec: add input validation to the login form")
-3. Approve the design
-4. Orchestrate runs automatically (sync-plan → plan-review → RED → GREEN → REFACTOR → REVIEW → COMMIT)
+3. Plan review runs automatically (Claude design review + Codex, if available) — findings are reflected before you approve
+4. Approve the design
+5. Orchestrate runs automatically (sync-plan → RED → GREEN → REFACTOR → REVIEW → COMMIT)
 
 ## Core Workflow
 
 ```
 spec (design phase)
   plan mode → Ambiguity Detection → explore → design → Test List → QA
-  → approve → sync-plan (Cycle doc) → Claude plan-review
-  → (Codex plan-review) → (Codex delegation: full/no)
+  → Claude plan-review → (Codex plan-review, if available; findings reflected, re-reviewed once)
+  → approve → sync-plan (Cycle doc, Plan Review Record transferred) → (Codex delegation: full/no)
 
 RED → GREEN → REFACTOR → REVIEW → COMMIT (execution phase)
 ```
@@ -66,14 +67,16 @@ performing automatic context compaction at each phase boundary.
 You: "spec: add input validation to the login form"
      → Claude enters plan mode, runs Ambiguity Detection,
        asks clarifying questions, builds a Test List
+     → Claude reviews the plan
+     → Codex reviews the plan (if available), findings are resolved before approval
 
 You: approve the plan (exits plan mode)
-     → sync-plan generates Cycle doc
-     → Claude reviews the plan
-     → Codex reviews the plan (if available), findings are resolved
-     → Choose Codex delegation for RED/GREEN (full/no)
-
-     → orchestrate auto-starts: RED → GREEN → REFACTOR → REVIEW → cycle-retrospective → COMMIT
+     → /orchestrate auto-starts (a single entry point — sync-plan, architect,
+       and the delegation-mode question all happen internally, not as separate
+       manual steps before orchestrate runs): sync-plan (Cycle doc, Plan Review
+       Record transferred) → architect (Design Review Gate + Post-Transfer
+       Verification) → Choose Codex delegation for RED/GREEN (full/no)
+     → orchestrate continues: RED → GREEN → REFACTOR → REVIEW → cycle-retrospective → COMMIT
      → Each phase delegated to specialist agents (Codex or Claude workers)
      → Competitive review (Claude + Codex) at REVIEW phase
      → Findings summary shown after commit

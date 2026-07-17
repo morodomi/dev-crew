@@ -2,6 +2,57 @@
 
 SKILL.mdの詳細情報。必要時のみ参照。
 
+## Step 8: 承認前 Plan Review (Codex) {#step-8-pre-approval-plan-review}
+
+Codex plan review は**承認前**（plan mode 内、ExitPlanMode 前）に実行する契約。Step 7 完了後に実行し、findings を draft plan へ直接反映してから最終版を1回だけ再レビューして打ち切る（cycle 20260717_1126_approval-reorder）。
+
+### 手順
+
+1. `codex exec --sandbox read-only "review plan <plan path>"` を実行する。session id は下記3段 fallback で取得する。**`--full-auto` での実行は禁止**（plan review は read-only sandbox 必須。`--full-auto` は書き込み権限を伴うため plan mode の read-only 原則に反する）
+2. findings を draft plan へ直接反映する
+3. 最終版を1回だけ再レビューする: `codex exec --sandbox read-only resume <session-id> "..."`（**フラグは resume より前置**。後置は rc=2 実測済み。ここも `--full-auto` 禁止、`--sandbox read-only` 固定）
+4. `## Plan Review Record` を plan に記録する（フィールド様式は下記）
+5. 未解消 BLOCK は Record の `unresolved_blocks` に列挙し、承認提示文で人間の明示 override を要求する。人間が override した場合は verdict を `BLOCK-overridden` とし、Record の `override` フィールドに承認内容を引用する
+6. Codex 不在時（`which codex` 失敗）: Step 8 の Codex 呼び出しは skip するが、**Record 自体の記録は必須**（詳細は下記「Codex 不在時」参照）
+
+### codex_session_id 取得契約（3段 fallback）
+
+1. stdout header の `session id:` 行から uuid を regex 抽出
+2. (1) 失敗時: `~/.codex/sessions/<Y/M/D>/rollout-*-<uuid>.jsonl` の最新ファイル名から抽出（実行時刻突合で他セッション混入を排除）
+3. (1)(2) 両方失敗時: `codex_session_id: ""` + `extraction_failed: true` を Record に記録し、degraded 経路（RED 以降は `resume --last`）へフォールバックする
+
+### Plan Review Record 様式（canonical フィールド）
+
+| フィールド | 内容 |
+|-----------|------|
+| codex_session_id | uuid or ""（extraction_failed 時） |
+| verdict | PASS / WARN / BLOCK-overridden |
+| reviewed_plan_hash | 下記アルゴリズムで算出した sha256 |
+| findings 要約 | attempt 毎の要約 |
+| review_attempts | [{started, completed, verdict}, ...]（Codex 不在時は `[]`） |
+| plan_presented | 承認提示時刻 |
+| unresolved_blocks | なし or 列挙 |
+| override | verdict が `BLOCK-overridden` の場合のみ必須。人間の明示承認を引用（例: 「〇〇の理由により承認、△△担当が確認」） |
+| codex_unavailable | Codex 不在時のみ `true` を記録（存在しない場合はフィールド自体を省略） |
+
+### 正準 hash アルゴリズム
+
+plan ファイル中、**行全体が `## Plan Review Record` に一致する最初の行**より前の全内容（当該行を含まない、バイト列そのまま）の sha256:
+
+```bash
+awk '$0=="## Plan Review Record"{exit}{print}' plan.md | shasum -a 256
+```
+
+sync-plan（一次照合）と pre-red-gate.sh（決定論的最終防衛、frontmatter `plan_file:` から再算出）で二重照合する。過去に部分文字列 split による誤 hash が発生した実例あり — 必ず「行全体一致」で判定すること。
+
+### Codex 不在時
+
+`which codex` が失敗する場合、Codex 呼び出し（手順1-3）は skip するが、**`## Plan Review Record` 自体の記録は省略しない**（silent skip 禁止）。以下の形で Record を作成する:
+
+- `verdict` / `reviewed_plan_hash`: Claude が自前で判定・算出する（`reviewed_plan_hash` は正準アルゴリズムで計算可能、Codex 不在でも算出できる）
+- `review_attempts`: `[]`（空配列。Codex レビューを実施していないため）
+- `codex_unavailable: true` を記録する
+
 ## リスクスコア判定の詳細
 
 ### スコア閾値（reviewと統一）
@@ -408,7 +459,7 @@ planファイルに記録するTDDコンテキストのテンプレート:
 ```markdown
 ## TDD Context
 
-- Workflow: TDD (sync-plan → plan-review → RED → GREEN → REFACTOR → REVIEW → COMMIT)
+- Workflow: TDD (plan-review → sync-plan → RED → GREEN → REFACTOR → REVIEW → COMMIT)
 - Cycle doc: sync-plan エージェントが docs/cycles/ に作成
 - Feature: [機能名 (3-5語)]
 
@@ -425,17 +476,27 @@ planファイルに記録するTDDコンテキストのテンプレート:
 ### Ambiguity Resolution (該当時)
 - [カテゴリ]: [解決内容]
 
+## Plan Review Record
+
+- codex_session_id: [uuid or "" if extraction_failed]
+- verdict: [PASS / WARN / BLOCK-overridden]
+- reviewed_plan_hash: [sha256、算出法は Step 8 参照]
+- findings 要約: [attempt毎の要約]
+- review_attempts:
+  - {started: [HH:MM], completed: [HH:MM], verdict: [PASS/WARN/BLOCK]}
+- plan_presented: [YYYY-MM-DD HH:MM]
+- unresolved_blocks: [なし or 列挙]
+
 ## Post-Approve Action
 
-approve後、compact + accept edits on に遷移したら、最初のアクションとして以下を実行:
-1. sync-plan: Cycle doc を作成する（sync-plan エージェントが docs/cycles/ に生成）
-2. plan-review: 設計レビューを実施する（Claude が自身で review --plan を実行）
-3. Codex が利用可能なら `codex exec --full-auto` で Codex plan review を実行し、findings を誠実に判断
-4. Codex が利用可能なら AskUserQuestion: RED/GREEN を Codex に委譲するか確認 (full/no)。選択結果を Cycle doc frontmatter の `codex_mode` に記録
-5. `/dev-crew:orchestrate` を実行してREDからTDDサイクルを開始する
+approve後、compact + accept edits on に遷移したら `/orchestrate` のみを起動する（sync-plan・委譲確認等を個別に直接実行してから orchestrate を呼ぶのではない — 以下は全て /orchestrate 内部で自動的に行われる: sync-plan → architect → RED → GREEN → REFACTOR → REVIEW → COMMIT）:
+- sync-plan: Cycle doc を作成する（Step 8 の記録を転記。sync-plan エージェントが docs/cycles/ に生成）
+- architect: 設計レビュー（Design Review Gate）+ Post-Transfer Verification（転記検証）
+- plan-review は承認前に完了済み（詳細は spec Step 8 参照。再実行しない）
+- Codex が利用可能なら AskUserQuestion: RED/GREEN を Codex に委譲するか確認 (full/no)。選択結果を Cycle doc frontmatter の `codex_mode` に記録
 ```
 
-この後、plan mode内で探索・設計・Test List定義・QAチェックを続行する。
+この後、plan mode内で探索・設計・Test List定義・QAチェック・Step 8（承認前レビュー）を続行する。
 
 ## プロジェクト固有のカスタマイズ
 

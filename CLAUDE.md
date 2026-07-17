@@ -7,15 +7,17 @@
 - plan mode: spec + design consolidated in plan file
 - /compact: PreCompact hook (scripts/hooks/pre-compact.sh) persists phase summary before compaction
 
-**Auto-orchestrate after plan approve (Post-Approve Action)**: plan approve後は `/orchestrate` を起動する。orchestrate が sync-plan → plan-review → TDDサイクルを全て管理する。
+**Auto-orchestrate after plan approve (Post-Approve Action)**: plan review（Claude + Codex）は承認前（plan mode 内、spec Step 8）で完了済み。plan approve後は `/orchestrate` を起動する。orchestrate が sync-plan（転記）→ architect（転記後検証）→ TDDサイクルを全て管理する。
 
 ## Codex Integration
 
 Codex が利用可能な場合、Plan Review と Code Review は常時 competitive に実行。RED/GREEN の委譲は codex_mode (full/no) で制御。REFACTOR は Claude が主担当（Codex fallback）。REVIEW は Claude + Codex competitive。詳細は [CONSTITUTION.md](CONSTITUTION.md) 参照。
 
 ```bash
-# plan review（planファイルに対して実行）→ session ID を Cycle doc frontmatter codex_session_id に記録
-codex exec --full-auto "review plan <planファイルパス>"
+# plan review は承認前（spec Step 8、plan mode 内、read-only sandbox）で実行。
+# session ID は plan の Plan Review Record 経由で sync-plan が Cycle doc frontmatter
+# codex_session_id へ転記する（orchestrate 自身は取得しない）
+codex exec --sandbox read-only "review plan <planファイルパス>"
 
 # RED/GREEN/REVIEW 委譲（codex_session_id があれば resume <session-id>、なければ resume --last）
 codex exec resume <session-id> --full-auto "red docs/cycles/xxx.md"
@@ -37,7 +39,7 @@ Available skills (28 total): spec, red, green, refactor, review, commit, orchest
 Phase-boundary compaction:
 - Phase output persisted to Cycle doc before compaction
 - Context restored from files, not conversation history
-- plan approve → compact + accept edits on → auto-orchestrate
+- plan review (承認前) → plan approve → compact + accept edits on → auto-orchestrate
 
 ## Hooks
 
@@ -53,7 +55,7 @@ Phase-boundary compaction:
 | Scenario | Mode | Context Management |
 |---------|--------|------------|
 | Task search | plan mode | search-task → spec |
-| Small-Medium | plan mode → accept edits on | spec → approve → /orchestrate (sync-plan + plan-review + TDD内包) |
+| Small-Medium | plan mode → accept edits on | spec (+plan-review) → approve → /orchestrate (sync-plan + TDD内包) |
 | Large (auto) | plan mode → accept edits on (AGENT_TEAMS=1) | spec → orchestrate (Task() for isolation) |
 | Session resume | accept edits on | Cycle doc を読み IN_PROGRESS cycle を継続 |
 | auto-learn | accept edits on (DEV_CREW_AUTO_LEARN=1) | auto learn after commit (20+ observations) |

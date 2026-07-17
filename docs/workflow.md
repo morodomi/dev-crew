@@ -10,16 +10,18 @@ User: 「ログイン機能追加して」
   ▼
 spec (Claude)
   │  plan mode → 設計・曖昧性検出(※)
-  │  → approve(設計承認)                  ← 承認ゲート(1)
-  │  → sync-plan(承認済みplanをCycle docへ昇格)
-  │  → Claude plan-review → findings判断
-  │  → (Codex plan review → findings → Claude判断)  ← Codex利用可能時
+  │  → Claude plan-review (review --plan)             ← 設計レビュー
+  │  → (Codex plan-review → findings → draft plan へ直接反映 → 最終版を1回だけ再レビュー)  ← Codex利用可能時、承認前（spec Step 8）
+  │  → `## Plan Review Record` を plan に記録（Codex不在時は `codex_unavailable` 記録）
+  │  → approve(レビュー済み plan の承認)               ← 承認ゲート(1)
+  │  → sync-plan(Plan Review Record を Cycle doc へ転記)
+  │  → architect(転記後検証: 転記欠落=BLOCK / scope実質変更=再承認 / 観察のみ=DISCOVERED)
   │  → (Codex委譲確認: full/no)                      ← Codex利用可能時
   │  → compact
   │
   ▼
 ■ pre-red-gate.sh                          ← 決定論的ゲート(1)
-  │  Cycle doc存在? sync-plan完了? Plan Review記録?
+  │  Cycle doc存在? sync-plan完了? Plan Review (pre-approval) 記録・reviewed_plan_hash照合?
   │  exit 1 → BLOCK（不足ステップに戻す）
   │
   ▼
@@ -78,7 +80,7 @@ sync-plan → RED → GREEN → ... → COMMIT → DONE (cycle N+1 本体フロ�
 
 人間の主要な承認ゲートは2箇所:
 
-1. **spec完了時**: 設計方針の承認。「これで作っていい？」
+1. **spec完了時**: レビュー済み plan の承認。plan review（Claude 設計レビュー + Codex利用可能時は competitive review）は承認前に完了しており、人間は findings 反映済みの最終版に対して「これで作っていい？」と判断する
 2. **REVIEW後（debate時のみ）**: Claude/Codexのレビューで意見が割れた場合の最終判断。軽微な修正（エラー修正、try catch等）は両者ACCEPTで自動進行。
 
 ※ spec中の曖昧性検出では AskUserQuestion による追加確認が入る。これは承認ではなく、誤実装を防ぐための仕様確定プロセス。
@@ -87,7 +89,7 @@ sync-plan → RED → GREEN → ... → COMMIT → DONE (cycle N+1 本体フロ�
 
 LLMの手順スキップを機械的に防止するゲートは2箇所:
 
-1. **pre-red-gate.sh**: RED開始前。Cycle doc存在・sync-plan完了・Plan Review記録を検証
+1. **pre-red-gate.sh**: RED開始前。Cycle doc存在・sync-plan完了・Plan Review (pre-approval) 記録（verdict enumerate・reviewed_plan_hash実照合含む）を検証
 2. **pre-commit-gate.sh**: COMMIT開始前。REVIEW完了・Codex review記録・STATUS.md同期・retro_status を検証
 
 承認ゲートは「人間が判断する」場所。決定論的ゲートは「LLMが忘れる」場所。両者は補完関係にある。
@@ -106,7 +108,7 @@ Codexのレビュー結果をClaudeが知的誠実性をもって判断する:
 
 ## sync-plan
 
-sync-plan = 承認済みplanをCycle docへ昇格させる軽量エージェント。旧kickoffのCycle doc生成責務を置き換える。specの内部サブタスクとして実行され、ユーザーからは独立フェーズとして見えない。
+sync-plan = 承認済みplanをCycle docへ昇格させ、plan の `## Plan Review Record`（Codex plan review の承認前記録）を Cycle doc frontmatter/Progress Log へ転記する軽量エージェント。旧kickoffのCycle doc生成責務を置き換える。転記後は architect が Post-Transfer Verification（転記欠落=BLOCK / scope実質変更=再承認 / 観察のみ=DISCOVERED）を実施する。
 
 ## 決定論的ゲートによるプロセス保証
 

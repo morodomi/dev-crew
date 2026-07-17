@@ -27,13 +27,15 @@ ONBOARD_SKILL="skills/onboard/SKILL.md"
 
 echo "=== Sub-task 1: spec template ==="
 
-# TC-01: reference.md Workflow行に "sync-plan" が "plan-review" より前にある (v2.0.1)
-SYNC_PLAN_POS=$(grep "Workflow:.*TDD" "$SPEC_REF" | grep -ob "sync-plan" 2>/dev/null | head -1 | cut -d: -f1 || echo "999")
-PLAN_REVIEW_POS=$(grep "Workflow:.*TDD" "$SPEC_REF" | grep -ob "plan-review" 2>/dev/null | head -1 | cut -d: -f1 || echo "0")
-if [ "$SYNC_PLAN_POS" != "999" ] && [ "$SYNC_PLAN_POS" -lt "$PLAN_REVIEW_POS" ] 2>/dev/null; then
-  assert "TC-01: Workflow has 'sync-plan' before 'plan-review'" "true"
+# TC-01: reference.md Workflow行に "plan-review" が "sync-plan" より前にある
+# (plan review は承認前へ移動した新順序)
+WORKFLOW_LINE=$(grep "Workflow:.*TDD" "$SPEC_REF" || true)
+SYNC_PLAN_POS=$(printf '%s' "$WORKFLOW_LINE" | grep -ob "sync-plan" 2>/dev/null | head -1 | cut -d: -f1)
+PLAN_REVIEW_POS=$(printf '%s' "$WORKFLOW_LINE" | grep -ob "plan-review" 2>/dev/null | head -1 | cut -d: -f1)
+if [ -n "$SYNC_PLAN_POS" ] && [ -n "$PLAN_REVIEW_POS" ] && [ "$PLAN_REVIEW_POS" -lt "$SYNC_PLAN_POS" ]; then
+  assert "TC-01: Workflow has 'plan-review' before 'sync-plan' (pre-approval order)" "true"
 else
-  assert "TC-01: Workflow has 'sync-plan' before 'plan-review'" "false"
+  assert "TC-01: Workflow has 'plan-review' before 'sync-plan' (pre-approval order)" "false"
 fi
 
 # TC-02: reference.ja.md に Plan File Template セクションが存在する

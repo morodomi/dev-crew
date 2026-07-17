@@ -33,8 +33,8 @@ whole-file grep (`grep -l 'retro_status: captured'`) は Cycle doc body 中の�
 
 TaskCreate で TDD サイクルのタスクを登録する。各 Block 開始時に TaskUpdate(status: "in_progress")、完了時に TaskUpdate(status: "completed")。
 
-1. sync-plan (Cycle doc 生成)
-2. plan-review (設計レビュー)
+1. sync-plan (Cycle doc 生成 + Plan Review Record 転記。Codex plan review 自体は承認前の spec Step 8 で完了済み)
+2. architect (転記後検証 / Post-Transfer Verification)
 3. RED (テスト作成)
 4. GREEN (実装)
 5. REFACTOR (品質改善)
@@ -42,7 +42,7 @@ TaskCreate で TDD サイクルのタスクを登録する。各 Block 開始時
 7. cycle-retrospective (失敗-成功 insight 抽出)
 8. COMMIT (コミット)
 
-**MUST**: 8件全て登録すること。plan-review と cycle-retrospective を省略しない。
+**MUST**: 8件全て登録すること。architect の転記後検証と cycle-retrospective を省略しない。
 
 ## Block 2f: RETROSPECTIVE {#block-2f}
 
@@ -93,7 +93,7 @@ Skill(dev-crew:cycle-retrospective)
 | Phase | Owner | 委譲先 |
 |-------|-------|--------|
 | SPEC (plan mode) | PdM (Lead) 直接実行 | Skill(spec) |
-| SYNC-PLAN (Design Review Gate) | PdM → architect | Task(sync-plan) + Design Review Gate |
+| SYNC-PLAN (転記) → Post-Transfer Verification | PdM → sync-plan → architect | Task(sync-plan) 転記 + Task(architect) 転記後検証 |
 | RED | PdM → N red-worker | 並列テスト作成 |
 | GREEN | PdM → N green-worker | 並列実装 |
 | REFACTOR | PdM → refactor (checklist-driven) | Skill(refactor) |
@@ -135,19 +135,19 @@ BLOCK (80+) も同様に Socrates Protocol を経由し、自動再試行では�
 
 ## Session Management
 
-Cycle doc frontmatter の `codex_session_id` で Codex セッションを cycle にバインドする。
+Cycle doc frontmatter の `codex_session_id` で Codex セッションを cycle にバインドする。session id の取得契約（3段 fallback: stdout `session id:` 行 → rollout jsonl 最新ファイル名 → 両失敗時 `extraction_failed: true`）は承認前の spec Step 8（[skills/spec/reference.md](../spec/reference.md#step-8-pre-approval-plan-review)）へ移管済み。orchestrate は sync-plan が転記済みの `codex_session_id` を読み取るだけで、自ら取得は行わない。
 
 ### codex_session_id の状態別動作
 
 | 状態 | 動作 | 備考 |
 |------|------|------|
-| 空文字 `""` | `resume --last` にフォールバック | 初回 plan review 前の状態 |
-| session ID あり | `resume <session-id>` で明示的にバインド | plan review 後の通常状態 |
+| 空文字 `""`（extraction_failed: true 転記時含む） | `resume --last` にフォールバック | degraded 経路（spec Step 8 の3段fallback両方失敗時） |
+| session ID あり | `resume <session-id>` で明示的にバインド | sync-plan が plan の Plan Review Record から転記済み |
 | stale session (resume 失敗) | 新規セッション作成で retry → 新 ID を frontmatter に更新 | 自動回復 |
 
-### 取得タイミング
+### 転記タイミング
 
-plan review 時の `codex exec --full-auto` 実行後、出力から session ID を抽出し Cycle doc frontmatter `codex_session_id` に記録する。
+sync-plan が Cycle doc 生成時に、plan の `## Plan Review Record`（spec Step 8 で記録済み）から `codex_session_id` を frontmatter へ転記する。orchestrate 自身が Codex セッションを新規作成することはない（承認前に完了済み）。
 
 ### フォールバック
 
@@ -320,13 +320,13 @@ reviewer のスコアではなく、計画の設計判断・スコープ・ト�
 
 ### PdM の判断
 
-Socrates の反論を受け、PdM は以下を判断:
+Socrates の反論を受け、PdM は architect の Post-Transfer Verification と同一の3分岐 charter で判断する:
 
-| Socrates の反論 | PdM アクション |
-|----------------|---------------|
-| 軽微な指摘のみ | そのまま Block 2a へ |
-| CONSTITUTION 違反の指摘 | ユーザーに報告、plan 修正を検討 |
-| より良い代替設計の提案 | ユーザーに選択肢を提示 |
+| Socrates の反論 | 分岐 | PdM アクション |
+|----------------|------|---------------|
+| 軽微な指摘のみ | 観察のみ | Cycle doc の DISCOVERED に記録し、そのまま Block 2a へ |
+| CONSTITUTION 違反の指摘 | scope 実質変更 | AskUserQuestion で再承認を求める |
+| より良い代替設計の提案 | scope 実質変更 | AskUserQuestion でユーザーに選択肢を提示 |
 
 ## ADR Reference
 

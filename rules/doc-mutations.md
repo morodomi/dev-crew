@@ -10,19 +10,26 @@ Cycle doc の body は APPEND-ONLY。既存セクション内への middle-inser
 - **禁止**: 既存 Test List の TODO 項目を直接書き換える (状態遷移は WIP / DONE への移動のみ)
 - **代替**: 新情報は常に EOF 方向の独立セクションとして追記する。既存 item を参照する場合は heading 名で言及する
 
-## Plan File IMMUTABLE (cycle 20260422_1146 #4)
+## Plan File — 承認前は可変、承認後は IMMUTABLE (cycle 20260422_1146 #4; cycle 20260717_1126 #2 で承認前/承認後の分岐を明確化)
 
-plan approve 後は plan file を編集しない (`rules/state-ownership.md` L7-10 準拠):
+plan approve 後は plan file を編集しない (`rules/state-ownership.md` L7-10 準拠)。**承認前は可変、承認後は IMMUTABLE** という片方向切替が本節の核:
 
-- **禁止**: Codex plan review での改訂指摘を plan file に反映する
-- **正しい対応**: Codex 指摘は Cycle doc の Progress Log に反映し、Cycle doc を SSOT とする
-- **根拠**: 同じ情報を 2 箇所 (plan file + Cycle doc) に持つと必ず drift する。SSOT 宣言で片方向更新を徹底
+- **承認前**: Codex plan review（spec Step 8）の findings は draft plan へ**直接反映**する。plan は承認前のため可変であり、これが正規の反映先
+- **承認後**: plan file を編集しない（禁止）。承認後に発生した findings（architect の Post-Transfer Verification 等）は以下の 3 分岐で処理する
+
+| 分岐 | 条件 | 反映先 |
+|------|------|--------|
+| 転記欠落 | Plan Review Record が Cycle doc に未反映 | sync-plan を再実行し Cycle doc へ反映（plan file には触れない） |
+| scope 実質変更 | 承認済み scope からの逸脱 | 再承認（AskUserQuestion）。plan file は不変のまま Cycle doc に記録 |
+| 観察のみ | 軽微な観察事項 | Cycle doc の DISCOVERED セクションに記録 |
+
+- **根拠**: 同じ情報を 2 箇所 (plan file + Cycle doc) に持つと必ず drift する。承認前は plan が SSOT（可変）、承認後は Cycle doc が SSOT（plan は freeze）という片方向切替で drift を防ぐ
 
 ## 推奨
 
 - Cycle doc の更新は常に追記方向。過去ログの書き換えは禁止
 - plan file は approve スナップショットとして freeze。読み取り専用で参照する
-- Codex review 指摘の適用先は Cycle doc の該当セクション
+- Codex review 指摘の適用先: 承認前は draft plan へ直接反映、承認後は Cycle doc の該当セクション（3 分岐に従う）
 
 ## SSOT 即時同期 (cycle 20260422_1313 #2)
 
@@ -49,3 +56,4 @@ rule 内の cycle 参照は **full filename prefix** (例: `20260422_1313`) ま�
 - `docs/cycles/20260422_1313_rule-docs-codify-followup.md` Insight 5 — cycle 参照は full filename or cycle_id のみ使用
 - cycle 20260703_1650 #2 — フェーズ実行主体が Test List 遷移まで担う
 - cycle 20260703_2035 #1 — frontmatter 遷移の区間限定編集（全文一括置換の本文汚染）
+- cycle 20260717_1126 #2 — Plan File の承認前/承認後分岐（Codex plan review の承認前移動 + 承認後 3 分岐）

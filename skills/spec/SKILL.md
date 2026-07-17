@@ -67,13 +67,7 @@ Calculate risk score (0-100). Keyword scores: [reference.md](reference.md)
 
 ### Step 5: Scope (Layer) Confirmation
 
-Use AskUserQuestion to confirm scope. Details: [reference.md](reference.md)
-
-| Layer | Description | Plugin |
-|-------|-------------|--------|
-| Backend | PHP/Python etc. | php, python, flask |
-| Frontend | JavaScript/TypeScript | js, ts |
-| Both | Full stack | Multiple plugins |
+Use AskUserQuestion to confirm scope (Backend/Frontend/Both). Layer/Plugin mapping table: [reference.md](reference.md#scope-layer-confirmation-details)
 
 ### Step 6: Record to Plan File
 
@@ -91,7 +85,11 @@ specの記録後、plan mode内で以下を続行（specスキルの範囲外）
 3. **Test List**: Given/When/Then形式
 4. **QAチェック**: カバレッジ・粒度・セキュリティ・独立性
 
-→ review --plan → approve → 自動orchestrate（sync-plan→RED→GREEN→...）
+→ review --plan → Step 8（承認前 Codex plan review）→ approve（ExitPlanMode）→ 自動orchestrate（sync-plan→RED→GREEN→...）
+
+### Step 8: Pre-Approval Plan Review (Codex)
+
+Step 7 後・ExitPlanMode（承認）前: `codex exec --sandbox read-only "review plan <plan path>"` → findings を draft plan へ直接反映 → 最終版を1回だけ再レビュー（`codex exec --sandbox read-only resume <session-id> "..."` — フラグは resume より前置、後置は rc=2 実測済み）→ `## Plan Review Record` を plan に記録。未解消 BLOCK は人間の明示 override が承認提示文で必須。Codex 不在時は skip し Record に `codex_unavailable` を記録。詳細: [reference.md](reference.md#step-8-pre-approval-plan-review)
 
 ## Reference
 

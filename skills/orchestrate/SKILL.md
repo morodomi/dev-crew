@@ -47,15 +47,18 @@ orchestrate Progress:
 planファイルを起点に開始地点を決定する:
 
 1. **planファイルあり?**
-   → YES: 未完了 cycle doc あり? plan-review 記録あり → Block 2a / なし → Progress Log 再開 / cycle doc なし → Block 1
-   → NO: 新規開始 (plan mode): `Skill(dev-crew:spec)` → 設計・Test List → `Skill(dev-crew:review, args: "--plan")` → approve → Block 1
+   → YES: 未完了 cycle doc あり? plan-review 記録+architect Post-Transfer Verification 記録あり → Block 2a / sync-plan 済みだが architect 未実施 → Block 1（architect のみ再開、resume gap 対策）/ いずれも未実施 → Progress Log 再開 / cycle doc なし → Block 1
+   → NO: 新規開始 (plan mode): `Skill(dev-crew:spec)` → 設計・Test List → `Skill(dev-crew:review, args: "--plan")` → Step 8（承認前 Codex plan review、plan mode 内で完了済み） → approve → Block 1
 
 ### Block 1: Sync-Plan (with Design Review)
 
-1. **sync-plan**: architect が Design Review Gate を実施後、PASS/WARN なら Cycle doc 生成
-2. **Codex不在時: Socrates adversarial review** — `which codex` 失敗時、Socrates を計画への adversarial reviewer として起動。詳細: [reference.md](reference.md#socrates-plan-review)
-3. **codex_mode / 委譲モード**: RED/GREEN の委譲先はユーザー選択を優先。詳細: [reference.md](reference.md#tdd-gate)
-4. **自律判断**: PASS/WARN → Block 2a へ、BLOCK → sync-plan再実行
+Codex plan review は承認前（spec Step 8）に完了済みの前提で進行する。順序: sync-plan（転記）→ architect（転記後検証）。
+
+1. **sync-plan**: plan の Plan Review Record を Cycle doc へ転記し、Cycle doc を生成
+2. **architect**: 転記後検証（Post-Transfer Verification）を実施。転記欠落=BLOCK / scope 実質変更=AskUserQuestion で再承認 / 観察のみ=DISCOVERED
+3. **Codex不在時: Socrates adversarial review** — `which codex` 失敗時、Socrates を計画への adversarial reviewer として起動。詳細: [reference.md](reference.md#socrates-plan-review)
+4. **codex_mode / 委譲モード**: RED/GREEN の委譲先はユーザー選択を優先。詳細: [reference.md](reference.md#tdd-gate)
+5. **自律判断**: PASS/WARN → Block 2a へ、BLOCK → sync-plan再実行
 
 ### Block 2: Implementation
 

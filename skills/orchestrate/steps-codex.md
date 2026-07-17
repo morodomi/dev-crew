@@ -30,18 +30,30 @@ Cycle doc frontmatter の `codex_mode` を読み取る。
 
 ## Block 0-1: Prerequisite & Sync-Plan
 
-既存フロー（steps-subagent.md / steps-teams.md）と同一。Codex委譲はBlock 2から。
+Prerequisite Check は steps-subagent.md / steps-teams.md と同一。Sync-Plan は sync-plan（転記）→ architect（転記後検証）の順で呼び出す:
+
+```
+Task(subagent_type: "dev-crew:sync-plan", model: "sonnet", prompt: "planファイル: [path]。Cycle doc を生成し、plan の Plan Review Record を frontmatter/Progress Log へ転記せよ。")
+→ sync-plan が Cycle doc 生成 + Plan Review Record 転記 → 結果 JSON 返却
+
+Task(subagent_type: "dev-crew:architect", model: "sonnet", prompt: "plan ファイルと Cycle doc [path] を比較し、Post-Transfer Verification を実施せよ。転記欠落=BLOCK / scope 実質変更=AskUserQuestion で再承認 / 観察のみ=DISCOVERED に記録。")
+→ architect が転記後検証を実施 → 結果 JSON 返却
+```
+
+Codex委譲はBlock 2から。
 codify-insight も同一で、既定は自動 triage。`skill` 候補/low-confidence のときだけ AskUserQuestion を 1 cycle につき 1 回使う。
 
 ## Block 2: Implementation
 
 ### Pre-RED Gate (deterministic)
 
-Cycle doc Progress Log を確認:
-1. sync-plan: `awk '/SYNC.PLAN|sync-plan/,/Phase completed/' "$CYCLE_DOC" | grep -qi 'Phase completed'`
-2. Plan Review: `grep -qiE 'Plan Review|review.*plan' "$CYCLE_DOC"`
+```bash
+bash scripts/gates/pre-red-gate.sh "$CYCLE_DOC"
+```
 
-いずれか失敗 → BLOCK（不足ステップを案内）。全PASS → RED へ。
+exit 0 → RED へ。exit 1 → BLOCK（gate の出力メッセージで不足ステップを案内。sync-plan 未完了 / Plan Review (pre-approval) の strict 契約違反等）。
+
+> **MUST**: inline の awk/grep による弱チェックを直書きしない。強化された gate script が唯一の判定源（deterministic gate の単独完結原則、rules/multi-file-consistency.md 準拠）。
 
 ### RED via Codex
 
