@@ -50,6 +50,8 @@ pre-triage で処理されなかった insight は 1 cycle 分まとめて自動
 - post-TDD の広い改善、repo-wide sweep → `deferred`（通常 `new-cycle`）
 - observation-only / 2nd-order note → `no-codify`
 - `skill` destination は rare。2+ cycles 再発 + 複数 phase / repo 再利用時のみ
+- destination `rule` は tier（`always` / `cycle-scoped` / `file-scoped`）を必須指定する
+- tier ごとの paths・交換条件・反映責務は [reference.md](reference.md#rule-tier-contract) に従う
 
 ### AskUserQuestion Fallback (only when needed)
 
@@ -70,6 +72,8 @@ Cycle doc EOF に `## Codify Decisions` セクションを append (APPEND-ONLY):
 ### Insight N
 - **Decision**: codified
 - **Destination**: rule
+- **Tier**: cycle-scoped (rule のみ必須: always / cycle-scoped / file-scoped)
+- **Paths**: (file-scoped のみ必須: repo-relative glob)
 - **Reason**: (optional)
 - **Decided**: YYYY-MM-DD HH:MM
 ```

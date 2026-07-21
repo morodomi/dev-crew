@@ -106,6 +106,8 @@ PdM が Cycle doc に Phase Summary を追記:
 
 ## Block 2: Implementation
 
+**フェーズ入口契約**: 各フェーズ（RED/GREEN/REFACTOR/REVIEW/COMMIT）の開始時に Cycle doc を読み、現在 phase・Test List・Progress Log を把握してから作業する（compaction 直後でも cycle-scoped rules の再ロードを保証する入口 Read）。
+
 > Pre-Flight Check:
 > - [ ] SYNC-PLAN: Task() で委譲しているか？
 > - [ ] RED/GREEN: Task() で worker に委譲しているか？
@@ -124,6 +126,7 @@ exit 0 → RED へ。exit 1 → BLOCK（gate の出力メッセージで不足�
 ### RED
 
 > **MUST**: Task() で委譲すること。PdM による Skill() 直接呼び出し禁止。
+> 委譲プロンプトは `rules/agent-prompts.md` の契約に従う。
 
 ```
 Task(subagent_type: "dev-crew:red-worker", model: "sonnet", prompt: "Cycle doc: [path]. 担当テストケース: [TC-XX]. テストを作成し、失敗を確認せよ。")

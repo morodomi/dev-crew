@@ -1,3 +1,7 @@
+---
+paths:
+  - "docs/cycles/**"
+---
 # State Ownership Rules
 
 Defines who owns which state and when mutations are permitted.

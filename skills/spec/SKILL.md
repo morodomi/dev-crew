@@ -69,6 +69,9 @@ Calculate risk score (0-100). Keyword scores: [reference.md](reference.md)
 
 Use AskUserQuestion to confirm scope (Backend/Frontend/Both). Layer/Plugin mapping table: [reference.md](reference.md#scope-layer-confirmation-details)
 
+### Step 5.5: Plan Discipline
+Step 6 の前に `.claude/rules/plan-discipline.md` を Read する。
+
 ### Step 6: Record to Plan File
 
 planファイルにTDDコンテキストを記録。テンプレート: [reference.md](reference.md#plan-file-template)

@@ -1,3 +1,7 @@
+---
+paths:
+  - "docs/cycles/**"
+---
 # Doc Mutations — Cycle doc と plan file の不変性規則
 
 Cycle doc の APPEND-ONLY 契約と plan file の IMMUTABLE 制約。情報の SSOT を守ることで drift を防ぐ。

@@ -133,6 +133,8 @@ Phase Summary の metrics を評価し、次 Phase の実行方法を決定す�
 
 ## Phase 3: Block 2 - Implementation
 
+**フェーズ入口契約**: 各フェーズ（RED/GREEN/REFACTOR/REVIEW/COMMIT）の開始時に Cycle doc を読み、現在 phase・Test List・Progress Log を把握してから作業する（compaction 直後でも cycle-scoped rules の再ロードを保証する入口 Read）。
+
 ### Pre-RED Gate (deterministic)
 
 ```bash
@@ -146,6 +148,7 @@ exit 0 → RED へ。exit 1 → BLOCK（gate の出力メッセージで不足�
 ### RED
 
 N 個の red-worker teammate を起動（テストファイル別）:
+委譲プロンプトは `rules/agent-prompts.md` の契約に従う。
 
 ```
 Task(subagent_type: "dev-crew:red-worker", team_name: "dev-cycle", name: "red-worker-N", model: "sonnet")

@@ -45,6 +45,8 @@ codify-insight も同一で、既定は自動 triage。`skill` 候補/low-confid
 
 ## Block 2: Implementation
 
+**フェーズ入口契約**: 各フェーズ（RED/GREEN/REFACTOR/REVIEW/COMMIT）の開始時に Cycle doc を読み、現在 phase・Test List・Progress Log を把握してから作業する（compaction 直後でも cycle-scoped rules の再ロードを保証する入口 Read）。
+
 ### Pre-RED Gate (deterministic)
 
 ```bash
@@ -56,6 +58,8 @@ exit 0 → RED へ。exit 1 → BLOCK（gate の出力メッセージで不足�
 > **MUST**: inline の awk/grep による弱チェックを直書きしない。強化された gate script が唯一の判定源（deterministic gate の単独完結原則、rules/multi-file-consistency.md 準拠）。
 
 ### RED via Codex
+
+委譲プロンプトは `rules/agent-prompts.md` の契約に従って構築する。
 
 1. プロンプト構築: Cycle doc Test List + テスト対象ファイル情報
 2. 実行:

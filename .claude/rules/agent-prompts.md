@@ -1,3 +1,7 @@
+---
+paths:
+  - "docs/cycles/**"
+---
 # Agent Prompts — architect / subagent 委譲の契約
 
 architect や subagent へ委譲する際のプロンプト設計規律。scope drift を防ぎ、Files list の完全伝達を保証する。

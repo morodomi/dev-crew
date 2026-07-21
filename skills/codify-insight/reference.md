@@ -30,6 +30,29 @@
 
 3 canonical strings: `codified` / `deferred` / `no-codify`。言い換え禁止。
 
+## Rule Tier Contract
+
+destination `rule` は次の tier を必ず指定する。
+
+| tier | paths | 用途 |
+|------|-------|------|
+| `always` | なし | 全セッションで必要なポリシー |
+| `cycle-scoped` | 固定値 `docs/cycles/**` | TDD cycle 中に必要な規律 |
+| `file-scoped` | repo-relative glob 必須 | 対象ファイル操作時だけ必要な規律 |
+
+- `file-scoped` は `paths` に repo-relative glob の指定が必須。repo 全域に一致する glob（`**` 単独・`**/*` 等）は file-scoped として不正 — 実質 always であり、always の交換条件を回避できてしまうため always として申告する。
+- `cycle-scoped` の `paths` は固定値 `docs/cycles/**` とし、個別指定は不要。
+- `always` は `paths` なし。追加時は交換条件が必須で、既存 always rule の scoped 化・統合・削減を同時提示し、常時層凍結契約テストの上限内に収める。
+- codify-insight は tier と paths を decision に記録するのみ。follow-up 実装主体が `rules/` 正本と `.claude/rules/` mirror に同時適用する。
+
+### 正例
+
+`rule(tier=file-scoped, paths=tests/**)`
+
+### 不正例
+
+`rule` の tier 未指定は不正。`file-scoped` の paths 未指定も不正。
+
 ## Default Mode: Autonomous Batch Triage
 
 default は autonomous。per-insight AskUserQuestion を標準動作にしない。

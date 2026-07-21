@@ -20,6 +20,7 @@ allowed-tools: Task, Read, Edit, Bash, Grep, Glob
 
 **code mode only**:
 - Cycle Doc Gate (frontmatter のみ): `for f in docs/cycles/*.md; do [ -f "$f" ] || continue; fm=$(awk '/^---$/{c++;next} c==1{print}' "$f"); echo "$fm" | grep -q '^phase:' || continue; echo "$fm" | grep -q 'phase: DONE' && continue; printf '%s\t%s\n' "$(echo "$fm" | awk 'sub(/^updated: */,""){gsub(/T/," ");print;exit}')" "$f"; done | sort | tail -1 | cut -f2` → found: continue / not found: BLOCK(run spec)
+- Cycle doc を読み、これまでの成果を把握する
 - Phase Ordering Gate: Progress Log に `REFACTOR` の `Phase completed` 記録があるか確認。なければ BLOCK: 「先に refactor を実行してください」
 - **Repo-state pre-check** (cycle 20260424_1119 #3): review 実行前に `git status --short` を先に確認し、`??` (untracked) or ` D` (unstaged deletion) を検出したら WARN + 対応案内。新規 test file / Cycle doc 等が未 staged のまま review されるのを防ぐ。
 

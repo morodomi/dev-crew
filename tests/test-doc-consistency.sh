@@ -371,27 +371,30 @@ else
   fi
 fi
 
-# TC-C2-5: CHANGELOG.md の先頭 version セクションの "### Breaking" subsection 内に
+# TC-C2-5: CHANGELOG.md の [2.13.0] セクションの "### Breaking" subsection 内に
 # approval-reorder または #176 の言及があることを検査。
-# 先頭 version セクション（[Unreleased] があればそれ、リリースで確定後は最新 [x.y.z]）を
-# 対象にすることで、[Unreleased] → [x.y.z] の rename に追随する。
+# approval-reorder の Breaking は v2.13.0 で出荷され [2.13.0] セクションに確定した。
+# リリース済み version セクションは immutable な履歴のため、そこへ直接アンカーする。
+# 旧実装の「先頭 version セクション」方式は、リリース後に新しい [Unreleased] を
+# 新設した時点で対象がすり替わり、無関係な cycle に approval-reorder の Breaking 記載を
+# 恒久要求する誤 BLOCK を起こすため廃止。
 # section 全体で approval-reorder と Breaking を独立カウントすると、別機能の Breaking 項目が
 # 残っている限り approval-reorder 側の Breaking 記述を消しても PASS してしまう
 # （両者の関連性が pin されない）ため、Breaking subsection を先に抽出しその中限定で判定する
 echo ""
-echo "TC-C2-5: CHANGELOG.md first version section '### Breaking' subsection mentions approval-reorder or #176"
+echo "TC-C2-5: CHANGELOG.md [2.13.0] section '### Breaking' subsection mentions approval-reorder or #176"
 FILE="$BASE_DIR/CHANGELOG.md"
 if [ ! -f "$FILE" ]; then
   fail "TC-C2-5: CHANGELOG.md not found"
 else
-  # 最初の '## [' 見出し（version セクション）から次の '## ' 見出しまでを抽出
+  # '## [2.13.0]' 見出しから次の '## ' 見出しまでを抽出
   RELEASE_SECTION=$(awk '
-    /^## \[/ && !seen {seen=1; in_sec=1; next}
+    index($0, "## [2.13.0]") == 1 {in_sec=1; next}
     in_sec && /^## /{in_sec=0}
     in_sec
   ' "$FILE")
   if [ -z "$RELEASE_SECTION" ]; then
-    fail "TC-C2-5: first version section (## [...]) not found (extraction failed)"
+    fail "TC-C2-5: [2.13.0] version section not found (extraction failed)"
   else
     BREAKING_SUBSECTION=$(printf '%s\n' "$RELEASE_SECTION" | awk '
       index($0, "### Breaking") == 1 {in_sub=1; next}
@@ -399,16 +402,16 @@ else
       in_sub
     ')
     if [ -z "$BREAKING_SUBSECTION" ]; then
-      fail "TC-C2-5: '### Breaking' subsection not found within first version section (extraction failed)"
+      fail "TC-C2-5: '### Breaking' subsection not found within [2.13.0] section (extraction failed)"
     else
       count_approval=$(printf '%s\n' "$BREAKING_SUBSECTION" | grep -cF "approval-reorder" || true)
       count_issue176=$(printf '%s\n' "$BREAKING_SUBSECTION" | grep -cF "#176" || true)
       [ -z "$count_approval" ] && count_approval=0
       [ -z "$count_issue176" ] && count_issue176=0
       if [ "$count_approval" -ge 1 ] || [ "$count_issue176" -ge 1 ]; then
-        pass "TC-C2-5: CHANGELOG.md first version section Breaking subsection mentions approval-reorder or #176"
+        pass "TC-C2-5: CHANGELOG.md [2.13.0] Breaking subsection mentions approval-reorder or #176"
       else
-        fail "TC-C2-5: CHANGELOG.md first version section Breaking subsection missing approval-reorder/#176 reference"
+        fail "TC-C2-5: CHANGELOG.md [2.13.0] Breaking subsection missing approval-reorder/#176 reference"
       fi
     fi
   fi
