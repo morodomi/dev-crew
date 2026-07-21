@@ -1,9 +1,9 @@
 # Changelog
 
-## [Unreleased]
+## [2.13.0] - 2026-07-21
 
 ### Breaking
-- 承認ゲートの意味論変更（approval-reorder、#176）: plan review の実行タイミングが人間承認の前（plan mode 内、spec Step 8）へ変更。新形式の（`plan_file` を持つ）cycle doc では pre-red-gate が `plan_file` と Plan Review Record の存在を要求するようになった（plan_file 不在の legacy cycle doc は従来通り弱い fallback で通過）。version bump/tag は本 cycle scope 外（release-skill 委譲）
+- 承認ゲートの意味論変更（approval-reorder、#176）: plan review の実行タイミングが人間承認の前（plan mode 内、spec Step 8）へ変更。新形式の（`plan_file` を持つ）cycle doc では pre-red-gate が `plan_file` と Plan Review Record の存在を要求するようになった（plan_file 不在の legacy cycle doc は従来通り弱い fallback で通過）
 
 ### Added
 - approval-reorder（#176/#179）: spec に Step 8（承認前 plan review）を追加。Cycle 1（PR #182）で機構・実行時 memory・権威 doc（AGENTS/CLAUDE/workflow/README/architecture）を新順序へ更新。Cycle 2 で残る narrative doc（usability.md フロー図・ROADMAP.md 現在地）と onboard 生成テンプレート（AGENTS.md TDD Workflow / Post-Approve Action / Codex セッション作成の read-only 化）を新順序へ伝播
