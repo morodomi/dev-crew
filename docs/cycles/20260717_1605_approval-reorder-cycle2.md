@@ -5,11 +5,11 @@ phase: DONE
 complexity: standard
 test_count: 5
 risk_level: medium
-retro_status: captured
+retro_status: resolved
 codex_session_id: "019f6eb7-ba83-79c3-a452-e781392e2eb4"
 plan_file: /Users/morodomi/.claude/plans/twinkly-wishing-parasol.md
 created: 2026-07-17 16:06
-updated: 2026-07-17 17:22
+updated: 2026-07-21 15:03
 ---
 
 # approval-reorder Cycle 2 — narrative doc + onboard 伝播を新順序へ
@@ -306,3 +306,22 @@ Phase-specific content:
 - リリース準備完了: CHANGELOG [Unreleased] 整備済み。次は release-skill で 2.13.0（minor + Breaking）— ユーザー判断
 - feature/approval-reorder-cycle2 → PR → --admin merge
 - Phase completed
+
+## Codify Decisions
+
+### Insight 1
+- **Decision**: codified
+- **Destination**: rule
+- **Reason**: section 限定走査の概念は cycle 20260703_2035 #2（section_grep）以降 4+ cycle で再発。「見出し区間先行抽出 → 区間内 code block 走査」への拡張として rules/test-patterns.md へ追記（follow-up 実装）
+- **Decided**: 2026-07-21 15:03
+
+### Insight 2
+- **Decision**: codified
+- **Destination**: rule
+- **Reason**: Block 0 codify 出力の scope 同梱は 20260706_1216（Codex W2）・20260707_0936（Files #12）で手動対処済みの 3 度目の再発。2-strike rule（cycle 20260703_1215 #2）により自動昇格。rules/plan-discipline.md へ「Block 0 codify による前 cycle doc 更新を plan Files 注記 or REVIEW 裁定で透明化」を追記（follow-up 実装）
+- **Decided**: 2026-07-21 15:03
+
+### Insight 3
+- **Decision**: no-codify
+- **Reason**: heredoc command substitution 事故は初出（過去 cycle の heredoc 言及は bypass 議論・fixture 記述・onboard 設計で別文脈）。insight 自身の判定通り運用 tip に留める。再発時は rules/test-patterns.md の bash 落とし穴へ昇格
+- **Decided**: 2026-07-21 15:03

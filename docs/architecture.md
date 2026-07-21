@@ -87,7 +87,7 @@ dev-crew/
 │   ├── Security: security-scan/, attack-report/, context-review/, generate-e2e/, security-audit/
 │   ├── Language Quality: php-quality/, python-quality/, ts-quality/, etc.
 │   └── Meta: learn/, evolve/
-├── rules/                        # Always-applied rules
+├── rules/                        # Rules by load trigger: always / cycle-scoped / file-scoped
 ├── hooks/hooks.json              # Auto-loaded hooks
 └── scripts/hooks/                # Shell scripts for hooks
 ```

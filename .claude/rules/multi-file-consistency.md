@@ -1,3 +1,7 @@
+---
+paths:
+  - "docs/cycles/**"
+---
 # Multi-File Consistency — 並行実装と deterministic gate の一貫性
 
 同一 workflow を複数ファイルで並行実装する際の一貫性保証と、deterministic gate の防御設計。

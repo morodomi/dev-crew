@@ -1,3 +1,7 @@
+---
+paths:
+  - "docs/cycles/**"
+---
 # Integration Verification — real-path invocation で config gap を検出する
 
 unit test は mock/direct call を使うと「宣言された config/option が production path で呼ばれていない」gap を見逃す (can miss when tests bypass runtime wiring)。Cycle の Verification Gate に real-path invocation を 1 件以上含めることで latent wire-gap を phase 内で検出する。

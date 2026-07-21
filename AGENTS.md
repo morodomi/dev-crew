@@ -65,7 +65,7 @@ dev-crew/
 ├── agents/          # 40 agents (flat), 19 security agents
 ├── skills/          # 28 skills (each: SKILL.md + reference.md)
 ├── scripts/gates/   # Deterministic gate scripts (pre-red, pre-commit)
-├── rules/           # Always-applied rules (git-safety, security, git-conventions)
+├── rules/           # Rules by load trigger: always / cycle-scoped / file-scoped
 ├── tests/           # Shell test scripts
 └── docs/            # See docs/README.md
     └── decisions/   # Architecture decisions (ADR)

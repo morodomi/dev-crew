@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+- Rules をロード契機（always / cycle-scoped / file-scoped）で分類し、TDD workflow rules を Cycle doc 操作時に限定してロードする構成へ変更
+
 ## [2.13.0] - 2026-07-21
 
 ### Breaking

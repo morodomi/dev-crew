@@ -1,3 +1,7 @@
+---
+paths:
+  - "docs/cycles/**"
+---
 # Review Triage — review findings の Risk-based 処理
 
 review findings をリスクスコアに応じてスケールし、3 カテゴリでトリアージする規律。
