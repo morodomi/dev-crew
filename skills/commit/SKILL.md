@@ -61,6 +61,8 @@ Progress Log追記(`### {date} - COMMIT\n- {summary}\n- Phase completed`) + fron
 
 Type: feat / fix / refactor / test。Cycle doc の issue 参照を含める。詳細: [reference.md](reference.md#commit-message)
 
+コミットメッセージ末尾のトレーラーブロックに `Cycle-Doc: <Cycle Doc Gate で解決した active cycle doc パス>` を必ず含める（repo-relative パス 1 件、`Co-Authored-By:` と同じトレーラーブロック内）。詳細: [reference.md](reference.md#commit-message)
+
 ```bash
 git add <files> && git commit -m "..."
 ```

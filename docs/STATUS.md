@@ -5,18 +5,19 @@
 | Metric | Value |
 |--------|-------|
 | In-Progress Cycles | 0 |
-| Done (unarchived) | 72 |
+| Done (unarchived) | 73 |
 | Archived Cycles | 37 |
 | Skills | 28 |
 | Agents | 41 |
-| Test Scripts | 113 |
+| Test Scripts | 114 |
 
-Last updated: 2026-07-21
+Last updated: 2026-07-23
 
 ## Completed (Recent)
 
 | Date | Cycle | Type |
 |------|-------|------|
+| 2026-07-23 | 20260723_1103: cycle-doc-trailer-and-recall-miss-question (強制想起 #187 先行実装。commit スキルに Cycle-Doc トレーラー自動付与 + cycle-retrospective に想起漏れ設問・固定 2 行スキーマ・二段回収契約。Test Scripts 113→114) | feat |
 | 2026-07-21 | 20260721_1503: rules-load-trigger-reclassification (rules ロード契機 4 分類。7 workflow rules を cycle-scoped 化し常時ロード 449→103 行 77% 減。フェーズ入口 Read 契約 pin TC-05〜11、codify tier 仕様。#185/#186/#187 起票) | feat |
 | 2026-07-17 | 20260717_1605: approval-reorder-cycle2 (narrative doc + onboard 配布テンプレートを新順序へ。onboard L521 security 修正、CHANGELOG [Unreleased]+Breaking、#179 close) | docs |
 | 2026-07-17 | 20260717_1126: approval-reorder (Codex plan review を承認前へ移動。spec Step 8 + Plan Review Record 転記 + hash 同一性保証 + pre-red-gate 硬化。#176 実装、#179/#180/#181 起票) | feat |

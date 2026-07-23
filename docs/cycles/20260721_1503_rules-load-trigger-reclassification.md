@@ -5,12 +5,12 @@ phase: DONE
 complexity: standard
 test_count: 9
 risk_level: medium
-retro_status: captured
+retro_status: resolved
 codex_session_id: "019f8326-5cce-7070-abc9-aac63d1f669a"
 codex_mode: full
 plan_file: /Users/morodomi/.claude/plans/hashed-tickling-honey.md
 created: 2026-07-21 15:04
-updated: 2026-07-21 16:46
+updated: 2026-07-23 11:03
 ---
 
 # v2.14.0 rules ロード契機再分類（常時層ダイエット）
@@ -383,3 +383,22 @@ reject（2 件、理由付き）:
 - 起票: #185（テスト強度）/#186（version gate 自動化）/#187（強制想起 v2.15）
 - feature/rules-load-trigger-reclassification → PR → merge
 - Phase completed
+
+## Codify Decisions
+
+### Insight 1
+- **Decision**: codified
+- **Destination**: rule
+- **Reason**: 「相対参照でなく絶対識別子」原則は doc-mutations の cycle 参照 format（cycle 20260422_1313 #5）に続く 2 例目（対象が CHANGELOG 契約アンカーへ拡張）。rules/test-patterns.md へ「逆向き契約の相対アンカー（first/latest/先頭）禁止 + 契約駆動 workaround の検出シグナル」を追記（follow-up 実装、#185 と同時対応可）
+- **Decided**: 2026-07-23 11:03
+
+### Insight 2
+- **Decision**: codified
+- **Destination**: rule
+- **Reason**: timestamp 推定生成は cycle 20260706_1216 #3（委譲 prompt の timestamp 契約）で rule 化済みだが orchestrator 自身の追記は防御外で、同一セッション内 2 回再発。2-strike rule により rules/agent-prompts.md の timestamp 契約を「Progress Log 追記全般（date 実測 → 変数埋め込みの同一ステップ機械化）」へ拡張（follow-up 実装）
+- **Decided**: 2026-07-23 11:03
+
+### Insight 3
+- **Decision**: no-codify
+- **Reason**: insight 自身の判定通り運用 tip（再帰 runner の timeout 設定 + 孤児 sweep）。初出のため rule 化は保留、再発時に rules/test-patterns.md の bash 落とし穴へ昇格
+- **Decided**: 2026-07-23 11:03
