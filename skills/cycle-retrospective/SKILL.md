@@ -22,6 +22,7 @@ allowed-tools: Read, Edit, AskUserQuestion
 
 - Cycle doc 全体を読む (plan / phase summaries / review verdicts / test failures / retry log / DISCOVERED)
 - Failure → Final fix → Insight ペアを抽出 (詳細手順: reference.md)
+- 想起漏れ設問を評価: 今回の手戻りは過去のどの cycle doc を最初に読んでいれば防げたか（該当なし可、reference.md の `### 想起漏れ` スキーマで記録）
 - **抽出 0 件 (no reusable lesson)** — 抽出は成功したが再利用可能な知見が見つからないケース (Codex P2-2 対応): 通常 exit path、Retrospective に `No reusable lesson this cycle` を記録して retro_status: resolved に遷移 (user intervention 不要、AskUserQuestion も実行しない)
 - **抽出エラー (LLM error / parse error)** — LLM 実行自体が失敗したケース: retry N=2 → 全失敗時は AskUserQuestion で override (proceed / abort)。no-lesson path と混同しない
 
@@ -30,6 +31,7 @@ allowed-tools: Read, Edit, AskUserQuestion
 state-ownership.md の cycle-retrospective 行に従う:
 
 - **Body**: `## Retrospective` を Cycle doc EOF (`## Next Steps` の後) に append (APPEND-ONLY 遵守、middle-insert 禁止、既存内容は一切変更しない)
+- **想起漏れ記録**: 全正常終了経路（通常テンプレート / no-lesson / override-proceed）で `### 想起漏れ` を記録する。abort（ファイル非変更）のみ対象外
 - **frontmatter**: `retro_status` (none → captured / none → resolved) と `updated` のみ更新
   - `captured`: 有効な insight を追記した場合
   - `resolved`: no-lesson / override-proceed (`Extraction skipped by override` または `Extraction failed after N retries`) の場合

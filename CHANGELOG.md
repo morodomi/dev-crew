@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+- コミットメッセージに `Cycle-Doc: <path>` トレーラーを付与（commit スキル）: feature コミットと cycle doc を機械可読なリンクで結ぶ。値は Cycle Doc Gate が解決した主サイクル 1 件の repo-relative パス。commit スキル以外の経路（release-skill・手動コミット）には付与しない
+- cycle-retrospective に想起漏れ設問を追加: 「今回の手戻りは、過去のどの cycle doc を最初に読んでいれば防げたか」を全正常終了経路で `### 想起漏れ` 固定 2 行スキーマ（回答 `該当なし` or `docs/cycles/<file>.md`）に記録し、機械集計可能にする
+
 ## [2.14.0] - 2026-07-22
 
 ### Changed

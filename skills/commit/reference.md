@@ -28,8 +28,21 @@ Closes #123
 
 🤖 Generated with Claude Code
 
+Cycle-Doc: docs/cycles/20250115_1000_login-implementation.md
 Co-Authored-By: Claude <noreply@anthropic.com>
 ```
+
+### Cycle-Doc トレーラー仕様
+
+commit スキルが作る feature コミットには、末尾トレーラーブロックに `Cycle-Doc:` 行を付与する。配置は issue 参照行（Closes/Refs）の後、`Co-Authored-By:` と同じトレーラーブロック内。
+
+| 項目 | 規定 |
+|------|------|
+| 値 | repo-relative パス（例: `docs/cycles/20250115_1000_login-implementation.md`） |
+| 件数 | 主サイクル 1 件のみ。複数の cycle doc を同梱するコミットでも Cycle Doc Gate が選択した主サイクル 1 件だけを記す |
+| 付与対象 | commit スキル経由のコミットのみ。commit スキル以外の経路（release-skill・手動コミット）ではトレーラーを付与しない（誤リンク防止） |
+
+値は Cycle Doc Gate（SKILL.md の解決ロジック、updated 最新の non-DONE）が選んだ active cycle doc パス。複数 cycle が同時 IN_PROGRESS の場合の値は Gate の選択に従う。
 
 ## Error Handling
 

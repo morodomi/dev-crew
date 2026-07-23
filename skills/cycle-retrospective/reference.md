@@ -9,6 +9,7 @@
 1. **失敗の言語化**: 最初に試みた実装・アプローチと、それがどう失敗したかを具体的に記述する
 2. **最終解の言語化**: 最終的に成功した実装・アプローチを 1-2 文で記述する
 3. **事前知識化**: 「次回この課題に取り組む自分に何を伝えるか」を指示形 1-3 文で記述する
+4. **想起漏れの言語化**: 今回の手戻りは、過去のどの cycle doc を最初に読んでいれば防げたか（該当なし可）。回答は `## Retrospective` 内の `### 想起漏れ` に固定 2 行スキーマで記録する（下記出力テンプレート参照）
 
 ### 抽出ソース
 
@@ -38,7 +39,24 @@ Cycle doc の以下セクションをスキャン:
 - **Failure**: ...
 - **Final fix**: ...
 - **Insight**: ...
+
+### 想起漏れ
+
+- **設問**: 今回の手戻りは、過去のどの cycle doc を最初に読んでいれば防げたか
+- **回答**: 該当なし
 ```
+
+`### 想起漏れ` は固定 2 行スキーマ（設問行 + 回答行）。回答行は行全体が `- **回答**: 該当なし` または `- **回答**: docs/cycles/<filename>.md`（複数時は `docs/cycles/a.md, docs/cycles/b.md` のカンマ区切り）に一致すること。他の表現・自由文で置き換えてはならない。手戻りゼロの cycle でも沈黙せず `該当なし` を明示記録する。
+
+集計手順（10 サイクル計測の機械集計契約）: cycle doc 本文には plan 転記・例示の fenced テンプレートが含まれ得るため、whole-file grep は誤取得する。**最後の** `^## Retrospective$` セクション（EOF append 契約により実 Retrospective は常に最後）を先に抽出してから区間内を検査する:
+
+```bash
+# $cycle_doc は対象 cycle doc のパスを入れた変数（そのまま実行可能な形）
+awk '/^## Retrospective$/{buf=""; found=1} found{buf=buf $0 ORS} END{printf "%s", buf}' "$cycle_doc" \
+  | grep -A3 '^### 想起漏れ$' | grep '^- \*\*回答\*\*:'
+```
+
+出力は回答行ちょうど 1 行であること（`grep -A3` は見出し直後の空行を含むため。-A2 では回答行に届かない）。
 
 ### No-lesson 処理 (抽出成功 + 0 件、Codex P2-2 対応)
 
@@ -48,11 +66,17 @@ Cycle doc の以下セクションをスキャン:
 ## Retrospective
 
 No reusable lesson this cycle
+
+### 想起漏れ
+
+- **設問**: 今回の手戻りは、過去のどの cycle doc を最初に読んでいれば防げたか
+- **回答**: 該当なし
 ```
 
 - retro_status: `resolved` に遷移
 - **AskUserQuestion は実行しない** (user intervention 不要)
 - Retry / override path とは別 (そちらは LLM エラー時のみ)
+- no-lesson 経路でも `### 想起漏れ`（回答 `該当なし`）を必須で併記する（全正常終了経路で記録）
 
 ## Retry Policy (LLM エラー時のみ、Codex P2-2 対応)
 
@@ -74,6 +98,7 @@ LLM エラー時の動作:
 
 - Cycle doc に `## Retrospective` を append する
 - 内容: `Extraction skipped by override` または `Extraction failed after N retries`
+- 併せて `### 想起漏れ`（回答 `該当なし`）を必須で記録する（全正常終了経路で記録。abort のみ対象外）
 - retro_status を `resolved` に遷移させる
 - 通常の exit 0 で終了
 
