@@ -383,28 +383,29 @@ if [ "$TC18_PASS" = "true" ]; then
   pass "TC-18: All 4 files mention codify-insight"
 fi
 
-# TC-19: docs/STATUS.md contains "Skills | 28" AND "Test Scripts | 114", README.md contains "28 skills"
+# TC-19: docs/STATUS.md contains "Skills | 28" AND "Test Scripts | 115", README.md contains "28 skills"
 # Updated 2026-05-25: Test Scripts 110 → 112 (TC01+TC02 added)
 # Updated 2026-06-25: Test Scripts 112 → 113 (test-rules-path-scoping.sh added)
 # Updated 2026-07-02: Skills 32→29, Test Scripts 113→112 (3 skills + 1 test deleted)
 # Updated 2026-07-03: Skills 29→28 (parallel deleted)
 # Updated 2026-07-13: Test Scripts 112→113 (test-review-policy.sh added)
 # Updated 2026-07-23: 113→114 (test-commit-cycle-doc-trailer.sh added)
+# Updated 2026-07-23: 114→115 (test-recall-candidates.sh added)
 echo ""
-echo "TC-19: STATUS.md Skills=28 + Test Scripts=114, README.md 28 skills"
+echo "TC-19: STATUS.md Skills=28 + Test Scripts=115, README.md 28 skills"
 if [ ! -f "$STATUS_MD" ]; then
   fail "TC-19: docs/STATUS.md does not exist"
 else
   has_skills28=$(grep -qE "Skills[[:space:]]*\|[[:space:]]*28" "$STATUS_MD" && echo "yes" || echo "no")
-  has_scripts114=$(grep -qE "Test Scripts[[:space:]]*\|[[:space:]]*114" "$STATUS_MD" && echo "yes" || echo "no")
+  has_scripts115=$(grep -qE "Test Scripts[[:space:]]*\|[[:space:]]*115" "$STATUS_MD" && echo "yes" || echo "no")
   has_readme28=$(grep -qE "28 skills" "$README_MD" 2>/dev/null && echo "yes" || echo "no")
-  if [ "$has_skills28" = "yes" ] && [ "$has_scripts114" = "yes" ] && [ "$has_readme28" = "yes" ]; then
-    pass "TC-19: STATUS.md Skills=28 + Test Scripts=114, README.md 28 skills"
+  if [ "$has_skills28" = "yes" ] && [ "$has_scripts115" = "yes" ] && [ "$has_readme28" = "yes" ]; then
+    pass "TC-19: STATUS.md Skills=28 + Test Scripts=115, README.md 28 skills"
   else
     skills_current=$(grep -oE "Skills[[:space:]]*\|[[:space:]]*[0-9]+" "$STATUS_MD" | grep -oE "[0-9]+$" | head -1 || echo "not found")
     scripts_current=$(grep -oE "Test Scripts[[:space:]]*\|[[:space:]]*[0-9]+" "$STATUS_MD" | grep -oE "[0-9]+$" | head -1 || echo "not found")
     readme_current=$(grep -oE "[0-9]+ skills" "$README_MD" 2>/dev/null | head -1 || echo "not found")
-    fail "TC-19: STATUS.md Skills=$skills_current (need 28), Test Scripts=$scripts_current (need 114), README=$readme_current (need '28 skills')"
+    fail "TC-19: STATUS.md Skills=$skills_current (need 28), Test Scripts=$scripts_current (need 115), README=$readme_current (need '28 skills')"
   fi
 fi
 

@@ -5,12 +5,12 @@ phase: DONE
 complexity: simple
 test_count: 7
 risk_level: low
-retro_status: captured
+retro_status: resolved
 codex_session_id: "019f8879-bbcc-7120-b707-867068837504"
 codex_mode: no
 plan_file: /Users/morodomi/.claude/plans/hashed-tickling-honey.md
 created: 2026-07-23 11:04
-updated: 2026-07-23 12:06
+updated: 2026-07-23 13:28
 ---
 
 # v2.15 強制想起 先行 cycle: Cycle-Doc トレーラー + 想起漏れ計測設問
@@ -330,3 +330,19 @@ reject（2 件、理由付き）:
 - 本コミットが Cycle-Doc トレーラーの初回実運用（commit スキル経由）。commit 後に git interpret-trailers で完全一致 + count=1 を検証する
 - commit 同梱: skills 4 + tests 2 + docs/STATUS.md + CHANGELOG.md + 本 cycle doc + docs/cycles/20260721_1503（Block 0 codify 出力、architect/REVIEW で scope 裁定済み）
 - Phase completed
+
+## Codify Decisions
+
+### Insight 1
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: file-scoped
+- **Paths**: tests/**
+- **Reason**: 「機械可読契約は実行可能コマンド + fixture oracle の対で書く」は cycle 20260717_1605 #1（見出し区間先行抽出）の消費側拡張で、契約-oracle 系の再発。rules/test-patterns.md（file-scoped 既存）へ追記（follow-up 実装、#185 のテスト強度強化と同時が効率的）
+- **Decided**: 2026-07-23 13:28
+
+### Insight 2
+- **Decision**: codified
+- **Destination**: inline-update
+- **Reason**: Plan Review Record の厳密形式（入れ子 {started: ...} / override 実証跡必須）を skills/spec/reference.md の Plan File Template に明記する 1-2 行の直接更新。次に spec を使う cycle の手戻りを即防ぐ
+- **Decided**: 2026-07-23 13:28
