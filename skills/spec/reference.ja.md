@@ -476,6 +476,15 @@ planファイルに記録するTDDコンテキストのテンプレート:
 ### Ambiguity Resolution (該当時)
 - [カテゴリ]: [解決内容]
 
+## Recall
+
+（Step 7.2 の `scripts/recall-candidates.sh` 上位候補を助言者形式で記録。候補が無ければ「関連する過去サイクルなし」の 1 行）
+
+### docs/cycles/<file>
+- **何が起きたか**: 当時の状況・結果
+- **当時の前提**: その判断が依存した前提
+- **今回も同じ前提か**: Yes/No と理由
+
 ## Plan Review Record
 
 - codex_session_id: [uuid or "" if extraction_failed]
@@ -497,6 +506,41 @@ approve後、compact + accept edits on に遷移したら `/orchestrate` のみ�
 ```
 
 この後、plan mode内で探索・設計・Test List定義・QAチェック・Step 8（承認前レビュー）を続行する。
+
+## Forced Recall {#forced-recall}
+
+Step 7.2 で実行する強制想起。Files to Change に挙げた変更予定ファイルに関連する過去 cycle doc を決定論的に提示し、「当時の前提が今回も成立するか」を plan review の検査対象に載せる。pull 型検索（問い合わせ待ち）ではなく、ワークフロー固定点で必ず発火させる。
+
+### 実行
+
+```bash
+bash scripts/recall-candidates.sh . <変更予定ファイル...>
+```
+
+データソースは既存のもののみ: `git log --name-only`（共変更）+ Cycle-Doc トレーラー（確定リンク優先）。ハブファイル（多数の cycle doc に共変更リンクするファイル）は寄与を IDF 相当で減衰させる — 減衰は**入力ファイル間の相対重み**として働くため、通常の入力（Files to Change の複数ファイル）では葉ファイル由来の候補がハブ由来より優先され、直近サイクルへの縮退を防ぐ。単一のハブファイルのみを入力した場合は全候補が同点となり新しい順の提示になる（仕様上の許容挙動。miss が計測されたら拡張判断の対象）。出力は `score<TAB>docs/cycles/<path>` の上位候補（既定 5 件、score 降順・新しい順 tie-break）。0 件なら stdout 空 + exit 0。
+
+### 上位候補の読み方
+
+各候補 cycle doc の **Retrospective / Codify Decisions / DISCOVERED** を中心に読み、当時何を学び・何を保留したかを掴む。
+
+### 記録形式（助言者形式）
+
+上位候補を plan の `## Recall` に記録する。候補が無ければ次の 1 行のみ:
+
+```
+関連する過去サイクルなし
+```
+
+候補がある場合、各 doc につき 3 点セットで記録する:
+
+```
+### docs/cycles/<file>
+- **何が起きたか**: 当時の状況・結果の要約
+- **当時の前提**: その判断が依存した前提
+- **今回も同じ前提か**: Yes/No と理由
+```
+
+**助言者原則**: 過去の失敗を「今後も禁止」として書かない。想起は今回の判断材料であって恒久ルールへの昇格ではない（過剰保守化の防止）。
 
 ## プロジェクト固有のカスタマイズ
 

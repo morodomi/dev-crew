@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Added
+- spec に強制想起（Forced Recall、Step 7.2）を追加（#187）: Files to Change 確定後・Step 8 の前に `scripts/recall-candidates.sh` を実行し、変更予定ファイルに関連する過去 cycle doc を決定論的に提示する。データソースは既存のもののみ（`git log --name-only` の共変更 + Cycle-Doc トレーラーの確定リンク優先）で、ハブファイルは IDF 相当で寄与を減衰。上位候補を助言者形式 3 点セット（何が起きたか / 当時の前提 / 今回も同じ前提か）で plan の `## Recall` に記録し、sync-plan が Cycle doc へ転記する。正本変更ゼロ・冪等・常駐プロセスなし
 - コミットメッセージに `Cycle-Doc: <path>` トレーラーを付与（commit スキル）: feature コミットと cycle doc を機械可読なリンクで結ぶ。値は Cycle Doc Gate が解決した主サイクル 1 件の repo-relative パス。commit スキル以外の経路（release-skill・手動コミット）には付与しない
 - cycle-retrospective に想起漏れ設問を追加: 「今回の手戻りは、過去のどの cycle doc を最初に読んでいれば防げたか」を全正常終了経路で `### 想起漏れ` 固定 2 行スキーマ（回答 `該当なし` or `docs/cycles/<file>.md`）に記録し、機械集計可能にする
 

@@ -80,19 +80,17 @@ planファイルにTDDコンテキストを記録。テンプレート: [referen
 
 ### Step 7: Continue in Plan Mode
 
-**Step 7.1: Upstream & Constitution Check** — 上流ドキュメント (`ROADMAP.md` 等) と憲法ドキュメント (`CONSTITUTION.md`, `AGENTS.md`, `CLAUDE.md`, `README.md` のいずれか存在するもの) を読み、設計方針との整合性を確認。差異があれば plan の `## Upstream References` に理由を記録。詳細: [reference.md](reference.md#constitution-check)
+**Step 7.1: Upstream & Constitution Check** — 上流ドキュメント (`ROADMAP.md` 等) と憲法ドキュメントを読み、設計方針との整合性を確認。差異があれば plan の `## Upstream References` に記録。詳細: [reference.md](reference.md#constitution-check)
 
-specの記録後、plan mode内で以下を続行（specスキルの範囲外）:
-1. **探索**: コードベース調査（最低5ファイル読む）
-2. **設計**: アーキテクチャ決定、設計方針
-3. **Test List**: Given/When/Then形式
-4. **QAチェック**: カバレッジ・粒度・セキュリティ・独立性
+specの記録後、plan mode内で続行（specスキル範囲外）: 探索（最低5ファイル）→ 設計 → Test List（Given/When/Then）→ QAチェック（カバレッジ・粒度・セキュリティ・独立性）
+
+**Step 7.2: Forced Recall** — 設計で Files to Change が確定した直後（Step 8 の前）に `bash scripts/recall-candidates.sh . <変更予定ファイル...>` を実行し、上位候補を助言者形式で plan の `## Recall` に記録（0 件時は「関連する過去サイクルなし」）。詳細: [reference.md](reference.md#forced-recall)
 
 → review --plan → Step 8（承認前 Codex plan review）→ approve（ExitPlanMode）→ 自動orchestrate（sync-plan→RED→GREEN→...）
 
 ### Step 8: Pre-Approval Plan Review (Codex)
 
-Step 7 後・ExitPlanMode（承認）前: `codex exec --sandbox read-only "review plan <plan path>"` → findings を draft plan へ直接反映 → 最終版を1回だけ再レビュー（`codex exec --sandbox read-only resume <session-id> "..."` — フラグは resume より前置、後置は rc=2 実測済み）→ `## Plan Review Record` を plan に記録。未解消 BLOCK は人間の明示 override が承認提示文で必須。Codex 不在時は skip し Record に `codex_unavailable` を記録。詳細: [reference.md](reference.md#step-8-pre-approval-plan-review)
+Step 7 後・ExitPlanMode（承認）前: `codex exec --sandbox read-only "review plan <plan path>"` → findings を draft plan へ直接反映 → 最終版を1回だけ再レビュー（resume、フラグ前置。詳細は reference）→ `## Plan Review Record` を plan に記録。未解消 BLOCK は人間の明示 override が承認提示文で必須。Codex 不在時は skip し Record に `codex_unavailable` を記録。詳細: [reference.md](reference.md#step-8-pre-approval-plan-review)
 
 ## Reference
 

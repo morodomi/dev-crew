@@ -64,6 +64,10 @@ updated: YYYY-MM-DD HH:MM
 ### Related Issues/PRs
 - Issue #[number]: [title]
 
+## Recall
+
+（spec Step 7.2 の recall-candidates.sh 上位候補を助言者形式で転記。候補なしは「関連する過去サイクルなし」の 1 行）
+
 ## Test List
 
 ### TODO

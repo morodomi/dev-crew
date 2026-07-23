@@ -62,6 +62,7 @@ planファイルから以下をCycle docに転記:
 | Risk Interview | BLOCK時のインタビュー回答 |
 | Context & Dependencies | 依存関係・参照ドキュメント |
 | Implementation Notes | Goal, Background, Design Approach |
+| Recall | ## Recall（関連過去サイクル・助言者形式） |
 
 ### Step 3: Transfer Test List
 
