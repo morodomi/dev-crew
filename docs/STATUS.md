@@ -5,18 +5,19 @@
 | Metric | Value |
 |--------|-------|
 | In-Progress Cycles | 0 |
-| Done (unarchived) | 74 |
+| Done (unarchived) | 75 |
 | Archived Cycles | 37 |
 | Skills | 28 |
 | Agents | 41 |
 | Test Scripts | 115 |
 
-Last updated: 2026-07-23
+Last updated: 2026-07-24
 
 ## Completed (Recent)
 
 | Date | Cycle | Type |
 |------|-------|------|
+| 2026-07-24 | 20260724_1450: codified-rules-batch-19 (蓄積 codified insight 19 件を rule 条項化 — 8 cycle 分の未実装解消。TC-47〜65 契約 pin、override forgery 封鎖、Recall 初適用 cycle) | feat |
 | 2026-07-23 | 20260723_1328: spec-forced-recall (強制想起本体 #187 R2。spec Step 7.2 + scripts/recall-candidates.sh — トレーラー優先・共変更・unique ペアハブ減衰・archive 二段解決。Test Scripts 114→115) | feat |
 | 2026-07-23 | 20260723_1103: cycle-doc-trailer-and-recall-miss-question (強制想起 #187 先行実装。commit スキルに Cycle-Doc トレーラー自動付与 + cycle-retrospective に想起漏れ設問・固定 2 行スキーマ・二段回収契約。Test Scripts 113→114) | feat |
 | 2026-07-21 | 20260721_1503: rules-load-trigger-reclassification (rules ロード契機 4 分類。7 workflow rules を cycle-scoped 化し常時ロード 449→103 行 77% 減。フェーズ入口 Read 契約 pin TC-05〜11、codify tier 仕様。#185/#186/#187 起票) | feat |

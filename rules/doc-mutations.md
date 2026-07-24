@@ -34,6 +34,7 @@ plan approve 後は plan file を編集しない (`rules/state-ownership.md` L7-
 - Cycle doc の更新は常に追記方向。過去ログの書き換えは禁止
 - plan file は approve スナップショットとして freeze。読み取り専用で参照する
 - Codex review 指摘の適用先: 承認前は draft plan へ直接反映、承認後は Cycle doc の該当セクション（3 分岐に従う）
+- doc の「現在地/current state/status」節を更新する時は、同 doc 内の他節（release 計画・残タスク・schedule）が旧状態を assert していないか doc 全体 sweep（全体を grep）で洗い、全節を整合させてから閉じる。状態更新は header ローカルでなく doc-wide の整合作業 (docs/cycles/20260715_1346_v2.12-docs-alignment.md #2)
 
 ## SSOT 即時同期 (cycle 20260422_1313 #2)
 
@@ -61,3 +62,4 @@ rule 内の cycle 参照は **full filename prefix** (例: `20260422_1313`) ま�
 - cycle 20260703_1650 #2 — フェーズ実行主体が Test List 遷移まで担う
 - cycle 20260703_2035 #1 — frontmatter 遷移の区間限定編集（全文一括置換の本文汚染）
 - cycle 20260717_1126 #2 — Plan File の承認前/承認後分岐（Codex plan review の承認前移動 + 承認後 3 分岐）
+- `docs/cycles/20260715_1346_v2.12-docs-alignment.md #2` — current-state 更新は doc 全体 sweep で全節整合

@@ -40,9 +40,13 @@ review findings は以下の 3 カテゴリに分類して処理する (cycle 20
 - review 開始前にリスクスコアを算出し、tier を決定する
 - 全 findings を 3-category に分類してから適用順を決める
 - reject した findings は「なぜ reject か」を 1 行で review log に記録する
+- competitive review で reviewer 間の判定割れが起きたら、多数決や権威でなく「機構レベルの分解 + 実測 oracle」で決着させる。bash の rc 伝播（pipefail / set -e / SIGPIPE / command substitution）は reviewer ごとに mental model が違うため、実際に踏ませる fixture を作って観測する (docs/cycles/20260709_1125_risk-classifier-doc-diff-fix.md #2)
+- tier テーブル置換（分類テーブル/リストへの項目置換投入）は、置換先の行/tier にその項目が実在するかを構造と突合してから書く。「A を B に置換」は A と B が同じ文脈（同じ tier/行/scope）に属する時のみ意味を持ち、異なる tier の項目を持ち込むと省略対象不在・二重定義等の構造矛盾を生む (docs/cycles/20260709_1313_reviewer-model-policy-v1.md #2)
 
 ## 出典
 
 - `docs/cycles/20260421_2342_agents-md-count-fix.md` Insight 3 (trivial scope で Claude correctness skip)
 - `docs/cycles/20260422_0937_advisory-terminology-fix.md` Insight 5 (3-category findings triage)
 - `docs/cycles/20260422_1146_codify-insight-skill.md` Insight 6 (Risk-based reviewer scaling の階層定義、HIGH 実測例)
+- `docs/cycles/20260709_1125_risk-classifier-doc-diff-fix.md #2` — 判定割れは機構分解 + 実測 oracle で決着
+- `docs/cycles/20260709_1313_reviewer-model-policy-v1.md #2` — tier テーブル置換は実在の構造突合

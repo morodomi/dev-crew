@@ -38,6 +38,9 @@ plan 作成・承認・実行における規律。実測ベースの計画、逆
 - baseline は「immutable snapshot 複製」上で実測し、evidence ファイルを「並行プロセスから隔離」した path に保存する (cycle 20260702_1200 #1)。live tree での baseline は並行 agent に破壊・汚染される
 - 指示・rule 文書で 2 回防げなかった規約違反は 3 回目を待たず自動契約に昇格する（2-strike rule、cycle 20260703_1215 #2）
 - 隔離 snapshot baseline は複製前に repo 外依存を洗い（例: grep -rln '\.\./\.\.' tests/）、依存する親構造ごと複製する。N 件同時 FAIL は単一根本原因の nested cascade をまず疑い、第一仮説は棄却実験を経てから採用する (cycle 20260706_1216 #1)
+- 「省略/デフォルトで上位（executor/親）を継承する」という継承デフォルト前提は、フレームワークの解決順を一次ソース（公式 doc）で確認してから plan に書く。model/config/env の継承は直感と逆のことが多い。否定形前提禁止の姉妹版で、肯定形の継承前提も未検証なら書かない (docs/cycles/20260709_1313_reviewer-model-policy-v1.md #1)
+- 識別子の連番次値（TC 番号・count・連番の「次の値」）を plan に書く前に、`grep -n "TC-1[0-9]"` 等で当該ファイルの実装から最大値を実測する。ヘッダ・目次・一覧コメントは実装から drift する前提で扱い、採番の根拠にしない (docs/cycles/20260716_1328_doc-drift-fix.md #2)
+- orchestrate Block 0 の codify gate は前 cycle doc を変更し、この変更は承認済み Files to Change に現れない。plan 段階で「Block 0 codify による前 cycle doc 更新が commit に同梱される」を Files 注記に含めるか、REVIEW で scope 同梱として明示裁定する。承認 scope と実 commit の差分は内容中立でも透明化する (docs/cycles/20260717_1605_approval-reorder-cycle2.md #2)
 
 ## 具体例
 
@@ -72,3 +75,6 @@ grep -rn "107\|Test Scripts" tests/ skills/commit/
 - cycle 20260703_1215 #2 — 2-strike rule（指示文書での繰り返し違反の自動契約化）
 - cycle 20260706_1020 #1 — 否定形 plan 前提の全 grep 貼付 + 発生機序実測
 - cycle 20260706_1216 #1 — 隔離 snapshot の親構造複製 + 単一根本原因 cascade + 棄却実験
+- `docs/cycles/20260709_1313_reviewer-model-policy-v1.md #1` — 継承デフォルト前提は公式 doc の解決順で確認
+- `docs/cycles/20260716_1328_doc-drift-fix.md #2` — 連番次値は実装 grep で実測（ヘッダは drift 前提）
+- `docs/cycles/20260717_1605_approval-reorder-cycle2.md #2` — Block 0 codify の前 cycle doc 更新は scope 同梱として透明化

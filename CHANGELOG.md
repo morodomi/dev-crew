@@ -6,6 +6,7 @@
 - spec に強制想起（Forced Recall、Step 7.2）を追加（#187）: Files to Change 確定後・Step 8 の前に `scripts/recall-candidates.sh` を実行し、変更予定ファイルに関連する過去 cycle doc を決定論的に提示する。データソースは既存のもののみ（`git log --name-only` の共変更 + Cycle-Doc トレーラーの確定リンク優先）で、ハブファイルは IDF 相当で寄与を減衰。上位候補を助言者形式 3 点セット（何が起きたか / 当時の前提 / 今回も同じ前提か）で plan の `## Recall` に記録し、sync-plan が Cycle doc へ転記する。正本変更ゼロ・冪等・常駐プロセスなし
 - コミットメッセージに `Cycle-Doc: <path>` トレーラーを付与（commit スキル）: feature コミットと cycle doc を機械可読なリンクで結ぶ。値は Cycle Doc Gate が解決した主サイクル 1 件の repo-relative パス。commit スキル以外の経路（release-skill・手動コミット）には付与しない
 - cycle-retrospective に想起漏れ設問を追加: 「今回の手戻りは、過去のどの cycle doc を最初に読んでいれば防げたか」を全正常終了経路で `### 想起漏れ` 固定 2 行スキーマ（回答 `該当なし` or `docs/cycles/<file>.md`）に記録し、機械集計可能にする
+- 20260709 以降の 8 cycle に蓄積された codified insight 19 件を rules へ条項化（rules/{test-patterns, plan-discipline, review-triage, agent-prompts, integration-verification, multi-file-consistency, doc-mutations}.md + .claude/rules/ の同名 mirror へ同時反映）: SIGPIPE consumer 禁止・図契約のノードトークン pin・多段 pipe rc 先取り + 権限拒否 fixture・negative sweep の新文言不一致 oracle・hash boundary fixture pin・doc 内 code block の見出し区間先行抽出・逆向き契約の相対アンカー禁止・機械可読契約の実行可能コマンド化・継承デフォルト前提の一次ソース確認・連番次値の実装実測・Block 0 codify の scope 同梱透明化・判定割れの機構分解 + 実測 oracle・tier テーブル置換の構造突合・委譲 worker のフェーズ完了マーカー必須・timestamp 契約の Progress Log 追記全般拡張・gate 強化の全 caller pin・順序反転の negative assert・current-state 更新の doc 全体 sweep。加えて skills/spec の Plan File Template に `override` フィールドと review_attempts 厳密形式注記を追記（両言語 lockstep）
 
 ## [2.14.0] - 2026-07-22
 
