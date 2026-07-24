@@ -34,6 +34,7 @@ template / skill docs だけでなく、自 cycle の Verification 実行でも 
 - **Library**: `python -c "from mymod import run; run('config.yaml')"`
 - **dev-crew 内 (bash/doc project)**: gate/consumer/validator を real path で実行 — 例 `bash scripts/gates/pre-commit-gate.sh $cycle_doc`（$1 に cycle doc パスを渡すと当該 doc を直接検査。明示指定・推奨。project root を渡すと updated 最新の non-DONE を自動選択）or `bash scripts/validate-yaml-frontmatter.sh`。grep/diff のみは structural test として扱う
 - **共通 (全 project type)**: Verification に書く script 呼び出しは「usage を実測」（ヘッダコメント / --help / 実行）で確認してから記載する。引数契約を名前から推測しない (cycle 20260702_1200 #3)
+- **gate 強化 cycle**: 「gate ロジックの強化」と「全 caller が強化 gate を呼ぶ（全 caller pin）」を分離して両方 pin する。前者だけでは dead な防御になる。全モード契約テスト pin を『順序』だけでなく『gate 呼び出しの存在』にも適用する（real-path invocation の gate 版） (docs/cycles/20260717_1126_approval-reorder.md #2)
 
 ## Evidence 記録
 
@@ -46,3 +47,4 @@ template / skill docs だけでなく、自 cycle の Verification 実行でも 
 - `docs/cycles/20260423_1045_discovered-cycle2-followup.md` Insight 1 (REFACTOR full-suite baseline 必須) の対称ルール
 - cycle 20260702_1200 #3
 - cycle 20260703_1215 #1 — 新 rule cycle の全成果物 checklist 適用（self-apply 拡張）
+- `docs/cycles/20260717_1126_approval-reorder.md #2` — gate 強化は全 caller pin で成立（dead 防御回避）

@@ -495,6 +495,7 @@ planファイルに記録するTDDコンテキストのテンプレート:
   - {started: [HH:MM], completed: [HH:MM], verdict: [PASS/WARN/BLOCK]}
 - plan_presented: [YYYY-MM-DD HH:MM]
 - unresolved_blocks: [なし or 列挙]
+- override:
 
 ## Post-Approve Action
 
@@ -506,6 +507,8 @@ approve後、compact + accept edits on に遷移したら `/orchestrate` のみ�
 ```
 
 この後、plan mode内で探索・設計・Test List定義・QAチェック・Step 8（承認前レビュー）を続行する。
+
+厳密形式: review_attempts は入れ子 `- {started: ...}` を先頭キーとする（date は started 値に内包）。この書式は scripts/gates/pre-red-gate.sh の grep 契約であり書式の自由度を持たない。override は verdict が BLOCK-overridden の場合のみ必須で、テンプレートでは値なしの空欄のままとし、記入時に人間の明示承認の実証跡（ExitPlanMode 承認等）を引用する。テンプレートの空欄をそのままコピーしても pre-red-gate の `^- override: [^ ]` を満たさない（プレースホルダ値による偽の実証跡通過を防ぐため、fence 内は空欄・説明は fence 外の本注記に置く）。
 
 ## Forced Recall {#forced-recall}
 

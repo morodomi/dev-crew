@@ -228,6 +228,53 @@ section_grep() {
   ' "$file" | grep -cF "$pattern" || true
 }
 
+# Plan File Template region grep (fence-aware). The template lives inside a fenced
+# ```markdown block that itself contains nested '## ' lines (## TDD Context, ## Recall,
+# ## Plan Review Record, ## Post-Approve Action), so section_grep's naive H2 termination
+# cannot be reused here. Capture from the "## Plan File Template" heading through the
+# fenced body and trailing prose, stopping at the next real (out-of-fence) H2.
+# Usage: plan_template_grep <file> <pattern> → emits match count.
+plan_template_grep() {
+  local file="$1"
+  local pattern="$2"
+  awk '
+    index($0, "## Plan File Template") == 1 {cap=1; next}
+    cap {
+      if ($0 ~ /^```/) {infence = !infence; print; next}
+      if (!infence && $0 ~ /^## /) {exit}
+      print
+    }
+  ' "$file" | grep -cF -- "$pattern" || true
+}
+
+# Plan File Template — emit ONLY the fenced '- override:' field line (first match).
+# Used to prove the fenced template value is empty (no gate-regex forgery path).
+# Usage: plan_template_fence_override <file> → prints the fenced override line (may be empty).
+plan_template_fence_override() {
+  awk '
+    index($0, "## Plan File Template") == 1 {cap=1; next}
+    cap {
+      if ($0 ~ /^```/) {infence = !infence; next}
+      if (!infence && $0 ~ /^## /) {exit}
+      if (infence && index($0, "- override:") == 1) {print; exit}
+    }
+  ' "$1"
+}
+
+# Plan File Template — emit ONLY the fence-EXTERNAL prose lines of the section.
+# Used to assert the evidence-requirement note lives outside the fenced template.
+# Usage: plan_template_prose <file> <pattern> → emits match count.
+plan_template_prose() {
+  awk '
+    index($0, "## Plan File Template") == 1 {cap=1; next}
+    cap {
+      if ($0 ~ /^```/) {infence = !infence; next}
+      if (!infence && $0 ~ /^## /) {exit}
+      if (!infence) print
+    }
+  ' "$1" | grep -cF -- "$2" || true
+}
+
 # TC-11: rules/plan-discipline.md — 推奨 に「grep -rn」literal、出典 に「20260422_1313」
 echo ""
 echo "TC-11: rules/plan-discipline.md has 'grep -rn' in 推奨 + '20260422_1313' in 出典"
@@ -970,6 +1017,220 @@ else
     fail 'TC-46: agent-prompts.md 推奨 section missing date "+%Y-%m-%d %H:%M" literal'
   else
     fail "TC-46: agent-prompts.md 出典 section missing '20260706_1216' reference"
+  fi
+fi
+
+# --- codified rules batch (7 rule files + spec template) ---
+# Each TC-47..64 pins its clause by FOUR region-limited section_grep checks:
+#   (1) phrase1 + (2) phrase2 — a contiguous phrase pair capturing the clause's core
+#       causality (prohibition句 + 対応句), each verified pre-existing count=0 in-section
+#       (removal of the clause drives count to 0, so a single word cannot false-pass);
+#   (3) the full-path inline source ref in the SAME target section (body-to-source binding
+#       — pairs with the inline citation migration);
+#   (4) the same full-path ref in ## 出典.
+# The docs/cycles/<file>.md #N literal is inspection data (grep argument only), not a
+# comment identifier.
+
+# clause_check <tc> <file> <section> <phrase1> <phrase2> <full-path ref>
+clause_check() {
+  local tc="$1" file="$2" sec="$3" p1="$4" p2="$5" ref="$6"
+  if [ ! -f "$file" ]; then
+    fail "$tc: $file does not exist"
+    return
+  fi
+  local c1 c2 cin csrc
+  c1=$(section_grep "$file" "$sec" "$p1")
+  c2=$(section_grep "$file" "$sec" "$p2")
+  cin=$(section_grep "$file" "$sec" "$ref")
+  csrc=$(section_grep "$file" "出典" "$ref")
+  if [ "$c1" -ge 1 ] && [ "$c2" -ge 1 ] && [ "$cin" -ge 1 ] && [ "$csrc" -ge 1 ]; then
+    pass "$tc: $sec has clause phrase pair + inline full-path ref + 出典 ref"
+  elif [ "$c1" -lt 1 ]; then
+    fail "$tc: $sec section missing phrase '$p1'"
+  elif [ "$c2" -lt 1 ]; then
+    fail "$tc: $sec section missing phrase '$p2'"
+  elif [ "$cin" -lt 1 ]; then
+    fail "$tc: $sec section missing inline full-path source ref '$ref'"
+  else
+    fail "$tc: 出典 section missing source ref '$ref'"
+  fi
+}
+
+# TC-47: rules/test-patterns.md 推奨 — SIGPIPE consumer clause
+echo ""
+echo "TC-47: test-patterns.md 推奨 SIGPIPE consumer clause (phrase pair + full-path ref)"
+clause_check "TC-47" "$RULES_DIR/test-patterns.md" "推奨" \
+  "早期終了する consumer" "materialize して pipe を消す" \
+  "docs/cycles/20260709_1125_risk-classifier-doc-diff-fix.md #1"
+
+# TC-48: rules/test-patterns.md 推奨 — diagram node-token pin clause
+echo ""
+echo "TC-48: test-patterns.md 推奨 diagram node-token pin clause"
+clause_check "TC-48" "$RULES_DIR/test-patterns.md" "推奨" \
+  "ノードトークン + 隣接ノードとの位置" "COMMIT ノード < DONE ノード" \
+  "docs/cycles/20260715_1346_v2.12-docs-alignment.md #1"
+
+# TC-49: rules/test-patterns.md 推奨 — multi-pipe rc + 権限拒否 fixture clause
+echo ""
+echo "TC-49: test-patterns.md 推奨 multi-pipe rc + 権限拒否 fixture clause"
+clause_check "TC-49" "$RULES_DIR/test-patterns.md" "推奨" \
+  "rc を検査したいコマンドは pipe に入れない" "権限拒否 fixture で誘発" \
+  "docs/cycles/20260716_1328_doc-drift-fix.md #1"
+
+# TC-50: rules/test-patterns.md 推奨 — negative sweep 新文言不一致 clause
+echo ""
+echo "TC-50: test-patterns.md 推奨 negative sweep 新文言不一致 oracle clause"
+clause_check "TC-50" "$RULES_DIR/test-patterns.md" "推奨" \
+  "置換後の新文言に不一致" "reviewer の提案パターンも無検証で採用しない" \
+  "docs/cycles/20260716_1328_doc-drift-fix.md #3"
+
+# TC-51: rules/test-patterns.md 推奨 — hash boundary fixture pin clause
+echo ""
+echo "TC-51: test-patterns.md 推奨 hash boundary fixture pin clause"
+clause_check "TC-51" "$RULES_DIR/test-patterns.md" "推奨" \
+  "部分文字列 split は本文引用で誤切断" "被検証者の実装を流用しない" \
+  "docs/cycles/20260717_1126_approval-reorder.md #1"
+
+# TC-52: rules/test-patterns.md 推奨 — 見出し区間先行抽出 code block clause
+echo ""
+echo "TC-52: test-patterns.md 推奨 見出し区間先行抽出→区間内 code block clause"
+clause_check "TC-52" "$RULES_DIR/test-patterns.md" "推奨" \
+  "見出し区間を先行抽出 → 区間内 code block を走査" "別 section の decoy を拾い" \
+  "docs/cycles/20260717_1605_approval-reorder-cycle2.md #1"
+
+# TC-53: rules/test-patterns.md 禁止事項 — 相対アンカー禁止 clause
+echo ""
+echo "TC-53: test-patterns.md 禁止事項 相対アンカー禁止 clause"
+clause_check "TC-53" "$RULES_DIR/test-patterns.md" "禁止事項" \
+  "リリースで指示対象が変わる相対アンカー" "immutable な絶対アンカー" \
+  "docs/cycles/20260721_1503_rules-load-trigger-reclassification.md #1"
+
+# TC-54: rules/test-patterns.md 推奨 — 機械可読契約 executable + fixture oracle clause
+echo ""
+echo "TC-54: test-patterns.md 推奨 機械可読契約 実行可能コマンド + fixture oracle clause"
+clause_check "TC-54" "$RULES_DIR/test-patterns.md" "推奨" \
+  "実行可能コマンド（そのまま動く変数表記" "散文契約は「もっともらしいが動かないコマンド」を許す" \
+  "docs/cycles/20260723_1103_cycle-doc-trailer-and-recall-miss-question.md #1"
+
+# TC-55: rules/plan-discipline.md 推奨 — 継承デフォルト前提 clause
+echo ""
+echo "TC-55: plan-discipline.md 推奨 継承デフォルト前提 clause"
+clause_check "TC-55" "$RULES_DIR/plan-discipline.md" "推奨" \
+  "継承デフォルト前提" "解決順を一次ソース（公式 doc）で確認" \
+  "docs/cycles/20260709_1313_reviewer-model-policy-v1.md #1"
+
+# TC-56: rules/plan-discipline.md 推奨 — 連番次値 grep 実測 clause
+echo ""
+echo "TC-56: plan-discipline.md 推奨 連番次値 grep 実測 clause"
+clause_check "TC-56" "$RULES_DIR/plan-discipline.md" "推奨" \
+  "識別子の連番次値" "採番の根拠にしない" \
+  "docs/cycles/20260716_1328_doc-drift-fix.md #2"
+
+# TC-57: rules/plan-discipline.md 推奨 — Block 0 codify scope 同梱 clause
+echo ""
+echo "TC-57: plan-discipline.md 推奨 Block 0 codify scope 同梱透明化 clause"
+clause_check "TC-57" "$RULES_DIR/plan-discipline.md" "推奨" \
+  "codify gate は前 cycle doc を変更" "scope 同梱として明示裁定" \
+  "docs/cycles/20260717_1605_approval-reorder-cycle2.md #2"
+
+# TC-58: rules/review-triage.md 推奨 — 判定割れ機構分解 clause
+echo ""
+echo "TC-58: review-triage.md 推奨 判定割れ機構分解 + 実測 oracle clause"
+clause_check "TC-58" "$RULES_DIR/review-triage.md" "推奨" \
+  "reviewer 間の判定割れ" "機構レベルの分解 + 実測 oracle" \
+  "docs/cycles/20260709_1125_risk-classifier-doc-diff-fix.md #2"
+
+# TC-59: rules/review-triage.md 推奨 — tier テーブル置換 構造突合 clause
+echo ""
+echo "TC-59: review-triage.md 推奨 tier テーブル置換 構造突合 clause"
+clause_check "TC-59" "$RULES_DIR/review-triage.md" "推奨" \
+  "tier テーブル置換" "構造と突合してから書く" \
+  "docs/cycles/20260709_1313_reviewer-model-policy-v1.md #2"
+
+# TC-60: rules/agent-prompts.md 推奨 — フェーズ完了マーカー clause
+echo ""
+echo "TC-60: agent-prompts.md 推奨 委譲 worker フェーズ完了マーカー clause"
+clause_check "TC-60" "$RULES_DIR/agent-prompts.md" "推奨" \
+  "フェーズ完了マーカー" "SYNC-PLAN 完了マーカー欠落" \
+  "docs/cycles/20260717_1126_approval-reorder.md #4"
+
+# TC-61: rules/agent-prompts.md 推奨 — timestamp Progress Log 追記全般 clause
+echo ""
+echo "TC-61: agent-prompts.md 推奨 timestamp 契約 Progress Log 追記全般拡張 clause"
+clause_check "TC-61" "$RULES_DIR/agent-prompts.md" "推奨" \
+  "Progress Log 追記全般" "別ステップでの実測は世代がずれる" \
+  "docs/cycles/20260721_1503_rules-load-trigger-reclassification.md #2"
+
+# TC-62: rules/integration-verification.md 推奨 — gate 強化 全 caller pin clause
+echo ""
+echo "TC-62: integration-verification.md 推奨 gate 強化 全 caller pin clause"
+clause_check "TC-62" "$RULES_DIR/integration-verification.md" "推奨" \
+  "全 caller pin" "dead な防御" \
+  "docs/cycles/20260717_1126_approval-reorder.md #2"
+
+# TC-63: rules/multi-file-consistency.md 推奨 — 順序反転 negative assert clause
+echo ""
+echo "TC-63: multi-file-consistency.md 推奨 順序反転 negative assert pin clause"
+clause_check "TC-63" "$RULES_DIR/multi-file-consistency.md" "推奨" \
+  "negative assert（旧呼び出しの不在）" "旧記述の除去 + 新記述" \
+  "docs/cycles/20260717_1126_approval-reorder.md #3"
+
+# TC-64: rules/doc-mutations.md 推奨 — current-state doc 全体 sweep clause
+echo ""
+echo "TC-64: doc-mutations.md 推奨 current-state 更新は doc 全体 sweep clause"
+clause_check "TC-64" "$RULES_DIR/doc-mutations.md" "推奨" \
+  "doc 全体 sweep" "header ローカルでなく doc-wide" \
+  "docs/cycles/20260715_1346_v2.12-docs-alignment.md #2"
+
+# TC-65: skills/spec Plan File Template — override forgery-path closure (both langs).
+# The fenced '- override:' field must be VALUE-LESS so a verbatim template copy does NOT
+# satisfy the pre-red-gate contract `^- override: [^ ]` (a placeholder value like
+# '- override: [BLOCK...]' would forge the evidence check). The evidence-requirement
+# description must live in fence-EXTERNAL prose. The '厳密形式' note and the nested
+# review_attempts '- {started:' form must remain intact.
+echo ""
+echo "TC-65: spec templates have value-less '- override:' in fence (no gate-regex match) + 実証跡 note in prose + 厳密形式 + nested '- {started:' intact (both langs)"
+SPEC_EN="$BASE_DIR/skills/spec/reference.md"
+SPEC_JA="$BASE_DIR/skills/spec/reference.ja.md"
+# printf oracle: prove the gate regex the template must respect. A value-less override
+# must NOT match; a filled override (real evidence) must match.
+oracle_empty=$(printf '%s\n' '- override:' | grep -cE '^- override: [^ ]' || true)
+oracle_filled=$(printf '%s\n' '- override: 2026-01-01 human approval via ExitPlanMode' | grep -cE '^- override: [^ ]' || true)
+if [ ! -f "$SPEC_EN" ]; then
+  fail "TC-65: skills/spec/reference.md does not exist"
+elif [ ! -f "$SPEC_JA" ]; then
+  fail "TC-65: skills/spec/reference.ja.md does not exist"
+elif [ "$oracle_empty" -ne 0 ] || [ "$oracle_filled" -ne 1 ]; then
+  fail "TC-65: gate-regex printf oracle broken (empty=$oracle_empty expect 0, filled=$oracle_filled expect 1)"
+else
+  en_ovr=$(plan_template_fence_override "$SPEC_EN")
+  ja_ovr=$(plan_template_fence_override "$SPEC_JA")
+  en_has=$(printf '%s\n' "$en_ovr" | grep -cF -- '- override:' || true)
+  ja_has=$(printf '%s\n' "$ja_ovr" | grep -cF -- '- override:' || true)
+  en_forge=$(printf '%s\n' "$en_ovr" | grep -cE '^- override: [^ ]' || true)
+  ja_forge=$(printf '%s\n' "$ja_ovr" | grep -cE '^- override: [^ ]' || true)
+  en_ev=$(plan_template_prose "$SPEC_EN" "実証跡")
+  ja_ev=$(plan_template_prose "$SPEC_JA" "実証跡")
+  en_strict=$(plan_template_grep "$SPEC_EN" "厳密形式")
+  ja_strict=$(plan_template_grep "$SPEC_JA" "厳密形式")
+  en_nested=$(plan_template_grep "$SPEC_EN" "- {started:")
+  ja_nested=$(plan_template_grep "$SPEC_JA" "- {started:")
+  if [ "$en_has" -ge 1 ] && [ "$ja_has" -ge 1 ] \
+     && [ "$en_forge" -eq 0 ] && [ "$ja_forge" -eq 0 ] \
+     && [ "$en_ev" -ge 1 ] && [ "$ja_ev" -ge 1 ] \
+     && [ "$en_strict" -ge 1 ] && [ "$ja_strict" -ge 1 ] \
+     && [ "$en_nested" -ge 1 ] && [ "$ja_nested" -ge 1 ]; then
+    pass "TC-65: value-less override in fence (no forgery match) + 実証跡 prose note + 厳密形式 + nested review_attempts intact (both langs)"
+  elif [ "$en_has" -lt 1 ] || [ "$ja_has" -lt 1 ]; then
+    fail "TC-65: fenced '- override:' field line missing (en=$en_has ja=$ja_has)"
+  elif [ "$en_forge" -ne 0 ] || [ "$ja_forge" -ne 0 ]; then
+    fail "TC-65: fenced '- override:' carries a value → template copy forges gate regex '^- override: [^ ]' (en=$en_forge ja=$ja_forge); keep the template field value-less"
+  elif [ "$en_ev" -lt 1 ] || [ "$ja_ev" -lt 1 ]; then
+    fail "TC-65: fence-external prose missing '実証跡' evidence-requirement note (en=$en_ev ja=$ja_ev)"
+  elif [ "$en_strict" -lt 1 ] || [ "$ja_strict" -lt 1 ]; then
+    fail "TC-65: Plan File Template missing '厳密形式' note (en=$en_strict ja=$ja_strict)"
+  else
+    fail "TC-65: Plan File Template nested review_attempts '- {started:' not intact (en=$en_nested ja=$ja_nested)"
   fi
 fi
 

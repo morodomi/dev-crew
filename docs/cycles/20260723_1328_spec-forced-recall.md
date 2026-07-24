@@ -5,12 +5,12 @@ phase: DONE
 complexity: standard
 test_count: 16
 risk_level: medium
-retro_status: captured
+retro_status: resolved
 codex_session_id: "019f8d37-91ba-7551-a0af-70ca0aa356d4"
 codex_mode: no
 plan_file: /Users/morodomi/.claude/plans/hashed-tickling-honey.md
 created: 2026-07-23 13:29
-updated: 2026-07-23 15:37
+updated: 2026-07-24 14:48
 ---
 
 # spec-time forced recall of related cycle docs
@@ -336,3 +336,19 @@ reject（1 件、理由付き）:
 - STATUS.md: Done 73→74 + Completed 行（Test Scripts 115 は GREEN 同期済み、Last updated 2026-07-23 前 cycle 同期済み）
 - commit 同梱: scripts 1 + skills/spec 4 + agents/sync-plan.md + tests 2 + docs/STATUS.md + CHANGELOG.md + 本 cycle doc + docs/cycles/20260723_1103（Block 0 codify 出力、REVIEW 裁定済み）
 - Phase completed
+
+## Codify Decisions
+
+### Insight 1
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: cycle-scoped
+- **Reason**: plan 内実測主張の前提式併記 + 式変更時の失効 sweep は plan-discipline の実測原則群の拡張（narrative baseline 禁止と同族の 2 例目 — 検証済み主張が契約変更で silently 失効する形）。rules/plan-discipline.md へ追記（follow-up 実装。本 cycle の 19 件バッチはスコープ凍結済みのため次回 batch）
+- **Decided**: 2026-07-24 14:48
+
+### Insight 2
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: cycle-scoped
+- **Reason**: workflow doc への step 挿入は前提充足順を実行順トレースで検証する — multi-file-consistency の順序検証原則（行番号比較）の workflow doc への拡張。rules/multi-file-consistency.md へ追記（follow-up 実装、次回 batch）
+- **Decided**: 2026-07-24 14:48
