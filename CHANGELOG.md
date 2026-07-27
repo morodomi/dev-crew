@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [2.15.0] - 2026-07-27
 
 ### Added
 - spec に強制想起（Forced Recall、Step 7.2）を追加（#187）: Files to Change 確定後・Step 8 の前に `scripts/recall-candidates.sh` を実行し、変更予定ファイルに関連する過去 cycle doc を決定論的に提示する。データソースは既存のもののみ（`git log --name-only` の共変更 + Cycle-Doc トレーラーの確定リンク優先）で、ハブファイルは IDF 相当で寄与を減衰。上位候補を助言者形式 3 点セット（何が起きたか / 当時の前提 / 今回も同じ前提か）で plan の `## Recall` に記録し、sync-plan が Cycle doc へ転記する。正本変更ゼロ・冪等・常駐プロセスなし
