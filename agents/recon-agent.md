@@ -3,7 +3,8 @@ name: recon-agent
 description: 偵察エージェント。エンドポイント列挙、技術スタック特定、攻撃優先度付け。
 model: sonnet
 memory: project
-allowed-tools: Bash, Read, Grep, Glob
+tools: Bash, Read, Grep, Glob
+disallowedTools: Write, Edit
 ---
 
 # Recon Agent
@@ -125,7 +126,7 @@ The following data must **NOT** be collected:
 
 ## Workflow
 
-0. **Check past scan context**: Check auto memory for previous scan context. If found, use known false positive patterns and project context to adjust attack priorities. If no memory exists or `--no-memory` is set, skip this step and proceed to Step 1.
+0. **Check past scan context**: 起動時に注入される agent memory（`.claude/agent-memory/dev-crew-recon-agent/MEMORY.md`）を参照のみ行い（Write/Edit は disallowedTools で不可、更新は人間が手動で行う）、既知の false positive パターンとプロジェクトコンテキストを攻撃優先度の調整に活用する。memory が存在しない場合、または `--no-memory` が指定された場合（読取スキップ）は本ステップをスキップし Step 1 へ進む。
 1. **Detect Framework**: Analyze project files to identify framework
 2. **Extract Endpoints**: Parse routing files for all endpoints
 3. **Identify Parameters**: Find user input points
@@ -135,6 +136,6 @@ The following data must **NOT** be collected:
 
 ## Memory
 
-プロジェクト固有の偵察知見を agent memory に記録せよ。
-記録対象: プロジェクト構成、フレームワーク固有ルーティングパターン、API versioning 構造。
-記録しないもの: 一般的なフレームワーク知識、脆弱性詳細、認証情報。
+起動時に注入される agent memory（`.claude/agent-memory/dev-crew-recon-agent/MEMORY.md`）を過去知見として参照のみ行う（Write/Edit は disallowedTools で不可。更新は人間が手動で行う）。
+Record 対象（人間が手動記録）: プロジェクト構成、フレームワーク固有ルーティングパターン、API versioning 構造。
+Skip: 一般的なフレームワーク知識、脆弱性詳細、認証情報。

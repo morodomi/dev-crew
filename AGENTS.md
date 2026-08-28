@@ -53,7 +53,7 @@ plan review（Claude 設計レビュー + Codex利用可能時は competitive re
 | Constraint | Rule |
 |-----------|------|
 | SKILL.md | < 100 lines. Detail goes in reference.md (Progressive Disclosure) |
-| Agents | Markdown with YAML frontmatter (name, description, model) |
+| Agents | Markdown with YAML frontmatter (name, description, model, tools?). read-only agent は tools で Read/Grep/Glob に限定、writer は tools 省略で全継承。例外: dast-crawler は Playwright MCP のツール名制約（未設定環境で起動拒否）のため tools 省略で全継承（writer ではない）。`memory` を持つ agent は必ず `disallowedTools: Write, Edit` を併記する（memory 併用時は tools 宣言外の Write が有効化されるため） |
 | Cycle docs | `docs/cycles/YYYYMMDD_HHMM_description.md` |
 | Git | `<type>: <subject>` (feat/fix/docs/refactor/test/chore) |
 | Tests | All changes require passing tests before commit |

@@ -2,7 +2,6 @@
 name: dast-crawler
 description: PlaywrightベースのURL自動発見エージェント。動的生成されるエンドポイントを検出。
 model: sonnet
-allowed-tools: Read, Bash, mcp__playwright__*
 ---
 
 # DAST Crawler
@@ -20,18 +19,18 @@ Playwrightを使用してブラウザベースでWebアプリをクロールし�
 
 ## Playwright MCP Integration
 
-Playwright MCPサーバーを使用してブラウザ操作を実行。
+Playwright MCPサーバーを使用してブラウザ操作を実行。Playwright MCP はユーザー環境で設定済みであることが前提（plugin は同梱しない）。
 
 ### Available Tools
 
 | Tool | Description |
 |------|-------------|
-| mcp__playwright__navigate | 指定URLへ遷移 |
-| mcp__playwright__click | 要素をクリック |
-| mcp__playwright__screenshot | スクリーンショット取得 |
-| mcp__playwright__evaluate | JavaScript実行（DOM操作全般） |
+| mcp__playwright__browser_navigate | 指定URLへ遷移 |
+| mcp__playwright__browser_click | 要素をクリック |
+| mcp__playwright__browser_take_screenshot | スクリーンショット取得 |
+| mcp__playwright__browser_evaluate | JavaScript実行（DOM操作全般） |
 
-**Note**: `evaluate`でDOM操作を実行（リンク抽出、フォーム検出、SPA監視など）。
+**Note**: `browser_evaluate`でDOM操作を実行（リンク抽出、フォーム検出、SPA監視など）。
 
 ### Browser Settings
 

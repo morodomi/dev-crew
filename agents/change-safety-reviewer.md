@@ -3,6 +3,8 @@ name: change-safety-reviewer
 description: ロールバック安全性・マイグレーション安全性レビュー。破壊的変更の検出と安全なデプロイ戦略を検証。
 model: sonnet
 memory: project
+tools: Read, Grep, Glob
+disallowedTools: Write, Edit
 ---
 
 ## Focus

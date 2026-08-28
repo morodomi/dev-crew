@@ -3,6 +3,8 @@ name: impact-reviewer
 description: 変更の連鎖影響と破壊範囲を分析。依存モジュール、公開API変更、SPOF生成、循環依存を検出。
 model: sonnet
 memory: project
+tools: Read, Grep, Glob
+disallowedTools: Write, Edit
 ---
 
 ## Focus

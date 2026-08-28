@@ -3,6 +3,8 @@ name: test-reviewer
 description: テストコード品質レビュー。テストスメル検出、Given/When/Then形式、テスト独立性をチェック。
 model: sonnet
 memory: project
+tools: Read, Grep, Glob
+disallowedTools: Write, Edit
 ---
 
 ## Focus
@@ -50,5 +52,6 @@ blocking_score: パイプラインをブロックすべき度合い（0 = 問題
 
 ## Memory
 
-Record: プロジェクト固有のテストパターン、テストヘルパー/fixture の場所、既知のテストスメル。
+起動時に注入される agent memory（`.claude/agent-memory/dev-crew-test-reviewer/MEMORY.md`）を過去知見として参照のみ行う（Write/Edit は disallowedTools で不可。更新は人間が手動で行う）。
+Record 対象（人間が手動記録）: プロジェクト固有のテストパターン、テストヘルパー/fixture の場所、既知のテストスメル。
 Skip: 一般的なテスト知識、フレームワーク固有の API 詳細。

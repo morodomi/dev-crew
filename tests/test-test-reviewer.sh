@@ -21,6 +21,16 @@ assert() {
   fi
 }
 
+# Extract frontmatter value from a markdown file (frontmatter-scoped, matches the
+# other memory-pin tests' helper). Replaces the prior whole-file 'grep -q "^memory:"'
+# in TC-03, which could match a body line starting with "memory:" outside frontmatter
+# (rules/test-patterns.md: whole-file grep for frontmatter state, REVIEW BLOCK finding).
+get_frontmatter() {
+  local file="$1"
+  local key="$2"
+  awk '/^---$/{n++; next} n==1{print}' "$file" | grep "^${key}: " | head -1 | sed "s/^${key}: *//" || true
+}
+
 echo "=== test-reviewer Tests ==="
 
 # TC-01: agents/test-reviewer.md exists
@@ -31,9 +41,10 @@ assert "TC-01" "agents/test-reviewer.md が存在する" \
 assert "TC-02" "model: sonnet である" \
   "$(grep -q '^model: sonnet' "$BASE_DIR/agents/test-reviewer.md" 2>/dev/null && echo true || echo false)"
 
-# TC-03: memory: project
-assert "TC-03" "memory: project である" \
-  "$(grep -q '^memory: project' "$BASE_DIR/agents/test-reviewer.md" 2>/dev/null && echo true || echo false)"
+# TC-03: memory: project を持つ（memory 保持 + disallowedTools: Write, Edit、agent-tools-scoping
+# PROBE D step 4 再々承認: memory 削除は撤回、memory 維持 + disallowedTools へ再定義。frontmatter 範囲限定判定）
+assert "TC-03" "memory: project frontmatter を持つ" \
+  "$([ "$(get_frontmatter "$BASE_DIR/agents/test-reviewer.md" "memory")" = "project" ] && echo true || echo false)"
 
 # TC-04: description contains テストスメル or テストコード
 assert "TC-04" "description にテストスメルまたはテストコードを含む" \

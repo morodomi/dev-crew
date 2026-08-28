@@ -2,6 +2,7 @@
 name: observer
 description: "セッション情報からパターンを検出・評価するサブエージェント。learn スキルから Task tool (subagent_type) で呼び出される。"
 model: sonnet
+tools: Read, Grep, Glob
 ---
 
 # Observer - パターン検出エージェント

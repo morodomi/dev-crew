@@ -3,6 +3,8 @@ name: resiliency-reviewer
 description: 耐障害性・カスケード障害防止レビュー。タイムアウト、リトライ戦略、サーキットブレーカーを検証。
 model: sonnet
 memory: project
+tools: Read, Grep, Glob
+disallowedTools: Write, Edit
 ---
 
 ## Focus

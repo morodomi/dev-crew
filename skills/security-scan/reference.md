@@ -175,21 +175,21 @@ SCAN完了
 
 ## Memory Integration
 
-スキャン知見を auto memory に蓄積し、次回スキャンで活用する。
+recon-agent / attack-scenario / dynamic-verifier / false-positive-filter は agent memory（`.claude/agent-memory/dev-crew-<agent>/MEMORY.md`）を起動時に読取専用で参照する。`disallowedTools: Write, Edit`（#194 agent-tools-scoping）により agent 自身は memory へ書き込めない。蓄積は人間の手動作業。
 
 ### Overview
 
-- **読み取り**: RECON Phase の Step 0 で過去のスキャンコンテキストを参照
-- **書き込み**: LEARN Phase でスキャン結果の知見を保存
-- `--no-memory` で読み書き両方を無効化
+- **読み取り**: RECON Phase の Step 0 で過去のスキャンコンテキスト（起動時に注入される MEMORY.md）を参照
+- **書き込み**: agent からは不可（`disallowedTools: Write, Edit`）。蓄積は人間が `.claude/agent-memory/dev-crew-<agent>/MEMORY.md` を手動更新する
+- 起動時注入自体は止められない（agent 定義が静的に `memory: project` を持つ）。`--no-memory` は注入済み memory を参照しない指示であり、隔離を保証しない
 
 ### LEARN Phase
 
-REPORT Phase 完了後に実行。スキャン結果から以下を auto memory に保存する。
+REPORT Phase 完了後に実行。スキャン結果を report に出力する。memory への保存（次回スキャンの知見として活かす更新）は agent の自動処理ではなく、report を見た人間が `.claude/agent-memory/dev-crew-<agent>/MEMORY.md` へ手動反映する運用。
 
 **実行タイミング**:
 ```
-REPORT → LEARN Phase
+REPORT → LEARN Phase（report 出力のみ、memory 更新は人間の手動作業）
 ```
 
 **メモリ参照時の表示**:
@@ -199,14 +199,14 @@ Past scan context loaded: 2 FP patterns, last scan 2026-02-06 (11 findings, 3 FP
 
 **初回スキャン時の表示**:
 ```
-No previous scan context found. Scan results will be saved for future reference.
+No previous scan context found.
 ```
 
 ### Memory Convention (v1.0)
 
 <!-- Memory-Convention: v1.0 -->
 
-auto memory に以下の構造で保存する:
+`.claude/agent-memory/dev-crew-<agent>/MEMORY.md` に人間が以下の構造で手動保存する（agent 自身は `disallowedTools: Write, Edit` のため書込不可）:
 
 ```markdown
 ## Security Scan Context
@@ -227,7 +227,7 @@ auto memory に以下の構造で保存する:
 
 ### Memory Data Exclusion
 
-以下のデータは LEARN Phase でメモリに保存してはならない:
+以下のデータは人間が MEMORY.md へ手動保存する際に含めてはならない:
 
 - 脆弱性の code snippets に含まれるシークレット（API_KEY, PASSWORD 等）
 - 生のペイロード（SQLi, XSS 等の攻撃文字列）
@@ -236,8 +236,8 @@ auto memory に以下の構造で保存する:
 
 ### Known Limitations
 
-- false-positive-filter との直接統合は将来課題（現在は auto memory 経由の間接参照）
-- Claude Code auto memory の仕様変更に依存
+- false-positive-filter との直接統合は将来課題（現在は agent memory 経由の間接参照、読取専用）
+- memory の蓄積・更新は人間の手動作業であり自動化されていない
 
 ## Phase Completion
 
@@ -271,7 +271,7 @@ RECON → [compact possible] → SCAN/ATTACK (parallel) → [compact possible] �
 
 1. 直前のフェーズ出力（recon JSON / vulnerabilities 配列）を確認
 2. 未完了フェーズから実行を再開
-3. `--no-memory` でない場合、auto memory の scan context も参照可能
+3. `--no-memory` でない場合、agent memory（読取専用）の scan context も参照可能
 
 ## Limitations
 

@@ -3,6 +3,8 @@ name: performance-reviewer
 description: パフォーマンスレビュー。アルゴリズム効率、N+1問題、メモリ使用、並行性安全をチェック。
 model: sonnet
 memory: project
+tools: Read, Grep, Glob
+disallowedTools: Write, Edit
 ---
 
 ## Focus
@@ -26,5 +28,6 @@ blocking_score: パイプラインをブロックすべき度合い（0 = 問題
 
 ## Memory
 
-Record: プロジェクト固有のパフォーマンスボトルネック、N+1 パターンの発生箇所、並行処理パターン。
+起動時に注入される agent memory（`.claude/agent-memory/dev-crew-performance-reviewer/MEMORY.md`）を過去知見として参照のみ行う（Write/Edit は disallowedTools で不可。更新は人間が手動で行う）。
+Record 対象（人間が手動記録）: プロジェクト固有のパフォーマンスボトルネック、N+1 パターンの発生箇所、並行処理パターン。
 Skip: 一般的なパフォーマンス知識、個別の最適化テクニック。

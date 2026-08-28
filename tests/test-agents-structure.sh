@@ -1,7 +1,10 @@
 #!/bin/bash
 # test-agents-structure.sh - dev-crew agent definition validation
 # TC-06, TC-07, TC-13: frontmatter validation (existing)
-# TC-21~TC-34: model field validation (new)
+# TC-21~TC-35: model field validation, legacy concept detection (existing)
+# TC-36~TC-46: tools: frontmatter scoping (agent-tools-scoping cycle; RED addendum 2:
+#   bare-key presence via has_frontmatter_key, TC-41 name-set diff, TC-43 fence scoping,
+#   TC-44/45 word-boundary tools token, TC-46 memory 維持 + disallowedTools 再定義)
 
 set -euo pipefail
 
@@ -19,6 +22,18 @@ get_frontmatter() {
   local key="$2"
   # Read between first --- and second ---
   awk '/^---$/{n++; next} n==1{print}' "$file" | grep "^${key}: " | head -1 | sed "s/^${key}: *//" || true
+}
+
+# Presence check for a frontmatter key regardless of value/space formatting.
+# get_frontmatter requires "key: " (with trailing space) and returns empty for a
+# bare "key:" line (no value), which made absence-contract TCs vacuously pass
+# against a bare key (RED addendum 2, REVIEW BLOCK finding: TC-36/39/46 false-pass).
+has_frontmatter_key() {
+  local file="$1"
+  local key="$2"
+  local hits
+  hits=$(awk '/^---$/{n++; next} n==1{print}' "$file" | grep -c "^${key}:" || true)
+  [ "$hits" -ge 1 ]
 }
 
 echo "=== Agent Structure Tests ==="
@@ -354,6 +369,316 @@ done
 
 if [ "$legacy_count" -eq 0 ]; then
   pass "TC-35: No agent definitions contain legacy Lead/SendMessage concepts"
+fi
+
+# --- agent-tools-scoping (#194): TC-36~TC-45 ---
+# Group definitions (explicit arrays, pinned per Cycle doc Files to Change B)
+g1_agents=(
+  api-contract-reviewer change-safety-reviewer correctness-reviewer design-reviewer impact-reviewer
+  maintainability-reviewer observability-reviewer performance-reviewer product-reviewer resiliency-reviewer
+  security-reviewer test-reviewer usability-reviewer
+  socrates review-briefer observer
+  api-attacker auth-attacker crypto-attacker csrf-attacker error-attacker file-attacker injection-attacker
+  ssrf-attacker ssti-attacker wordpress-attacker xss-attacker xxe-attacker
+  false-positive-filter
+)
+g23_names=(attack-scenario sca-attacker recon-agent dynamic-verifier)
+g23_expected=("Read" "Read, Grep, Glob, Bash" "Bash, Read, Grep, Glob" "Bash, Read")
+deferred_agents=(designer architect sync-plan red-worker green-worker refactorer dast-crawler)
+
+# TC-36: [Given] non-reference agents 40 files / [When] frontmatter has bare-or-valued 'allowed-tools:' key / [Then] 0 hits (renamed to 'tools:')
+# Presence判定は has_frontmatter_key（^key: 行存在）で行う。get_frontmatter の "key: "（要空白）依存だと
+# 裸キー（値なし 'allowed-tools:' 単独行）を不在扱いにして false-pass する（REVIEW BLOCK 実証）。
+echo ""
+echo "TC-36: No agent has 'allowed-tools:' frontmatter (renamed to 'tools:')"
+allowed_tools_count=0
+for agent_file in "$BASE_DIR"/agents/*.md; do
+  [ -f "$agent_file" ] || continue
+  basename_file=$(basename "$agent_file")
+  if [[ "$basename_file" == *-reference* ]]; then
+    continue
+  fi
+  if has_frontmatter_key "$agent_file" "allowed-tools"; then
+    fail "TC-36: $basename_file still has 'allowed-tools:' frontmatter (expected: renamed to 'tools:')"
+    allowed_tools_count=$((allowed_tools_count + 1))
+  fi
+done
+if [ "$allowed_tools_count" -eq 0 ]; then
+  pass "TC-36: No agent has 'allowed-tools:' frontmatter"
+fi
+
+# TC-37: [Given] G1 29 agents / [When] get_frontmatter tools / [Then] exact match 'Read, Grep, Glob'
+echo ""
+echo "TC-37: G1 (reviewer/review補助/static attacker/filter) 29 agents 'tools:' = 'Read, Grep, Glob'"
+g1_mismatch=0
+for name in "${g1_agents[@]}"; do
+  agent_file="$BASE_DIR/agents/${name}.md"
+  if [ ! -f "$agent_file" ]; then
+    fail "TC-37: ${name}.md not found"
+    g1_mismatch=$((g1_mismatch + 1))
+    continue
+  fi
+  tools_val=$(get_frontmatter "$agent_file" "tools")
+  if [ "$tools_val" != "Read, Grep, Glob" ]; then
+    fail "TC-37: ${name}.md 'tools:' is '$tools_val' (expected: 'Read, Grep, Glob')"
+    g1_mismatch=$((g1_mismatch + 1))
+  fi
+done
+if [ "$g1_mismatch" -eq 0 ]; then
+  pass "TC-37: All G1 29 agents have 'tools: Read, Grep, Glob'"
+fi
+
+# TC-38: [Given] G2/G3 4 agents / [When] get_frontmatter tools / [Then] exact match per-file value
+echo ""
+echo "TC-38: G2/G3 4 agents 'tools:' exact match"
+g23_mismatch=0
+idx=0
+while [ "$idx" -lt "${#g23_names[@]}" ]; do
+  name="${g23_names[$idx]}"
+  expected="${g23_expected[$idx]}"
+  agent_file="$BASE_DIR/agents/${name}.md"
+  if [ ! -f "$agent_file" ]; then
+    fail "TC-38: ${name}.md not found"
+    g23_mismatch=$((g23_mismatch + 1))
+    idx=$((idx + 1))
+    continue
+  fi
+  tools_val=$(get_frontmatter "$agent_file" "tools")
+  if [ "$tools_val" != "$expected" ]; then
+    fail "TC-38: ${name}.md 'tools:' is '$tools_val' (expected: '$expected')"
+    g23_mismatch=$((g23_mismatch + 1))
+  fi
+  idx=$((idx + 1))
+done
+if [ "$g23_mismatch" -eq 0 ]; then
+  pass "TC-38: All G2/G3 4 agents have exact-match 'tools:' values"
+fi
+
+# TC-39: [Given] deferred 7 agents (full inheritance) / [When] tools:/allowed-tools: presence (bare-key 対応) / [Then] neither key present
+echo ""
+echo "TC-39: Deferred 7 agents have neither 'tools:' nor 'allowed-tools:'"
+deferred_violation=0
+for name in "${deferred_agents[@]}"; do
+  agent_file="$BASE_DIR/agents/${name}.md"
+  if [ ! -f "$agent_file" ]; then
+    fail "TC-39: ${name}.md not found"
+    deferred_violation=$((deferred_violation + 1))
+    continue
+  fi
+  if has_frontmatter_key "$agent_file" "tools" || has_frontmatter_key "$agent_file" "allowed-tools"; then
+    fail "TC-39: ${name}.md has 'tools:' or 'allowed-tools:' (expected: neither, full inheritance)"
+    deferred_violation=$((deferred_violation + 1))
+  fi
+done
+if [ "$deferred_violation" -eq 0 ]; then
+  pass "TC-39: All 7 deferred agents have neither 'tools:' nor 'allowed-tools:'"
+fi
+
+# TC-40: [Given] all 'tools:' values / [When] token-split (comma, trimmed) / [Then] every token in {Read, Grep, Glob, Bash}
+# Protective contract: 33 agent の実データ（GREEN 済みの tools: 値）を検証する。RED 期（addendum 前）は
+# 群ロースターに tools: がまだ実装されておらず空集合の vacuous PASS だったが、現在は非空集合を検証する。
+echo ""
+echo "TC-40: All 'tools:' values contain only canonical tokens {Read, Grep, Glob, Bash}"
+canonical_violation=0
+for agent_file in "$BASE_DIR"/agents/*.md; do
+  [ -f "$agent_file" ] || continue
+  basename_file=$(basename "$agent_file")
+  if [[ "$basename_file" == *-reference* ]]; then
+    continue
+  fi
+  tools_val=$(get_frontmatter "$agent_file" "tools")
+  [ -z "$tools_val" ] && continue
+  IFS=',' read -ra tokens <<< "$tools_val"
+  for token in "${tokens[@]}"; do
+    trimmed=$(echo "$token" | sed 's/^ *//; s/ *$//')
+    case "$trimmed" in
+      Read|Grep|Glob|Bash) ;;
+      *)
+        fail "TC-40: $basename_file 'tools:' contains non-canonical token '$trimmed'"
+        canonical_violation=$((canonical_violation + 1))
+        ;;
+    esac
+  done
+done
+if [ "$canonical_violation" -eq 0 ]; then
+  pass "TC-40: All 'tools:' values contain only canonical tokens"
+fi
+
+# TC-41: [Given] declared name set (G1 29 + G2/G3 4 + deferred 7 = 40) / [When] diff'd against actual agents/*.md
+#         basenames (excluding *-reference* and the test-hooks-structure.sh fixture 'test-drift-agent') / [Then] no diff
+# Protective contract: count-only comparison (previous impl) misses duplicate+missing pairs that cancel out to
+# the same total, and flaked under parallel test runs against the live-tree fixture agents/test-drift-agent.md
+# (REVIEW BLOCK finding, reproduced). Name-set diff catches both failure modes and excludes the known fixture.
+echo ""
+echo "TC-41: Declared group roster (name set) matches actual non-reference agent files (name set)"
+tc41_declared=$(printf '%s\n' "${g1_agents[@]}" "${g23_names[@]}" "${deferred_agents[@]}" | sort)
+tc41_actual=$(ls "$BASE_DIR"/agents/*.md 2>/dev/null | xargs -n1 basename | sed 's/\.md$//' | grep -v -- '-reference' | grep -vx 'test-drift-agent' | sort)
+tc41_diff=$(diff <(printf '%s\n' "$tc41_declared") <(printf '%s\n' "$tc41_actual") || true)
+if [ -z "$tc41_diff" ]; then
+  pass "TC-41: Declared roster (40) exactly matches actual non-reference agent file names"
+else
+  fail "TC-41: Declared roster vs actual agent files diff:
+$tc41_diff"
+fi
+
+# TC-42: [Given] dast-crawler.md body / [When] grep -cF old/new Playwright tool names / [Then] old=0 each, new>=1 each
+echo ""
+echo "TC-42: dast-crawler.md body — old Playwright tool names removed, new tool names present"
+dast_file="$BASE_DIR/agents/dast-crawler.md"
+if [ ! -f "$dast_file" ]; then
+  fail "TC-42: dast-crawler.md not found"
+else
+  dast_body_file=$(mktemp)
+  awk '/^---$/{n++; next} n>=2{print}' "$dast_file" > "$dast_body_file"
+  old_names=(mcp__playwright__navigate mcp__playwright__click mcp__playwright__screenshot mcp__playwright__evaluate)
+  new_names=(mcp__playwright__browser_navigate mcp__playwright__browser_click mcp__playwright__browser_take_screenshot mcp__playwright__browser_evaluate)
+  tc42_violation=0
+  for old in "${old_names[@]}"; do
+    old_count=$(grep -cF "$old" "$dast_body_file" || true)
+    if [ "$old_count" -ne 0 ]; then
+      fail "TC-42: dast-crawler.md body still contains old tool name '$old' ($old_count occurrences)"
+      tc42_violation=$((tc42_violation + 1))
+    fi
+  done
+  for new in "${new_names[@]}"; do
+    new_count=$(grep -cF "$new" "$dast_body_file" || true)
+    if [ "$new_count" -lt 1 ]; then
+      fail "TC-42: dast-crawler.md body missing new tool name '$new'"
+      tc42_violation=$((tc42_violation + 1))
+    fi
+  done
+  rm -f "$dast_body_file"
+  if [ "$tc42_violation" -eq 0 ]; then
+    pass "TC-42: dast-crawler.md body has new Playwright tool names, no old names"
+  fi
+fi
+
+# TC-43: [Given] evolve/reference.md agent-gen heading section (先行抽出、fence 対応) / [When] fence内の行のみを走査 / [Then] 'model:' と 'tools:' を含む
+# Section 抽出は fence 内の decoy 見出し（テンプレ内 '## Input' 等）を実見出しと誤認しないよう infence フラグで
+# 判定を止める（REVIEW BLOCK 実証: fence 非対応の区間抽出は '## Input' で早期終了しうる）。
+# さらに model:/tools: の走査自体も fence 内限定にし、fence 外の decoy 行を拾わない（addendum 2 item 3）。
+echo ""
+echo "TC-43: evolve/reference.md agent-gen template has 'model:' and 'tools:' in code block"
+evolve_ref="$BASE_DIR/skills/evolve/reference.md"
+if [ ! -f "$evolve_ref" ]; then
+  fail "TC-43: skills/evolve/reference.md not found"
+else
+  evolve_heading="### エージェント生成 (agent.md)"
+  evolve_section=$(awk -v h="$evolve_heading" '
+    $0 == h { found=1; next }
+    found && !infence && /^```/ { infence=1; print; next }
+    found && infence && /^```/ { infence=0; print; next }
+    found && !infence && /^## / { exit }
+    found && !infence && /^### / { exit }
+    found { print }
+  ' "$evolve_ref")
+  evolve_fence_body=$(awk '
+    /^```/ { infence = !infence; next }
+    infence { print }
+  ' <<< "$evolve_section")
+  model_count=$(grep -cE '^model:' <<< "$evolve_fence_body" || true)
+  tools_count=$(grep -cE '^tools:' <<< "$evolve_fence_body" || true)
+  if [ "$model_count" -ge 1 ] && [ "$tools_count" -ge 1 ]; then
+    pass "TC-43: evolve/reference.md agent-gen template contains 'model:' and 'tools:'"
+  else
+    fail "TC-43: evolve/reference.md agent-gen template missing 'model:' (count=$model_count) or 'tools:' (count=$tools_count)"
+  fi
+fi
+
+# TC-44: [Given] AGENTS.md / [When] '| Agents |' 行 / [Then] 'tools' トークンを語境界で含む（'allowed-tools' 等の
+#         '-tools' 部分文字列だけでは PASS しない）
+# [[ == *tools* ]] は部分文字列一致のため 'allowed-tools' 単独でも PASS してしまう（REVIEW/Codex 実証）。
+# 語境界判定に切り替える: 行頭または '-' 以外の文字の直後に続く 'tools' のみを一致とみなす。
+echo ""
+echo "TC-44: AGENTS.md '| Agents |' row mentions 'tools' (word-boundary, excludes bare 'allowed-tools')"
+agents_md_file="$BASE_DIR/AGENTS.md"
+if [ ! -f "$agents_md_file" ]; then
+  fail "TC-44: AGENTS.md not found"
+else
+  agents_row=$(grep '^| Agents |' "$agents_md_file" || true)
+  if [ -n "$agents_row" ] && grep -qE '(^|[^-])tools' <<< "$agents_row"; then
+    pass "TC-44: AGENTS.md '| Agents |' row contains 'tools'"
+  else
+    fail "TC-44: AGENTS.md '| Agents |' row missing 'tools' (row: '$agents_row')"
+  fi
+fi
+
+# TC-45: [Given] CHANGELOG.md '## [Unreleased]' 見出し区間 (先行抽出、次の '## ' まで) / [When] 区間内の行 /
+#         [Then] 'allowed-tools' を含む行が1行以上 かつ '-tools' 以外の 'tools' トークンを含む行が1行以上
+#         （同一行である必要はない。旧キーのみの行が存在しても、独立した 'tools' トークン行がなければ FAIL）
+echo ""
+echo "TC-45: CHANGELOG.md '## [Unreleased]' section mentions 'allowed-tools' and a word-boundary 'tools' token"
+changelog_file="$BASE_DIR/CHANGELOG.md"
+if [ ! -f "$changelog_file" ]; then
+  fail "TC-45: CHANGELOG.md not found"
+else
+  unreleased_section=$(awk '
+    /^## \[Unreleased\]/ { found=1; next }
+    found && /^## / { exit }
+    found { print }
+  ' "$changelog_file")
+  tc45_allowed_tools_lines=0
+  tc45_tools_token_lines=0
+  if [ -n "$unreleased_section" ]; then
+    while IFS= read -r line; do
+      if [[ "$line" == *allowed-tools* ]]; then
+        tc45_allowed_tools_lines=$((tc45_allowed_tools_lines + 1))
+      fi
+      if grep -qE '(^|[^-])tools' <<< "$line"; then
+        tc45_tools_token_lines=$((tc45_tools_token_lines + 1))
+      fi
+    done <<< "$unreleased_section"
+  fi
+  if [ "$tc45_allowed_tools_lines" -ge 1 ] && [ "$tc45_tools_token_lines" -ge 1 ]; then
+    pass "TC-45: CHANGELOG.md Unreleased section mentions 'allowed-tools' and a word-boundary 'tools' token"
+  else
+    fail "TC-45: CHANGELOG.md Unreleased section missing 'allowed-tools' line (count=$tc45_allowed_tools_lines) or word-boundary 'tools' token line (count=$tc45_tools_token_lines)"
+  fi
+fi
+
+# TC-46: [Given] memory 保持 15 agent (PROBE D step 4 再々承認: memory + tools 併用は書込不可でも既存 memory の
+#         起動時読取は可能と実測されたため、'memory 削除' を撤回し 'memory 維持 + disallowedTools' へ再定義) /
+#         [When] frontmatter の memory:/disallowedTools: を検証 / [Then] memory: が 'project' に完全一致し、
+#         disallowedTools: が 'Write, Edit' に完全一致。加えて不変条件: tools: を持つ 33 agent (G1+G2/G3) の
+#         うち memory: を持つものは必ず disallowedTools: を持つ（memory 併用時の Write 越権対策、PROBE D 実測）
+echo ""
+echo "TC-46: memory 保持 15 agent は 'memory: project' + 'disallowedTools: Write, Edit'（+ 不変条件）"
+memory_agents=(
+  api-contract-reviewer change-safety-reviewer correctness-reviewer impact-reviewer
+  maintainability-reviewer observability-reviewer performance-reviewer resiliency-reviewer
+  security-reviewer test-reviewer socrates false-positive-filter
+  attack-scenario recon-agent dynamic-verifier
+)
+tc46_violation=0
+for name in "${memory_agents[@]}"; do
+  agent_file="$BASE_DIR/agents/${name}.md"
+  if [ ! -f "$agent_file" ]; then
+    fail "TC-46: ${name}.md not found"
+    tc46_violation=$((tc46_violation + 1))
+    continue
+  fi
+  memory_val=$(get_frontmatter "$agent_file" "memory")
+  if [ "$memory_val" != "project" ]; then
+    fail "TC-46: ${name}.md 'memory:' is '$memory_val' (expected: 'project')"
+    tc46_violation=$((tc46_violation + 1))
+  fi
+  disallowed_val=$(get_frontmatter "$agent_file" "disallowedTools")
+  if [ "$disallowed_val" != "Write, Edit" ]; then
+    fail "TC-46: ${name}.md 'disallowedTools:' is '$disallowed_val' (expected: 'Write, Edit')"
+    tc46_violation=$((tc46_violation + 1))
+  fi
+done
+# Invariant: any tools:-scoped agent (G1+G2/G3, 33 total) that has 'memory:' must also have 'disallowedTools:'.
+for name in "${g1_agents[@]}" "${g23_names[@]}"; do
+  agent_file="$BASE_DIR/agents/${name}.md"
+  [ -f "$agent_file" ] || continue
+  if has_frontmatter_key "$agent_file" "memory" && ! has_frontmatter_key "$agent_file" "disallowedTools"; then
+    fail "TC-46: ${name}.md has 'memory:' without 'disallowedTools:' (invariant violation)"
+    tc46_violation=$((tc46_violation + 1))
+  fi
+done
+if [ "$tc46_violation" -eq 0 ]; then
+  pass "TC-46: All 15 memory-retaining agents have 'memory: project' + 'disallowedTools: Write, Edit'; invariant holds across all 33 tools:-scoped agents"
 fi
 
 # Summary

@@ -2,6 +2,7 @@
 name: usability-reviewer
 description: ユーザビリティレビュー。UX/UI、アクセシビリティ、ユーザーフロー、エラー体験をチェック。
 model: haiku
+tools: Read, Grep, Glob
 ---
 
 ## Focus

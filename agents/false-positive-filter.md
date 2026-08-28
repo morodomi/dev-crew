@@ -3,7 +3,8 @@ name: false-positive-filter
 description: 誤検知自動除外エージェント。静的解析結果をフィルタリング。
 model: sonnet
 memory: project
-allowed-tools: Read, Grep, Glob
+tools: Read, Grep, Glob
+disallowedTools: Write, Edit
 ---
 
 # False Positive Filter
@@ -91,6 +92,6 @@ allowed-tools: Read, Grep, Glob
 
 ## Memory
 
-プロジェクト固有の誤検知パターンを agent memory に記録せよ。
-記録対象: カスタムサニタイズ関数、プロジェクト固有のフレームワーク保護、過去のFP/FNパターン。
-記録しないもの: 一般的なサニタイズパターン、脆弱性コード、攻撃ペイロード。
+起動時に注入される agent memory（`.claude/agent-memory/dev-crew-false-positive-filter/MEMORY.md`）を過去知見として参照のみ行う（Write/Edit は disallowedTools で不可。更新は人間が手動で行う）。
+Record 対象（人間が手動記録）: カスタムサニタイズ関数、プロジェクト固有のフレームワーク保護、過去のFP/FNパターン。
+Skip: 一般的なサニタイズパターン、脆弱性コード、攻撃ペイロード。
