@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [2.16.0] - 2026-08-29
 
 ### Breaking
 - 33 agent（reviewer/attacker 系）が frontmatter `tools:` で権限を限定され、暗黙の「全ツール継承」を失う。旧 `allowed-tools` キーは subagent では無視されていたため、実効挙動の変化は「全権限 → 限定」である

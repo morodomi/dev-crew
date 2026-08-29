@@ -1,5 +1,5 @@
 {
-  "dev_crew_version": "2.15.0",
+  "dev_crew_version": "2.16.0",
   "review_policy": {
     "reviewer_model": "self",
     "escalate_high_to": null
