@@ -48,6 +48,8 @@ description: "{cluster-summary}"
 ---
 name: {generated-name}
 description: "{cluster-summary}"
+model: sonnet
+tools: Read, Grep, Glob
 ---
 
 # {Generated Name}
@@ -63,6 +65,8 @@ description: "{cluster-summary}"
 ## Workflow
 {steps derived from evidence patterns}
 ```
+
+Edit/Write が必要な agent は tools を省略する（全ツール継承）。
 
 ## バックアップ + ロールバック
 

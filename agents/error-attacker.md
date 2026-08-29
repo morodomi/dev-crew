@@ -2,7 +2,7 @@
 name: error-attacker
 description: 例外処理脆弱性検出エージェント。A10 Mishandling of Exceptional Conditions。
 model: sonnet
-allowed-tools: Read, Grep, Glob
+tools: Read, Grep, Glob
 ---
 
 ## Detection Targets

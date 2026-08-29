@@ -1,5 +1,17 @@
 # Changelog
 
+## [Unreleased]
+
+### Breaking
+- 33 agent（reviewer/attacker 系）が frontmatter `tools:` で権限を限定され、暗黙の「全ツール継承」を失う。旧 `allowed-tools` キーは subagent では無視されていたため、実効挙動の変化は「全権限 → 限定」である
+- memory 保持 15 agent は `disallowedTools: Write, Edit` により Write/Edit ツール経由の memory 更新は不可（起動時注入の読取は可）。Bash を持つ recon-agent / dynamic-verifier はシェル経由の書込経路が残るため、完全な read-only ではない（残余リスクとして記録）
+
+### Changed
+- agent frontmatter の `allowed-tools`（skill 専用キーで subagent では無視されていた）を正規キー `tools` に正規化し、reviewer/attacker 系 33 agent の宣言ツールを Read/Grep/Glob（+必要な 3 件は Bash）に限定。memory 併用時は tools 宣言外の Write が memory 外にも使える（実測）ため、memory 保持 15 agent は `memory: project` を維持しつつ `disallowedTools: Write, Edit` を追加した。これにより Write/Edit ツール経由の memory 更新は不可（起動時注入の読取は可）。Bash を持つ recon-agent / dynamic-verifier はシェル経由の書込経路が残るため、完全な read-only ではない（残余リスクとして記録）
+
+### Fixed
+- dast-crawler の Playwright MCP ツール名 drift（`mcp__playwright__navigate` 等の旧名を `browser_` prefix 付き新名へ修正）
+
 ## [2.15.0] - 2026-07-27
 
 ### Added

@@ -2,6 +2,7 @@
 name: review-briefer
 description: Review Brief生成エージェント。diff/planを圧縮し、各レビュアーの入力トークンを削減する。
 model: haiku
+tools: Read, Grep, Glob
 ---
 
 # Review Briefer

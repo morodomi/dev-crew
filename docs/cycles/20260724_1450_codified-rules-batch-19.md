@@ -5,12 +5,12 @@ phase: DONE
 complexity: standard
 test_count: 22
 risk_level: low
-retro_status: captured
+retro_status: resolved
 codex_session_id: "019f9294-5fc6-7ce3-a6cf-1862ba07513e"
 codex_mode: no
 plan_file: /Users/morodomi/.claude/plans/hashed-tickling-honey.md
 created: 2026-07-24 14:48
-updated: 2026-07-24 16:01
+updated: 2026-08-28 10:27
 ---
 
 # codified rules batch 実装（19 件）— 蓄積 insight の rule 条項化
@@ -445,3 +445,29 @@ reject / 観察のみ（2 件、理由付き）:
 - commit 同梱: 実装 18（rules 7×2 + spec ref 2 + test 1 + CHANGELOG）+ workflow 成果物（本 cycle doc + STATUS.md + docs/cycles/20260723_1328 の codify 出力）— plan Files 区分の通り
 - doc 全体 sweep（TC-64 条項の self-apply）: STATUS の current-state 節（Done 数・Completed 行・Last updated）を同時更新、他節の旧状態残存なしを確認
 - Phase completed
+
+## Codify Decisions
+
+### Insight 1
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: cycle-scoped
+- **Paths**: rules/agent-prompts.md（paths: docs/cycles/**）
+- **Reason**: 形式契約の委譲は正例 literal + 衝突解決順（新契約 > 既存周辺慣行）を prompt に含める。初出だが GREEN 再実行を直接引き起こした高確信 harden 項目。次 batch cycle で条項化
+- **Decided**: 2026-08-28 10:27
+
+### Insight 2
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: file-scoped
+- **Paths**: tests/**（rules/test-patterns.md）
+- **Reason**: 機械検証フィールドのテンプレート例は「検証を通らない空値」で書き、コピー直後 fail / 実値 pass の forgery oracle を対で作る。TC-65 で本 cycle 実装済みの経路を規律として固定。次 batch cycle で条項化
+- **Decided**: 2026-08-28 10:27
+
+### Insight 3
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: cycle-scoped
+- **Paths**: rules/doc-mutations.md（paths: docs/cycles/**）
+- **Reason**: 20260717_1605 Insight 3 と同一事故の 2 例目（recurrence 2+ → 自動 codified）。事故箇所は Cycle doc への追記なので doc-mutations に置く（test-patterns は tests/** スコープで発火しない）。条項: 変数展開が必要な heredoc にバッククォート/$ 本文を同居させない — 見出し行のみ printf、本文は quoted delimiter か Edit tool。次 batch cycle で条項化
+- **Decided**: 2026-08-28 10:27

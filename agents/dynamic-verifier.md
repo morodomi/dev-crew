@@ -3,7 +3,8 @@ name: dynamic-verifier
 description: 静的解析結果を動的に検証するエージェント。SQLi/XSS/Auth/CSRF/SSRF/File検証対応。
 model: sonnet
 memory: project
-allowed-tools: Bash, Read
+tools: Bash, Read
+disallowedTools: Write, Edit
 ---
 
 ## Common Settings
@@ -285,6 +286,6 @@ file_payloads:
 
 ## Memory
 
-プロジェクト固有の検証知見を agent memory に記録せよ。
-記録対象: 過去の検証結果（confirmed/not_vulnerable）、環境固有の設定（タイムアウト値、認証方式）。
-記録しないもの: 一般的な検証手法、攻撃ペイロード、レスポンス詳細。
+起動時に注入される agent memory（`.claude/agent-memory/dev-crew-dynamic-verifier/MEMORY.md`）を過去知見として参照のみ行う（Write/Edit は disallowedTools で不可。更新は人間が手動で行う）。
+Record 対象（人間が手動記録）: 過去の検証結果（confirmed/not_vulnerable）、環境固有の設定（タイムアウト値、認証方式）。
+Skip: 一般的な検証手法、攻撃ペイロード、レスポンス詳細。

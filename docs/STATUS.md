@@ -5,18 +5,19 @@
 | Metric | Value |
 |--------|-------|
 | In-Progress Cycles | 0 |
-| Done (unarchived) | 75 |
+| Done (unarchived) | 76 |
 | Archived Cycles | 37 |
 | Skills | 28 |
 | Agents | 41 |
 | Test Scripts | 115 |
 
-Last updated: 2026-07-24
+Last updated: 2026-08-28
 
 ## Completed (Recent)
 
 | Date | Cycle | Type |
 |------|-------|------|
+| 2026-08-28 | 20260828_1030: agent-tools-scoping (agent frontmatter allowed-tools→tools 正規化 #194。33 agent を Read/Grep/Glob(+Bash 3) に限定、memory 保持 15 agent は disallowedTools: Write, Edit で読取専用化（PROBE D 実測 4 段）、TC-36〜46 契約、dast-crawler ツール名 drift 修正、CHANGELOG Breaking。#195〜#198 起票) | feat |
 | 2026-07-24 | 20260724_1450: codified-rules-batch-19 (蓄積 codified insight 19 件を rule 条項化 — 8 cycle 分の未実装解消。TC-47〜65 契約 pin、override forgery 封鎖、Recall 初適用 cycle) | feat |
 | 2026-07-23 | 20260723_1328: spec-forced-recall (強制想起本体 #187 R2。spec Step 7.2 + scripts/recall-candidates.sh — トレーラー優先・共変更・unique ペアハブ減衰・archive 二段解決。Test Scripts 114→115) | feat |
 | 2026-07-23 | 20260723_1103: cycle-doc-trailer-and-recall-miss-question (強制想起 #187 先行実装。commit スキルに Cycle-Doc トレーラー自動付与 + cycle-retrospective に想起漏れ設問・固定 2 行スキーマ・二段回収契約。Test Scripts 113→114) | feat |

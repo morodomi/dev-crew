@@ -2,6 +2,7 @@
 name: design-reviewer
 description: 統合設計レビュー。スコープ妥当性、アーキテクチャ整合性、リスク評価を一括検証。scope-reviewer + architecture-reviewer + risk-reviewer の統合。
 model: sonnet
+tools: Read, Grep, Glob
 ---
 
 ## Focus

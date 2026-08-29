@@ -42,14 +42,15 @@ else
   fail "TC-02: model is '$model_val' (expected: sonnet)"
 fi
 
-# TC-03: memory is project
+# TC-03: memory: project frontmatter を持つ（memory 保持 + disallowedTools: Write, Edit、
+# agent-tools-scoping PROBE D step 4 再々承認: memory 削除は撤回、memory 維持 + disallowedTools へ再定義）
 echo ""
-echo "TC-03: memory is project"
+echo "TC-03: memory: project frontmatter is present"
 memory_val=$(get_frontmatter "$AGENT_FILE" "memory")
 if [ "$memory_val" = "project" ]; then
-  pass "TC-03: memory is 'project'"
+  pass "TC-03: memory: project frontmatter is present"
 else
-  fail "TC-03: memory is '$memory_val' (expected: project)"
+  fail "TC-03: memory is '$memory_val' (expected: 'project')"
 fi
 
 # TC-04: description contains keyword

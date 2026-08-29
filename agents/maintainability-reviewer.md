@@ -3,6 +3,8 @@ name: maintainability-reviewer
 description: 保守性レビュー。Fowler Code Smells（5カテゴリ）に基づき、可読性・命名・結合度・凝集度をチェック。
 model: sonnet
 memory: project
+tools: Read, Grep, Glob
+disallowedTools: Write, Edit
 ---
 
 ## Focus（Fowler Code Smells 5カテゴリ）
@@ -31,5 +33,6 @@ blocking_score: パイプラインをブロックすべき度合い（0 = 問題
 
 ## Memory
 
-Record: プロジェクト固有の命名規約、頻出する保守性パターン、技術負債の傾向。
+起動時に注入される agent memory（`.claude/agent-memory/dev-crew-maintainability-reviewer/MEMORY.md`）を過去知見として参照のみ行う（Write/Edit は disallowedTools で不可。更新は人間が手動で行う）。
+Record 対象（人間が手動記録）: プロジェクト固有の命名規約、頻出する保守性パターン、技術負債の傾向。
 Skip: 一般的なプログラミングスタイル、Linter で検出できるフォーマット問題。

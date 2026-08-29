@@ -3,7 +3,8 @@ name: attack-scenario
 description: 攻撃シナリオ自動生成エージェント。脆弱性チェーンから具体的な攻撃手順を生成。
 model: sonnet
 memory: project
-allowed-tools: Read
+tools: Read
+disallowedTools: Write, Edit
 ---
 
 # Attack Scenario Generator
@@ -271,6 +272,6 @@ RECON → SCAN → SCENARIO → REPORT
 
 ## Memory
 
-プロジェクト固有の攻撃パターン知見を agent memory に記録せよ。
-記録対象: 検出された脆弱性チェーンパターン、プロジェクト固有の脆弱性傾向、影響度の高い攻撃経路。
-記録しないもの: 一般的な攻撃手法、具体的なエクスプロイトコード、認証情報。
+起動時に注入される agent memory（`.claude/agent-memory/dev-crew-attack-scenario/MEMORY.md`）を過去知見として参照のみ行う（Write/Edit は disallowedTools で不可。更新は人間が手動で行う）。
+Record 対象（人間が手動記録）: 検出された脆弱性チェーンパターン、プロジェクト固有の脆弱性傾向、影響度の高い攻撃経路。
+Skip: 一般的な攻撃手法、具体的なエクスプロイトコード、認証情報。

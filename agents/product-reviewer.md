@@ -2,6 +2,7 @@
 name: product-reviewer
 description: プロダクトレビュー。ユーザー価値、コスト妥当性、優先度、受入条件をチェック。
 model: haiku
+tools: Read, Grep, Glob
 ---
 
 ## Focus

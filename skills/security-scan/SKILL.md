@@ -26,7 +26,7 @@ allowed-tools: Task, Read, Write, Bash, Grep, Glob
 | --enable-dynamic-xss | XSS動的テストを有効化 | Off |
 | --target | 検証対象URL | Required if --dynamic |
 | --no-sca | SCAスキャンをスキップ | Off |
-| --no-memory | スキャン知見の読み書きをスキップ | Off |
+| --no-memory | 起動時注入自体は止められない（agent 定義が静的に `memory: project` を持つ）。`--no-memory` は注入済み memory を参照しない指示であり、隔離を保証しない | Off |
 
 ## Workflow
 
@@ -41,8 +41,8 @@ allowed-tools: Task, Read, Write, Bash, Grep, Glob
 3. REPORT Phase
    └── JSON output
 
-4. LEARN Phase (unless --no-memory)
-   └── Save scan context to auto memory (details: reference.md)
+4. LEARN Phase
+   └── スキャン結果を report に出力。memory への蓄積は人間の手動作業（details: reference.md）
 ```
 
 ## Completion
