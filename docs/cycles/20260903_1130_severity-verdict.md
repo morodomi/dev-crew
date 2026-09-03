@@ -10,7 +10,7 @@ codex_mode: no
 codex_session_id: "01a06507-d320-7fd3-a5e7-080e7937647d"
 plan_file: /Users/morodomi/.claude/plans/refactored-beaming-seahorse.md
 created: 2026-09-03 11:31
-updated: 2026-09-03 14:01
+updated: 2026-09-03 16:40
 ---
 
 # reviewer 数値スコア廃止 — severity 集計 script 化 + JSON 検証 + error-feedback retry
@@ -447,8 +447,25 @@ Evidence: (orchestrate が自動記入)
 - **設問**: 今回の手戻りは、過去のどの cycle doc を最初に読んでいれば防げたか
 - **回答**: 該当なし
 
+### Retrospective 追記（Codex post-hoc review より）
+
+- **Failure**: COMMIT 直前の STATUS.md 更新で sweep 対象文言を書き込み、sweep（TC-11）を再実行せずコミットした → コミット済みツリーが red（Codex P1-3）。Insight 1「出力を読んでも突合しない」と同型で、今回は「sweep 対象を更新した後に sweep を回さない」
+- **Final fix**: STATUS 行を sweep 非該当の表現へ言い換え + post-hoc で full suite 再実行
+- **Insight**: **negative sweep（0 件契約）を持つ repo では、sweep 対象ファイル（docs/STATUS.md 等の除外されていない doc）への最終追記の後に必ず該当 sweep test を 1 回回してからコミットする。「テスト後に書いた 1 行」はテスト済みではない**
+
 ### 2026-09-03 14:01 - COMMIT
 - 全ゲート PASS（pre-commit-gate rc=0 / Test List 未完了 0 / RED・GREEN・REFACTOR・REVIEW の Phase completed / Codex 記録 = usage limit 縮退の明記 / retro_status: captured）
 - STATUS.md: Done 76→77 + Completed 行 + Last updated 2026-09-03。Test Scripts 116（本 cycle で 115→116）
 - commit 同梱: script 1 + agents 15 + skills/review 3 + skills/orchestrate 4 + rules mirror 4 + docs 4 + CHANGELOG + tests 12 + Cycle doc + 前 cycle codify 出力（Block 0、scope 同梱透明化）
 - Phase completed
+
+### 2026-09-03 16:40 - CODEX POST-HOC REVIEW（usage limit 回復後の追いレビュー）
+- `codex exec resume 01a06507` で code review 実行（COMMIT 時に縮退していた Codex competitive review の post-hoc 実施）。**verdict: BLOCK**（P1×3 / P2×2、tokens 375k）。PdM が全 findings を実機検証し 5 件全て CONFIRMED → 全件 accept-apply
+- 決定論集計（steps-codex.md Findings → Verdict Integration 手順 4）: `BLOCK critical:3 important:2 optional:0 invalid:0`
+- **P1-1 (critical)**: jq `index()` が配列引数を部分列検索として解釈し、`"severity": ["critical"]` が validate OK + verdict `PASS critical:0` になる silent-loss（validate/verdict 両側で再現）→ 型ガード `($s|type)!="string"` を両 jq に追加。TC-26/TC-27a/TC-27b で pin（RED で FAIL 実測→GREEN）
+- **P1-2 (critical)**: steps-codex.md の Codex findings 統合再実行が `--invalid` を落とし、INVALID reviewer の fail-closed floor（NON-NEGOTIABLE BLOCK）が消える → 引き継ぎ必須の明文化 + rules/review-triage.md（mirror 両方、cp+diff）に全呼び出し引き継ぎを追記。test-reviewer-scoring TC-12 で行単位 invariant として pin（将来の再実行記述にも適用）
+- **P1-3 (critical)**: COMMIT 時の STATUS.md 更新が TC-11 sweep 対象の文言（旧スコア名の literal）を含み、コミット済みツリーで test-reviewer-scoring が 11/12 red（GREEN 検証は STATUS 更新前に実行済で、sweep 対象を更新した後に sweep を再実行しなかった）→ STATUS 行を sweep 非該当の表現へ言い換え
+- **P2-1 (important)**: architect 出力契約に severity が無いのに orchestrate 両モードの Pre-Review 雛形が `severities=[critical:N important:N]` を要求（出所なし）→ verdict-only へ修正（実記録も verdict-only だった）。REVIEW 雛形の severities= は verdict 行が出所のため存置
+- **P2-2 (important)**: CHANGELOG が reject 除外を Breaking に分類していたが、main の旧 Score Aggregation も「reject カテゴリは集計外」で意味論は保存（`git show main:skills/review/steps-subagent.md` L147/153 で検証）→ Changed へ移動し「明文化・機械化」として記述
+- 対応: RED addendum 3（TC-26/27、FAIL 実測）→ 直接修正（steps-codex.md「GREEN 再実行 or 直接修正」の後者。小規模 doc/script fix のため）→ 対象 2 test PASS（33/33 + 13/13）
+- DISCOVERED: P1-2 の fix は doc 上の規律（LLM が --invalid を忘れない前提）であり、本 cycle が排除しようとした LLM-discipline 依存が残る。決定論化（Step 4.4 が invalid list を triage.json に書き込み verdict が自動で拾う等）は #202（script 硬化 follow-up）の scope に追記すること

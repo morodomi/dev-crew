@@ -99,7 +99,7 @@ PdM が Cycle doc に Phase Summary を追記:
 ### Phase: SYNC-PLAN - Completed at HH:MM
 **Artifacts**: Cycle doc updated with PLAN section, Test List (N items)
 **Decisions**: architecture=[approach], test strategy=[approach]
-**Pre-Review**: verdict=[PASS/WARN/BLOCK], severities=[critical:N important:N], issues=[summary]
+**Pre-Review**: verdict=[PASS/WARN/BLOCK], issues=[summary]
 **Next Phase Input**: Test List items TC-01 ~ TC-NN
 **Subagent**: agent_id={architect_agent_id}, tokens={total_tokens}
 ```

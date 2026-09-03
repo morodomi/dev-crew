@@ -32,7 +32,7 @@ review findings は以下の 3 カテゴリに分類して処理する (cycle 20
 
 ## Severity → Verdict 集計（SSOT: skills/review/severity-verdict.sh）
 
-3-category triage 後、accepted（accept-apply + accept-defer、reject は除外）の findings を severity（critical/important/optional）で集計し、`skills/review/severity-verdict.sh verdict` が決定論的に verdict を判定する（docs/cycles/20260903_1130_severity-verdict.md）:
+3-category triage 後、accepted（accept-apply + accept-defer、reject は除外）の findings を severity（critical/important/optional）で集計し、`skills/review/severity-verdict.sh verdict <triage.json> [--invalid <name>]...` が決定論的に verdict を判定する（`--invalid` は Step 4.4 で確定した INVALID reviewer を再実行時も含め全呼び出しで引き継ぐ）（docs/cycles/20260903_1130_severity-verdict.md）:
 
 - critical ≥ 1 件 → BLOCK
 - important ≥ 1 件（critical 0 件） → WARN

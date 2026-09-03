@@ -119,10 +119,15 @@ case "$MODE" in
       # Type-guard every element before touching .severity: select(type=="object")
       # runs before the .severity access in the pipe, so a non-object element
       # (e.g. a bare string) never reaches a field access and cannot crash jq.
+      # The ($s|type)!="string" guard must come before index(): jq's index()
+      # treats an array argument as a subsequence search, so a non-string
+      # severity like ["critical"] would pass the enum check while never
+      # matching the string equality used in counting -- a critical finding
+      # would silently vanish into "PASS critical:0".
       read -r bad_shape bad_severity <<EOF
 $(jq -r --arg enum "$SEVERITY_ENUM" '
   ([.issues[] | select(type != "object")] | length) as $shape
-  | ([.issues[] | select(type == "object") | select((.severity // "") as $s | ($enum | split("|") | index($s)) == null)] | length) as $sev
+  | ([.issues[] | select(type == "object") | select((.severity // "") as $s | ($s | type) != "string" or ($enum | split("|") | index($s)) == null)] | length) as $sev
   | "\($shape) \($sev)"
 ' "$f")
 EOF
@@ -212,14 +217,18 @@ EOF
     # Type-guard every element before touching .severity/.category, same
     # discipline as validate above: select(type=="object") runs before the
     # field access, so a non-object element (e.g. a bare number) never
-    # reaches a field access and cannot crash jq.
+    # reaches a field access and cannot crash jq. The type!="string" guards
+    # mirror validate: index() on an array argument is a subsequence search,
+    # so ["critical"]/["accept-apply"] would pass the enum check but never
+    # match the == comparisons in counting -- an accepted critical finding
+    # would be dropped from the tally and yield a silent PASS.
     read -r bad_shape bad_items <<EOF
 $(jq -r --arg sev "$SEVERITY_ENUM" --arg cat "$CATEGORY_ENUM" '
   ([.[] | select(type != "object")] | length) as $shape
   | ([.[] | select(type == "object") | select(
-      ((.severity // "") as $s | ($sev | split("|") | index($s)) == null)
+      ((.severity // "") as $s | ($s | type) != "string" or ($sev | split("|") | index($s)) == null)
       or
-      ((.category // "") as $c | ($cat | split("|") | index($c)) == null)
+      ((.category // "") as $c | ($c | type) != "string" or ($cat | split("|") | index($c)) == null)
     )] | length) as $bad
   | "\($shape) \($bad)"
 ' "$TRIAGE_FILE")

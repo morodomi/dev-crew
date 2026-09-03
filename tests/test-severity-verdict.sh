@@ -5,6 +5,9 @@
 #   (REVIEW BLOCK critical/important findings — crash-on-malformed-input,
 #   loose --invalid parsing, missing/empty dir handling, DEGRADED-vs-FORCE_BLOCK
 #   ordering — hardened before GREEN re-implements).
+# TC-26..27: RED addendum 3 (Codex post-hoc review P1-1 — jq index() は配列引数を
+#   部分列検索として解釈するため、非文字列 severity/category が enum 検査を素通し
+#   して集計 0 件 = silent PASS になる。型ガード必須)。
 #
 # validate <dir>: jq-parses <dir>/*.json, requires .issues to be an array whose
 #   items have .severity in {critical, important, optional}. Unknown keys (e.g. the
@@ -50,7 +53,8 @@ echo "=== severity-verdict.sh Behavior Tests ==="
 # letting "command not found" produce a misleading/inconsistent failure shape.
 if [ ! -f "$SCRIPT" ]; then
   for tc in TC-01 TC-02 TC-03 TC-04 TC-05 TC-06 TC-07 TC-08 TC-09 TC-10 TC-11 TC-12 TC-13 \
-            TC-14 TC-15 TC-16 TC-17 TC-18 TC-19 TC-20 TC-21 TC-22 TC-23 TC-24 TC-25; do
+            TC-14 TC-15 TC-16 TC-17 TC-18 TC-19 TC-20 TC-21 TC-22 TC-23 TC-24 TC-25 \
+            TC-26 TC-27; do
     fail "$tc: $SCRIPT not found (RED state — GREEN creates skills/review/severity-verdict.sh)"
   done
   echo ""
@@ -550,6 +554,56 @@ if [ "$rc25b" -eq 0 ] && printf '%s\n' "$out25b" | grep -qE "^DEGRADED: jq not f
   pass "TC-25b: jq absent without --invalid -> DEGRADED: jq not found + exit 0"
 else
   fail "TC-25b: expected DEGRADED message + exit 0, got rc=$rc25b out='$out25b'"
+fi
+
+# =============================================================================
+# TC-26: [Given] severity が文字列でなく配列 ["critical"] / [When] validate /
+#         [Then] INVALID + exit 1 — jq index() は配列引数を部分列検索として解釈し
+#         enum 検査を素通しする（Codex post-hoc review P1-1）。型ガードなしでは
+#         critical finding が「OK かつ集計 0 件」で黙って消える
+# =============================================================================
+echo ""
+echo "TC-26: validate — array-valued severity [\"critical\"] -> INVALID + exit 1 (not silently OK)"
+VDIR26="$FIXTURE_DIR/tc26"
+mkdir -p "$VDIR26"
+write_json "$VDIR26/security-reviewer.json" '{"issues": [{"severity": ["critical"], "message": "m", "file": "f", "line": 1, "suggestion": "s"}]}'
+out26=$(bash "$SCRIPT" validate "$VDIR26" 2>&1)
+rc26=$?
+if [ "$rc26" -eq 1 ] && printf '%s\n' "$out26" | grep -qE "^INVALID security-reviewer\.json:.+"; then
+  pass "TC-26: array-valued severity -> INVALID + exit 1"
+else
+  fail "TC-26: expected INVALID + exit 1 for severity=[\"critical\"], got rc=$rc26 out='$out26'"
+fi
+
+# =============================================================================
+# TC-27: [Given] triage.json の severity / category が配列値 / [When] verdict /
+#         [Then] INVALID-TRIAGE + exit 2 — 同じ index() 素通しで accepted critical が
+#         集計から脱落し PASS critical:0 になる silent-loss 経路（P1-1 の verdict 側）。
+#         category 配列 ["accept-apply"] も enum 検査は通るが == 比較で不一致 →
+#         reject 同然に除外され PASS、という同型の黙殺を持つ
+# =============================================================================
+echo ""
+echo "TC-27a: verdict — array-valued severity in triage.json -> INVALID-TRIAGE + exit 2"
+T27A="$FIXTURE_DIR/tc27a.json"
+write_json "$T27A" '[{"severity": ["critical"], "category": "accept-apply"}]'
+out27a=$(bash "$SCRIPT" verdict "$T27A" 2>&1)
+rc27a=$?
+if [ "$rc27a" -eq 2 ] && printf '%s\n' "$out27a" | grep -qE "^INVALID-TRIAGE:.+"; then
+  pass "TC-27a: array-valued severity -> INVALID-TRIAGE + exit 2"
+else
+  fail "TC-27a: expected INVALID-TRIAGE + exit 2, got rc=$rc27a out='$out27a'"
+fi
+
+echo ""
+echo "TC-27b: verdict — array-valued category in triage.json -> INVALID-TRIAGE + exit 2"
+T27B="$FIXTURE_DIR/tc27b.json"
+write_json "$T27B" '[{"severity": "critical", "category": ["accept-apply"]}]'
+out27b=$(bash "$SCRIPT" verdict "$T27B" 2>&1)
+rc27b=$?
+if [ "$rc27b" -eq 2 ] && printf '%s\n' "$out27b" | grep -qE "^INVALID-TRIAGE:.+"; then
+  pass "TC-27b: array-valued category -> INVALID-TRIAGE + exit 2"
+else
+  fail "TC-27b: expected INVALID-TRIAGE + exit 2, got rc=$rc27b out='$out27b'"
 fi
 
 # --- Summary ---

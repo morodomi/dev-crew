@@ -354,6 +354,29 @@ else
   fail "TC-11: repo-wide numeric-threshold sweep found $sweep_count hits: $(printf '%s' "$sweep_violations" | head -5)..."
 fi
 
+# =============================================================================
+# TC-12: [Given] skills/ + rules mirror 両方の *.md / [When] `severity-verdict.sh verdict`
+#         への言及行を全走査 / [Then] 全行が `--invalid` 引き継ぎを併記している
+#         （Codex post-hoc review P1-2: steps-codex.md の Codex findings 統合再実行が
+#         `--invalid` を落とすと、INVALID reviewer の fail-closed floor
+#         （security/correctness は NON-NEGOTIABLE BLOCK）が再実行で消える。
+#         行単位 invariant として pin し、将来の再実行記述の追加にも適用する）
+# =============================================================================
+echo ""
+echo "TC-12: every 'severity-verdict.sh verdict' mention in skills/ and rules mirrors carries --invalid forwarding"
+verdict_lines=$(cd "$BASE_DIR" && grep -rn 'severity-verdict\.sh verdict' skills/ rules/ .claude/rules/ --include='*.md' 2>/dev/null || true)
+missing_invalid=""
+if [ -n "$verdict_lines" ]; then
+  missing_invalid=$(printf '%s\n' "$verdict_lines" | grep -vF -- '--invalid' || true)
+fi
+if [ -z "$verdict_lines" ]; then
+  fail "TC-12: no 'severity-verdict.sh verdict' mention found under skills//rules/ (vacuous — invariant target missing)"
+elif [ -z "$missing_invalid" ]; then
+  pass "TC-12: all verdict invocation mentions carry --invalid forwarding"
+else
+  fail "TC-12: verdict mention(s) without --invalid forwarding: $missing_invalid"
+fi
+
 # Summary
 echo ""
 echo "=== Summary ==="
