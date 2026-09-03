@@ -90,23 +90,23 @@ architect 完了後、PdM が Cycle doc に Phase Summary を追記:
 ### Phase: SYNC-PLAN - Completed at HH:MM
 **Artifacts**: Cycle doc updated with PLAN section, Test List (N items)
 **Decisions**: architecture=[approach], test strategy=[approach]
-**Pre-Review**: verdict=[PASS/WARN/BLOCK], score=[N], issues=[summary]
+**Pre-Review**: verdict=[PASS/WARN/BLOCK], severities=[critical:N important:N], issues=[summary]
 **Next Phase Input**: Test List items TC-01 ~ TC-NN
 **Subagent**: agent_id={architect_agent_id}, tokens={total_tokens}
 ```
 
 ### 自律判断
 
-architect の `pre_review.verdict` でスコアベース判定:
+architect の `pre_review.verdict` で判定:
 
-- PASS (0-49) → Block 2a (Phase 3) へ自動進行
-- WARN (50-79) / BLOCK (80+) → Socrates Protocol 発動:
+- PASS → Block 2a (Phase 3) へ自動進行
+- WARN / BLOCK → Socrates Protocol 発動:
 
 #### Socrates Protocol (pre-review plan)
 
-1. PdM → Task() で socrates を on-demand 起動（Phase名, スコア, reviewer サマリ, 提案, Progress Log）
+1. PdM → Task() で socrates を on-demand 起動（Phase名, severity 内訳, reviewer サマリ, 提案, Progress Log）
    ```
-   Task(subagent_type: "dev-crew:socrates", model: "opus", prompt: "Phase: pre-review:plan, Score: [N], Summary: [...], Proposal: [...], Progress Log: [Cycle doc の Progress Log 全文]")
+   Task(subagent_type: "dev-crew:socrates", model: "opus", prompt: "Phase: pre-review:plan, Severities: [critical:N important:N], Summary: [...], Proposal: [...], Progress Log: [Cycle doc の Progress Log 全文]")
    ```
 2. socrates → 反論を返却（Objections + Alternative 形式）
 3. PdM → 人間にメリデメを構造化してテキスト出力（自由入力を求める）
@@ -243,23 +243,23 @@ review(code) 完了後、PdM が Cycle doc に Phase Summary を追記:
 ```markdown
 ### Phase: REVIEW - Completed at HH:MM
 **Artifacts**: review results (mode: code)
-**Decisions**: verdict=[PASS/WARN/BLOCK], score=[max score]
+**Decisions**: verdict=[PASS/WARN/BLOCK], severities=[critical:N important:N]
 **Next Phase Input**: all tests passing, ready to commit
 **Subagent**: agent_id={review_agent_id}, tokens={total_tokens}
 ```
 
 ### 自律判断
 
-スコアベース判定:
+verdict ベース判定:
 
-- PASS (0-49) → DISCOVERED 判断へ自動進行
-- WARN (50-79) / BLOCK (80+) → Socrates Protocol 発動:
+- PASS → DISCOVERED 判断へ自動進行
+- WARN / BLOCK → Socrates Protocol 発動:
 
 #### Socrates Protocol (review code)
 
-1. PdM → Task() で socrates を on-demand 起動（Phase名, スコア, reviewer サマリ, 提案, Progress Log）
+1. PdM → Task() で socrates を on-demand 起動（Phase名, severity 内訳, reviewer サマリ, 提案, Progress Log）
    ```
-   Task(subagent_type: "dev-crew:socrates", model: "opus", prompt: "Phase: review:code, Score: [N], Summary: [...], Proposal: [...], Progress Log: [Cycle doc の Progress Log 全文]")
+   Task(subagent_type: "dev-crew:socrates", model: "opus", prompt: "Phase: review:code, Severities: [critical:N important:N], Summary: [...], Proposal: [...], Progress Log: [Cycle doc の Progress Log 全文]")
    ```
 2. socrates → 反論を返却（Objections + Alternative 形式）
 3. PdM → 人間にメリデメを構造化してテキスト出力（自由入力を求める）

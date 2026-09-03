@@ -99,7 +99,7 @@ PdM が Cycle doc に Phase Summary を追記:
 ### Phase: SYNC-PLAN - Completed at HH:MM
 **Artifacts**: Cycle doc updated with PLAN section, Test List (N items)
 **Decisions**: architecture=[approach], test strategy=[approach]
-**Pre-Review**: verdict=[PASS/WARN/BLOCK], score=[N], issues=[summary]
+**Pre-Review**: verdict=[PASS/WARN/BLOCK], severities=[critical:N important:N], issues=[summary]
 **Next Phase Input**: Test List items TC-01 ~ TC-NN
 **Subagent**: agent_id={architect_agent_id}, tokens={total_tokens}
 ```
@@ -198,7 +198,7 @@ findings の裁定は steps-codex.md の Findings Judgment テーブルに準拠
 
 #### PdM 判定
 
-PdM が Claude + Codex（利用可能時）の結果を統合してスコアを判定:
+PdM が Claude + Codex（利用可能時）の結果を統合して verdict を判定:
 - PASS/WARN → DISCOVERED 判断へ
 - BLOCK → GREEN の Task() を再起動して修正（max 1回）
 
@@ -209,7 +209,7 @@ Block 2 完了後、PdM が Cycle doc に Phase Summary を追記:
 ```markdown
 ### Phase: REVIEW - Completed at HH:MM
 **Artifacts**: review results (mode: code)
-**Decisions**: verdict=[PASS/WARN/BLOCK], score=[max score]
+**Decisions**: verdict=[PASS/WARN/BLOCK], severities=[critical:N important:N]
 **Next Phase Input**: all tests passing, ready to commit
 **Subagent**: agent_id={review_agent_id}, tokens={total_tokens}
 ```
@@ -256,11 +256,11 @@ Skill(dev-crew:learn)
 
 Subagent Chain モードでも PdM の判断基準は同一:
 
-| スコア | 判定 | アクション |
-|--------|------|-----------|
-| 0-49 | PASS | 次 Block へ自動進行 |
-| 50-79 | WARN | 警告ログ、次 Block へ自動進行 |
-| 80-100 | BLOCK | 1回目: 自動再試行、2回目: ユーザーに報告 |
+| Severity | 判定 | アクション |
+|----------|------|-----------|
+| いずれもなし | PASS | 次 Block へ自動進行 |
+| important ≥ 1 (critical 0) | WARN | 警告ログ、次 Block へ自動進行 |
+| critical ≥ 1 | BLOCK | 1回目: 自動再試行、2回目: ユーザーに報告 |
 
 ## Fallback
 

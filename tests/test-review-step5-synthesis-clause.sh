@@ -78,13 +78,13 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# TC-02: 「### Findings Synthesis」が「## Step 5:」見出しの直後 (= ### Score Aggregation より前)
-#        に配置される。Cycle doc Design Approach: Synthesis は Score Aggregation の前段。
+# TC-02: 「### Findings Synthesis」が「## Step 5:」見出しの直後 (= ### Verdict Aggregation より前)
+#        に配置される。Cycle doc Design Approach: Synthesis は Verdict Aggregation の前段。
 #        強化: Step 5 と Findings Synthesis の間に他の H3 が割り込んでいないことも検証 (Codex F1 対応)
 #   multi-file-consistency.md 順序検証パターン準拠
 # ---------------------------------------------------------------------------
 echo ""
-echo "TC-02: 'Findings Synthesis' が Step 5 見出しの直後 (Score Aggregation より前) に配置される"
+echo "TC-02: 'Findings Synthesis' が Step 5 見出しの直後 (Verdict Aggregation より前) に配置される"
 
 if [ ! -f "$SUBJECT" ]; then
   fail "TC-02: $SUBJECT が存在しない"
@@ -92,28 +92,28 @@ else
   # get_first_line_number helper で各見出しの行番号を取得 (case-sensitive, set -e safe)
   line_step5=$(get_first_line_number "^## Step 5:")
   line_synthesis=$(get_first_line_number "### Findings Synthesis")
-  line_score_agg=$(get_first_line_number "### Score Aggregation")
+  line_score_agg=$(get_first_line_number "### Verdict Aggregation")
 
   if [ -z "$line_step5" ]; then
     fail "TC-02: '## Step 5:' 見出しが存在しない"
   elif [ -z "$line_synthesis" ]; then
     fail "TC-02: '### Findings Synthesis' が存在しない"
   elif [ -z "$line_score_agg" ]; then
-    fail "TC-02: '### Score Aggregation' が存在しない"
+    fail "TC-02: '### Verdict Aggregation' が存在しない"
   else
-    # 順序検証 (基本): Step 5 < Findings Synthesis < Score Aggregation
+    # 順序検証 (基本): Step 5 < Findings Synthesis < Verdict Aggregation
     if ! { [ "$line_step5" -lt "$line_synthesis" ] && [ "$line_synthesis" -lt "$line_score_agg" ]; }; then
       if [ "$line_synthesis" -le "$line_step5" ]; then
         fail "TC-02: 'Findings Synthesis' が 'Step 5' 見出しより前に出現している (Step 5=$line_step5, Synthesis=$line_synthesis)"
       else
-        fail "TC-02: 'Findings Synthesis' が 'Score Aggregation' の後に出現している (Synthesis=$line_synthesis, Score Aggregation=$line_score_agg)"
+        fail "TC-02: 'Findings Synthesis' が 'Verdict Aggregation' の後に出現している (Synthesis=$line_synthesis, Verdict Aggregation=$line_score_agg)"
       fi
     else
       # Codex F1 対応: Step 5 と Findings Synthesis の間に他の H3 が割り込んでいないことを検証
       # awk で line_step5+1 から line_synthesis-1 までを抽出、その範囲に ^### で始まる行が無いことを assert
       between_h3=$(awk -v from="$line_step5" -v to="$line_synthesis" 'NR>from && NR<to && /^### /' "$SUBJECT" || true)
       if [ -z "$between_h3" ]; then
-        pass "TC-02: 順序が正しく Findings Synthesis が Step 5 直後の最初の H3 (Step 5=$line_step5 < Synthesis=$line_synthesis < Score Aggregation=$line_score_agg, 間に他 H3 無し)"
+        pass "TC-02: 順序が正しく Findings Synthesis が Step 5 直後の最初の H3 (Step 5=$line_step5 < Synthesis=$line_synthesis < Verdict Aggregation=$line_score_agg, 間に他 H3 無し)"
       else
         fail "TC-02: 'Step 5' と 'Findings Synthesis' の間に他の H3 が割り込んでいる (割り込み: $between_h3)"
       fi

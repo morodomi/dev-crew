@@ -5,12 +5,12 @@ phase: DONE
 complexity: standard
 test_count: 14
 risk_level: medium
-retro_status: captured
+retro_status: resolved
 codex_mode: no
 codex_session_id: "01a04228-cbba-7352-b84a-b42f04baba70"
 plan_file: /Users/morodomi/.claude/plans/refactored-beaming-seahorse.md
 created: 2026-08-28 10:30
-updated: 2026-08-28 15:13
+updated: 2026-09-03 11:30
 ---
 
 # reviewer 系 agent の tools: scoping（#194）
@@ -514,3 +514,37 @@ GREEN Phase completed
 - STATUS.md: Done 75→76 + Completed 行 + Last updated 2026-08-28。Test Scripts 115 不変（新規 test file なし）、Agents 41 不変
 - commit 同梱: agents 34 + tests 6 + AGENTS.md + CHANGELOG.md + skills/evolve/reference.md + skills/security-scan 2 + 本 cycle doc + STATUS.md + docs/cycles/20260724_1450 の codify 出力（Block 0 codify、scope 同梱として透明化）
 - Phase completed
+
+## Codify Decisions
+
+### Insight 1
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: cycle-scoped
+- **Paths**: rules/plan-discipline.md（paths: docs/cycles/**）
+- **Reason**: capability 剥奪の再承認は「残る機能/消える機能」の両実測を前提にする。GREEN 往復（memory 削除→復元）を直接引き起こした高確信項目。次 batch cycle で条項化
+- **Decided**: 2026-09-03 11:30
+
+### Insight 2
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: file-scoped
+- **Paths**: tests/**（rules/test-patterns.md）
+- **Reason**: rename 契約は新キーが旧キーの部分文字列かを先に確認し語境界で pin、RED 完了条件に「旧状態 fixture で FAIL」実測を含める。REVIEW BLOCK の直接原因。次 batch cycle で条項化
+- **Decided**: 2026-09-03 11:30
+
+### Insight 3
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: file-scoped
+- **Paths**: tests/**（rules/test-patterns.md）
+- **Reason**: 存在ベース契約（総数・集合）は実 tree に書く test の fixture で flake する — 2 回再現（#195 で根治追跡中）。名前集合 diff + 既知 fixture 除外 or 内容ベース化。次 batch cycle で条項化
+- **Decided**: 2026-09-03 11:30
+
+### Insight 4
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: cycle-scoped
+- **Paths**: rules/plan-discipline.md（paths: docs/cycles/**）
+- **Reason**: frontmatter キーの有効性は harness の agent 一覧表示（Tools 欄）で実測する（allowed-tools が 7 か月無効だった機序）。「継承デフォルト前提は一次ソース確認」の姉妹条項として次 batch cycle で条項化
+- **Decided**: 2026-09-03 11:30

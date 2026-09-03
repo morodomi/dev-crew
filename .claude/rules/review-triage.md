@@ -30,6 +30,34 @@ review findings は以下の 3 カテゴリに分類して処理する (cycle 20
 | accept-defer | architectural / scope 越え | DISCOVERED に記録 + follow-up cycle |
 | reject | 根拠なし / 方針違反 | 根拠付きで reject。review log に理由を記載 |
 
+## Severity → Verdict 集計（SSOT: skills/review/severity-verdict.sh）
+
+3-category triage 後、accepted（accept-apply + accept-defer、reject は除外）の findings を severity（critical/important/optional）で集計し、`skills/review/severity-verdict.sh verdict` が決定論的に verdict を判定する（docs/cycles/20260903_1130_severity-verdict.md）:
+
+- critical ≥ 1 件 → BLOCK
+- important ≥ 1 件（critical 0 件） → WARN
+- いずれもなし → PASS
+- reject カテゴリの findings は severity に関わらず集計から除外する
+- **fail-closed 差別化**: reviewer の JSON 出力が検証（retry 1 回後もなお）不正な場合、`security-reviewer` / `correctness-reviewer` は NON-NEGOTIABLE floor として BLOCK、それ以外の reviewer は WARN floor（欠損を PASS に落とさない）
+
+## Dependencies & Degradation
+
+`skills/review/severity-verdict.sh` は jq に依存する（`validate`/`verdict` の両サブコマンドとも）。
+
+- **jq 必須**: JSON パース・型検証・severity/category 集計は全て jq 式で行う。macOS は `brew install jq`、Debian/Ubuntu 系は `apt-get install jq` でインストールできる
+- **DEGRADED 挙動**: jq が PATH 上に見つからない場合、`validate`/`verdict` とも `DEGRADED: jq not found` を出力し exit 0 で返す（fail-open）。この場合 PdM は script による決定論検証をスキップし、Severity 基準表（`skills/review/reference.md` 参照）を手動適用して `severity-verdict.sh` と同一フォーマットの verdict 行を Progress Log に記録する
+- **NON-NEGOTIABLE floor は jq 非依存**: `--invalid security-reviewer`/`correctness-reviewer` による BLOCK 固定は jq の有無に関わらず必ず stdout に反映される（DEGRADED 注記が出る場合も stderr のみ）。fail-closed の保証を jq の可用性に依存させない設計
+
+## JSON Validation & Retry Protocol
+
+reviewer JSON 出力の検証と再試行は以下の決定論的手順に従う（SSOT: `skills/review/severity-verdict.sh`、詳細手順は `skills/review/steps-subagent.md` Step 4.4）:
+
+1. `severity-verdict.sh validate <dir>` で全 reviewer JSON を検証する
+2. **INVALID を返した場合のみ**、該当 reviewer へ script の error 行を verbatim で含めて re-request する（**最大 1 回**。LLM の主観による re-request は行わない）
+3. 再 validate してもなお INVALID の場合、その reviewer 名を `--invalid <name>` として `severity-verdict.sh verdict` に渡す（fail-closed）
+4. `--invalid` に `security-reviewer`/`correctness-reviewer` が含まれれば verdict は BLOCK 固定、それ以外の reviewer は WARN floor
+5. 3-category triage 後の accepted findings（reject 除外）は `verdict` の集計対象。**reject に分類された finding は severity に関わらず verdict に一切効かない**（例: severity=critical でも reject なら他に accepted な critical/important が無い限り verdict は PASS）
+
 ## 禁止事項
 
 - accept/reject の理由を残さずに findings を処理しない

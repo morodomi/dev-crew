@@ -78,13 +78,14 @@ if [ "$all_found" = true ]; then
   pass "TC-05: All 5 Fowler Code Smells categories mentioned"
 fi
 
-# TC-06: blocking_score criteria defined
+# TC-06: Output 行に blocking_score が不在、severity が存在（severity-verdict cycle: blocking_score 撤去）
 echo ""
-echo "TC-06: blocking_score criteria"
-if grep -q "blocking_score" "$AGENT_FILE"; then
-  pass "TC-06: blocking_score criteria defined"
+echo "TC-06: Output line has no blocking_score, has severity"
+output_line=$(awk '/^## Output/{f=1;next} f && /^## /{exit} f && NF{print; exit}' "$AGENT_FILE")
+if [ -n "$output_line" ] && ! echo "$output_line" | grep -q "blocking_score" && echo "$output_line" | grep -q '"severity": "'; then
+  pass "TC-06: Output line has no blocking_score and has severity"
 else
-  fail "TC-06: blocking_score criteria not found"
+  fail "TC-06: Output line check failed (blocking_score present or severity missing): '$output_line'"
 fi
 
 # TC-07: maintainability-reviewer in Code Mode Always-on

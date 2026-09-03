@@ -229,16 +229,16 @@ else
   tc11_fail=1
 fi
 
-# TC-12: ブロッキングスコア基準 in reference
+# TC-12: Severity 基準 in reference (severity-verdict cycle: ブロッキングスコア基準 から改名)
 echo ""
-echo "TC-12: Blocking score criteria in reference"
+echo "TC-12: Severity criteria in reference"
 tc12_fail=0
 
 if [ -f "$REFERENCE_FILE" ]; then
-  if grep -q "ブロッキングスコア基準" "$REFERENCE_FILE"; then
-    pass "TC-12: reference.md has blocking score criteria section"
+  if grep -q "Severity 基準" "$REFERENCE_FILE"; then
+    pass "TC-12: reference.md has severity criteria section"
   else
-    fail "TC-12: reference.md missing blocking score criteria"
+    fail "TC-12: reference.md missing severity criteria"
     tc12_fail=1
   fi
 else

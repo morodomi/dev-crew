@@ -9,8 +9,13 @@ tools: Read, Grep, Glob
 Scope validity (YAGNI, file count <=10) | Architecture consistency (patterns, layers) | Risk (impact, breaking changes, rollback) | Upstream consistency (requirements/ROADMAP alignment, term consistency) | Constitution consistency (CONSTITUTION.md/AGENTS.md/CLAUDE.md の Goal・Non-Goals・原則との整合) | Over-engineering (Speculative Generality, 1-caller interfaces, unused config params)
 
 ## Output
-`{"blocking_score": 0-100, "issues": [{"severity": "critical|important|optional", "category": "scope|architecture|risk|upstream|constitution|over-engineering", "message", "suggestion"}]}`
+`{"issues": [{"severity": "optional", "category": "scope", "message": "...", "suggestion": "..."}]}`
 
-## ブロッキングスコア基準
-blocking_score: パイプラインをブロックすべき度合い（0 = 問題なし, 100 = ブロック必須）
-80-100→BLOCK | 50-79→WARN | 0-49→PASS
+`severity` は critical|important|optional のいずれか。`category` は scope|architecture|risk|upstream|constitution|over-engineering のいずれか。
+
+## Severity 基準
+- critical = このまま進めば実害（バグ混入・セキュリティ・契約破壊）
+- important = 品質・保守性への実影響。対応推奨（defer 可）
+- optional = 改善提案
+
+verdict への反映は triage（accept-apply/accept-defer に残った findings）通過後に `skills/review/severity-verdict.sh` が集計する（reject は除外）。0-100 の自己採点は廃止。
