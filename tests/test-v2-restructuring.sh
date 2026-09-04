@@ -410,11 +410,13 @@ else
 fi
 
 # TC-28: SKILL.md Step 5 BLOCK row has mode-specific recovery
+# (severity-verdict cycle: 数値閾値 '80-100' pin は撤去対象のため、severity トークン 'critical' を
+#  含む BLOCK 行へ張り替える — 閾値表そのものが撤去されるため pin 対象を verdict トークンへ移す)
 echo ""
 echo "TC-28: review/SKILL.md mode-specific BLOCK recovery"
 if [ -f "$REVIEW_SKILL" ]; then
   # Check that the BLOCK row itself contains mode-specific recovery paths
-  block_line=$(grep 'BLOCK' "$REVIEW_SKILL" | grep '80-100' || true)
+  block_line=$(grep 'BLOCK' "$REVIEW_SKILL" | grep 'critical' || true)
   if echo "$block_line" | grep -q 'plan' && echo "$block_line" | grep -q 'code'; then
     pass "TC-28: review/SKILL.md BLOCK row has plan and code recovery paths"
   else

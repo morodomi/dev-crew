@@ -112,10 +112,10 @@ StatusLineに現在フェーズとtoken使用量を表示:
 
 ## Error UX
 
-### WARN (50-79)
+### WARN (important >= 1)
 
 ```
-PdM: 「plan-reviewでWARN(score: 65)が出ました。」
+PdM: 「plan-reviewでWARN(important:3)が出ました。」
 Socrates: 「この設計には3つの懸念があります:
   1. ...
   2. ...
@@ -123,10 +123,10 @@ Socrates: 「この設計には3つの懸念があります:
 PdM: 「どうしますか？ proceed / fix / abort」
 ```
 
-### BLOCK (80-100)
+### BLOCK (critical >= 1)
 
 ```
-PdM: 「review(code)でBLOCK(score: 85)です。修正が必要です。」
+PdM: 「review(code)でBLOCK(critical:2)です。修正が必要です。」
 Socrates: 「Critical問題:
   1. [security] SQLインジェクション: user_input が未サニタイズ
   2. [correctness] null参照: line 42

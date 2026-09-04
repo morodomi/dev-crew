@@ -89,15 +89,15 @@ plan mode review は **plan file 前提**で動作する（Cycle doc 不在で�
 | test-reviewer | Sonnet | If test-file flags |
 | Lint-as-Code | - | Always (ESLint/PHPStan/mypy, LLMコスト0) |
 
-## ブロッキングスコア基準
+## Severity 基準
 
-各エージェントが0-100のブロッキングスコアを返す（0 = 問題なし, 100 = ブロック必須）:
+各エージェントが `severity: critical|important|optional` を issue ごとに返す。verdict への集計は accept-apply/accept-defer に残った findings（reject は除外）を対象に `skills/review/severity-verdict.sh` が行う:
 
-| スコア | 判定 | アクション |
-|--------|------|-----------|
-| 80-100 | BLOCK | 修正必須 (plan→PLAN再設計 / code→RED/GREEN/REFACTOR) |
-| 50-79 | WARN | 警告確認後、次フェーズへ |
-| 0-49 | PASS | 次フェーズへ自動進行 |
+| Severity | 判定 | アクション |
+|----------|------|-----------|
+| critical ≥ 1 | BLOCK | 修正必須 (plan→PLAN再設計 / code→RED/GREEN/REFACTOR) |
+| important ≥ 1 (critical 0) | WARN | 警告確認後、次フェーズへ |
+| いずれもなし | PASS | 次フェーズへ自動進行 |
 
 ## review_policy 解決規則
 
@@ -137,23 +137,23 @@ security-reviewer と correctness-reviewer は `review_policy`/risk score に関
 
 実行時にどのモデルが実際に選ばれるかは Claude Code の env / org allowlist に依存するため決定論的に pin できない。契約テスト（`tests/test-review-policy.sh`）が pin するのは schema/allowlist・手順文の存在・固定 model literal の除去・NON-NEGOTIABLE 記述であり、実モデル選択そのものではない。
 
-## Score Escalation (PdM 判断基準)
+## Verdict Escalation (PdM 判断基準)
 
-Step 4.5 で Socrates が返した反論に基づき、PdM が verdict の昇格を判断する。Socrates は反論+選択肢を返すのみで、スコアや verdict は付けない（advisor 原則維持）。
+Step 4.5 で Socrates が返した反論に基づき、PdM が verdict の昇格を判断する。Socrates は反論+選択肢を返すのみで、severity や verdict は付けない（advisor 原則維持）。昇格根拠は「件数と score の乖離」ではなく、Socrates が示した**見落とし・二次影響の実証**とする。
 
 | Socrates の反論内容 | 元の verdict | PdM の判断 |
 |-------------------|-------------|-----------|
 | 反論なし（稀） | そのまま | そのまま |
 | 反論あり、二次影響の指摘なし | そのまま | そのまま |
 | 反論あり、reviewer が見逃した二次影響を指摘 | PASS | WARN に昇格を検討 |
-| 反論あり、reviewer のスコアと指摘件数に乖離 | PASS/WARN | 1段階昇格を検討 |
+| 反論あり、important の見落としを具体的に実証 | PASS/WARN | 1段階昇格を検討 |
 | 反論あり、BLOCK 妥当性の補強 | BLOCK | BLOCK（変化なし） |
 
 原則: PdM は verdict を下げない（厳しい方向にのみ作用）。
 
 ### 判断の根拠例
 
-- important 5件 + score 42 (PASS) → スコアと指摘件数に乖離 → WARN 昇格検討
+- important の見落とし（reviewer が指摘しなかった具体的な箇所）を Socrates が実証 → WARN 昇格検討
 - キャッシュ構造変更 + reviewer がデプロイ影響を未指摘 → 二次影響見逃し → WARN 昇格検討
 - critical 0件 + optional のみ → 反論があっても verdict 維持
 

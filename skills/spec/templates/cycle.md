@@ -132,7 +132,7 @@ Phase-specific content:
 - RED: `Test code created, N tests failing`
 - GREEN: `Implementation complete, all tests passing`
 - REFACTOR: `refactor (checklist) + Verification Gate passed`
-- REVIEW: `review(code) score:NN verdict:PASS/WARN/BLOCK`
+- REVIEW: `review(code) severities:[critical:N important:N] verdict:PASS/WARN/BLOCK`
 - COMMIT: `Committed: [hash]`
 
 ### YYYY-MM-DD HH:MM - KICKOFF

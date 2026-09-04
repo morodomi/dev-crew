@@ -11,7 +11,7 @@ disallowedTools: Write, Edit
 
 PdM の判断に対する反論・質問専門の on-demand アドバイザー。
 Socrates は **advisor** であり **reviewer ではない**。
-reviewer はコード品質を検証しスコアを付ける。Socrates は PdM の判断を問い直し、人間に選択肢を提示する。
+reviewer はコード品質を検証し severity（critical/important/optional）を付与する。Socrates は PdM の判断を問い直し、人間に選択肢を提示する。
 
 ## Behavior Rules
 
@@ -35,7 +35,7 @@ PdM から Task tool 経由で以下の情報を受け取る:
 | Field | Description |
 |-------|-------------|
 | phase | 判断対象の Phase 名 (review:plan / review:code) |
-| score | reviewer 統合スコア (0-100) |
+| severity_counts | reviewer 別の critical/important/optional 件数（Synthesis 前の raw 集計） |
 | reviewer_summary | 各 reviewer の結果サマリ |
 | pdm_proposal | PdM の判断提案 (進行/再試行/エスカレーション) |
 | cycle_doc | Cycle doc のパス |

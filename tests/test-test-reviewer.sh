@@ -58,9 +58,10 @@ assert "TC-05" "Focus テーブルに Fragile Test 観点が含まれる" \
 assert "TC-06" "xUnit Test Patterns 参照が含まれる" \
   "$(grep -q 'xUnit Test Patterns' "$BASE_DIR/agents/test-reviewer.md" 2>/dev/null && echo true || echo false)"
 
-# TC-07: blocking_score criteria defined
-assert "TC-07" "blocking_score 基準が定義されている" \
-  "$(grep -q 'blocking_score' "$BASE_DIR/agents/test-reviewer.md" 2>/dev/null && echo true || echo false)"
+# TC-07: Output 行に blocking_score が不在、severity が存在（severity-verdict cycle: blocking_score 撤去）
+tc07_output_line=$(awk '/^## Output/{f=1;next} f && /^## /{exit} f && NF{print; exit}' "$BASE_DIR/agents/test-reviewer.md" 2>/dev/null || true)
+assert "TC-07" "Output 行に blocking_score が不在かつ severity が存在する" \
+  "$([ -n "$tc07_output_line" ] && ! echo "$tc07_output_line" | grep -q 'blocking_score' && echo "$tc07_output_line" | grep -q '"severity": "' && echo true || echo false)"
 
 # TC-08: Output contains category
 assert "TC-08" "Output に category が含まれる" \

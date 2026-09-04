@@ -603,17 +603,20 @@ else
   fi
 fi
 
-# TC-45: [Given] CHANGELOG.md '## [Unreleased]' 見出し区間 (先行抽出、次の '## ' まで) / [When] 区間内の行 /
+# TC-45: [Given] CHANGELOG.md '## [2.16.0]' 見出し区間 (先行抽出、次の '## ' まで) / [When] 区間内の行 /
 #         [Then] 'allowed-tools' を含む行が1行以上 かつ '-tools' 以外の 'tools' トークンを含む行が1行以上
 #         （同一行である必要はない。旧キーのみの行が存在しても、独立した 'tools' トークン行がなければ FAIL）
+#         アンカーは immutable な確定 version セクションへ pin（rules/test-patterns.md:
+#         「逆向き契約に相対アンカーを使わない」— v2.16.0 release が CHANGELOG の
+#         '## [Unreleased]' を '## [2.16.0]' へ改名したことで相対アンカーが空区間を掴んだ再発防止）
 echo ""
-echo "TC-45: CHANGELOG.md '## [Unreleased]' section mentions 'allowed-tools' and a word-boundary 'tools' token"
+echo "TC-45: CHANGELOG.md '## [2.16.0]' section mentions 'allowed-tools' and a word-boundary 'tools' token"
 changelog_file="$BASE_DIR/CHANGELOG.md"
 if [ ! -f "$changelog_file" ]; then
   fail "TC-45: CHANGELOG.md not found"
 else
   unreleased_section=$(awk '
-    /^## \[Unreleased\]/ { found=1; next }
+    /^## \[2\.16\.0\]/ { found=1; next }
     found && /^## / { exit }
     found { print }
   ' "$changelog_file")

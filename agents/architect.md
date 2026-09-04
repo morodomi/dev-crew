@@ -36,7 +36,6 @@ plan ファイルと、sync-plan が既に生成済みの Cycle doc [path] を�
   "files_to_change": ["src/Auth.php", "tests/AuthTest.php"],
   "pre_review": {
     "verdict": "PASS|WARN|BLOCK",
-    "score": 0,
     "issues": []
   },
   "errors": []
@@ -65,11 +64,11 @@ architect 自身が軽量審査を実施する（design-reviewer への委譲で
 
 判定基準:
 
-| スコア | 判定 | アクション |
-|--------|------|-----------|
-| 0-49 | PASS | pre_review.verdict=PASS で結果 JSON 返却。orchestrate が Block 2a (RED) へ進行 |
-| 50-79 | WARN | pre_review.verdict=WARN で結果 JSON 返却。orchestrate が警告付きで Block 2a へ進行 |
-| 80-100 | BLOCK | pre_review.verdict=BLOCK で結果 JSON 返却。Cycle doc は削除しない（生成主体は sync-plan）。orchestrate が sync-plan からの再転記を判断 |
+| 判定 | アクション |
+|------|-----------|
+| PASS | pre_review.verdict=PASS で結果 JSON 返却。orchestrate が Block 2a (RED) へ進行 |
+| WARN | pre_review.verdict=WARN で結果 JSON 返却。orchestrate が警告付きで Block 2a へ進行 |
+| BLOCK | pre_review.verdict=BLOCK で結果 JSON 返却。Cycle doc は削除しない（生成主体は sync-plan）。orchestrate が sync-plan からの再転記を判断 |
 
 ### Post-Transfer Verification (sync-plan 転記後)
 

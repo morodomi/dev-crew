@@ -32,6 +32,11 @@ skill が別 skill から invoke される場合、callee SKILL.md に exit code
 
 **Precedent**: `skills/cycle-retrospective/SKILL.md` — abort 時に exit 1 + stderr → orchestrate が BLOCK
 
+**Utility script の例外注記**: skill 本体（SKILL.md 経由で呼ばれるフェーズ制御）と異なり、決定論的 utility script は exit code の意味が個別に定義される場合がある。呼び出し側は「script の exit code」と「script が stdout に出す判定結果」を混同しないこと:
+
+- `skills/review/risk-classifier.sh`: 常時 exit 0（判定結果は stdout の risk tier 行そのもの。exit code に判定は乗らない）
+- `skills/review/severity-verdict.sh`: `verdict` サブコマンドは **判定結果（BLOCK/WARN/PASS）が exit 0 の stdout 行に乗る**（exit 0 は「集計が正常実行できた」ことのみを意味し PASS を意味しない）。異常系のみ非 0: `validate` の INVALID = exit 1、`verdict` の INVALID-TRIAGE = exit 2、両サブコマンド共通の usage エラー（引数不正） = exit 64
+
 ```markdown
 ## Exit Contract (callee SKILL.md に記述)
 

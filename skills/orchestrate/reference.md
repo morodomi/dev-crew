@@ -116,21 +116,21 @@ PdM は前 Phase の metrics を評価し、次 Phase の実行方法を決定�
 
 ## 判断基準
 
-### スコアベース判定 (Agent Teams 有効時)
+### verdict ベース判定 (Agent Teams 有効時)
 
-| スコア | 判定 | PdM アクション | ユーザーに聞く |
-|--------|------|---------------|---------------|
-| 0-49 | PASS | 次 Phase へ自動進行 | - |
-| 50-79 | WARN | Socrates Protocol → 人間判断 | メリデメ提示後に自由入力 |
-| 80-100 | BLOCK | Socrates Protocol → 人間判断 | メリデメ提示後に自由入力 |
+| Severity | 判定 | PdM アクション | ユーザーに聞く |
+|----------|------|---------------|---------------|
+| いずれもなし | PASS | 次 Phase へ自動進行 | - |
+| important ≥ 1 (critical 0) | WARN | Socrates Protocol → 人間判断 | メリデメ提示後に自由入力 |
+| critical ≥ 1 | BLOCK | Socrates Protocol → 人間判断 | メリデメ提示後に自由入力 |
 
 Agent Teams 無効時は v5.0 互換: WARN 自動進行、BLOCK 自動再試行。
 
 ### WARN/BLOCK 時の Socrates Protocol (v5.1 設計理由)
 
-WARN (50-79) は判断が分かれるゾーン。Socrates Protocol で人間の知見を入れることが
+WARN は判断が分かれるゾーン。Socrates Protocol で人間の知見を入れることが
 最も ROI が高い。自律性 (v5.0) より判断精度 (v5.1) を優先する意図的な設計変更。
-BLOCK (80+) も同様に Socrates Protocol を経由し、自動再試行ではなく人間が
+BLOCK も同様に Socrates Protocol を経由し、自動再試行ではなく人間が
 「再試行/修正/中断」を判断する。
 
 ## Session Management
@@ -288,8 +288,8 @@ Codex が利用不可の場合、Block 1 の plan-review 後に Socrates を **�
 
 | | Step 4.5 Socrates | Block 1 Socrates (本セクション) |
 |---|---|---|
-| 目的 | reviewer のスコアが甘くないか検証 | 計画自体に反論（Codex competitive review の代替） |
-| 入力 | reviewer スコア + issues サマリ | plan 全文 + CONSTITUTION + reviewer verdict |
+| 目的 | reviewer の severity 判定が甘くないか検証 | 計画自体に反論（Codex competitive review の代替） |
+| 入力 | reviewer severity_counts + issues サマリ | plan 全文 + CONSTITUTION + reviewer verdict |
 | タイミング | review skill 内 | orchestrate Block 1（plan-review 完了後） |
 | 条件 | 常時 | Codex 不在時のみ |
 
@@ -312,7 +312,7 @@ reviewer_verdict: [plan-review の verdict と主要 issues]
 cycle_doc: [Cycle doc パス]
 
 Codex competitive review の代替として、計画自体に反論せよ。
-reviewer のスコアではなく、計画の設計判断・スコープ・トレードオフに焦点を当てよ。
+reviewer の severity 判定ではなく、計画の設計判断・スコープ・トレードオフに焦点を当てよ。
 特に: CONSTITUTION の原則に反していないか、Non-Goals に該当しないか、
 より良い代替設計がないかを検証せよ。
 ")
@@ -365,13 +365,13 @@ Auto-Learn は best-effort であり、サイクルの成否に影響しない�
 
 ## Socrates Protocol
 
-Agent Teams 有効時、pre-review:plan (Design Review Gate) / review(code) のスコアが WARN (50-79) または BLOCK (80+) の場合に発動する。
+Agent Teams 有効時、pre-review:plan (Design Review Gate) / review(code) の verdict が WARN または BLOCK の場合に発動する。
 Socrates は on-demand advisor であり、reviewer とは異なる役割を持つ。
 PASS サイクル (~80%) では spawn されず、コストゼロ。
 
 ### Protocol フロー
 
-1. **PdM → Socrates (on-demand)**: Task() で socrates を起動し、判断提案を渡す (Phase名, スコア, reviewer サマリ, 提案, Cycle doc の Progress Log)
+1. **PdM → Socrates (on-demand)**: Task() で socrates を起動し、判断提案を渡す (Phase名, severity 内訳, reviewer サマリ, 提案, Cycle doc の Progress Log)
    ```
    Task(subagent_type: "dev-crew:socrates", model: "opus", prompt: "...")
    ```
@@ -430,7 +430,7 @@ Protocol フローの Step 1 で Task() が失敗した場合、Step 2-4 をス�
 Socrates Protocol 発動時、Cycle doc の Progress Log に以下を追記:
 
 ```markdown
-#### [Phase名] (Score: [N] [WARN/BLOCK]) - [HH:MM]
+#### [Phase名] (critical:N important:N [WARN/BLOCK]) - [HH:MM]
 - PdM Proposal: [提案内容]
 - Socrates Objection: [反論の要約]
 - Human Decision: [人間の判断]
@@ -443,7 +443,7 @@ Socrates Protocol 発動時、Cycle doc の Progress Log に以下を追記:
 
 ```
 Socrates (Devil's Advocate advisor) が判断に反論します。
-reviewer とは異なり、スコアは付けず代替案を提示します。
+reviewer とは異なり、severity は付けず代替案を提示します。
 メリット・デメリットを確認し、自由入力で判断してください。
 ```
 

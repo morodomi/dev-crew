@@ -116,7 +116,7 @@ Claude と Codex が独立にレビューし、PdM が findings を裁定する�
    ```bash
    # codex_session_id があれば resume <session-id>、なければ resume --last
    CHANGED_FILES=$(git diff HEAD --name-only | tr '\n' ', ')
-   codex exec resume ${codex_session_id:-"--last"} --full-auto -o /tmp/codex_review.md "以下のファイルのみレビューせよ: ${CHANGED_FILES}. セキュリティ・正確性・パフォーマンスの観点で問題を指摘せよ。対象外ファイルには言及するな。"
+   codex exec resume ${codex_session_id:-"--last"} --full-auto -o /tmp/codex_review.md "以下のファイルのみレビューせよ: ${CHANGED_FILES}. セキュリティ・正確性・パフォーマンスの観点で問題を指摘せよ。対象外ファイルには言及するな。findings は P1/P2/P3 ラベル付きで出力せよ（P1=critical/P2=important/P3=optional）。"
    ```
 2. **Claude レビュー実行**: `Skill(dev-crew:review, args: "--code")` を並行実行
 3. **Findings Aggregation**: 両レビュー結果を PdM が集約
@@ -148,12 +148,12 @@ Codex plan review が Open Questions を出した場合:
 2. 判断理由を1行添える
 3. 未回答の Open Questions は次回 review で再指摘される
 
-### Findings → Score Integration
+### Findings → Verdict Integration
 
 1. PdM が Codex findings を Findings Judgment テーブルに基づき裁定
 2. Accept した指摘は即修正（GREEN 再実行 or 直接修正）
 3. 裁定結果を Cycle doc Progress Log に永続化（finding 内容 + Accept/Reject/DISCOVERED）
-4. Claude review の blocking_score と Codex findings の裁定結果を統合してスコア判定
+4. P1/P2/P3 ラベルを severity へ対応させる（P1→critical / P2→important / P3→optional。**ラベル無し findings は important 扱い**（保守側））。Accept された Codex findings は PdM が triage.json に追記し、`bash skills/review/severity-verdict.sh verdict <triage.json> [--invalid <name>]...` を再実行して verdict を統合する（統合経路を決定論化）。**再実行時も Step 4.4 で確定した `--invalid <name>` を全件引き継ぐこと** — 落とすと INVALID reviewer の fail-closed floor（security-reviewer/correctness-reviewer の NON-NEGOTIABLE BLOCK）が Codex 統合で消える
 
 ### REVIEW 後の判断
 

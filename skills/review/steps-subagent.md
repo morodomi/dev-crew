@@ -115,6 +115,18 @@ Task(subagent_type: "dev-crew:impact-reviewer", model: "sonnet", prompt: "Review
 Task(subagent_type: "dev-crew:resiliency-reviewer", model: "sonnet", prompt: "Review Brief: [brief]. 耐障害性・カスケード障害防止を検証せよ。")  # external-comm flags
 ```
 
+PdM は各 reviewer の JSON を `$(mktemp -d)/<reviewer>.json` に保存する（Step 4.4 Output Validation の入力）。
+
+## Step 4.4: Output Validation
+
+`bash skills/review/severity-verdict.sh validate <dir>` を実行し、Step 4 で保存した各 reviewer JSON を検証する。
+
+- 検証実行前に、起動した reviewer 数と保存した JSON 件数の一致を確認する（起動失敗・保存漏れの検出）
+- 全 reviewer が OK（exit 0）なら Step 4.5 へ進む
+- **INVALID を返した場合のみ**、該当 reviewer へ script が出した error 行を verbatim で含めて re-request する（**最大 1 回**）。LLM の主観による re-request は行わない
+- 再 validate してもなお INVALID の場合、その reviewer 名を `--invalid <name>` として Step 5 の `severity-verdict.sh verdict` 呼び出しに渡す（fail-closed）。`security-reviewer` または `correctness-reviewer` が該当する場合、verdict は NON-NEGOTIABLE floor として BLOCK に固定される。それ以外の reviewer は WARN floor
+- `DEGRADED: jq not found` の場合は script による検証をスキップし、PdM が Severity 基準表（reference.md 参照）を手動適用し、`severity-verdict.sh` と同一フォーマットの verdict 行（`BLOCK|WARN|PASS critical:N important:N optional:N invalid:M`）を Progress Log に記録して続行する
+
 ## Step 4.5: Devil's Advocate (Socrates)
 
 Specialist Panel 完了後、Socrates を起動して reviewer の判定妥当性を検証する。Socrates は反論+選択肢を返すのみ（advisor 原則維持）。Escalation 判定は PdM が行う。
@@ -122,59 +134,61 @@ Specialist Panel 完了後、Socrates を起動して reviewer の判定妥当�
 ```
 Task(subagent_type: "dev-crew:socrates", model: "opus", prompt: "
 phase: review:[plan|code]
-score: [max blocking_score]
-reviewer_summary: [各reviewerのスコアとissuesサマリ]
+severity_counts: [reviewer 別 raw 件数（Synthesis 前の critical/important/optional 内訳）]
+reviewer_summary: [各reviewerの severity 内訳と issues サマリ]
 pdm_proposal: [auto-verdictに基づく判断提案: PASS/WARN/BLOCK]
 cycle_doc: [cycle docパス。plan mode で Cycle doc 不在時（承認前）は plan ファイルパスを代わりに渡す]
 
 各 reviewer の判定が忖度で甘くなっていないか検証せよ。
-特に: important/critical の issue 数に対してスコアが不当に低い場合、
+特に: important/critical の issue 数に対して見落とし・二次影響がある場合、
 変更の二次影響を reviewer が見逃している場合を指摘せよ。
 ")
 ```
 
-PdM は Socrates の反論を踏まえ、Score Escalation 基準（reference.md 参照）に基づき verdict の昇格を判断する。
+PdM は Socrates の反論を踏まえ、Verdict Escalation 基準（reference.md 参照）に基づき verdict の昇格を判断する。
 
-## Step 5: Score Aggregation
+## Step 5: Verdict Aggregation
 
 ### Findings Synthesis
 
-Specialist Panel (Step 4) と Socrates (Step 4.5) 完了後、全 reviewer の findings を以下の手順で統合する。**Socrates は raw blocking_score (各 reviewer の個別最大値) を入力に取り、Synthesis は final blocking_score (重複排除後の category 別最大値) を確定する** — 時系列契約として両者を区別する。
+Specialist Panel (Step 4) と Socrates (Step 4.5) 完了後、全 reviewer の findings を以下の手順で統合する。**Socrates は raw severity_counts (各 reviewer 個別の critical/important/optional 件数) を入力に取り、Synthesis は重複排除後の accepted findings (accept-apply + accept-defer) を確定する** — 時系列契約として両者を区別する。
 
 1. **重複排除**: 同一 file:line への複数 reviewer 指摘は最も詳細な 1 件に集約。集約元 reviewer 名を併記
 2. **3-category 分類** (`rules/review-triage.md` を SSOT として参照。定義は同 rule の Findings 3-Category Triage 節を verbatim 適用)
 3. **raw finding index 保持**: 重複排除で落とした原 findings を Cycle doc の `## Raw Findings` セクションに append (synthesis 段階で証拠を失わない)。plan mode で Cycle doc 不在時（承認前）は append 先がないため、raw findings をそのターンの応答に含めて出力する（skip）
-4. **集計入力**: final blocking_score は accept-apply + accept-defer (高 severity) の最大値で算出。下記 Score Aggregation サブセクションのスコアテーブルは **この final score** を判定基準とする (raw blocking_score ではない)
+4. **集計入力**: PdM が triage 結果（severity+category）を triage.json に書き、`bash skills/review/severity-verdict.sh verdict <triage.json> [--invalid <name>]...` を実行する。その verdict 行（`BLOCK|WARN|PASS critical:N important:N optional:N invalid:M`）を Progress Log に記録する。下記 Verdict Aggregation サブセクションの判定基準は **この verdict 行** を根拠とする
+   - 出力が `INVALID-TRIAGE: <理由>` の場合: triage.json を修正して再実行する（黙殺 PASS の禁止）
+   - 出力が `DEGRADED: jq not found` の場合: PdM が Severity 基準表（reference.md 参照）を手動適用し、同一フォーマットの verdict 行を Progress Log に記録する
 
 並列 reviewer (HIGH tier で 7 agents) の出力を単純連結すると synthesis 段階で context overflow する。category 分類 + raw index 保持で「集約後の判断」と「証拠保全」を両立する。
 
-### Score Aggregation
+### Verdict Aggregation
 
-Findings Synthesis 後の **final blocking_score** (重複排除済 + accept-apply/defer の高 severity 最大値) を集計（designer はスコア対象外、reject カテゴリは集計外）:
+Findings Synthesis 手順4の verdict 行（accept-apply/accept-defer の severity 集計、reject カテゴリは集計外）を判定基準とする（designer はスコア対象外（severity 集計にも含めない））:
 
-| 最大スコア | 判定 | アクション |
-|-----------|------|-----------|
-| 80-100 | BLOCK | 修正必須 (下記テンプレート参照) |
-| 50-79 | WARN | 警告確認 |
-| 0-49 | PASS | 問題なし |
+| Severity | 判定 | アクション |
+|----------|------|-----------|
+| critical ≥ 1 | BLOCK | 修正必須 (下記テンプレート参照) |
+| important ≥ 1 (critical 0) | WARN | 警告確認 |
+| いずれもなし | PASS | 問題なし |
 
 ### BLOCK 時の mode 別出力テンプレート
 
 plan mode:
 ```
-[REVIEW] BLOCK (score NN): PLAN フェーズに戻って再設計してください。
+[REVIEW] BLOCK (critical:N important:N): PLAN フェーズに戻って再設計してください。
 指摘事項: ...
 ```
 
 code mode:
 ```
-[REVIEW] BLOCK (score NN): RED/GREEN/REFACTOR のいずれかに戻って修正してください。
+[REVIEW] BLOCK (critical:N important:N): RED/GREEN/REFACTOR のいずれかに戻って修正してください。
 指摘事項: ...
 ```
 
 code mode、または plan mode で Cycle doc が既に存在する場合、Cycle doc の Progress Log に記録:
 ```
-- YYYY-MM-DD HH:MM [REVIEW] review MODE (score NN): verdict
+- YYYY-MM-DD HH:MM [REVIEW] review MODE (critical:N important:N): verdict
 ```
 plan mode で Cycle doc 不在時（承認前）は記録先がないため skip（レビュー結果はそのターンの応答で報告する）。
 

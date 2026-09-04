@@ -198,13 +198,15 @@ codify-insight
 
 ## Scoring & Judgment
 
-### Review Scores
+### Review Verdict
 
-| Score | Verdict | Action |
-|-------|---------|--------|
-| 0-49 | PASS | Auto-proceed |
-| 50-79 | WARN | Socrates Protocol -> human judgment |
-| 80-100 | BLOCK | Socrates Protocol -> human judgment |
+各 reviewer は issue ごとに `severity: critical|important|optional` を返す。`skills/review/severity-verdict.sh` が accept-apply/accept-defer の findings（reject 除外）を集計して verdict を決定論的に判定する:
+
+| Severity | Verdict | Action |
+|----------|---------|--------|
+| なし | PASS | Auto-proceed |
+| important >= 1 (critical 0) | WARN | Socrates Protocol -> human judgment |
+| critical >= 1 | BLOCK | Socrates Protocol -> human judgment |
 
 ### Socrates Protocol
 

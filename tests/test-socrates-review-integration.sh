@@ -40,9 +40,9 @@ assert "TC-01: steps-subagent.md contains Step 4.5 or Devil's Advocate" \
 assert "TC-02: steps-subagent.md contains socrates Task invocation" \
   grep -q "dev-crew:socrates" "$BASE_DIR/skills/review/steps-subagent.md"
 
-# TC-03: reference.md に Score Escalation セクションが含まれる
-assert "TC-03: reference.md contains Score Escalation section" \
-  grep -q "Score Escalation" "$BASE_DIR/skills/review/reference.md"
+# TC-03: reference.md に Verdict Escalation セクションが含まれる（severity-verdict cycle: Score Escalation から改名）
+assert "TC-03: reference.md contains Verdict Escalation section" \
+  grep -q "Verdict Escalation" "$BASE_DIR/skills/review/reference.md"
 
 # TC-04: reference.md に PASS から WARN への昇格ルールが含まれる
 assert "TC-04: reference.md contains PASS to WARN escalation rule" \

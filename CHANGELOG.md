@@ -1,5 +1,17 @@
 # Changelog
 
+## [Unreleased]
+
+### Breaking
+- **13 reviewer agent + architect の JSON 出力契約から `blocking_score`（0-100 の自己申告スコア）が消える**。verdict への反映は `skills/review/severity-verdict.sh` による severity（critical/important/optional）の決定論的集計に一本化される。**消費側の対応**: `blocking_score` を直接 parse していた caller（自作スクリプト・外部連携）は、reviewer JSON の `.issues[].severity` を読み取り `skills/review/severity-verdict.sh verdict` に triage.json として渡す経路へ移行すること
+- **verdict の取得方法が変わる**: verdict は `severity-verdict.sh verdict` の **stdout 1 行**（`BLOCK|WARN|PASS critical:N important:N optional:N invalid:M`）から取得する。**script の exit code 0 は PASS を意味しない** — `validate`/`verdict` とも「検証・集計そのものが正常に実行できた」ことのみを表す exit code であり、判定結果は必ず stdout 行を読んで確認すること（`INVALID-TRIAGE`/usage エラーのみ非 0 exit、正常系の BLOCK/WARN/PASS はいずれも exit 0）
+- **jq 依存**: `severity-verdict.sh` は jq に依存する。jq が PATH 上に無い環境では `validate`/`verdict` とも `DEGRADED: jq not found` を返し、PdM が Severity 基準表を手動適用する prose 縮退経路に落ちる（fail-open。検証なしを BLOCK にはしない）
+
+### Changed
+- reviewer の 0-100 blocking_score 自己採点を廃止し、`skills/review/severity-verdict.sh` による severity 決定論集計（accept-apply/accept-defer の critical≥1→BLOCK / important≥1→WARN / else PASS、reject 除外）に置換
+- reject 除外の明文化: 3-category triage で `reject` に分類された finding は severity に関わらず verdict 集計から除外される（severity=critical でも reject なら verdict に効かない）。旧 Score Aggregation でも「reject カテゴリは集計外」（final blocking_score は accept-apply/accept-defer のみから算出）であり意味論は保存 — 新方式ではこの除外が script の決定論集計として機械化された
+- reviewer JSON 出力を `severity-verdict.sh validate` で jq 検証するようにした。INVALID の場合は該当 reviewer へ error 行を verbatim で含めて最大 1 回のみ re-request し、なお INVALID なら fail-closed で差別化する（security-reviewer/correctness-reviewer は BLOCK、その他は WARN floor。欠損を PASS に落とさない）
+
 ## [2.16.0] - 2026-08-29
 
 ### Breaking
