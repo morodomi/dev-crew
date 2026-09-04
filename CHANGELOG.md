@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [2.17.0] - 2026-09-04
 
 ### Breaking
 - **13 reviewer agent + architect の JSON 出力契約から `blocking_score`（0-100 の自己申告スコア）が消える**。verdict への反映は `skills/review/severity-verdict.sh` による severity（critical/important/optional）の決定論的集計に一本化される。**消費側の対応**: `blocking_score` を直接 parse していた caller（自作スクリプト・外部連携）は、reviewer JSON の `.issues[].severity` を読み取り `skills/review/severity-verdict.sh verdict` に triage.json として渡す経路へ移行すること
