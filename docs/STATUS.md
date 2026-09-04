@@ -5,18 +5,19 @@
 | Metric | Value |
 |--------|-------|
 | In-Progress Cycles | 0 |
-| Done (unarchived) | 77 |
+| Done (unarchived) | 78 |
 | Archived Cycles | 37 |
 | Skills | 28 |
 | Agents | 41 |
 | Test Scripts | 116 |
 
-Last updated: 2026-09-03
+Last updated: 2026-09-04
 
 ## Completed (Recent)
 
 | Date | Cycle | Type |
 |------|-------|------|
+| 2026-09-04 | 20260904_1521: test-hooks-hermetic-fixtures (#144 壁時計依存 + #195 実ツリー fixture 汚染の根治。TC-05 系を fixture git repo + 相対 backdate へ、TC-03 を mktemp snapshot へ隔離。full suite 112→116/116 回復。REVIEW WARN で rc idiom 7 箇所・git 環境隔離・個別 assert 化を適用。Socrates が hook の orphan 状態と本体バグを検出 → #206-#208 起票) | fix |
 | 2026-09-03 | 20260903_1130: severity-verdict (reviewer 数値スコア自己申告の全廃 #prompt-audit P1-1。severity 決定論集計 script severity-verdict.sh + JSON 検証 + INVALID 時 1 回 retry + fail-closed 差別化。REVIEW 自身で dogfood し BLOCK→硬化。Codex post-hoc review BLOCK→jq 型ガード + --invalid 引き継ぎ硬化。TC 33+13 件、Test Scripts 115→116。#201-#203 起票) | refactor |
 | 2026-08-28 | 20260828_1030: agent-tools-scoping (agent frontmatter allowed-tools→tools 正規化 #194。33 agent を Read/Grep/Glob(+Bash 3) に限定、memory 保持 15 agent は disallowedTools: Write, Edit で読取専用化（PROBE D 実測 4 段）、TC-36〜46 契約、dast-crawler ツール名 drift 修正、CHANGELOG Breaking。#195〜#198 起票) | feat |
 | 2026-07-24 | 20260724_1450: codified-rules-batch-19 (蓄積 codified insight 19 件を rule 条項化 — 8 cycle 分の未実装解消。TC-47〜65 契約 pin、override forgery 封鎖、Recall 初適用 cycle) | feat |

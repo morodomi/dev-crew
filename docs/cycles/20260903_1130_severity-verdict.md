@@ -5,12 +5,12 @@ phase: DONE
 complexity: complex
 test_count: 17
 risk_level: medium
-retro_status: captured
+retro_status: resolved
 codex_mode: no
 codex_session_id: "01a06507-d320-7fd3-a5e7-080e7937647d"
 plan_file: /Users/morodomi/.claude/plans/refactored-beaming-seahorse.md
 created: 2026-09-03 11:31
-updated: 2026-09-03 16:40
+updated: 2026-09-04 15:20
 ---
 
 # reviewer 数値スコア廃止 — severity 集計 script 化 + JSON 検証 + error-feedback retry
@@ -469,3 +469,43 @@ Evidence: (orchestrate が自動記入)
 - **P2-2 (important)**: CHANGELOG が reject 除外を Breaking に分類していたが、main の旧 Score Aggregation も「reject カテゴリは集計外」で意味論は保存（`git show main:skills/review/steps-subagent.md` L147/153 で検証）→ Changed へ移動し「明文化・機械化」として記述
 - 対応: RED addendum 3（TC-26/27、FAIL 実測）→ 直接修正（steps-codex.md「GREEN 再実行 or 直接修正」の後者。小規模 doc/script fix のため）→ 対象 2 test PASS（33/33 + 13/13）
 - DISCOVERED: P1-2 の fix は doc 上の規律（LLM が --invalid を忘れない前提）であり、本 cycle が排除しようとした LLM-discipline 依存が残る。決定論化（Step 4.4 が invalid list を triage.json に書き込み verdict が自動で拾う等）は #202（script 硬化 follow-up）の scope に追記すること
+
+---
+
+## Codify Decisions
+
+### Insight 1
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: cycle-scoped
+- **Reason**: 委譲 worker の完了報告と実 diff の機械突合。rules/agent-prompts.md（委譲契約の SSOT）に属し、TDD フェーズ境界で発火する
+- **Decided**: 2026-09-04 15:20
+
+### Insight 2
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: file-scoped
+- **Paths**: "**/*.sh"
+- **Reason**: bash+jq validator の型ガード順序と同型 sweep。shell script 編集時にのみ必要な知識で、rules/test-patterns.md の bash 落とし穴系と同族
+- **Decided**: 2026-09-04 15:20
+
+### Insight 3
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: cycle-scoped
+- **Reason**: 権限変更 cycle は委譲 prompt テンプレートの旧権限前提を sweep する。rules/agent-prompts.md（委譲 prompt 契約）に属する
+- **Decided**: 2026-09-04 15:20
+
+### Insight 4
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: cycle-scoped
+- **Reason**: 新 validator は導入 cycle の該当フェーズ自身で dogfood する。rules/integration-verification.md（Verification 設計）に属し、plan/Verification 節の作成時に発火
+- **Decided**: 2026-09-04 15:20
+
+### Insight 5（Codex post-hoc review 追記分）
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: cycle-scoped
+- **Reason**: negative sweep を持つ repo では sweep 対象への最終追記後に該当 sweep test を再実行する。Insight 1 と同型（報告・出力を突合しない）だが発火点が COMMIT 直前で異なるため独立条項として rules/plan-discipline.md へ。「テスト後に書いた 1 行はテスト済みではない」
+- **Decided**: 2026-09-04 15:20

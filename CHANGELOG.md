@@ -1,5 +1,12 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+- tests/test-hooks-structure.sh の壁時計依存を解消（#144）: staleness hook の検査を fixture git repo（相対 backdate commit）へ移し、実行日に依存しない決定論的検証にした。連鎖 FAIL していた 3 test（test-doc-consistency / test-factory-model-adaptation / test-trap-handler）も回復する
+- tests/test-hooks-structure.sh の drift 検出 fixture を実ソースツリーから mktemp snapshot へ隔離（#195）: 並行実行時に test-agents-structure.sh を汚染しなくなり、TC-41 の暫定除外を撤去した
+- .claude/dev-crew.json の dev_crew_version を 2.17.0 に追随（spec Version Gate の誤 BLOCK 解消。自動化は #186）
+
 ## [2.17.0] - 2026-09-04
 
 ### Breaking
