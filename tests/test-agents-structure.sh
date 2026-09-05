@@ -8,7 +8,7 @@
 
 set -euo pipefail
 
-BASE_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+BASE_DIR="${BASE_DIR:-$(cd "$(dirname "$0")/.." && pwd)}"
 PASS=0
 FAIL=0
 
@@ -505,14 +505,13 @@ if [ "$canonical_violation" -eq 0 ]; then
 fi
 
 # TC-41: [Given] declared name set (G1 29 + G2/G3 4 + deferred 7 = 40) / [When] diff'd against actual agents/*.md
-#         basenames (excluding *-reference* and the test-hooks-structure.sh fixture 'test-drift-agent') / [Then] no diff
+#         basenames (excluding *-reference*) / [Then] no diff
 # Protective contract: count-only comparison (previous impl) misses duplicate+missing pairs that cancel out to
-# the same total, and flaked under parallel test runs against the live-tree fixture agents/test-drift-agent.md
-# (REVIEW BLOCK finding, reproduced). Name-set diff catches both failure modes and excludes the known fixture.
+# the same total. Name-set diff catches both failure modes.
 echo ""
 echo "TC-41: Declared group roster (name set) matches actual non-reference agent files (name set)"
 tc41_declared=$(printf '%s\n' "${g1_agents[@]}" "${g23_names[@]}" "${deferred_agents[@]}" | sort)
-tc41_actual=$(ls "$BASE_DIR"/agents/*.md 2>/dev/null | xargs -n1 basename | sed 's/\.md$//' | grep -v -- '-reference' | grep -vx 'test-drift-agent' | sort)
+tc41_actual=$(ls "$BASE_DIR"/agents/*.md 2>/dev/null | xargs -n1 basename | sed 's/\.md$//' | grep -v -- '-reference' | sort)
 tc41_diff=$(diff <(printf '%s\n' "$tc41_declared") <(printf '%s\n' "$tc41_actual") || true)
 if [ -z "$tc41_diff" ]; then
   pass "TC-41: Declared roster (40) exactly matches actual non-reference agent file names"
