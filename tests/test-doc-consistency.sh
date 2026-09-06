@@ -1,6 +1,6 @@
 #!/bin/bash
 # test-doc-consistency.sh - Document consistency validation
-# TC-01 ~ TC-19（欠番: 03, 06-10 — 削除済みTC）+ TC-C2-3 ~ TC-C2-5
+# TC-01 ~ TC-28（欠番: 03, 06-10 — 削除済みTC）+ TC-C2-3 ~ TC-C2-5
 
 set -euo pipefail
 
@@ -414,6 +414,199 @@ else
         fail "TC-C2-5: CHANGELOG.md [2.13.0] Breaking subsection missing approval-reorder/#176 reference"
       fi
     fi
+  fi
+fi
+
+########################################
+# Staleness Hook Removal — negative contracts
+########################################
+
+echo ""
+echo "--- Staleness Hook Removal ---"
+
+# assert_zero_hits <tc_id> <file> <grep_flags> <pattern> <subject_label>
+# 「このファイルにこのパターンが 1 件も無い」型の negative 契約を 1 箇所に集約する。
+# abort-safety: この suite は tests/test-meta-doc-consistency.sh から、対象ファイルを
+# 持たない fixture 上で BASE_DIR override 実行される。裸の $(grep ...) 代入は不一致時に
+# rc=1 を返し set -e で Summary 到達前に abort するため、2>/dev/null + || true で防御し、
+# 空文字は 0 に正規化する。ファイル欠落は vacuous PASS にせず fail() で報告する。
+assert_zero_hits() {
+  local tc_id="$1" file="$2" grep_flags="$3" pattern="$4" label="$5"
+  if [ ! -f "$file" ]; then
+    fail "$tc_id: $label not found"
+    return
+  fi
+  # rc は直後に取得して rc>=2（grep 自体の失敗: 不正 ERE・権限拒否）を「0 件」から
+  # 分離する。`grep -c` はマッチなしでも stdout に 0 を出して rc=1 を返すため、
+  # 出力が空になるのは実質 rc>=2 のときだけ。空文字を 0 に丸めると実行エラーが
+  # PASS に化ける（同ファイル TC-17 が守っている規律）。
+  local hits rc=0
+  hits=$(grep "$grep_flags" -e "$pattern" "$file" 2>/dev/null) || rc=$?
+  if [ "$rc" -ge 2 ]; then
+    fail "$tc_id: grep failed with rc=$rc on $label — cannot verify"
+    return
+  fi
+  [ -z "$hits" ] && hits=0
+  if [ "$hits" -eq 0 ]; then
+    pass "$tc_id: $label has 0 hits"
+  else
+    fail "$tc_id: $label has $hits hit(s)"
+  fi
+}
+
+# TC-20: scripts/hooks/check-claude-md-staleness.sh does not exist (negative contract).
+# `[ -f ... ]` は set -e 下でも if 条件式のため abort しない。fixture でも同様に不在 → PASS
+# (abort-safety: fixture には scripts/ 自体が無いため常に不在 = 常に PASS で無害)
+echo ""
+echo "TC-20: scripts/hooks/check-claude-md-staleness.sh does not exist"
+if [ -f "$BASE_DIR/scripts/hooks/check-claude-md-staleness.sh" ]; then
+  fail "TC-20: check-claude-md-staleness.sh still exists"
+else
+  pass "TC-20: check-claude-md-staleness.sh does not exist"
+fi
+
+# TC-21: tests/test-hooks-structure.sh に staleness 専用識別子が0件（恒久negative契約）。
+# fixture には tests/ が無いため、ファイル欠落時は fail() で報告しSummaryへ到達させる
+# (abort-safety: 裸 command substitution を避け 2>/dev/null + || true で防御)
+echo ""
+echo "TC-21: tests/test-hooks-structure.sh has 0 hits for staleness-only identifiers"
+assert_zero_hits "TC-21" "$BASE_DIR/tests/test-hooks-structure.sh" "-cE" \
+  'check-claude-md-staleness|STALENESS_THRESHOLD_DAYS|fixture_repo_with_docs|fixture_commit_backdated|run_staleness_hook|DAY_SECONDS' \
+  "tests/test-hooks-structure.sh staleness-only identifiers"
+
+# TC-22: tests/test-agents-md-propagation.sh に 'STALENESS' が0件（恒久negative契約）
+echo ""
+echo "TC-22: tests/test-agents-md-propagation.sh has 0 hits for 'STALENESS'"
+assert_zero_hits "TC-22" "$BASE_DIR/tests/test-agents-md-propagation.sh" "-cF" \
+  "STALENESS" "tests/test-agents-md-propagation.sh STALENESS"
+
+########################################
+# Derived-Fact Contracts — skills / hooks / agents count
+########################################
+
+echo ""
+echo "--- Derived-Fact Contracts ---"
+
+# TC-23: AGENTS.md の 'Skills available:' 行をパースした skill 名集合が
+# skills/*/ の basename 集合と完全一致することを検査。差分は欠落・余剰の両方向で報告する。
+# abort-safety: AGENTS.md 欠落時（fixture）は fail() で報告しSummaryへ到達させる
+echo ""
+echo "TC-23: AGENTS.md 'Skills available:' set matches skills/*/ directory set"
+AGENTS_FILE="$BASE_DIR/AGENTS.md"
+if [ ! -f "$AGENTS_FILE" ]; then
+  fail "TC-23: AGENTS.md not found"
+else
+  TC23_LINE=$(grep -m1 '^Skills available:' "$AGENTS_FILE" 2>/dev/null) || true
+  if [ -z "$TC23_LINE" ]; then
+    fail "TC-23: 'Skills available:' line not found in AGENTS.md"
+  else
+    TC23_DECLARED=$(echo "$TC23_LINE" | sed 's/^Skills available: *//' | tr ',' '\n' | sed 's/^ *//; s/ *$//' | sort) || true
+    TC23_ACTUAL=$(find "$BASE_DIR/skills" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; 2>/dev/null | sort) || true
+    TC23_MISSING=$(comm -23 <(printf '%s\n' "$TC23_ACTUAL") <(printf '%s\n' "$TC23_DECLARED") 2>/dev/null) || true
+    TC23_EXTRA=$(comm -13 <(printf '%s\n' "$TC23_ACTUAL") <(printf '%s\n' "$TC23_DECLARED") 2>/dev/null) || true
+    if [ -z "$TC23_MISSING" ] && [ -z "$TC23_EXTRA" ]; then
+      pass "TC-23: AGENTS.md Skills available set matches skills/*/ directory set"
+    else
+      fail "TC-23: mismatch — missing from AGENTS.md list=[$(echo "$TC23_MISSING" | tr '\n' ' ')] extra in AGENTS.md list=[$(echo "$TC23_EXTRA" | tr '\n' ' ')]"
+    fi
+  fi
+fi
+
+# TC-24: CLAUDE.md の Hooks 表の script basename 集合が hooks/hooks.json の登録 command から
+# 抽出した basename 集合と一致することを検査。`~/.claude/hooks/` 始まりの行（表に
+# 「global hook」と明記されている）は除外する。
+# abort-safety: CLAUDE.md / hooks.json いずれか欠落時（fixture）は fail() で報告する
+echo ""
+echo "TC-24: CLAUDE.md Hooks table script set matches hooks/hooks.json registered command set"
+CLAUDE_FILE="$BASE_DIR/CLAUDE.md"
+HOOKS_JSON="$BASE_DIR/hooks/hooks.json"
+if [ ! -f "$CLAUDE_FILE" ] || [ ! -f "$HOOKS_JSON" ]; then
+  fail "TC-24: CLAUDE.md or hooks/hooks.json not found"
+else
+  TC24_SECTION=$(awk '
+    index($0, "## Hooks") == 1 {in_sec=1; next}
+    in_sec && /^## /{in_sec=0}
+    in_sec
+  ' "$CLAUDE_FILE") || true
+  TC24_CLAUDE_SCRIPTS=$(printf '%s\n' "$TC24_SECTION" | grep -oE '`[^`]+`' 2>/dev/null | tr -d '`' | grep -v '^~/\.claude/hooks/' | sed 's#.*/##' 2>/dev/null | sort -u) || true
+  if ! command -v jq >/dev/null 2>&1; then
+    fail "TC-24: jq not found — cannot verify hooks.json contract"
+  else
+    TC24_JSON_SCRIPTS=$(jq -r '.hooks[][].hooks[].command' "$HOOKS_JSON" 2>/dev/null | grep -oE '[A-Za-z0-9_-]+\.sh' 2>/dev/null | sort -u) || true
+    if [ -n "$TC24_JSON_SCRIPTS" ] && [ "$TC24_CLAUDE_SCRIPTS" = "$TC24_JSON_SCRIPTS" ]; then
+      pass "TC-24: CLAUDE.md Hooks table script set matches hooks.json registered command set"
+    else
+      fail "TC-24: mismatch — CLAUDE.md=[$(echo "$TC24_CLAUDE_SCRIPTS" | tr '\n' ' ')] hooks.json=[$(echo "$TC24_JSON_SCRIPTS" | tr '\n' ' ')]"
+    fi
+  fi
+fi
+
+# TC-25: CLAUDE.md に skill count / skills一覧が存在しない（CONSTITUTION §8の恒久negative契約、
+# architecture.mdに対するTC-02と同型）。ファイル欠落は vacuous PASS にせず fail() で報告する
+# (assert_zero_hits の fail-closed 方針。CLAUDE.md 消失自体が検出すべき異常)
+echo ""
+echo "TC-25: CLAUDE.md does not contain 'Available skills (N total)'"
+assert_zero_hits "TC-25" "$BASE_DIR/CLAUDE.md" "-cE" \
+  'Available skills \([0-9]+ total\)' "CLAUDE.md 'Available skills (N total)'"
+
+# TC-26: docs/STATUS.md の '| Agents | N |' が frontmatter判定（agents/*.mdのうち1行目が
+# `---`のもの、tests/test-skills-structure.sh TC-B1と同一ロジック）による実数と一致することを検査。
+# abort-safety: STATUS.md欠落時（fixture）は fail() で報告。agents/*.mdはfixtureに存在しないため
+# glob無マッチとなるが `[ -f "$f" ] || continue` で安全に0件処理される
+echo ""
+echo "TC-26: docs/STATUS.md '| Agents | N |' matches frontmatter-based actual agent count"
+STATUS_FILE="$BASE_DIR/docs/STATUS.md"
+if [ ! -f "$STATUS_FILE" ]; then
+  fail "TC-26: docs/STATUS.md not found"
+else
+  TC26_ACTUAL=0
+  for f in "$BASE_DIR"/agents/*.md; do
+    [ -f "$f" ] || continue
+    tc26_first_line=$(head -1 "$f" 2>/dev/null) || tc26_first_line=""
+    [ "$tc26_first_line" = "---" ] && TC26_ACTUAL=$((TC26_ACTUAL + 1))
+  done
+  TC26_DECLARED=$(grep -oE '\| Agents \| [0-9]+ \|' "$STATUS_FILE" 2>/dev/null | grep -oE '[0-9]+' | head -1) || true
+  if [ -z "$TC26_DECLARED" ]; then
+    fail "TC-26: docs/STATUS.md '| Agents | N |' row not found"
+  elif [ "$TC26_DECLARED" = "$TC26_ACTUAL" ]; then
+    pass "TC-26: STATUS.md Agents ($TC26_DECLARED) = actual ($TC26_ACTUAL)"
+  else
+    fail "TC-26: STATUS.md Agents ($TC26_DECLARED) != actual ($TC26_ACTUAL)"
+  fi
+fi
+
+# TC-27: docs/STATUS.md の '| Skills | N |' が `ls -d skills/*/` の数と一致することを検査
+echo ""
+echo "TC-27: docs/STATUS.md '| Skills | N |' matches actual skills/*/ directory count"
+if [ ! -f "$STATUS_FILE" ]; then
+  fail "TC-27: docs/STATUS.md not found"
+else
+  TC27_DECLARED=$(grep -oE '\| Skills \| [0-9]+ \|' "$STATUS_FILE" 2>/dev/null | grep -oE '[0-9]+' | head -1) || true
+  if [ -z "$TC27_DECLARED" ]; then
+    fail "TC-27: docs/STATUS.md '| Skills | N |' row not found"
+  elif [ "$TC27_DECLARED" = "$ACTUAL_COUNT" ]; then
+    pass "TC-27: STATUS.md Skills ($TC27_DECLARED) = actual ($ACTUAL_COUNT)"
+  else
+    fail "TC-27: STATUS.md Skills ($TC27_DECLARED) != actual ($ACTUAL_COUNT)"
+  fi
+fi
+
+# TC-28: CLAUDE.md の 1 行目が `@AGENTS.md` であること。
+# TC-25 が「CLAUDE.md に skills 一覧が戻っていないこと」を保証できるのは、AGENTS.md の
+# 一覧がこの import 経由で読まれるという前提が成り立つ場合に限る。この 1 行が消えると
+# skills 一覧は失われるのに TC-23〜27 は全て PASS のままになる（土台が無防備という
+# 非対称）。行番号でなく「1 行目」という位置そのものが契約であるため head -1 で pin する。
+echo ""
+echo "TC-28: CLAUDE.md first line is '@AGENTS.md' (import that TC-25 depends on)"
+TC28_FILE="$BASE_DIR/CLAUDE.md"
+if [ ! -f "$TC28_FILE" ]; then
+  fail "TC-28: CLAUDE.md not found"
+else
+  TC28_FIRST=$(head -1 "$TC28_FILE" 2>/dev/null) || TC28_FIRST=""
+  if [ "$TC28_FIRST" = "@AGENTS.md" ]; then
+    pass "TC-28: CLAUDE.md first line is '@AGENTS.md'"
+  else
+    fail "TC-28: CLAUDE.md first line is '$TC28_FIRST' (expected '@AGENTS.md')"
   fi
 fi
 
