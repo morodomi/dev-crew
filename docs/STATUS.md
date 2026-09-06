@@ -5,18 +5,19 @@
 | Metric | Value |
 |--------|-------|
 | In-Progress Cycles | 0 |
-| Done (unarchived) | 78 |
+| Done (unarchived) | 79 |
 | Archived Cycles | 37 |
 | Skills | 28 |
-| Agents | 41 |
+| Agents | 40 |
 | Test Scripts | 116 |
 
-Last updated: 2026-09-04
+Last updated: 2026-09-06
 
 ## Completed (Recent)
 
 | Date | Cycle | Type |
 |------|-------|------|
+| 2026-09-06 | 20260906_1120: staleness-hook-removal (orphan と判明した check-claude-md-staleness.sh を削除 #207。時間ベース警告は内容乖離の代理指標として機能していなかった。派生事実の契約テスト TC-20〜28 を新設 — AGENTS.md skills 集合 / CLAUDE.md Hooks 表 / skills 一覧 negative / STATUS 数値 / @AGENTS.md import。5 契約の検出力を oracle 実測。Agents 41→40 の実バグ修正。REVIEW WARN で helper の rc 分離など 9 件適用。#210-#212 起票) | refactor |
 | 2026-09-04 | 20260904_1521: test-hooks-hermetic-fixtures (#144 壁時計依存 + #195 実ツリー fixture 汚染の根治。TC-05 系を fixture git repo + 相対 backdate へ、TC-03 を mktemp snapshot へ隔離。full suite 112→116/116 回復。REVIEW WARN で rc idiom 7 箇所・git 環境隔離・個別 assert 化を適用。Socrates が hook の orphan 状態と本体バグを検出 → #206-#208 起票) | fix |
 | 2026-09-03 | 20260903_1130: severity-verdict (reviewer 数値スコア自己申告の全廃 #prompt-audit P1-1。severity 決定論集計 script severity-verdict.sh + JSON 検証 + INVALID 時 1 回 retry + fail-closed 差別化。REVIEW 自身で dogfood し BLOCK→硬化。Codex post-hoc review BLOCK→jq 型ガード + --invalid 引き継ぎ硬化。TC 33+13 件、Test Scripts 115→116。#201-#203 起票) | refactor |
 | 2026-08-28 | 20260828_1030: agent-tools-scoping (agent frontmatter allowed-tools→tools 正規化 #194。33 agent を Read/Grep/Glob(+Bash 3) に限定、memory 保持 15 agent は disallowedTools: Write, Edit で読取専用化（PROBE D 実測 4 段）、TC-36〜46 契約、dast-crawler ツール名 drift 修正、CHANGELOG Breaking。#195〜#198 起票) | feat |
