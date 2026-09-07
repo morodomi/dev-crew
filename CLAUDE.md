@@ -29,7 +29,7 @@ Codex 不在時は Claude fallback（既存スキルそのまま）。
 
 ## Skills
 
-Available skills (28 total): spec, red, green, refactor, review, commit, orchestrate, diagnose, onboard, sync-skills, skill-maker, cycle-retrospective, codify-insight, learn, evolve, security-scan, attack-report, context-review, generate-e2e, security-audit, php-quality, python-quality, ts-quality, js-quality, flask-quality, flutter-quality, hugo-quality, careful
+一覧は AGENTS.md（`@AGENTS.md` で import 済み）を参照。
 
 - **cycle-retrospective**: TDD サイクル末尾で失敗-成功ペアを抽出する advisory スキル (「retrospective」「振り返り」で起動)
 - **codify-insight**: retrospective insights を既定では自動 triage し、`skill` 候補/低確信時のみ確認する decide gate (「codify」「codify-insight」で起動)

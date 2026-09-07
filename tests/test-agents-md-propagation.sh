@@ -1,6 +1,6 @@
 #!/bin/bash
 # test-agents-md-propagation.sh - AGENTS.md propagation tests across skills
-# TC-08 ~ TC-11, TC-14
+# TC-08, TC-14
 
 set -euo pipefail
 
@@ -12,10 +12,9 @@ pass() { PASS=$((PASS + 1)); printf "  \033[32mPASS\033[0m %s\n" "$1"; }
 fail() { FAIL=$((FAIL + 1)); printf "  \033[31mFAIL\033[0m %s\n" "$1"; }
 
 COMMIT_SKILL="$BASE_DIR/skills/commit/SKILL.md"
-STALENESS_HOOK="$BASE_DIR/scripts/hooks/check-claude-md-staleness.sh"
 SKILLS_STRUCTURE_TEST="$BASE_DIR/tests/test-skills-structure.sh"
 
-for f in "$COMMIT_SKILL" "$STALENESS_HOOK" "$SKILLS_STRUCTURE_TEST"; do
+for f in "$COMMIT_SKILL" "$SKILLS_STRUCTURE_TEST"; do
   [ -f "$f" ] || { echo "ERROR: $f not found"; exit 1; }
 done
 
@@ -28,26 +27,6 @@ if grep -q "AGENTS.md" "$COMMIT_SKILL"; then
   pass "TC-08: AGENTS.md found in commit/SKILL.md"
 else
   fail "TC-08: AGENTS.md not found in commit/SKILL.md"
-fi
-
-# TC-10: Given staleness hook, When AGENTS.md exists, Then both AGENTS.md and CLAUDE.md are checked
-echo ""
-echo "TC-10: staleness hook checks both AGENTS.md and CLAUDE.md"
-HOOK_CONTENT=$(cat "$STALENESS_HOOK")
-if echo "$HOOK_CONTENT" | grep -q "AGENTS.md" && echo "$HOOK_CONTENT" | grep -q "CLAUDE.md"; then
-  pass "TC-10: both AGENTS.md and CLAUDE.md referenced in hook"
-else
-  fail "TC-10: hook does not reference both AGENTS.md and CLAUDE.md"
-fi
-
-# TC-11: Given staleness hook, When AGENTS.md not exists, Then only CLAUDE.md is checked (backward compat)
-echo ""
-echo "TC-11: staleness hook has AGENTS.md-absent fallback to CLAUDE.md only"
-# check_staleness function handles missing files via [ -f "$file" ] || return 0
-if echo "$HOOK_CONTENT" | grep -q 'check_staleness' && echo "$HOOK_CONTENT" | grep -q '\[ -f "\$file" \]\|"\$file".*return'; then
-  pass "TC-11: check_staleness handles missing files gracefully"
-else
-  fail "TC-11: check_staleness missing file guard not found in hook"
 fi
 
 # TC-14: Given test-skills-structure.sh TC-B1/TC-B2, When grep target changed, Then AGENTS.md is target

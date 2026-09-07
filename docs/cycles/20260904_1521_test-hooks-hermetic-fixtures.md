@@ -5,12 +5,12 @@ phase: DONE
 complexity: standard
 test_count: 9
 risk_level: low
-retro_status: captured
+retro_status: resolved
 codex_mode: no
 codex_session_id: "01a06b00-9f34-72d0-b02f-e554f73879f7"
 plan_file: /Users/morodomi/.claude/plans/twinkling-petting-kitten.md
 created: 2026-09-04 15:21
-updated: 2026-09-04 18:20
+updated: 2026-09-06 11:19
 ---
 
 # test-hooks-structure hermetic 化（#144 壁時計依存 + #195 実ツリー fixture 隔離）
@@ -343,3 +343,39 @@ Evidence: (orchestrate が自動記入)
 - STATUS.md: Completed 行追加 + Last updated 2026-09-04。Test Scripts 116（本 cycle で新規 test file なし、不変）
 - commit 同梱: tests 2 + .claude/dev-crew.json + CHANGELOG + docs/STATUS.md + Cycle doc + 前 cycle codify 出力（Block 0、scope 同梱として透明化）
 - Phase completed
+
+---
+
+## Codify Decisions
+
+### Insight 1
+- **Decision**: no-codify
+- **Reason**: 主張（隔離 snapshot は複製前に repo 外依存を洗い親構造ごと複製する）は rules/plan-discipline.md に cycle 20260706_1216 #1 として**既に逐語で codified 済み**。同一条項の再追記は duplicate。本 insight の真の残余は「条項が存在しても実行時に想起されない」という機序であり、下記 Insight 5 として deferred へ分離する
+- **Decided**: 2026-09-06 11:19
+
+### Insight 2
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: cycle-scoped
+- **Reason**: 既存条項「plan 時に `grep -rn "<target_value>" tests/` で逆向き契約を検索する」の**適用範囲の拡張**（plan 時のみ → REVIEW の accept-apply 適用時にも）であり、単なる重複ではない。特に「テストファイル自身を編集する cycle」では編集対象が他テストの pin 対象である確率が構造的に高く、REVIEW 段階の修正は plan の Files to Change 検討を経ないぶん抜けやすい。rules/plan-discipline.md へ条項追記
+- **Decided**: 2026-09-06 11:19
+
+### Insight 3
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: cycle-scoped
+- **Reason**: 「バックグラウンド実行の出力は起動時刻と最終編集時刻を突合してから読む / 出力自身に測定対象の世代（timestamp + 対象文字列の実測）を埋め込ませる」は既存 rule に無い新規の検証規律。長時間ジョブと編集を並行させる運用が常態化しているため再発確率が高い。rules/plan-discipline.md の検証セクションへ追記
+- **Decided**: 2026-09-06 11:19
+
+### Insight 4
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: cycle-scoped
+- **Reason**: 「Socrates 委譲 prompt に severity_counts と findings だけでなく『この cycle が暗黙に前提している命題』を明示列挙して渡す」は agent 委譲契約の具体的改善で、本 cycle で orphan 検出という実効を確認済み（二次影響・見落としの 2 設問が効いた）。rules/agent-prompts.md の委譲 prompt 契約へ追記
+- **Decided**: 2026-09-06 11:19
+
+### Insight 5（Insight 1+2 から分離した機序）
+- **Decision**: deferred
+- **Destination**: new-cycle
+- **Reason**: 「codified rule のうち『手順の前に実行すべき grep/検査』型の条項は、実行時に想起される設計では守れない」— 同一 cycle 内で 2 度破られた実測がある。恒久対策は gate script 化または委譲 prompt の必須項目化であり、rules への追記では解決しない（むしろ rule ファイルが長くなるほど適用率が下がる逆効果の可能性がある）。CONSTITUTION §4-6「LLM に手順を守れと指示するのではなくゲートが exit 1 で BLOCK する」の未適用領域として別 cycle で扱う
+- **Decided**: 2026-09-06 11:19

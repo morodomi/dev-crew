@@ -2,8 +2,18 @@
 
 ## [Unreleased]
 
+### Removed
+- `scripts/hooks/check-claude-md-staleness.sh` を削除（#207）: hooks.json / .git/hooks / skills/onboard のいずれにも登録がない orphan であり、かつ git commit 経過日数は「内容が現状と乖離しているか」の代理指標として機能していなかった（50 日 stale の CLAUDE.md は内容が正確で、8 日前更新の AGENTS.md 側に不整合があった）。関連する tests/test-hooks-structure.sh の TC-04/TC-05a〜f/TC-06 と staleness 専用 fixture helper 群、tests/test-agents-md-propagation.sh の TC-10/TC-11 も削除。直前 cycle（#144/#195）の hermetic 化は TC-03 の実ツリー汚染除去として独立に価値が残る（同 [Unreleased] の Fixed エントリ参照）
+
+### Added
+- tests/test-doc-consistency.sh に派生事実の契約テスト TC-20〜TC-28 を追加（#207）: AGENTS.md skills 名前集合 / CLAUDE.md Hooks 表 / CLAUDE.md の skills 一覧 negative 契約 / docs/STATUS.md の Skills・Agents 数 / CLAUDE.md 1 行目の `@AGENTS.md` import を機械検査する。**これらは full suite 実行時にのみ検査される** — `pre-commit-gate.sh` も commit skill も現時点では呼んでおらず、COMMIT 経路での決定論的強制は未実装（#211）。したがって本変更は「時間ベース警告を機械検査へ置換した」のではなく「契約テストを追加した。強制は follow-up」が正確な状態である
+
+### Changed
+- CLAUDE.md から `Available skills (N total): ...` の skills 一覧行を削除（#207）: 1 行目の `@AGENTS.md` import により同一プロセス内で二重に読まれる純粋な重複であり、CONSTITUTION §8「コードから導出可能な情報は書かない」に反していた。一覧は AGENTS.md 側（Codex が読む cross-tool doc）に一本化
+- docs/STATUS.md の `| Agents | 41 |` を `| Agents | 40 |` に修正（#207）: frontmatter を持つ agent の実数。`agents/false-positive-filter-reference.md` は reference doc で agent ではない
+
 ### Fixed
-- tests/test-hooks-structure.sh の壁時計依存を解消（#144）: staleness hook の検査を fixture git repo（相対 backdate commit）へ移し、実行日に依存しない決定論的検証にした。連鎖 FAIL していた 3 test（test-doc-consistency / test-factory-model-adaptation / test-trap-handler）も回復する
+- tests/test-hooks-structure.sh の壁時計依存を解消（#144）: staleness hook の検査を fixture git repo（相対 backdate commit）へ移し、実行日に依存しない決定論的検証にした。連鎖 FAIL していた 3 test（test-doc-consistency / test-factory-model-adaptation / test-trap-handler）も回復する。**なお staleness hook 自体は同 [Unreleased] の Removed で削除されたため、この検証ロジックも併せて除去された**（TC-03 の実ツリー汚染除去 #195 は独立に残る）
 - tests/test-hooks-structure.sh の drift 検出 fixture を実ソースツリーから mktemp snapshot へ隔離（#195）: 並行実行時に test-agents-structure.sh を汚染しなくなり、TC-41 の暫定除外を撤去した
 - .claude/dev-crew.json の dev_crew_version を 2.17.0 に追随（spec Version Gate の誤 BLOCK 解消。自動化は #186）
 
