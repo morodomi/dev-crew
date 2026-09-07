@@ -1,7 +1,6 @@
 # Skill Map
 
 > Authority: [CONSTITUTION.md](CONSTITUTION.md) のフロー図が正。このドキュメントはスキル/エージェント/ゲートの実装リファレンス。
-> Counts: [STATUS.md](STATUS.md) 参照。
 
 ## TDD Workflow Skills
 
@@ -16,7 +15,7 @@
 | 実装 | green | Codex | Claude | codex_mode依存 |
 | 品質改善 | refactor | Claude | Codex | |
 | レビュー | review | Claude+Codex | Claude | competitive |
-| **pre-commit-gate.sh** | **(決定論的)** | **script** | **-** | REVIEW完了・Codex review記録・STATUS.md同期を検証 |
+| **pre-commit-gate.sh** | **(決定論的)** | **script** | **-** | REVIEW完了・Codex review記録・retrospective状態を検証 |
 | コミット | commit | Claude | - | |
 
 ## Support Skills

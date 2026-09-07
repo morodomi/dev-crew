@@ -1,6 +1,6 @@
 #!/bin/bash
 # test-orchestrate-a2b.sh - orchestrate A2b integration structure tests
-# TC-01 to TC-05, TC-10 to TC-18 for v2.7 Agile Loop Cycle A2b
+# TC-01 to TC-05, TC-10 to TC-18 for v2.7 Agile Loop Cycle A2b（欠番: 06-09, 15 — 削除済みTC）
 # Structural inspection (grep-based): no fixtures needed
 
 set -uo pipefail
@@ -20,7 +20,6 @@ STEPS_CODEX="$BASE_DIR/skills/orchestrate/steps-codex.md"
 COMMIT_SKILL="$BASE_DIR/skills/commit/SKILL.md"
 WORKFLOW_MD="$BASE_DIR/docs/workflow.md"
 ARCH_MD="$BASE_DIR/docs/architecture.md"
-STATUS_MD="$BASE_DIR/docs/STATUS.md"
 CLAUDE_MD="$BASE_DIR/CLAUDE.md"
 README_MD="$BASE_DIR/README.md"
 AGENTS_MD="$BASE_DIR/AGENTS.md"
@@ -292,23 +291,6 @@ for pair in "subagent:skills/orchestrate/steps-subagent.md" "teams:skills/orches
 done
 if [ "$TC14B_PASS" = "true" ]; then
   pass "TC-14b: All 3 steps-*.md files have DISCOVERED before Block 2f"
-fi
-
-# ----------------------------------------------------------------
-# TC-15: docs/STATUS.md Test Scripts count が tests/test-*.sh の実数と整合
-# ----------------------------------------------------------------
-echo ""
-echo "TC-15: docs/STATUS.md Test Scripts count matches actual test file count"
-if [ ! -f "$STATUS_MD" ]; then
-  fail "TC-15: docs/STATUS.md does not exist"
-else
-  declared=$(grep -oE 'Test Scripts[[:space:]]*\|[[:space:]]*[0-9]+' "$STATUS_MD" | grep -oE '[0-9]+$' | head -1 || echo "not found")
-  actual=$(ls "$BASE_DIR"/tests/test-*.sh 2>/dev/null | wc -l | tr -d ' ')
-  if [ "$declared" = "$actual" ]; then
-    pass "TC-15: STATUS.md Test Scripts ($declared) matches actual ($actual)"
-  else
-    fail "TC-15: STATUS.md Test Scripts ($declared) != actual ($actual)"
-  fi
 fi
 
 # ----------------------------------------------------------------

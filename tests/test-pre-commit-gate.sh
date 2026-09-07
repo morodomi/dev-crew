@@ -2,8 +2,6 @@
 # test-pre-commit-gate.sh - pre-commit-gate.sh deterministic gate tests
 # T-01: BLOCK when REVIEW not recorded in Progress Log
 # T-02: PASS when REVIEW recorded (no codex)
-# T-03: STATUS.md test script count warning (mismatch)
-# T-04: PASS when all conditions met with matching STATUS.md
 
 set -euo pipefail
 
@@ -92,49 +90,6 @@ if [ "$rc" -eq 0 ]; then
   pass "PASS when REVIEW recorded"
 else
   fail "Expected PASS, got rc=$rc output: $output"
-fi
-
-# T-03: STATUS.md warning on test script count mismatch
-echo ""
-echo "T-03: STATUS.md test script count mismatch warning"
-
-cat > "$TMPDIR/docs/STATUS.md" <<'STATUS'
-# Status
-
-| Metric | Value |
-|--------|-------|
-| Test Scripts | 99 |
-STATUS
-
-# Create a few test scripts
-touch "$TMPDIR/tests/test-foo.sh" "$TMPDIR/tests/test-bar.sh"
-
-output=$(bash "$SCRIPT" "$TMPDIR" 2>&1) && rc=$? || rc=$?
-# Should warn but NOT block (exit 0)
-if [ "$rc" -eq 0 ] && echo "$output" | grep -qiE "warn|STATUS|mismatch"; then
-  pass "Warning on STATUS.md test count mismatch"
-else
-  fail "Expected warning (exit 0) on mismatch, got rc=$rc output: $output"
-fi
-
-# T-04: No warning when STATUS.md count matches
-echo ""
-echo "T-04: No warning when STATUS.md count matches"
-
-actual_count=$(ls "$TMPDIR"/tests/test-*.sh 2>/dev/null | wc -l | tr -d ' ')
-cat > "$TMPDIR/docs/STATUS.md" <<STATUS
-# Status
-
-| Metric | Value |
-|--------|-------|
-| Test Scripts | $actual_count |
-STATUS
-
-output=$(bash "$SCRIPT" "$TMPDIR" 2>&1) && rc=$? || rc=$?
-if [ "$rc" -eq 0 ] && ! echo "$output" | grep -qi "warn"; then
-  pass "No warning when count matches"
-else
-  fail "Expected clean PASS, got rc=$rc output: $output"
 fi
 
 # T-06: BLOCK when only old-format Cycle doc exists (no phase: field)
@@ -236,7 +191,7 @@ else
 fi
 
 ########################################
-# $1 polymorphic selection contract (TC-08 ~ TC-14)
+# $1 polymorphic selection contract (TC-08 ~ TC-13)
 # Each TC uses an isolated fixture subdirectory under $TMPDIR
 ########################################
 
@@ -493,48 +448,6 @@ if [ "$rc_13" -eq 1 ] && echo "$output_13" | grep -qF "docs/cycles"; then
   pass "TC-13: explicit doc outside docs/cycles/ BLOCKs (rc=$rc_13)"
 else
   fail "TC-13: expected BLOCK mentioning docs/cycles, got rc=$rc_13 output: $output_13"
-fi
-
-# TC-14: Given 明示指定 doc の PROJECT_ROOT に STATUS.md 不一致 count が存在,
-# When gate 実行, Then STATUS.md test script count mismatch の WARN が出力される
-# （明示指定モードの PROJECT_ROOT 導出が正しく fixture root を指すことを確認）
-echo ""
-echo "TC-14: explicit \$1 doc path resolves PROJECT_ROOT for STATUS.md warning"
-
-FIXTURE_14="$TMPDIR/tc14"
-mkdir -p "$FIXTURE_14/docs/cycles" "$FIXTURE_14/tests"
-
-cat > "$FIXTURE_14/docs/STATUS.md" <<'STATUS'
-# Status
-
-| Metric | Value |
-|--------|-------|
-| Test Scripts | 99 |
-STATUS
-
-touch "$FIXTURE_14/tests/test-foo.sh"
-
-cat > "$FIXTURE_14/docs/cycles/20260101_0000_active.md" <<'CYCLE'
----
-phase: COMMIT
-retro_status: resolved
-updated: 2026-01-01 10:00
----
-# Active cycle
-
-## Progress Log
-
-### 2026-01-01 00:00 - REVIEW
-- Code review passed
-- Codex review: Accept 2, Reject 0
-- Phase completed
-CYCLE
-
-output_14=$(bash "$SCRIPT" "$FIXTURE_14/docs/cycles/20260101_0000_active.md" 2>&1) && rc_14=$? || rc_14=$?
-if echo "$output_14" | grep -qF "WARN: STATUS.md test script count mismatch"; then
-  pass "TC-14: explicit doc path resolves PROJECT_ROOT and emits STATUS.md WARN (rc=$rc_14)"
-else
-  fail "TC-14: expected STATUS.md count mismatch WARN, got rc=$rc_14 output: $output_14"
 fi
 
 # Summary

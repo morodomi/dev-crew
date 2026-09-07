@@ -11,7 +11,6 @@ plan 作成・承認・実行における規律。実測ベースの計画、逆
 - **未確認での Problem 記述**: 実コードを bash 実行せずに plan の Problem を書かない (cycle 20260421_1043 #1)
 - **narrative な baseline 記述**: 前 cycle 報告を鵜呑みにせず、必ず自分で実測する (cycle 20260422_0937 #2)
 - **逆向きテスト契約の無視**: `grep` が target 存在を要求するテストを見落として文字列を削除しない (cycle 20260422_0937 #1, cycle 20260422_1146 #2)
-- **test count sync の範囲外化**: 新 test file 追加時に STATUS.md の Test Scripts 更新を scope に含めない (cycle 20260422_0937 #4)
 - **pre-existing FAIL の先送り**: 本 cycle で 1 行 fix 可能か確認せずに DISCOVERED へ先送りしない (cycle 20260421_1809 #4)
 - **baseline 実測の除外理由不明記**: `grep -c ... rules/*.md` 等で「N 件 (除外)」と書く際、
   除外 category (例示 / historical reference / etc) と除外根拠 (どの rule に基づくか) を
@@ -23,7 +22,6 @@ plan 作成・承認・実行における規律。実測ベースの計画、逆
 - plan 記述前に target script を bash で実行し、実測結果を記録する
 - Block 0 で `for f in tests/test-*.sh; ...` を実行し baseline を実測する
 - plan 時に `grep -rn "<target_value>" tests/` で逆向き契約を検索する (count/state bump 時必須)
-- 新規 test file → STATUS.md の test count 更新を scope checklist に追加する
 - pre-existing FAIL 発見時「本 cycle 1 行 fix 可能？」を必ず確認する
 - `grep -r "<file>" tests/ skills/commit/` で既存 convention の影響範囲を事前洗い出しする (cycle 20260420_1752 #5)
 - count/status 変更時に `grep -rn "<old-value>" tests/` 実測結果を plan 本文に grep literal として貼付する (自動化 grep literal、cycle 20260422_1313 #1)
@@ -57,9 +55,6 @@ cp -R . "$SNAP"
   done | sort
 ) > "$SCRATCH/baseline.txt"
 cat "$SCRATCH/baseline.txt"
-
-# 逆向き契約検索: STATUS.md の Test Scripts カウント変更前に
-grep -rn "107\|Test Scripts" tests/ skills/commit/
 ```
 
 ## 出典

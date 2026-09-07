@@ -14,8 +14,7 @@
 # Checks:
 #   1. REVIEW Phase completed in Progress Log
 #   2. Codex code review recorded (only when `which codex` succeeds)
-#   3. STATUS.md test script count sync warning (non-blocking)
-#   4. Retrospective status (retro_status: captured/resolved required;
+#   3. Retrospective status (retro_status: captured/resolved required;
 #      none/empty/invalid/absent all BLOCK — absent is a bypass risk since
 #      cycle-retrospective idempotency also treats absent as skip)
 
@@ -89,19 +88,7 @@ if which codex > /dev/null 2>&1; then
   fi
 fi
 
-# 3. STATUS.md test script count sync warning (non-blocking)
-STATUS_FILE="$PROJECT_ROOT/docs/STATUS.md"
-if [ -f "$STATUS_FILE" ]; then
-  recorded_count=$(grep -oE 'Test Scripts \| [0-9]+' "$STATUS_FILE" 2>/dev/null | grep -oE '[0-9]+' || echo "")
-  if [ -n "$recorded_count" ]; then
-    actual_count=$(ls "$PROJECT_ROOT"/tests/test-*.sh 2>/dev/null | wc -l | tr -d ' ')
-    if [ "$recorded_count" != "$actual_count" ]; then
-      echo "WARN: STATUS.md test script count mismatch (recorded: $recorded_count, actual: $actual_count). Consider updating STATUS.md."
-    fi
-  fi
-fi
-
-# 4. Retrospective check (defense in depth with validate-cycle-frontmatter.sh).
+# 3. Retrospective check (defense in depth with validate-cycle-frontmatter.sh).
 #    Since A1, retro_status is mandatory for new Cycle docs (sync-plan initializes it).
 #    Field absence would allow bypass (merge conflict, manual removal) because
 #    cycle-retrospective's idempotency also treats absent as skip — gate must BLOCK.

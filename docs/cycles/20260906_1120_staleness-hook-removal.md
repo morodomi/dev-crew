@@ -5,12 +5,12 @@ phase: DONE
 complexity: standard
 test_count: 9
 risk_level: low
-retro_status: captured
+retro_status: resolved
 codex_mode: no
 codex_session_id: ""
 plan_file: /Users/morodomi/.claude/plans/twinkling-petting-kitten.md
 created: 2026-09-06 11:20
-updated: 2026-09-06 14:57
+updated: 2026-09-07 13:23
 ---
 
 # staleness hook 削除 + 派生事実の契約テスト化（#207）
@@ -412,3 +412,34 @@ orchestrate Block 0 の codify-insight が前 cycle doc を更新し commit へ�
 - full suite（親構造込み隔離 snapshot、SNAP_AT=14:45:38 / TC-28 と rc ガードの存在を出力で確認）: **116/116 FAILED:none**
 - commit 同梱: tests 3 + hook 削除 1 + CLAUDE.md + docs/STATUS.md + CHANGELOG + Cycle doc + 前 cycle codify 出力（Block 0、scope 同梱として透明化）
 - Phase completed
+
+---
+
+## Codify Decisions
+
+### Insight 1
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: cycle-scoped
+- **Reason**: 「期待どおりになるケースだけで確かめて確定する」癖のうち、**(i) 同じ事実を複数箇所に書いたら全箇所を grep して突合する**が本 plan の Codex review でも再発（TC-07 方針を Design だけ直し Baseline と Verification に旧方針が残存）。cycle 20260904_1521 → 20260906_1120 → 本 plan で **3 回連続**であり 2-strike rule を超過。rules/plan-discipline.md には「count/status 変更時に `grep -rn "<old-value>"` の実測結果を plan 本文に貼付する」という**数値限定**の条項が既にあるが、**方針・設計判断の記述**には及んでいない。適用範囲を「plan 内の主張を修正したら、その主張の別表現を plan 全体で grep してから閉じる」へ拡張する。(iii) の「新しい判定ロジックは正常系と異常系の両方の oracle」は test-patterns.md の 20260716_1328 #1/#3 で既に codified 済みのため重複追記しない
+- **Decided**: 2026-09-07 13:23
+
+### Insight 2
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: file-scoped
+- **Paths**: "**/*.sh"
+- **Reason**: 「重複を helper へ集約するとき、集約元の各実装が持っていた防御（rc 検査・型ガード・早期 return）の和集合を helper が保持しているか、同一ファイル内の前例と突合する」は既存 rule に無い。test-patterns.md の「meta test で logic copy-paste 禁止」（DRY 側）に対する**対称条項**として成立する。shell script 編集時にのみ必要な知識
+- **Decided**: 2026-09-07 13:23
+
+### Insight 3
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: cycle-scoped
+- **Reason**: 「『X は誰からも呼ばれていないから削除する』という論法を使う cycle は、代替物について同じ問いに答える義務を負う。Verification に『代替物の caller を実測で示す』項目を必須で置く」。rules/integration-verification.md の「gate 強化は gate ロジックと全 caller pin を分離して両方 pin する。前者だけでは dead な防御」を**削除 cycle へ対称適用**する条項。本 cycle（20260907）の Out of Scope で #211 として明示的に扱っており、条項化すれば次の削除 cycle で自動的に問われる
+- **Decided**: 2026-09-07 13:23
+
+### Insight 4
+- **Decision**: no-codify
+- **Reason**: 「pin は覚えていた形しか覆わない」は #210 として issue 化され、2026-09-07 のユーザー裁定で「per-fact で削除（pin を 7→3 に削減）」という**方針が確定済み**。rule への追記ではなく実装で応答する段階にあり、cycle 20260907（本 insight の次 cycle）が Cycle 1/2 として実施中。rule 化すると「pin を足す前に自問せよ」という想起頼みの条項になり、Insight 1 が指摘した「想起される設計では守れない」問題を再生産する
+- **Decided**: 2026-09-07 13:23
