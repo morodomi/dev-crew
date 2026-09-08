@@ -77,11 +77,12 @@ else
   assert "TC-06: onboard has 'for f in' test command pattern" "false"
 fi
 
-# TC-07: onboard/reference.md に数値カウントは STATUS.md へのガイダンスがある
-if grep -q "STATUS.md" "$ONBOARD_REF" && grep -qiE "count|数値|カウント" "$ONBOARD_REF"; then
-  assert "TC-07: onboard has STATUS.md count guidance" "true"
+# TC-07: onboard/reference.md が「派生数値は doc に書かず実ファイルから導出する」方針を持つ
+# （positive: 新方針の literal が存在 / negative: 旧方針の literal が不在）
+if grep -qF "実ファイルから導出" "$ONBOARD_REF" && ! grep -qF "カウントは STATUS.md に記載" "$ONBOARD_REF"; then
+  assert "TC-07: onboard has derive-from-files guidance (no STATUS.md count guidance)" "true"
 else
-  assert "TC-07: onboard has STATUS.md count guidance" "false"
+  assert "TC-07: onboard has derive-from-files guidance (no STATUS.md count guidance)" "false"
 fi
 
 # TC-08: onboard/reference.md に migration note パターンが存在する

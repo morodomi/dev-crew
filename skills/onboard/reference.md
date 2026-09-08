@@ -403,7 +403,7 @@ Project Structure は自動検出成功時のみ追加 (最大5セクション)�
 - **Overview セクション**: `## Overview` に `${PROJECT_PURPOSE}` を記述する。AIの north star として機能し、ドリフト時の回帰先となる。テンプレート: `## Overview\n\n${PROJECT_PURPOSE}\n\n### Tech Stack\n...`
 - **Start Here セクション**: AGENTS.md 冒頭に「Start Here」セクションを配置し、新規参入者が最初に読むべきドキュメント（CONSTITUTION.md等）と、STATUS.md/cycles/ での現在の作業状況確認を案内する。
 - **テストコマンド**: Quick Commands には具体的な実行コマンドを記載する。シェルテストの場合は `for f in tests/test-*.sh; do bash "$f"; done` パターンを推奨。フレームワーク固有のコマンド（`php artisan test`, `pytest` 等）と併記する。
-- **数値カウントは STATUS.md へ**: AGENTS.md にスキル数・エージェント数等の数値カウントを書かない。変更のたびに更新が必要になる。カウントは STATUS.md に記載し、AGENTS.md からは「STATUS.md を参照」と案内する。
+- **派生数値は doc に書かない**: AGENTS.md や STATUS.md にスキル数・エージェント数等の数値カウントを書かない。ファイルシステムから導出できる事実を doc に転記すると、変更のたびに追随更新が必要になり、更新が漏れても読み手が実在しないため誰も drift に気づけない。必要な場合は実ファイルから導出するコマンド（例: `find skills -mindepth 1 -maxdepth 1 -type d | wc -l`）を案内する。
 - **Migration note**: ドキュメントが移行中の場合、冒頭に migration note を記載する。例: `> docs are in migration. [CONSTITUTION.md](CONSTITUTION.md) is authoritative when other docs disagree.`
 - **TDD Workflow セクション**: 以下のリテラルテンプレートをそのまま使用する（表記ブレ防止）:
 

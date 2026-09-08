@@ -73,13 +73,13 @@ dev-crewは単一のClaude Code Plugin。1回のinstallで全機能が有効化�
 ```
 dev-crew/
 ├── .claude-plugin/plugin.json    # Single plugin metadata
-├── agents/                       # Agents (flat, see STATUS.md for counts)
+├── agents/                       # Agents (flat)
 │   ├── Orchestration: socrates.md
 │   ├── Implementation: architect.md, sync-plan.md, red-worker.md, green-worker.md, refactorer.md
 │   ├── Review: *-reviewer.md + review-briefer.md
 │   ├── Security: *-attacker.md, recon-agent.md, etc.
 │   └── Meta: observer.md
-├── skills/                       # Skills (flat, see STATUS.md for counts)
+├── skills/                       # Skills (flat)
 │   ├── Workflow: spec/, red/, green/, refactor/, review/, commit/, cycle-retrospective/
 │   ├── Orchestration: orchestrate/
 │   ├── Diagnostic: diagnose/

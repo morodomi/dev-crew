@@ -15,7 +15,7 @@
 
 | ドキュメント | 内容 |
 |-------------|------|
-| [STATUS.md](STATUS.md) | 現在の状態。サイクル数、テスト数、直近完了タスク |
+| [STATUS.md](STATUS.md) | 現在の状態。直近完了タスク・進行中タスク・TODO |
 | Skills | Plugin system auto-discovery (SKILL.md description) |
 | [user-stories.md](user-stories.md) | ペルソナ、6 Epics、優先度マトリクス |
 | [usability.md](usability.md) | トリガーキーワード、フェーズ遷移、エラーハンドリング |

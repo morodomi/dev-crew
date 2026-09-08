@@ -1,6 +1,6 @@
 #!/bin/bash
 # test-doc-consistency.sh - Document consistency validation
-# TC-01 ~ TC-28（欠番: 03, 06-10 — 削除済みTC）+ TC-C2-3 ~ TC-C2-5
+# TC-01 ~ TC-32（欠番: 03, 06-10, 26, 27 — 削除済みTC）+ TC-C2-3 ~ TC-C2-5
 
 set -euo pipefail
 
@@ -430,23 +430,33 @@ echo "--- Staleness Hook Removal ---"
 # 持たない fixture 上で BASE_DIR override 実行される。裸の $(grep ...) 代入は不一致時に
 # rc=1 を返し set -e で Summary 到達前に abort するため、2>/dev/null + || true で防御し、
 # 空文字は 0 に正規化する。ファイル欠落は vacuous PASS にせず fail() で報告する。
+# count_hits <file> <grep_flags> <pattern>
+# ヒット数を stdout へ、判定不能（ファイル欠落 / grep 実行エラー）を rc で返す。
+# rc は直後に取得して rc>=2（grep 自体の失敗: 不正 ERE・権限拒否）を「0 件」から
+# 分離する。`grep -c` はマッチなしでも stdout に 0 を出して rc=1 を返すため、
+# 「マッチなし」と「実行エラー」は rc でしか区別できない。rc>=2 を先に return 2 で
+# 弾くことで、実行エラーが「0 件 = PASS」に化けるのを防ぐ（同ファイル TC-17 の規律）。
+# 後段の空文字→0 の正規化は -c 以外のモードで呼ばれた場合に備えた防御であり、
+# rc>=2 は上で弾かれているためエラー隠蔽にはならない。
+# rc: 0=判定できた / 1=ファイル欠落 / 2=grep 実行エラー
+count_hits() {
+  local file="$1" grep_flags="$2" pattern="$3"
+  [ -f "$file" ] || return 1
+  local hits grep_rc=0
+  hits=$(grep "$grep_flags" -e "$pattern" "$file" 2>/dev/null) || grep_rc=$?
+  [ "$grep_rc" -ge 2 ] && return 2
+  [ -z "$hits" ] && hits=0
+  printf '%s' "$hits"
+}
+
 assert_zero_hits() {
   local tc_id="$1" file="$2" grep_flags="$3" pattern="$4" label="$5"
-  if [ ! -f "$file" ]; then
-    fail "$tc_id: $label not found"
-    return
-  fi
-  # rc は直後に取得して rc>=2（grep 自体の失敗: 不正 ERE・権限拒否）を「0 件」から
-  # 分離する。`grep -c` はマッチなしでも stdout に 0 を出して rc=1 を返すため、
-  # 出力が空になるのは実質 rc>=2 のときだけ。空文字を 0 に丸めると実行エラーが
-  # PASS に化ける（同ファイル TC-17 が守っている規律）。
   local hits rc=0
-  hits=$(grep "$grep_flags" -e "$pattern" "$file" 2>/dev/null) || rc=$?
-  if [ "$rc" -ge 2 ]; then
-    fail "$tc_id: grep failed with rc=$rc on $label — cannot verify"
-    return
-  fi
-  [ -z "$hits" ] && hits=0
+  hits=$(count_hits "$file" "$grep_flags" "$pattern") || rc=$?
+  case "$rc" in
+    1) fail "$tc_id: $label not found"; return ;;
+    2) fail "$tc_id: grep failed on $label — cannot verify"; return ;;
+  esac
   if [ "$hits" -eq 0 ]; then
     pass "$tc_id: $label has 0 hits"
   else
@@ -549,47 +559,7 @@ echo "TC-25: CLAUDE.md does not contain 'Available skills (N total)'"
 assert_zero_hits "TC-25" "$BASE_DIR/CLAUDE.md" "-cE" \
   'Available skills \([0-9]+ total\)' "CLAUDE.md 'Available skills (N total)'"
 
-# TC-26: docs/STATUS.md の '| Agents | N |' が frontmatter判定（agents/*.mdのうち1行目が
-# `---`のもの、tests/test-skills-structure.sh TC-B1と同一ロジック）による実数と一致することを検査。
-# abort-safety: STATUS.md欠落時（fixture）は fail() で報告。agents/*.mdはfixtureに存在しないため
-# glob無マッチとなるが `[ -f "$f" ] || continue` で安全に0件処理される
-echo ""
-echo "TC-26: docs/STATUS.md '| Agents | N |' matches frontmatter-based actual agent count"
 STATUS_FILE="$BASE_DIR/docs/STATUS.md"
-if [ ! -f "$STATUS_FILE" ]; then
-  fail "TC-26: docs/STATUS.md not found"
-else
-  TC26_ACTUAL=0
-  for f in "$BASE_DIR"/agents/*.md; do
-    [ -f "$f" ] || continue
-    tc26_first_line=$(head -1 "$f" 2>/dev/null) || tc26_first_line=""
-    [ "$tc26_first_line" = "---" ] && TC26_ACTUAL=$((TC26_ACTUAL + 1))
-  done
-  TC26_DECLARED=$(grep -oE '\| Agents \| [0-9]+ \|' "$STATUS_FILE" 2>/dev/null | grep -oE '[0-9]+' | head -1) || true
-  if [ -z "$TC26_DECLARED" ]; then
-    fail "TC-26: docs/STATUS.md '| Agents | N |' row not found"
-  elif [ "$TC26_DECLARED" = "$TC26_ACTUAL" ]; then
-    pass "TC-26: STATUS.md Agents ($TC26_DECLARED) = actual ($TC26_ACTUAL)"
-  else
-    fail "TC-26: STATUS.md Agents ($TC26_DECLARED) != actual ($TC26_ACTUAL)"
-  fi
-fi
-
-# TC-27: docs/STATUS.md の '| Skills | N |' が `ls -d skills/*/` の数と一致することを検査
-echo ""
-echo "TC-27: docs/STATUS.md '| Skills | N |' matches actual skills/*/ directory count"
-if [ ! -f "$STATUS_FILE" ]; then
-  fail "TC-27: docs/STATUS.md not found"
-else
-  TC27_DECLARED=$(grep -oE '\| Skills \| [0-9]+ \|' "$STATUS_FILE" 2>/dev/null | grep -oE '[0-9]+' | head -1) || true
-  if [ -z "$TC27_DECLARED" ]; then
-    fail "TC-27: docs/STATUS.md '| Skills | N |' row not found"
-  elif [ "$TC27_DECLARED" = "$ACTUAL_COUNT" ]; then
-    pass "TC-27: STATUS.md Skills ($TC27_DECLARED) = actual ($ACTUAL_COUNT)"
-  else
-    fail "TC-27: STATUS.md Skills ($TC27_DECLARED) != actual ($ACTUAL_COUNT)"
-  fi
-fi
 
 # TC-28: CLAUDE.md の 1 行目が `@AGENTS.md` であること。
 # TC-25 が「CLAUDE.md に skills 一覧が戻っていないこと」を保証できるのは、AGENTS.md の
@@ -609,6 +579,133 @@ else
     fail "TC-28: CLAUDE.md first line is '$TC28_FIRST' (expected '@AGENTS.md')"
   fi
 fi
+
+########################################
+# STATUS.md Derived-Number Removal — negative/positive contracts
+########################################
+
+echo ""
+echo "--- STATUS.md Derived-Number Removal ---"
+
+# TC-29: Given 変更後の docs/STATUS.md / When Current State の Metric 表 6 行を
+# 「行頭 + ラベル + 数値セル + 行末」まで固定した regex と `## Current State` 見出しを grep
+# / Then いずれも 0 件（恒久 negative 契約）。
+# 数値セルと行末の固定が必須: ラベルのみの行頭固定だと保持対象の
+# `## Cycle Doc Lifecycle` 表・AGENTS.md Constraints 表・docs/v3-failure-modes.md を
+# 誤検出する（PdM・architect 実測確認）。
+# abort-safety: 裸 command substitution を避け 2>/dev/null + rc 直後取得で防御し、
+# ファイル欠落・grep 実行エラー(rc>=2) は vacuous PASS にせず fail() で報告する。
+echo ""
+echo "TC-29: docs/STATUS.md has 0 Current State Metric table rows and 0 '## Current State' heading"
+# セル区切り前後の空白は [[:space:]]* で受ける。空白 1 個に固定すると
+# `|Skills|28|` や `|  Skills  |  28  |` がすり抜け、表の再生成やフォーマッタで
+# 空白数が変わった瞬間に契約が無力化する（printf oracle で 3 形式すべて検出、
+# 実 STATUS.md では 0 件を維持することを実測確認済み）。
+TC29_TABLE_RE='^[[:space:]]*\|[[:space:]]*(In-Progress Cycles|Done \(unarchived\)|Archived Cycles|Skills|Agents|Test Scripts)[[:space:]]*\|[[:space:]]*[0-9]+[[:space:]]*\|[[:space:]]*$'
+# 見出しも行全体で固定する。部分一致にすると、Completed 行や本文で
+# 「`## Current State` 見出しを削除した」と説明しただけで FAIL する。
+TC29_HEADING_RE='^[[:space:]]*##[[:space:]]+Current State[[:space:]]*$'
+# rc は明示初期化する。成功時は代入されないため、環境から非ゼロ値を継承すると
+# 見出し検査を飛ばして未定義の tc29_heading_hits を参照し set -u で abort する。
+tc29_rc=0
+tc29_table_hits=0
+tc29_heading_hits=0
+tc29_table_hits=$(count_hits "$STATUS_FILE" "-cE" "$TC29_TABLE_RE") || tc29_rc=$?
+if [ "$tc29_rc" -eq 0 ]; then
+  tc29_heading_hits=$(count_hits "$STATUS_FILE" "-cE" "$TC29_HEADING_RE") || tc29_rc=$?
+fi
+case "$tc29_rc" in
+  1) fail "TC-29: docs/STATUS.md not found" ;;
+  2) fail "TC-29: grep failed on docs/STATUS.md — cannot verify" ;;
+  *) if [ "$tc29_table_hits" -eq 0 ] && [ "$tc29_heading_hits" -eq 0 ]; then
+       pass "TC-29: docs/STATUS.md has 0 Metric table rows and 0 '## Current State' heading"
+     else
+       fail "TC-29: docs/STATUS.md has $tc29_table_hits Metric table row hit(s) and $tc29_heading_hits '## Current State' heading hit(s)"
+     fi ;;
+esac
+
+# TC-30: Given 変更後の docs/STATUS.md / When `Last updated:` 行を grep / Then 1 件以上
+# （削除しすぎていないことの positive 契約。境界: L14 の `Last updated:` は派生事実ではなく
+# タイムスタンプであり残す対象）。
+echo ""
+echo "TC-30: docs/STATUS.md has at least 1 'Last updated:' line"
+tc30_rc=0
+tc30_hits=$(count_hits "$STATUS_FILE" "-cE" '^Last updated:') || tc30_rc=$?
+case "$tc30_rc" in
+  1) fail "TC-30: docs/STATUS.md not found" ;;
+  2) fail "TC-30: grep failed on docs/STATUS.md 'Last updated:' — cannot verify" ;;
+  *) if [ "$tc30_hits" -ge 1 ]; then
+       pass "TC-30: docs/STATUS.md has $tc30_hits 'Last updated:' line(s)"
+     else
+       fail "TC-30: docs/STATUS.md has 0 'Last updated:' lines"
+     fi ;;
+esac
+
+# TC-31: Given 変更後の scripts/gates/pre-commit-gate.sh / When `Test Scripts` を grep
+# / Then 0 件（STATUS.md 同期 WARN check 削除の恒久 negative 契約）。
+echo ""
+echo "TC-31: scripts/gates/pre-commit-gate.sh has 0 hits for 'Test Scripts'"
+assert_zero_hits "TC-31" "$BASE_DIR/scripts/gates/pre-commit-gate.sh" "-cF" \
+  "Test Scripts" "scripts/gates/pre-commit-gate.sh 'Test Scripts'"
+
+# TC-32a〜f: 宙に浮いた STATUS.md 派生数値への doc 参照が残っていないことを
+# 対象ごとに検査する（1 対象 = 1 TC）:
+#   a) docs/architecture.md の 'STATUS.md for counts'
+#   b) docs/skill-map.md の 'Counts: [STATUS.md]'（grep -F 必須 — 角括弧の ERE 誤解釈回避）
+#   c) docs/README.md の 'テスト数'
+#   d) docs/workflow.md の gate 検証対象リストに並ぶ 'STATUS.md同期'
+#   e) docs/workflow.md の gate 行の検証対象カラムに並ぶ 'STATUS.md'
+#      （L120 は「同期」の語を使わず列挙形式で書くため d の literal では取りこぼす）
+#   f) docs/skill-map.md の 'STATUS.md同期'
+# d/e は「削除した check の責務記述」だけを狙い、STATUS.md への正当な言及
+# （commit skill が義務付ける Completed 更新手順の説明など）は許容する。
+# ファイル全体禁止にすると開発フローの正典が必須手順を記述できなくなる。
+# abort-safety: 各チェックはファイル欠落・grep 実行エラー(rc>=2) を「0件」に丸めず
+# fail() で報告してから Summary へ到達する（assert_zero_hits / count_hits）。
+# 1 対象 = 1 TC にするのは (a) 失敗時にどの対象かが pass/fail 行から読め
+# (b)「各 negative 契約に変異注入 oracle を当てる」プロトコルを全対象で満たせるため。
+echo ""
+echo "TC-32a: docs/architecture.md has 0 hits for 'STATUS.md for counts'"
+assert_zero_hits "TC-32a" "$BASE_DIR/docs/architecture.md" "-cF" \
+  "STATUS.md for counts" "docs/architecture.md 'STATUS.md for counts'"
+
+echo ""
+echo "TC-32b: docs/skill-map.md has 0 hits for 'Counts: [STATUS.md]'"
+assert_zero_hits "TC-32b" "$BASE_DIR/docs/skill-map.md" "-cF" \
+  "Counts: [STATUS.md]" "docs/skill-map.md 'Counts: [STATUS.md]'"
+
+echo ""
+echo "TC-32c: docs/README.md has 0 hits for 'テスト数'"
+assert_zero_hits "TC-32c" "$BASE_DIR/docs/README.md" "-cF" \
+  "テスト数" "docs/README.md 'テスト数'"
+
+# workflow.md はファイル全体ではなく「gate の責務としての STATUS.md 同期」だけを禁じる。
+# 全体禁止にすると、skills/commit/SKILL.md が義務付ける「STATUS.md の Completed へ
+# 完了タスクを移動」という手順を、開発フローの正典である workflow.md が恒久的に
+# 記述できなくなる（削除済み check の責務記述を消すのが目的であり、STATUS.md への
+# 正当な言及まで締め出すのは scope 過大）。
+echo ""
+# 削除した check の責務記述だけを狙う。単に `STATUS.md同期` を全面禁止すると
+# 「commit skill が STATUS.md同期を行う」のような正当な記述まで落ちるため、
+# gate が検証する対象の列挙（`REVIEW完了` / `Codex review記録` と並ぶ形）に限定する。
+echo "TC-32d: docs/workflow.md has 0 gate-verification lists including STATUS.md同期"
+assert_zero_hits "TC-32d" "$BASE_DIR/docs/workflow.md" "-cE" \
+  '(REVIEW完了|Codex review記録)[^|]*STATUS\.md同期|STATUS\.md同期[^|]*(retro_status|を検証)' \
+  "docs/workflow.md gate verification list with STATUS.md同期"
+
+# L120 は「同期」の語を使わず列挙形式（`REVIEW, Codex review, STATUS.md, retro_status`）
+# で責務を書くため上の literal では取りこぼす。gate 行の「検証対象カラム」に
+# STATUS.md が並ぶ形だけを禁じ、手順を説明する自由記述は許容する。
+echo ""
+echo "TC-32e: docs/workflow.md has 0 gate rows listing STATUS.md in the verified-items column"
+assert_zero_hits "TC-32e" "$BASE_DIR/docs/workflow.md" "-cE" \
+  'pre-commit-gate[^|]*\|[^|]*(REVIEW|Codex review)[^|]*STATUS\.md' \
+  "docs/workflow.md gate row listing STATUS.md as a verified item"
+
+echo ""
+echo "TC-32f: docs/skill-map.md has 0 hits for 'STATUS.md同期'"
+assert_zero_hits "TC-32f" "$BASE_DIR/docs/skill-map.md" "-cF" \
+  "STATUS.md同期" "docs/skill-map.md 'STATUS.md同期'"
 
 ########################################
 # Regression

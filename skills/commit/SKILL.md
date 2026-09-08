@@ -32,8 +32,6 @@ which codex && grep -qiE 'Codex.*review|codex.*Review' "$CYCLE_DOC"
 
 いずれか失敗 → BLOCK（不足ステップを案内）
 
-**STATUS.md同期警告** (非BLOCK): `ls tests/test-*.sh | wc -l` と STATUS.md の Test Scripts 値を比較。不一致なら警告表示。
-
 ### Step 2: 変更確認 + Pre-commit Hook
 
 ```bash

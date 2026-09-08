@@ -30,15 +30,6 @@ else
   fail "TC-03: CHANGELOG.md v2.0.2 missing Changed section"
 fi
 
-# TC-04: STATUS.md のテスト数が実際のテスト数と一致
-ACTUAL_TESTS=$(ls "$DIR/tests/test-"*.sh | wc -l | tr -d ' ')
-STATUS_TESTS=$(grep -o 'Test Scripts | [0-9]*' "$DIR/docs/STATUS.md" | grep -o '[0-9]*')
-if [ "$ACTUAL_TESTS" = "$STATUS_TESTS" ]; then
-  pass "TC-04: STATUS.md test count ($STATUS_TESTS) matches actual ($ACTUAL_TESTS)"
-else
-  fail "TC-04: STATUS.md test count ($STATUS_TESTS) != actual ($ACTUAL_TESTS)"
-fi
-
 # TC-05: STATUS.md の Last updated が存在する
 if grep -qE 'Last updated: [0-9]{4}-[0-9]{2}-[0-9]{2}' "$DIR/docs/STATUS.md"; then
   pass "TC-05: STATUS.md has Last updated date"
@@ -73,10 +64,18 @@ if [ -z "$README_TESTS" ]; then
   README_STRUCTURE=$(grep -A 1 'tests/' "$DIR/README.md" | head -2)
   pass "TC-07: README.md structure section present (no explicit test count to validate)"
 else
-  if [ "$README_TESTS" = "$ACTUAL_TESTS" ]; then
+  # 実数は本 TC 内で算出する。以前は削除済み TC が定義した変数を共有しており、
+  # その TC が消えた後は set -u 下で unbound variable として abort する状態だった。
+  # glob 展開ではなく find + `|| true` を使う。`ls "$DIR/tests/test-"*.sh` は
+  # 不一致時に非ゼロを返し pipefail 経由で set -e に abort させる（実測確認）。
+  # find もディレクトリ自体が無ければ非ゼロを返すため、`|| true` で rc を無害化し、
+  # 数え上げの失敗を「0 件」として扱う（本 TC の関心は件数の一致のみ）。
+  actual_tests=$(find "$DIR/tests" -maxdepth 1 -name 'test-*.sh' 2>/dev/null | wc -l | tr -d ' ' || true)
+  [ -z "$actual_tests" ] && actual_tests=0
+  if [ "$README_TESTS" = "$actual_tests" ]; then
     pass "TC-07: README.md test count matches actual"
   else
-    fail "TC-07: README.md test count ($README_TESTS) != actual ($ACTUAL_TESTS)"
+    fail "TC-07: README.md test count ($README_TESTS) != actual ($actual_tests)"
   fi
 fi
 
