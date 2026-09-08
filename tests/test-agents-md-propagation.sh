@@ -1,6 +1,6 @@
 #!/bin/bash
 # test-agents-md-propagation.sh - AGENTS.md propagation tests across skills
-# TC-08, TC-14
+# TC-08
 
 set -euo pipefail
 
@@ -12,9 +12,11 @@ pass() { PASS=$((PASS + 1)); printf "  \033[32mPASS\033[0m %s\n" "$1"; }
 fail() { FAIL=$((FAIL + 1)); printf "  \033[31mFAIL\033[0m %s\n" "$1"; }
 
 COMMIT_SKILL="$BASE_DIR/skills/commit/SKILL.md"
-SKILLS_STRUCTURE_TEST="$BASE_DIR/tests/test-skills-structure.sh"
 
-for f in "$COMMIT_SKILL" "$SKILLS_STRUCTURE_TEST"; do
+# 存在確認は残存 TC が実際に読むファイルだけに限定する。無関係なファイルを
+# 要求すると、そのファイルが将来リネーム・削除された際に fail() を経由せず
+# exit 1 で即死し Summary へ到達しない（無警告の hard-exit）。
+for f in "$COMMIT_SKILL"; do
   [ -f "$f" ] || { echo "ERROR: $f not found"; exit 1; }
 done
 
@@ -27,20 +29,6 @@ if grep -q "AGENTS.md" "$COMMIT_SKILL"; then
   pass "TC-08: AGENTS.md found in commit/SKILL.md"
 else
   fail "TC-08: AGENTS.md not found in commit/SKILL.md"
-fi
-
-# TC-14: Given test-skills-structure.sh TC-B1/TC-B2, When grep target changed, Then AGENTS.md is target
-echo ""
-echo "TC-14: test-skills-structure.sh TC-B1/TC-B2 grep targets AGENTS.md"
-# TC-B1 and TC-B2 should grep AGENTS.md, not CLAUDE.md for agent counts
-B1_SECTION=$(sed -n '/TC-B1/,/TC-B2/p' "$SKILLS_STRUCTURE_TEST")
-B2_SECTION=$(sed -n '/TC-B2/,/Summary/p' "$SKILLS_STRUCTURE_TEST")
-B1_TARGET=$(echo "$B1_SECTION" | grep -o 'AGENTS\.md\|CLAUDE\.md' | grep -c "AGENTS.md" || true)
-B2_TARGET=$(echo "$B2_SECTION" | grep -o 'AGENTS\.md\|CLAUDE\.md' | grep -c "AGENTS.md" || true)
-if [ "$B1_TARGET" -gt 0 ] && [ "$B2_TARGET" -gt 0 ]; then
-  pass "TC-14: TC-B1/TC-B2 grep AGENTS.md"
-else
-  fail "TC-14: TC-B1/TC-B2 not targeting AGENTS.md (B1=$B1_TARGET, B2=$B2_TARGET)"
 fi
 
 # Summary

@@ -62,8 +62,8 @@ plan review（Claude 設計レビュー + Codex利用可能時は competitive re
 
 ```
 dev-crew/
-├── agents/          # 40 agents (flat), 19 security agents
-├── skills/          # 28 skills (each: SKILL.md + reference.md)
+├── agents/          # Agent definitions (flat), security agents included
+├── skills/          # Skills (each: SKILL.md + reference.md)
 ├── scripts/gates/   # Deterministic gate scripts (pre-red, pre-commit)
 ├── rules/           # Rules by load trigger: always / cycle-scoped / file-scoped
 ├── tests/           # Shell test scripts
