@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Removed
+- `AGENTS.md` / `README.md` のツリー行コメントに残っていた派生数値と、それらを pin していた逆向き契約を削除: `tests/test-skills-structure.sh` の TC-B1・TC-B2、`tests/test-agents-md-count.sh`（ファイルごと削除）、`tests/test-doc-consistency.sh` の TC-01、`tests/test-cycle-retrospective.sh` の TC-15、`tests/test-agents-md-propagation.sh` の TC-14、`tests/test-review-integration-v24.sh` の TC-11。`skills/onboard/reference.md` の「派生数値は doc に書かない」指針に dev-crew 自身の doc を整合させた
 - `scripts/hooks/check-claude-md-staleness.sh` を削除（#207）: hooks.json / .git/hooks / skills/onboard のいずれにも登録がない orphan であり、かつ git commit 経過日数は「内容が現状と乖離しているか」の代理指標として機能していなかった（50 日 stale の CLAUDE.md は内容が正確で、8 日前更新の AGENTS.md 側に不整合があった）。関連する tests/test-hooks-structure.sh の TC-04/TC-05a〜f/TC-06 と staleness 専用 fixture helper 群、tests/test-agents-md-propagation.sh の TC-10/TC-11 も削除。直前 cycle（#144/#195）の hermetic 化は TC-03 の実ツリー汚染除去として独立に価値が残る（同 [Unreleased] の Fixed エントリ参照）
 - docs/STATUS.md の Current State 表（派生数値 6 項目）を削除。git commit 経過日数と同じく「doc に書かれた派生数値」は読み手が実在せず drift を検出できない — Agents 値は約 4.5 ヶ月誤ったまま誰も気づかなかった。STATUS.md は「人間・PdM しか知らない編集的情報」（Completed / In Progress / TODO）のみを持つ。あわせて pre-commit-gate.sh の STATUS.md 同期 WARN（表削除により完全な no-op になる）と、これらを pin していた次の契約を削除: tests/test-v2-release.sh TC-04 / test-orchestrate-a2b.sh TC-15 / test-codify-insight.sh TC-19・TC-20 / test-cycle-retrospective.sh TC-14 / test-doc-consistency.sh TC-26・TC-27 / test-pre-commit-gate.sh T-03・T-04・TC-14。数値でなく識別子を列挙するのは、本エントリ自身が主題とする「doc に書かれた派生数値は再導出されず drift する」を繰り返さないため
 
@@ -10,6 +11,8 @@
 - tests/test-doc-consistency.sh に派生事実の契約テスト TC-20〜TC-28 を追加（#207）: AGENTS.md skills 名前集合 / CLAUDE.md Hooks 表 / CLAUDE.md の skills 一覧 negative 契約 / CLAUDE.md 1 行目の `@AGENTS.md` import を機械検査する（**当初含まれていた docs/STATUS.md の Skills・Agents 数の契約（TC-26/TC-27）は、同 [Unreleased] の Removed のとおり本リリース内で撤去された** — 読み手が実在しない派生数値を pin していたという判断の是正）。**これらは full suite 実行時にのみ検査される** — `pre-commit-gate.sh` も commit skill も現時点では呼んでおらず、COMMIT 経路での決定論的強制は未実装（#211）。したがって本変更は「時間ベース警告を機械検査へ置換した」のではなく「契約テストを追加した。強制は follow-up」が正確な状態である
 
 ### Changed
+- `README.md` の Skills 見出し（Development Workflow / Security / Language Quality / Meta）から件数表記を除去。見出し配下のスキル名リストは維持し既存契約（TC-04/TC-05/TC-13/TC-18 等）を壊さない
+- `tests/test-doc-consistency.sh` に helper `assert_min_hits` / `assert_exact_hits` と TC-33a〜f を追加し、削除した派生数値の再混入を検出する静的 negative（ツリー行の件数表記）/ positive（ツリー行・見出しの存在）契約へ置換
 - CLAUDE.md から `Available skills (N total): ...` の skills 一覧行を削除（#207）: 1 行目の `@AGENTS.md` import により同一プロセス内で二重に読まれる純粋な重複であり、CONSTITUTION §8「コードから導出可能な情報は書かない」に反していた。一覧は AGENTS.md 側（Codex が読む cross-tool doc）に一本化
 - docs/STATUS.md の `| Agents | 41 |` を `| Agents | 40 |` に修正（#207）: frontmatter を持つ agent の実数。`agents/false-positive-filter-reference.md` は reference doc で agent ではない
 - skills/onboard/reference.md の指針を「数値カウントは STATUS.md へ」から「派生数値は doc に書かず実ファイルから導出する」へ反転

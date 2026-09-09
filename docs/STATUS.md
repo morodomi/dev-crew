@@ -1,11 +1,12 @@
 # dev-crew Status
 
-Last updated: 2026-09-07
+Last updated: 2026-09-08
 
 ## Completed (Recent)
 
 | Date | Cycle | Type |
 |------|-------|------|
+| 2026-09-08 | 20260908_1715: readme-agents-derived-numbers (#210 Cycle 2/2。AGENTS.md/README.md のツリー行と Skills 見出しから派生数値を削除し、pin していた逆向き契約 6 件を撤去 — TC-B1/B2、test-agents-md-count.sh ファイルごと、doc-consistency TC-01、cycle-retrospective TC-15、agents-md-propagation TC-14、review-integration TC-11。再混入防止の TC-33a〜f と helper assert_min_hits/assert_exact_hits を新設。negative 契約の regex は Codex plan review 4 ラウンドで作り直し、一般化を放棄して対象 2 行へ限定した round 4 で収束。REVIEW で TC-33d/e が vacuous だったことを 3 reviewer が独立に検出し行頭アンカー化。Test Scripts 116→115。#216-#221 起票) | refactor |
 | 2026-09-07 | 20260907_1324: status-derived-numbers (#210 Cycle 1/2。STATUS.md の Current State 表〔派生数値 6 項目〕を削除 — Agents 値が 4.5 ヶ月誤ったまま誰も気づかなかった実測が根拠。それを pin していた 10 契約と pre-commit-gate の STATUS.md 同期 WARN、宙に浮いた doc 参照 9 file を一掃。onboard の指針を「数値は STATUS.md へ」から「派生数値は doc に書かない」へ反転。negative 契約 TC-29〜32f を新設し全対象に両側 oracle。REVIEW round1 BLOCK→硬化→round2 WARN。#214/#211 起票) | refactor |
 | 2026-09-06 | 20260906_1120: staleness-hook-removal (orphan と判明した check-claude-md-staleness.sh を削除 #207。時間ベース警告は内容乖離の代理指標として機能していなかった。派生事実の契約テスト TC-20〜28 を新設 — AGENTS.md skills 集合 / CLAUDE.md Hooks 表 / skills 一覧 negative / STATUS 数値 / @AGENTS.md import。5 契約の検出力を oracle 実測。Agents 41→40 の実バグ修正。REVIEW WARN で helper の rc 分離など 9 件適用。#210-#212 起票) | refactor |
 | 2026-09-04 | 20260904_1521: test-hooks-hermetic-fixtures (#144 壁時計依存 + #195 実ツリー fixture 汚染の根治。TC-05 系を fixture git repo + 相対 backdate へ、TC-03 を mktemp snapshot へ隔離。full suite 112→116/116 回復。REVIEW WARN で rc idiom 7 箇所・git 環境隔離・個別 assert 化を適用。Socrates が hook の orphan 状態と本体バグを検出 → #206-#208 起票) | fix |

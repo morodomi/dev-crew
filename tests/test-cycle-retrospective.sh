@@ -1,6 +1,6 @@
 #!/bin/bash
 # test-cycle-retrospective.sh - cycle-retrospective skill structure tests
-# TC-01 to TC-15 for v2.7 Agile Loop Cycle A2a
+# TC-01 to TC-13（欠番: 14 — 前 cycle で削除済み, 15 — 本 cycle で削除）for v2.7 Agile Loop Cycle A2a
 
 set -uo pipefail
 
@@ -231,23 +231,6 @@ do
 done
 if [ "$TC13_PASS" = "true" ]; then
   pass "TC-13: All 4 files mention cycle-retrospective"
-fi
-
-# TC-15: README.md "N skills" matches actual skills/ directory count
-echo ""
-echo "TC-15: README.md 'N skills' matches actual skills/ directory count"
-if [ ! -f "$README_MD" ]; then
-  fail "TC-15: README.md does not exist"
-else
-  readme_count=$(grep -oE '[0-9]+ skills' "$README_MD" | head -1 | grep -oE '^[0-9]+' || true)
-  actual_count=$(find "$BASE_DIR/skills" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')
-  if [ -z "$readme_count" ]; then
-    fail "TC-15: README.md has no 'N skills' pattern"
-  elif [ "$readme_count" = "$actual_count" ]; then
-    pass "TC-15: README.md '$readme_count skills' matches actual ($actual_count)"
-  else
-    fail "TC-15: README.md '$readme_count skills' != actual ($actual_count)"
-  fi
 fi
 
 # Summary

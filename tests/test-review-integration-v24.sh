@@ -161,13 +161,6 @@ code_total=$((code_tasks + step2_tasks + socrates_tasks))
 assert "TC-10" "Code Mode: total Task() = 11 (got: $code_total)" \
   "$([ "$code_total" -eq 11 ] && echo true || echo false)"
 
-# TC-11: AGENTS.md の agent 数が 40
-echo ""
-echo "TC-11: AGENTS.md reports 40 agents"
-agent_count=$(ls "$BASE_DIR"/agents/*.md | grep -v reference | wc -l | tr -d ' ')
-assert "TC-11" "Agent count = 40 (got: $agent_count)" \
-  "$([ "$agent_count" -eq 40 ] && echo true || echo false)"
-
 # TC-12: 既存 Phase 14-16 テスト全通過（リグレッション）
 echo ""
 echo "TC-12: Phase 14-16 regression tests"

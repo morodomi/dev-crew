@@ -5,12 +5,12 @@ phase: DONE
 complexity: standard
 test_count: 5
 risk_level: low
-retro_status: captured
+retro_status: resolved
 codex_mode: no
 codex_session_id: "01a079ce-a69b-7453-8f38-e2d7f3eb69c2"
 plan_file: /Users/morodomi/.claude/plans/twinkling-petting-kitten.md
 created: 2026-09-07 13:24
-updated: 2026-09-07 18:39
+updated: 2026-09-08 16:32
 ---
 
 # STATUS.md の派生数値を削除し、依存する pin と doc 参照を一掃する（#210 Cycle 1/2）
@@ -409,3 +409,35 @@ round 1 の BLOCK に対し 8 件を硬化し、Codex へ再レビューを依�
 - test count 116 不変（本 cycle は test file を削除せず TC のみ削除）
 - commit 同梱: 承認済み Files to Change 19 file + Cycle doc + 前 cycle codify 出力（Block 0、scope 同梱として透明化）
 - Phase completed
+
+## Codify Decisions
+
+### Insight 1: 決定論ゲートの判定を PdM が宣言で上書きしてはならない
+- **Decision**: codified
+- **Destination**: rule (rules/review-triage.md + .claude/rules/ mirror)
+- **Tier**: cycle-scoped
+- **Reason**: 既存の review-triage.md は「判定割れは機構分解 + 実測 oracle で決着」(20260709_1125 #2) を持つが、「判定を含む記述は、その判定を出す script の実行出力を根拠として併記する」という一段手前の条項がない（`grep -n '実行して得\|判定を含む記述' rules/*.md` が 0 件）。verdict・gate 判定・test 結果を推定で書く型は、実行し忘れる型より危険（記録自体が嘘になる）。次 cycle の REVIEW を直接 harden できる
+- **Decided**: 2026-09-08
+
+### Insight 2: 誤検出を潰すと検出漏れを作る — 契約の両側を測る
+- **Decision**: codified
+- **Destination**: rule (rules/test-patterns.md + .claude/rules/ mirror)
+- **Tier**: file-scoped
+- **Paths**: `tests/**`
+- **Reason**: 既存 L54「negative sweep のパターンは『置換後の新文言に不一致』を RED 前に printf oracle で実測してから採用する」(20260716_1328 #3) の**半分だけ**が条項化されている。残る半分「**将来の正当な追記を誤検出しないこと**も同時に測る」が未条項。次 cycle（#214）でこの欠落が実害として現れ、negative 契約の regex が **4 ラウンド作り直し**になった（round 1 は検出漏れ、round 2/3 は誤検出、round 4 で対象を絞って収束）。2 回目の再発として promotion 確定
+- **Decided**: 2026-09-08
+
+### Insight 3: 修正が新しい欠陥を生む — BLOCK からの硬化後に再レビューを省略しない
+- **Decision**: codified
+- **Destination**: rule (rules/review-triage.md + .claude/rules/ mirror)
+- **Tier**: cycle-scoped
+- **Reason**: `grep -n '再レビュー\|硬化' rules/review-triage.md` が 0 件で、「BLOCK → 硬化 → 再判定」の round 2 を省略しない規律が未条項。本 cycle で `ls | wc -l` の地雷が round 2 で捕まった実績があり、次 cycle（#214）では **plan review 3 ラウンド連続で「PdM の修正が新しい欠陥を生む」**が再現した（attempt 1 の修正が attempt 2 の P1 を、attempt 2 の修正が attempt 3 の P1 を生んだ）。2 回目の再発として promotion 確定
+- **Decided**: 2026-09-08
+
+### Insight 4: helper へ集約したら呼び出し元を grep で数えてから完了とする
+- **Decision**: codified
+- **Destination**: rule (rules/test-patterns.md + .claude/rules/ mirror)
+- **Tier**: file-scoped
+- **Paths**: `tests/**`
+- **Reason**: 前 cycle Insight 2（集約時に防御の和集合を保持する）と対をなす。「helper を作る」で終わらせず「同型を全部呼び出し元に変える」までを完了条件とし、REFACTOR の Verification Gate に「集約対象パターンの残存 0 件」の grep を含める。集約済みと記録した直後に同一ファイル内へ同型が 2 箇所残っていた実測がある
+- **Decided**: 2026-09-08

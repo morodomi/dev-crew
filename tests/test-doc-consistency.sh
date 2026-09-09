@@ -1,6 +1,6 @@
 #!/bin/bash
 # test-doc-consistency.sh - Document consistency validation
-# TC-01 ~ TC-32（欠番: 03, 06-10, 26, 27 — 削除済みTC）+ TC-C2-3 ~ TC-C2-5
+# TC-01 ~ TC-32（欠番: 01, 03, 06-10, 26, 27 — 削除済みTC）+ TC-C2-3 ~ TC-C2-5 + TC-33a~f
 
 set -euo pipefail
 
@@ -22,16 +22,6 @@ echo "--- Skill Count Consistency ---"
 
 # Count actual skill directories
 ACTUAL_COUNT=$(find "$BASE_DIR/skills" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')
-
-# TC-01: README.md skill count = actual skill directories
-echo ""
-echo "TC-01: README.md skill count matches actual ($ACTUAL_COUNT)"
-readme_counts=$(grep -oE '[0-9]+ skills' "$BASE_DIR/README.md" 2>/dev/null | head -1 | grep -oE '[0-9]+' || true)
-if [ "$readme_counts" = "$ACTUAL_COUNT" ]; then
-  pass "README.md skill count ($readme_counts) = actual ($ACTUAL_COUNT)"
-else
-  fail "README.md skill count ($readme_counts) != actual ($ACTUAL_COUNT)"
-fi
 
 # TC-02: architecture.md skill count = actual skill directories
 echo ""
@@ -464,6 +454,44 @@ assert_zero_hits() {
   fi
 }
 
+# assert_min_hits <tc_id> <file> <grep_flags> <pattern> <min> <label>
+# 「このファイルにこのパターンが min 件以上ある」型の positive 契約。overshoot 防止の
+# ガード（削除しすぎを検出する）に使う。assert_zero_hits と同一の abort-safety を持つ:
+# rc=1（ファイル欠落）/ rc=2（grep 実行エラー）を vacuous PASS にせず fail() で報告する。
+assert_min_hits() {
+  local tc_id="$1" file="$2" grep_flags="$3" pattern="$4" min="$5" label="$6"
+  local hits rc=0
+  hits=$(count_hits "$file" "$grep_flags" "$pattern") || rc=$?
+  case "$rc" in
+    1) fail "$tc_id: $label not found"; return ;;
+    2) fail "$tc_id: grep failed on $label — cannot verify"; return ;;
+  esac
+  if [ "$hits" -ge "$min" ]; then
+    pass "$tc_id: $label has $hits hit(s) (>= $min)"
+  else
+    fail "$tc_id: $label has $hits hit(s) (< $min)"
+  fi
+}
+
+# assert_exact_hits <tc_id> <file> <grep_flags> <pattern> <expected> <label>
+# 「このファイルにこのパターンがちょうど expected 件ある」型の契約。合計方式では
+# 重複と欠落が相殺して偽 PASS するケース（TC-33f）を検出するため、見出しごとの
+# exact-1 判定に使う。abort-safety は assert_zero_hits / assert_min_hits と同一。
+assert_exact_hits() {
+  local tc_id="$1" file="$2" grep_flags="$3" pattern="$4" expected="$5" label="$6"
+  local hits rc=0
+  hits=$(count_hits "$file" "$grep_flags" "$pattern") || rc=$?
+  case "$rc" in
+    1) fail "$tc_id: $label not found"; return ;;
+    2) fail "$tc_id: grep failed on $label — cannot verify"; return ;;
+  esac
+  if [ "$hits" -eq "$expected" ]; then
+    pass "$tc_id: $label has exactly $hits hit(s)"
+  else
+    fail "$tc_id: $label has $hits hit(s) (expected $expected)"
+  fi
+}
+
 # TC-20: scripts/hooks/check-claude-md-staleness.sh does not exist (negative contract).
 # `[ -f ... ]` は set -e 下でも if 条件式のため abort しない。fixture でも同様に不在 → PASS
 # (abort-safety: fixture には scripts/ 自体が無いため常に不在 = 常に PASS で無害)
@@ -706,6 +734,81 @@ echo ""
 echo "TC-32f: docs/skill-map.md has 0 hits for 'STATUS.md同期'"
 assert_zero_hits "TC-32f" "$BASE_DIR/docs/skill-map.md" "-cF" \
   "STATUS.md同期" "docs/skill-map.md 'STATUS.md同期'"
+
+########################################
+# README/AGENTS derived-number reintroduction guard
+########################################
+
+echo ""
+echo "--- README/AGENTS Derived-Number Reintroduction Guard ---"
+
+# TC33_TREE_RE / TC33_HEAD_RE: 1 度だけ定義し TC-33a〜f 全体で共有する。
+# TC33_TREE_RE は agents/ skills/ のツリー行に限定し、round 1〜3 で誤検出・検出漏れの
+# 両方が出た「カウント名詞クラス」の一般化を放棄した round 4 確定形（plan Test List 参照）。
+# `agents/` `skills/` 以外のツリー行（例: `├── tests/  # 116 test scripts`）は対象外。
+# 逆に widening 側の代償として、`agents/` `skills/` 行のコメントに現れる数字は
+# 件数と無関係なものも一律拒否する（ADR 番号・バージョン番号・`OWASP Top 10` 等）。
+# この 2 行にそうした記述が必要になったら契約を明示的に変更すること — 気づけない
+# drift ではなくテストの FAIL として可視化される、という設計上の取引である。
+# TC33_HEAD_RE は 4 見出し名限定 + 括弧付きカウントを行末まで固定するため
+# `### Security for PHP 8` 等の正当な将来記述は誤検出しない。
+TC33_TREE_RE='^[[:space:]│]*[├└]──[[:space:]]+(agents|skills)/.*[0-9]'
+TC33_HEAD_RE='^###[[:space:]]+(Development Workflow|Security|Language Quality|Meta)[[:space:]]+\([[:space:]]*[0-9]+[[:space:]]*\)[[:space:]]*$'
+
+# TC-33a: Given 変更後の AGENTS.md / When TC33_TREE_RE を -cE で grep / Then 0 件
+echo ""
+echo "TC-33a: AGENTS.md has 0 hits for TC33_TREE_RE (agents/skills tree-line derived counts)"
+assert_zero_hits "TC-33a" "$BASE_DIR/AGENTS.md" "-cE" \
+  "$TC33_TREE_RE" "AGENTS.md agents/skills ツリー行コメント中の数字"
+
+# TC-33b: Given 変更後の README.md / When 同 TC33_TREE_RE / Then 0 件
+echo ""
+echo "TC-33b: README.md has 0 hits for TC33_TREE_RE (agents/skills tree-line derived counts)"
+assert_zero_hits "TC-33b" "$BASE_DIR/README.md" "-cE" \
+  "$TC33_TREE_RE" "README.md agents/skills ツリー行コメント中の数字"
+
+# TC-33c: Given 変更後の README.md / When TC33_HEAD_RE を -cE で grep / Then 0 件
+echo ""
+echo "TC-33c: README.md has 0 hits for TC33_HEAD_RE (section-heading derived counts)"
+assert_zero_hits "TC-33c" "$BASE_DIR/README.md" "-cE" \
+  "$TC33_HEAD_RE" "README.md Skills 見出しの括弧付き件数"
+
+# TC-33d: Given 変更後の AGENTS.md / When '├── agents/' と '├── skills/' を -cF で grep
+# / Then 各 1 件以上（overshoot 防止のガード。削除しすぎでツリー行自体が消えたことを検出する。
+# ツリー行は最初から存在するため RED→GREEN 遷移を持たず、RED 時点から PASS が期待挙動）
+echo ""
+echo "TC-33d: AGENTS.md retains agents/ and skills/ tree lines"
+# -cF の全文部分一致では、ツリー行を削除して同じ文字列をコメント等へ移すだけで
+# PASS してしまい overshoot ガードが無効になる（Codex 再現: 行削除 + コメント追記で -cF=1）。
+# 行頭アンカー + 枝記号クラスにして「ツリー構造の中に実在する行」だけを数える。
+# 枝記号・空白幅は TC33_TREE_RE と同じ許容にし、negative/positive の非対称を作らない。
+assert_min_hits "TC-33d" "$BASE_DIR/AGENTS.md" "-cE" \
+  '^[[:space:]│]*[├└]──[[:space:]]+agents/' 1 "AGENTS.md agents/ ツリー行"
+assert_min_hits "TC-33d" "$BASE_DIR/AGENTS.md" "-cE" \
+  '^[[:space:]│]*[├└]──[[:space:]]+skills/' 1 "AGENTS.md skills/ ツリー行"
+
+# TC-33e: Given 変更後の README.md / When 同 / Then 各 1 件以上
+echo ""
+echo "TC-33e: README.md retains agents/ and skills/ tree lines"
+assert_min_hits "TC-33e" "$BASE_DIR/README.md" "-cE" \
+  '^[[:space:]│]*[├└]──[[:space:]]+agents/' 1 "README.md agents/ ツリー行"
+assert_min_hits "TC-33e" "$BASE_DIR/README.md" "-cE" \
+  '^[[:space:]│]*[├└]──[[:space:]]+skills/' 1 "README.md skills/ ツリー行"
+
+# TC-33f: Given 変更後の README.md / When 4 見出しを '^### <name>$' で 1 つずつ grep
+# / Then 各ちょうど 1 件。「合計 4 件」にしてはいけない（Codex P1-3、PdM 実測で再現）。
+# 合計方式は Development Workflow の重複と Security の欠落が相殺して 4 件になり PASS
+# してしまう。4 見出しを個別に exact-1 検査することで重複・欠落を独立に検出する。
+echo ""
+echo "TC-33f: README.md has exactly 1 heading each for Development Workflow / Security / Language Quality / Meta"
+assert_exact_hits "TC-33f" "$BASE_DIR/README.md" "-cE" \
+  '^### Development Workflow$' 1 "README.md '### Development Workflow' heading"
+assert_exact_hits "TC-33f" "$BASE_DIR/README.md" "-cE" \
+  '^### Security$' 1 "README.md '### Security' heading"
+assert_exact_hits "TC-33f" "$BASE_DIR/README.md" "-cE" \
+  '^### Language Quality$' 1 "README.md '### Language Quality' heading"
+assert_exact_hits "TC-33f" "$BASE_DIR/README.md" "-cE" \
+  '^### Meta$' 1 "README.md '### Meta' heading"
 
 ########################################
 # Regression
