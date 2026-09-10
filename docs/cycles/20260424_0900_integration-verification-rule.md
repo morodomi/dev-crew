@@ -28,7 +28,7 @@ updated: 2026-07-06 11:40
 - [ ] `tests/test-product-verify.sh` に TC 追加 — real-path invocation なし時の WARN ログ assertion (Codex plan review #1 指摘)
 
 ### Out of Scope
-- Kyotei の YAML bug fix (別 repo 作業)
+- 別 repo の YAML bug fix
 - CI blocking gate 化 (advisory spirit 維持)
 - Playwright / testcontainers 導入 (最軽量方針)
 - careful allowed-tools 欠落・4 worker agents model frontmatter 欠落 (別 cycle → DISCOVERED)
@@ -84,7 +84,7 @@ dev-crew 自身は bash/doc project なので、real-path invocation は以下�
 
 ### Related Issues/PRs
 - cycle 20260423_1045 Insight 1 (REFACTOR full-suite baseline 必須) の対となる「production path baseline 必須」
-- Kyotei YAML config wire-gap bug (別 repo、本 cycle の動機)
+- YAML config wire-gap bug (別 repo、本 cycle の動機)
 
 ## Test List
 
@@ -113,7 +113,7 @@ dev-crew 自身は bash/doc project なので、real-path invocation は以下�
 unit tests は mock を通すため「宣言された config/option が production path で呼ばれていない」config-wire-gap 型 bug を検出できない。Verification Gate に real-path invocation (CLI/docker+curl/python -m 等) を最低 1 件含めることを rule として codify し、dev-crew TDD workflow でこの種の bug を cycle 内で早期検出可能にする。
 
 ### Background
-- Kyotei で YAML config 宣言が実ランタイムに反映されていない latent bug が発見された (cycle-specific に fix 済)
+- 別 repo で YAML config 宣言が実ランタイムに反映されていない latent bug が発見された (cycle-specific に fix 済)
 - 既存 18 cycle の Verification section は全て `bash tests/test-*.sh` + `grep`/`diff` のみで real-path invocation 実例ゼロ
 - `rules/` に integration/smoke/e2e rule が存在しない (現状 11 ファイル)
 - cycle 20260423_1045 Insight 1 「REFACTOR 前に full-suite baseline 必須」の対称として「production path baseline 必須」を rule 化
@@ -124,7 +124,7 @@ unit tests は mock を通すため「宣言された config/option が producti
 - 適用範囲: 全 cycle で mandatory (advisory spirit は維持)
 - 禁止事項: `bash tests/test-*.sh` + `grep`/`diff` のみ (real-invocation ゼロ)
 - 推奨: CLI / Web (docker+curl) / Config 変更時 / Library の 4 パターン
-- 出典セクションに Kyotei bug と本 cycle を記録
+- 出典セクションに由来 bug と本 cycle を記録
 
 **Item 2**: `skills/spec/templates/cycle.md` Verification section (L92-100 書き換え)
 - real-path invocation を第一義に配置 (CLI / Web / Library 3 例)
@@ -144,7 +144,7 @@ unit tests は mock を通すため「宣言された config/option が producti
 **Item 6**: `tests/test-codify-rule-docs.sh` — TC-19 追加
 ```
 # TC-19: rules/integration-verification.md exists + H1 + 禁止事項 に "bash tests/test" +
-#         推奨 に "curl|docker|python -m" + 出典 に "Kyotei" or "20260424"
+#         推奨 に "curl|docker|python -m" + 出典 に "20260424"
 ```
 新テストファイル追加なし (STATUS.md test count 変化なし)。
 

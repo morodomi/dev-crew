@@ -265,7 +265,7 @@ test "user can login"
 ## Test Architecture Guide {#test-architecture-guide}
 
 テスト = 仕様の実行可能な表現（Executable Specification）。
-詳細な思想・不採用記録: `Keiba/docs/test_architecture.md`
+詳細な思想・不採用記録は、各プロジェクトの `docs/test_architecture.md`（正式ドキュメント）に置く。
 
 ### 2領域モデル
 
@@ -274,7 +274,7 @@ test "user can login"
 | 決定論的 | Data Contract + Property-Based Testing | 特徴量計算、データ変換、CRUD |
 | 確率的 | Metamorphic Testing + 統計的Property | ML推論、レコメンド、シミュレーション |
 
-テスト設計原則・Mock方針: `Keiba/docs/test_architecture.md` を参照。
+テスト設計原則・Mock方針: 各プロジェクトの `docs/test_architecture.md`（正式ドキュメント）を参照。
 
 ### 言語別ツールマッピング
 

@@ -1,6 +1,7 @@
 #!/bin/bash
 # test-architecture-dedup.sh - Test Architecture Guide deduplication regression tests
-# TC-01 ~ TC-07: Ensure duplicated content is removed and references/anchors are preserved
+# TC-01, TC-03, TC-04, TC-05, TC-07: Ensure duplicated content is removed and references/anchors are preserved
+# (TC-02 / TC-06 removed: their subject file was a project-specific convention doc, now out of this repo)
 
 set -euo pipefail
 
@@ -12,7 +13,6 @@ pass() { PASS=$((PASS + 1)); printf "  \033[32mPASS\033[0m %s\n" "$1"; }
 fail() { FAIL=$((FAIL + 1)); printf "  \033[31mFAIL\033[0m %s\n" "$1"; }
 
 REF="$BASE_DIR/skills/red/reference.md"
-KEIBA="$BASE_DIR/docs/project-conventions/keiba.md"
 
 echo "=== Test Architecture Dedup Tests ==="
 
@@ -23,15 +23,6 @@ if grep -q "What not How" "$REF"; then
   fail "reference.md still contains 'What not How' (duplicated design principle)"
 else
   pass "reference.md does not contain duplicated design principles"
-fi
-
-# TC-02: keiba.md must NOT contain the design principles table
-echo ""
-echo "TC-02: keiba.md does not contain design principles table"
-if grep -qE "\*{0,2}What not How\*{0,2}" "$KEIBA"; then
-  fail "keiba.md still contains 'What not How' (duplicated design principle)"
-else
-  pass "keiba.md does not contain duplicated design principles"
 fi
 
 # TC-03: reference.md must retain the 2-domain model (anti-over-deletion)
@@ -55,19 +46,10 @@ fi
 # TC-05: reference.md must reference the authority source
 echo ""
 echo "TC-05: reference.md references authority source"
-if grep -q "Keiba/docs/test_architecture.md" "$REF"; then
+if grep -q "docs/test_architecture.md" "$REF"; then
   pass "reference.md references authority source"
 else
-  fail "reference.md does not reference Keiba/docs/test_architecture.md"
-fi
-
-# TC-06: keiba.md must reference the authority source
-echo ""
-echo "TC-06: keiba.md references authority source"
-if grep -q "Keiba/docs/test_architecture.md" "$KEIBA"; then
-  pass "keiba.md references authority source"
-else
-  fail "keiba.md does not reference Keiba/docs/test_architecture.md"
+  fail "reference.md does not reference the authority source"
 fi
 
 # TC-07: reference.md must retain the anchor for red-worker.md link
