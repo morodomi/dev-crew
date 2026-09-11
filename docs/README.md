@@ -31,6 +31,7 @@
 
 | ドキュメント | 内容 |
 |-------------|------|
+| [NEXT.md](NEXT.md) | 次に着手する作業の単一参照点 |
 | [terminology.md](terminology.md) | 用語規約。命名、言語ポリシー |
 | [project-conventions/](project-conventions/) | プロジェクト固有規約・SKILL.md フロントマター規約 |
 | [decisions/](decisions/) | ADR テンプレートと決定記録置き場 |
