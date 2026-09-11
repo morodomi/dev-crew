@@ -135,7 +135,7 @@ false positive（一般英語 "parallel"、Fowler Parallel Change、AGENT_TEAMS 
 ## Verification（real-path invocation）
 
 ```bash
-SCRATCH=/private/tmp/claude-501/-Users-morodomi-Projects-MorodomiHoldings-agents-dev-crew/74f3a9a9-3af1-4977-80a3-f0ee96a13dd1/scratchpad
+SCRATCH=/private/tmp/claude-501/-repo-dev-crew/74f3a9a9-3af1-4977-80a3-f0ee96a13dd1/scratchpad
 # 1) 単体（nested runner の doc-consistency は除外、TC-16 相当は直接 grep）
 bash tests/test-codify-insight.sh; echo "rc=$?"
 bash tests/test-cycle-retrospective.sh; echo "rc=$?"

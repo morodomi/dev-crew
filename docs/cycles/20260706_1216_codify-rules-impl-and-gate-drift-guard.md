@@ -231,7 +231,7 @@ orchestrate Block 0 の期待動作（本 plan の scope 外だが自動発生�
 
 **訂正（APPEND-ONLY、前エントリ「Codex 並行実行衝突」推定は誤り）**: 直列再実測でも同一 5 件が FAIL し、並行衝突説は棄却。切り分けの結果、真因は 2 つ:
 
-1. **snapshot 手法の欠陥（4 件の原因）**: `cp -R . $SNAP` は repo 単体複製のため、`tests/test-paradigm-selection.sh:16` の `HOLDINGS_DOC="$(cd "$BASE_DIR/../.." && pwd)/docs/test_architecture.md"`（repo 外依存）が解決不能 → TC-04 FAIL。残り 3 件（doc-consistency TC-13 / factory-model / skip-criteria TC-05）は paradigm-selection を nested 実行するカスケード。**対策**: snapshot は親構造ごと複製（`$SNAP/MorodomiHoldings/docs` + `$SNAP/MorodomiHoldings/agents/dev-crew`）。live tree 個別実行が「PASS」だったのは repo 外依存が本物のパスで解決できたため
+1. **snapshot 手法の欠陥（4 件の原因）**: `cp -R . $SNAP` は repo 単体複製のため、`tests/test-paradigm-selection.sh:16` の `HOLDINGS_DOC="$(cd "$BASE_DIR/../.." && pwd)/docs/test_architecture.md"`（repo 外依存）が解決不能 → TC-04 FAIL。残り 3 件（doc-consistency TC-13 / factory-model / skip-criteria TC-05）は paradigm-selection を nested 実行するカスケード。**対策**: snapshot は親構造ごと複製（`$SNAP/<workspace>/docs` + `$SNAP/<workspace>/agents/dev-crew`）。live tree 個別実行が「PASS」だったのは repo 外依存が本物のパスで解決できたため
 2. **test-meta-doc-consistency の pre-existing FAIL（1 件、環境非依存）**: subject の `tests/test-doc-consistency.sh:155-156` TC-16 `tracked=$(git -C "$BASE_DIR" ls-files 2>/dev/null); tracked_rc=$?` が `set -euo pipefail` 下で dead code — fixture（非 git dir）で git rc=128 → set -e が rc ガード到達前に script を abort し、meta test TC-01〜03 の「Summary 到達」assert が FAIL。`git log -L` で **導入 commit db67871（2026-07-03、cycle 20260703_1215）から存在**を確認。皮肉にも「rc を `|| rc=$?` で受ける」rule (test-patterns.md、cycle 20260703_1215 #3) を codify した同一 cycle の成果物が同 rule に違反。HEAD の git archive snapshot でも再現し、本 cycle の変更とは無関係の真の pre-existing FAIL
 
 **確定 baseline（Holdings 構造複製 snapshot、直列実行）**: 111/112 rc=0、`test-meta-doc-consistency.sh rc=1` のみ FAIL（scratchpad/baseline-codify148.txt）。過去 cycle の「112/112 全 rc=0」報告は 2026-07-03 以降 meta-doc-consistency について再現不能（当時 evidence は消失済みのため追及不能、本 cycle は実測を正とする）
@@ -379,7 +379,7 @@ bash -n tests/test-doc-consistency.sh → rc=0（単体実行禁止のため syn
 
 ### Insight 1: snapshot baseline は repo 外依存を含む親構造ごと複製する。同時多発 FAIL は単一根本原因の cascade を疑う
 - **Failure**: `cp -R . $SNAP` の repo 単体 snapshot で baseline を取ったところ 5 件 rc=1。第一診断は「Codex plan review の並行テスト実行との衝突」（もっともらしいが誤り — 直列再実行でも再現した）。真因は test-paradigm-selection.sh:16 の `$BASE_DIR/../../docs`（Holdings 親）依存が snapshot で解決不能になったこと。残り 4 件は同テストを nested 実行するカスケードだった
-- **Final fix**: snapshot を親構造ごと複製（`$SNAP/MorodomiHoldings/docs` + `$SNAP/MorodomiHoldings/agents/dev-crew`）→ 111/112 に収束（残 1 件は独立の真の pre-existing FAIL）
+- **Final fix**: snapshot を親構造ごと複製（`$SNAP/<workspace>/docs` + `$SNAP/<workspace>/agents/dev-crew`）→ 111/112 に収束（残 1 件は独立の真の pre-existing FAIL）
 - **Insight**: **(a) 隔離 snapshot は `grep -rn '\.\./\.\.' tests/` で repo 外依存を先に洗い、依存する親構造ごと複製する。(b) N 件同時 FAIL は N 個の独立バグではなく単一根本原因の nested cascade をまず疑い、nested 実行グラフ（どのテストがどれを呼ぶか）で切り分ける。(c) 「もっともらしい第一仮説」（並行衝突）は棄却実験（直列再実行）を経てから採用する**
 - **一般化**: plan-discipline.md「baseline snapshot 隔離」rule の複製範囲補強候補
 

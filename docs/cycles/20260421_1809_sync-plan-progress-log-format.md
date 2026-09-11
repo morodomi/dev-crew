@@ -103,7 +103,7 @@ Cycle doc の Progress Log において "INIT" フェーズ名を "KICKOFF" に�
 
 ```bash
 # テスト実行
-bash /Users/morodomi/Projects/MorodomiHoldings/agents/dev-crew/tests/test-pre-commit-gate.sh
+bash <repo>/tests/test-pre-commit-gate.sh
 ```
 
 Evidence: (orchestrate が自動記入)

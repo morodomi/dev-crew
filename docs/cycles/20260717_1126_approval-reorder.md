@@ -334,7 +334,7 @@ Phase completed
   2. `bash tests/test-codex-delegation-preference.sh` → **13/13 PASS**（TC-09/10 解消確認、TC-13も連鎖解消）
   3. `bash tests/test-v201-fixes.sh` → **10/10 PASS**
   4. `bash tests/test-rules-mirror.sh` → **3/3 PASS**（doc-mutations.md/state-ownership.md ともmirror一致、post-approve.mdはallowlist経由で単独ファイルのまま整合）
-  5. 隔離snapshot（scratchpad配下にcp -R、`docs/`を含む repo全体を複製）上で全113テストを直列実行 → **rc≠0は4件**: test-doc-consistency.sh / test-factory-model-adaptation.sh / test-paradigm-selection.sh / test-skip-criteria-tp-review.sh。実repo（非snapshot）で個別再実行し切り分け: (a) test-paradigm-selection.sh TC-04がMorodomiHoldings親ディレクトリの`docs/test_architecture.md`（repo外絶対パス）を要求しており、snapshot複製がdev-crewサブディレクトリのみでMorodomiHoldings親構造を含んでいなかったため発生した複製境界アーティファクト（実repoでは7/7 PASS、plan-discipline.mdの「隔離snapshotは親構造ごと複製」原則に本来従うべきだったが本cycleのscope外事象のため次回baseline作業へ申し送り）。(b) test-skip-criteria-tp-review.shはtest-paradigm-selection.shのregression呼び出し失敗の直接cascadeで同根（実repoで5/5 PASS）。(c) test-factory-model-adaptation.shのTC-14がtest-paradigm-selection.sh失敗をcascadeしていたのも同根（実repoで14/14 PASS）。(d) test-doc-consistency.shのTC-17「tests/*.shコメント行に追跡番号ラベル0件」が実repoでも**真のFAIL**として残存（15 hits、下記残課題参照）
+  5. 隔離snapshot（scratchpad配下にcp -R、`docs/`を含む repo全体を複製）上で全113テストを直列実行 → **rc≠0は4件**: test-doc-consistency.sh / test-factory-model-adaptation.sh / test-paradigm-selection.sh / test-skip-criteria-tp-review.sh。実repo（非snapshot）で個別再実行し切り分け: (a) test-paradigm-selection.sh TC-04が親 workspace ディレクトリの`docs/test_architecture.md`（repo外絶対パス）を要求しており、snapshot複製がdev-crewサブディレクトリのみで<workspace>親構造を含んでいなかったため発生した複製境界アーティファクト（実repoでは7/7 PASS、plan-discipline.mdの「隔離snapshotは親構造ごと複製」原則に本来従うべきだったが本cycleのscope外事象のため次回baseline作業へ申し送り）。(b) test-skip-criteria-tp-review.shはtest-paradigm-selection.shのregression呼び出し失敗の直接cascadeで同根（実repoで5/5 PASS）。(c) test-factory-model-adaptation.shのTC-14がtest-paradigm-selection.sh失敗をcascadeしていたのも同根（実repoで14/14 PASS）。(d) test-doc-consistency.shのTC-17「tests/*.shコメント行に追跡番号ラベル0件」が実repoでも**真のFAIL**として残存（15 hits、下記残課題参照）
 - retro_status: none（変更なし）
 - Phase completed
 
@@ -425,7 +425,7 @@ Phase completed
 3. `bash tests/test-pre-red-gate.sh` → **13 passed / 6 failed**（fixture 要修正、詳細下記）
 4. `bash tests/test-post-approve-ordering.sh` → rc=0（16/16 PASS） / `bash tests/test-v201-fixes.sh` → rc=0（10/10 PASS） / `bash tests/test-codex-delegation-preference.sh` → rc=0（13/13 PASS）
 5. `bash tests/test-rules-mirror.sh` → rc=0（3/3 PASS）
-6. 隔離 snapshot（scratchpad 複製、dev-crew サブディレクトリのみ）で全113テスト実行 → rc≠0 は5件: test-pre-red-gate.sh（fixture、下記）/ test-doc-consistency.sh・test-factory-model-adaptation.sh（いずれも test-pre-red-gate.sh 失敗の cascade、TC-13/14 の regression 呼び出し経由）/ test-paradigm-selection.sh・test-skip-criteria-tp-review.sh（snapshot 複製が MorodomiHoldings 親構造を含んでいないための境界アーティファクト、実 repo では前者7/7・後者5/5 PASS 実測済み、本 cycle の変更と無関係）
+6. 隔離 snapshot（scratchpad 複製、dev-crew サブディレクトリのみ）で全113テスト実行 → rc≠0 は5件: test-pre-red-gate.sh（fixture、下記）/ test-doc-consistency.sh・test-factory-model-adaptation.sh（いずれも test-pre-red-gate.sh 失敗の cascade、TC-13/14 の regression 呼び出し経由）/ test-paradigm-selection.sh・test-skip-criteria-tp-review.sh（snapshot 複製が 親 workspace 構造を含んでいないための境界アーティファクト、実 repo では前者7/7・後者5/5 PASS 実測済み、本 cycle の変更と無関係）
 7. その他 regression 影響範囲（spec/architect/sync-plan/orchestrate/review 関連 58 ファイル + 追加候補）を個別実行 → 全 rc=0（test-orchestrate-a2b.sh は README.md の行折返しで TC-17 が一時 FAIL したが、"REVIEW → cycle-retrospective → COMMIT" を単一行に戻し即修正・再確認済み）
 
 **fixture 要修正リスト（テストファイル非編集のため報告のみ、別 worker 対応）**:

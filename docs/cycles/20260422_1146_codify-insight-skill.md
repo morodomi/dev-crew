@@ -202,7 +202,7 @@ codify-insight は frontmatter `retro_status` (captured → resolved) + `updated
 ## Verification
 
 ```bash
-cd /Users/morodomi/Projects/MorodomiHoldings/agents/dev-crew
+cd <repo>
 
 # 1. 新 test script PASS (20 TCs after Round 1 revision)
 bash tests/test-codify-insight.sh 2>&1 | tail -5

@@ -102,14 +102,14 @@ dev-crew の rule codification 標準パターン（cycle 20260424_0900 と同�
 
 ```bash
 # 新 TC RED→GREEN
-bash /Users/morodomi/Projects/MorodomiHoldings/agents/dev-crew/tests/test-codify-rule-docs.sh; echo "rc=$?"
+bash <repo>/tests/test-codify-rule-docs.sh; echo "rc=$?"
 
 # mirror byte-identical
-diff /Users/morodomi/Projects/MorodomiHoldings/agents/dev-crew/rules/plan-discipline.md /Users/morodomi/Projects/MorodomiHoldings/agents/dev-crew/.claude/rules/plan-discipline.md && echo "IDENTICAL"
+diff <repo>/rules/plan-discipline.md <repo>/.claude/rules/plan-discipline.md && echo "IDENTICAL"
 
 # real-path: section_grep で推奨/出典 抽出が正しいか
-awk '$0 ~ "^## 推奨"{s=1;next} s&&/^## /{s=0} s' /Users/morodomi/Projects/MorodomiHoldings/agents/dev-crew/rules/plan-discipline.md | grep -c "curated"
-awk '$0 ~ "^## 出典"{s=1;next} s&&/^## /{s=0} s' /Users/morodomi/Projects/MorodomiHoldings/agents/dev-crew/rules/plan-discipline.md | grep -c "20260625_1101"
+awk '$0 ~ "^## 推奨"{s=1;next} s&&/^## /{s=0} s' <repo>/rules/plan-discipline.md | grep -c "curated"
+awk '$0 ~ "^## 出典"{s=1;next} s&&/^## /{s=0} s' <repo>/rules/plan-discipline.md | grep -c "20260625_1101"
 ```
 
 Evidence: (orchestrate が自動記入)

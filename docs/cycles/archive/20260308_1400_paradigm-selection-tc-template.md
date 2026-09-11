@@ -19,7 +19,7 @@ test_architecture.md の理想形（4つの性質 + 3パラダイム: Data Contr
 
 1. `skills/red/reference.md`: TC展開テンプレートにParadigm Selection + Contract/Property/MR記述欄を追加
 2. `agents/red-worker.md`: Step 0の分類結果をTC展開に引き継ぐフローを明記
-3. `MorodomiHoldings/docs/test_architecture.md`: SSOT としてコピー（済）
+3. `<workspace>/docs/test_architecture.md`: SSOT としてコピー（済）
 
 ### Out of Scope
 
@@ -61,7 +61,7 @@ Step 0で決定論的/確率的を判定 → 判定結果に基づきParadigm欄
 - [x] TC-01: reference.md TC展開テンプレートに Paradigm 欄が存在する
 - [x] TC-02: reference.md TC展開テンプレートに Invariant 欄が存在する
 - [x] TC-03: red-worker.md に Paradigm Selection が TC展開に引き継がれる記述がある
-- [x] TC-04: MorodomiHoldings/docs/test_architecture.md が存在する（SSOT）
+- [x] TC-04: <workspace>/docs/test_architecture.md が存在する（SSOT）
 - [x] TC-05: reference.md が authority source を参照している（回帰）
 - [x] TC-06: reference.md が2領域モデルを保持している（回帰）
 - [x] TC-07: reference.md が言語別ツールマッピングを保持している（回帰）
@@ -70,7 +70,7 @@ Step 0で決定論的/確率的を判定 → 判定結果に基づきParadigm欄
 
 ### 2026-03-08 14:00 - KICKOFF
 - Cycle doc created
-- test_architecture.md copied to MorodomiHoldings/docs/
+- test_architecture.md copied to <workspace>/docs/
 - Phase completed
 
 ### 2026-03-08 14:10 - RED

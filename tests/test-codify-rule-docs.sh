@@ -455,10 +455,9 @@ else
   else
     suishou_ok=0
   fi
-  # 出典 section に Kyotei or 20260424 reference
-  count_shuten_kyotei=$(section_grep "$FILE" "出典" "Kyotei")
+  # 出典 section に由来 cycle への reference
   count_shuten_cycle=$(section_grep "$FILE" "出典" "20260424")
-  if [ "$count_shuten_kyotei" -ge 1 ] || [ "$count_shuten_cycle" -ge 1 ]; then
+  if [ "$count_shuten_cycle" -ge 1 ]; then
     shuten_ok=1
   else
     shuten_ok=0
@@ -480,7 +479,7 @@ else
   elif [ "$suishou_ok" -lt 1 ]; then
     fail "TC-19: rules/integration-verification.md 推奨 section missing 'docker' or 'curl' or 'python -m'"
   elif [ "$shuten_ok" -lt 1 ]; then
-    fail "TC-19: rules/integration-verification.md 出典 section missing 'Kyotei' or '20260424' reference"
+    fail "TC-19: rules/integration-verification.md 出典 section missing '20260424' reference"
   else
     fail "TC-19: rules/integration-verification.md is too small ($size bytes, need >= 300)"
   fi

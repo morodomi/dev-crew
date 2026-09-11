@@ -302,7 +302,7 @@ Evidence: (orchestrate が自動記入)
 ## Retrospective
 
 ### Insight 1: 隔離 snapshot を作る前に repo 外依存を grep する（codified 済み条項の未適用、1 度目）
-- **Failure**: Gate 2 の full suite を repo 単体で /private/tmp に複製して実行し、4 件が FAIL。原因は tests/test-paradigm-selection.sh:16 の `$BASE_DIR/../../docs/test_architecture.md`（MorodomiHoldings 直下）が snapshot では解決できなかったこと。私は一瞬これを「本 cycle の変更による regression」と読み、切り分けに往復を費やした
+- **Failure**: Gate 2 の full suite を repo 単体で /private/tmp に複製して実行し、4 件が FAIL。原因は tests/test-paradigm-selection.sh:16 の `$BASE_DIR/../../docs/test_architecture.md`（親 workspace 直下）が snapshot では解決できなかったこと。私は一瞬これを「本 cycle の変更による regression」と読み、切り分けに往復を費やした
 - **Final fix**: `holdings-snap/docs/test_architecture.md` + `agents/dev-crew/` の親構造ごと複製して 116/116 を確認
 - **Insight**: **rules/plan-discipline.md「隔離 snapshot baseline は複製前に repo 外依存を洗い（例: `grep -rln '\.\./\.\.' tests/`）、依存する親構造ごと複製する」(cycle 20260706_1216 #1) は既に codified されている。読んだ rule を「実行するコマンド」に変換しないと適用されない。snapshot を作る手が動く前に、この grep を実行する 1 ステップを挟む**
 - **一般化**: codified rule のうち「手順の前に実行すべき grep/検査」型の条項は、実行時に思い出す設計では守れない。gate script 化または委譲 prompt の必須項目化が必要（#202 の決定論化と同型の問題）

@@ -171,7 +171,7 @@ After: `Edit/Write を直接行わず、必ず /orchestrate に委譲するこ�
 ## Verification
 
 ```bash
-bash /Users/morodomi/Projects/MorodomiHoldings/agents/dev-crew/tests/test-hooks-structure.sh
+bash <repo>/tests/test-hooks-structure.sh
 ```
 
 Evidence: 31/31 PASS (gate-removal 6 + hooks-structure 10 + post-approve-action 15)

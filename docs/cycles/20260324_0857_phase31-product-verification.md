@@ -24,7 +24,7 @@ updated: 2026-03-24 08:57
 - [ ] `skills/orchestrate/steps-codex.md` に VERIFY ステップ追加（REFACTOR→REVIEW間）
 
 ### Out of Scope
-- ROADMAP.md の ShaReco参照削除（issue起票済み → DISCOVERED セクション参照）
+- ROADMAP.md の事業名参照削除（issue起票済み → DISCOVERED セクション参照）
 - Product Verification 専用スキルの新規作成（YAGNI: orchestrateが直接実行）
 
 ### Files to Change (target: 10 or less)
@@ -67,7 +67,7 @@ updated: 2026-03-24 08:57
 - orchestrate Block 2d (REVIEW): VERIFY の結果は advisory evidence として渡す
 
 ### Related Issues/PRs
-- DISCOVERED: ROADMAP.md に ShaReco（非公開事業）への直接参照あり → issue起票予定
+- DISCOVERED: ROADMAP.md にプロジェクト E への直接参照あり → issue起票予定
 
 ## Test List
 
@@ -86,7 +86,7 @@ updated: 2026-03-24 08:57
 (none)
 
 ### DISCOVERED
-- ROADMAP.md に ShaReco（非公開事業）への直接参照あり → 公開リポジトリから削除すべき（issue起票予定）
+- ROADMAP.md にプロジェクト E への直接参照あり → 公開リポジトリから削除すべき（issue起票予定）
 
 ### DONE
 (none)
