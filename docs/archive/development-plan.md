@@ -199,7 +199,7 @@ orchestrate の設計レビューを kickoff 前に実施するよう変更。
 
 - red-worker.md に Step 0: Test Strategy Classification 追加（決定論的/確率的の判定）
 - reference.md に Test Architecture Guide セクション追加（2領域モデル、設計原則、Mock方針、言語別ツール、フォールバック戦略）
-- 3者議論（Claude/Gemini/Grok）で Option C (red拡張) に合意。思想文書: 別プロジェクトの test architecture doc
+- 3者議論（Claude/Gemini/Grok）で Option C (red拡張) に合意。思想文書: プロジェクト C の test architecture doc
 
 ---
 

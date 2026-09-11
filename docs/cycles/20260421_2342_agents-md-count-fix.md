@@ -60,7 +60,7 @@ updated: 2026-07-06 11:40
 ## Verification
 
 ```bash
-cd /Users/morodomi/Projects/MorodomiHoldings/agents/dev-crew
+cd <repo>
 
 # 1. test-skills-structure.sh TC-B1 PASS 確認
 bash tests/test-skills-structure.sh 2>&1 | grep "TC-B1"

@@ -42,7 +42,7 @@ template / skill docs だけでなく、自 cycle の Verification 実行でも 
 
 ## 出典
 
-- YAML config wire-gap bug (別 repo、2026-04-24 発見)
+- YAML config wire-gap bug (プロジェクト D、2026-04-24 発見)
 - `docs/cycles/20260424_0900_integration-verification-rule.md` — integration verification rule codify cycle
 - `docs/cycles/20260423_1045_discovered-cycle2-followup.md` Insight 1 (REFACTOR full-suite baseline 必須) の対称ルール
 - cycle 20260702_1200 #3

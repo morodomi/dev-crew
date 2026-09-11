@@ -97,7 +97,7 @@ Socrates は反論+選択肢を返すだけ（advisor 原則維持）。Escalati
 - Socrates 反証: 3反論（advisor原則矛盾、コスト、False Positive蓄積）
 - 反論1採用: Escalation 判定は PdM が行う設計に修正（advisor 原則維持）
 - 反論2/3却下: 見逃しリスク > コスト/False Positive リスク
-- 別プロジェクトの実例: reviewer が見逃したキャッシュ invalidation を Socrates が検出 → 広さ(reviewer) vs 深さ(Socrates) の分担が有効
+- プロジェクト C の実例: reviewer が見逃したキャッシュ invalidation を Socrates が検出 → 広さ(reviewer) vs 深さ(Socrates) の分担が有効
 
 ### 2026-03-17 02:10 - RED
 

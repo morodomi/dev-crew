@@ -67,7 +67,7 @@ updated: 2026-03-24 08:57
 - orchestrate Block 2d (REVIEW): VERIFY の結果は advisory evidence として渡す
 
 ### Related Issues/PRs
-- DISCOVERED: ROADMAP.md に非公開事業への直接参照あり → issue起票予定
+- DISCOVERED: ROADMAP.md にプロジェクト E への直接参照あり → issue起票予定
 
 ## Test List
 
@@ -86,7 +86,7 @@ updated: 2026-03-24 08:57
 (none)
 
 ### DISCOVERED
-- ROADMAP.md に非公開事業への直接参照あり → 公開リポジトリから削除すべき（issue起票予定）
+- ROADMAP.md にプロジェクト E への直接参照あり → 公開リポジトリから削除すべき（issue起票予定）
 
 ### DONE
 (none)

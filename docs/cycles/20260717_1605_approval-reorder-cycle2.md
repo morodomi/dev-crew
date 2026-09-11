@@ -121,7 +121,7 @@ Codex plan review BLOCK 1-5 反映済み（設計判断 1-7、Files to Change �
 
 ## Baseline
 
-- 全 113 テスト: 113/113 rc=0（ALL PASS）。evidence: `/private/tmp/claude-501/-Users-morodomi-Projects-MorodomiHoldings-agents-dev-crew/66be0fcc-9986-4114-b779-9d983b621721/scratchpad/c2-baseline.txt`（Holdings 親構造複製、隔離、2026-07-17 実測、隔離 snapshot 上）
+- 全 113 テスト: 113/113 rc=0（ALL PASS）。evidence: `/private/tmp/claude-501/-repo-dev-crew/66be0fcc-9986-4114-b779-9d983b621721/scratchpad/c2-baseline.txt`（Holdings 親構造複製、隔離、2026-07-17 実測、隔離 snapshot 上）
 - RED 期待遷移（Codex BLOCK 4 訂正）: baseline 113 scripts PASS → RED で TC-C2-1〜5 が FAIL（現状 doc は旧順序）→ GREEN 後 113/113 scripts PASS。Test Scripts 数は 113 不変（新規ファイルなし）
 
 ## Verification

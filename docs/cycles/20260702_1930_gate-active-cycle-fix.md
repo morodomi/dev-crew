@@ -135,7 +135,7 @@ cycle 20260702_1200 の COMMIT 時に実測で露呈したバグ（issue #145）
 **Real-path invocation を最低 1 件含めること** (rules/integration-verification.md)。
 
 ```bash
-SCRATCH=/private/tmp/claude-501/-Users-morodomi-Projects-MorodomiHoldings-agents-dev-crew/74f3a9a9-3af1-4977-80a3-f0ee96a13dd1/scratchpad
+SCRATCH=/private/tmp/claude-501/-repo-dev-crew/74f3a9a9-3af1-4977-80a3-f0ee96a13dd1/scratchpad
 
 # 1) real-path: 実 repo で fallback 選択が最新 updated の doc を選ぶ（修正前は 20260421_1809 を選んでいた）
 bash scripts/gates/pre-commit-gate.sh . 2>&1 | head -3; echo "rc=$?"

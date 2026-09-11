@@ -156,7 +156,7 @@ AFK時の判断（ユーザー未回答、approve 時に veto なし）:
 
 ```bash
 # 共通: baseline path は SCRATCH に統一（Codex plan review F2 反映: path 不一致解消）
-SCRATCH=/private/tmp/claude-501/-Users-morodomi-Projects-MorodomiHoldings-agents-dev-crew/74f3a9a9-3af1-4977-80a3-f0ee96a13dd1/scratchpad
+SCRATCH=/private/tmp/claude-501/-repo-dev-crew/74f3a9a9-3af1-4977-80a3-f0ee96a13dd1/scratchpad
 
 # 1) 全 suite 実行（curated 禁止 — sweep 対象を含む全量、per-test timeout 付き）
 for f in tests/test-*.sh; do timeout 2400 bash "$f" >/dev/null 2>&1; printf "%s rc=%d\n" "$(basename $f)" "$?"; done | sort > "$SCRATCH/after.txt"

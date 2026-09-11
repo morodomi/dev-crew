@@ -136,7 +136,7 @@ updated: 2026-07-06 11:40
 ## Verification
 
 ```bash
-cd /Users/morodomi/Projects/MorodomiHoldings/agents/dev-crew
+cd <repo>
 
 # 1. 新 test script PASS (10 TCs)
 bash tests/test-codify-rule-docs.sh 2>&1 | tail -3

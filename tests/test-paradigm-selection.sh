@@ -44,7 +44,7 @@ else
   fail "red-worker does not connect Step 0 to Paradigm"
 fi
 
-# TC-04: MorodomiHoldings/docs/test_architecture.md exists (SSOT)
+# TC-04: <workspace>/docs/test_architecture.md exists (SSOT)
 echo ""
 echo "TC-04: test_architecture.md exists at Holdings docs (SSOT)"
 if [ -f "$HOLDINGS_DOC" ]; then

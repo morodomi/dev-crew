@@ -119,7 +119,7 @@ RED で TC-34〜38（5 rule 追記の pin）+ TC-17（#151 本体、tests/*.sh �
 ## Verification（real-path invocation — usage 実測済み形式のみ）
 
 ```bash
-SCRATCH=/private/tmp/claude-501/-Users-morodomi-Projects-MorodomiHoldings-agents-dev-crew/74f3a9a9-3af1-4977-80a3-f0ee96a13dd1/scratchpad
+SCRATCH=/private/tmp/claude-501/-repo-dev-crew/74f3a9a9-3af1-4977-80a3-f0ee96a13dd1/scratchpad
 bash tests/test-codify-rule-docs.sh; echo "rc=$?"
 bash tests/test-rules-mirror.sh; echo "rc=$?"
 # TC-17 相当の直接検査

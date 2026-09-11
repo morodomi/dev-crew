@@ -84,14 +84,14 @@ housekeeping cycle。test expectation と実装状態の乖離を解消する:
 # 1. 6 originally failing test suites — 全 PASS 確認 (real-path consumer 実行)
 for t in test-no-verify-guard test-orchestrate-a2b test-plugin-data-paths \
          test-v201-fixes test-japanese-ux-research test-factory-model-adaptation; do
-  bash "/Users/morodomi/Projects/MorodomiHoldings/agents/dev-crew/tests/$t.sh" >/dev/null 2>&1; rc=$?
+  bash "<repo>/tests/$t.sh" >/dev/null 2>&1; rc=$?
   printf "%-40s rc=%d\n" "$t.sh" "$rc"
 done
 # expected: 全 6 件 rc=0
 
 # 2. full baseline (110 test files、本 cycle 後 0 FAIL 期待)
 fail_count=0
-BASE="/Users/morodomi/Projects/MorodomiHoldings/agents/dev-crew"
+BASE="<repo>"
 for f in "$BASE"/tests/test-*.sh; do
   bash "$f" >/dev/null 2>&1; rc=$?
   if [ $rc -ne 0 ]; then fail_count=$((fail_count + 1)); echo "FAIL: $(basename $f)"; fi

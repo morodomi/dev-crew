@@ -123,7 +123,7 @@ rule-codify cycle は「retrospective で codified 判定 → 実装は次 cycle
 **Real-path invocation を最低 1 件含めること** (rules/integration-verification.md)。integration-verification.md の self-apply 要件: 本 cycle は D（usage 実測 rule）を定義する cycle であるため、以下の Verification は全て usage を実測確認済みの形式のみ使用する（rule の自己適用）。
 
 ```bash
-SCRATCH=/private/tmp/claude-501/-Users-morodomi-Projects-MorodomiHoldings-agents-dev-crew/74f3a9a9-3af1-4977-80a3-f0ee96a13dd1/scratchpad
+SCRATCH=/private/tmp/claude-501/-repo-dev-crew/74f3a9a9-3af1-4977-80a3-f0ee96a13dd1/scratchpad
 # 1) real-path: 対象テスト単体（usage: 引数なし、実測確認済み）
 bash tests/test-codify-rule-docs.sh; echo "rc=$?"
 bash tests/test-rules-mirror.sh; echo "rc=$?"

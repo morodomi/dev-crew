@@ -257,7 +257,7 @@ Evidence: (orchestrate が自動記入)
 - Verification Gate: codify-rule-docs rc=0（46/46）/ rules-mirror rc=0 / 4 ペア byte-identical / 新 TC heading 引数は全て短縮見出し（禁止事項/推奨/出典）/ tracking-label 契約 grep rc=1（clean）
 - **self-apply checklist（integration-verification「新 rule cycle は全成果物へ checklist 適用」）**:
   1. rule A（否定形前提）: 本 cycle の plan/KICKOFF は全て実測済み記述（architect が現物 grep 済み、否定形前提なし）— 準拠
-  2. rule C（親構造複製 snapshot）: Block 0 baseline を `$SNAP/MorodomiHoldings/{docs,agents/dev-crew}` の親構造複製で実測（`grep -rln '\.\./\.\.' tests/` → test-paradigm-selection のみを事前確認）— 準拠
+  2. rule C（親構造複製 snapshot）: Block 0 baseline を `$SNAP/<workspace>/{docs,agents/dev-crew}` の親構造複製で実測（`grep -rln '\.\./\.\.' tests/` → test-paradigm-selection のみを事前確認）— 準拠
   3. rule D（裸代入 同型 sweep）: 本 cycle は bash logic 変更なし（rule text + TC のみ）のため該当なし
   4. rule E（timestamp date 実測）: red/green 委譲 prompt の「完了時の義務」に `date "+%Y-%m-%d %H:%M"` 明記を含めた（初 self-apply）。worker 両名とも実測値を記録（GREEN 11:33 は /model 割り込みによる実経過時間で正確）
   5. 全成果物 checklist: rule 5 件・TC 5 件とも上記で適用済み
