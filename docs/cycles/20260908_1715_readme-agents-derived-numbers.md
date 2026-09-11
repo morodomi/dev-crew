@@ -5,12 +5,12 @@ phase: DONE
 complexity: standard
 test_count: 6
 risk_level: low
-retro_status: captured
+retro_status: resolved
 codex_mode: no
 codex_session_id: "01a07e86-41cc-7391-84b6-1e5e662db190"
 plan_file: /Users/morodomi/.claude/plans/twinkling-petting-kitten.md
 created: 2026-09-08 17:15
-updated: 2026-09-08 19:50
+updated: 2026-09-10 13:03
 ---
 
 # README/AGENTS の派生数値を削除し、pin と連鎖契約を一掃する（#210 Cycle 2/2、issue #214）
@@ -835,3 +835,32 @@ L24 は TC-01 のコメントブロック直下にあるが **TC-02 が消費し
 
 - **設問**: 今回の手戻りは、過去のどの cycle doc を最初に読んでいれば防げたか
 - **回答**: **cycle doc では防げなかった。読むべきだったのは `skills/spec/reference.md` の Step 8 節である。** これは想起漏れの新しい型を示している。`scripts/recall-candidates.sh` による強制想起は**機能した** — `docs/cycles/20260421_2342_agents-md-count-fix.md` を score 1.08 で拾い、その Verification に書かれていた「`test-cross-references.sh` が TC-B1 経由で PASS」という一文が、本 cycle の ABORT 波及調査（6 consumer + 増幅器 2 件）の起点になった。しかし **recall の対象は `docs/cycles/**` のみで、skill の reference.md は対象外**である。本 cycle の 6 件の欠陥はすべて reference.md に答えが書かれていた。recall を「過去の失敗」だけでなく「**これから使う skill の詳細仕様**」へ広げるか、あるいは #216 の plan-lint で機械的契約を script 側へ移して reference.md を読む必要自体を減らすか。後者の方が CONSTITUTION §4-6 に忠実である
+
+## Codify Decisions
+
+### Insight 1
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: always
+- **Reason**: 「SKILL.md の要約だけ読んで reference.md を読まない」は直近 10 cycle 中 3 cycle で再発（20260828_1030 / 20260723_1103 / 20260717_1605）。ただし「reference.md を読め」という散文条項を足すのは本 insight 自身が否定する対策であるため、**即時 rule 化するのは 1 条項に限る** — 「決定論 gate が読む書式（正準 hash・enum・grep 契約）を新設・変更したときは、gate と同じコマンドを実際に走らせて確認してから記録する」を plan-discipline.md へ。本 cycle では欠陥 6 件中 2 件（verdict / unresolved_blocks の markdown 太字）が、実際に gate の grep を走らせて初めて検出された。構造的対策（機械的契約を散文から script へ移す）は issue #216（plan-lint.sh）として起票済みで、そちらが本体。想起漏れ設問の回答（recall の対象が docs/cycles/** に限られ skill の reference.md を含まない）も #216 の射程に入る
+- **Decided**: 2026-09-10 13:03
+
+### Insight 2
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: cycle-scoped
+- **Reason**: 「両側 oracle」は直近 10 cycle 中 2 cycle（20260907_1324 / 20260903_1130）で言及され本 cycle が **3 回目**だが、rules/ には 1 件も条項が存在しない（grep 実測 0 件）。2-strike を超えているため rule へ昇格する。条項は test-patterns.md へ: 「契約を書いたら、その契約を**最も安易に満たす方法**を 1 つ考えて probe にする。negative 契約だけでなく positive 契約にも適用する（『行が存在する』を『行を消して同じ文字列を別所へ置く』で破れないか測る）」。本 cycle では TC-33d/e が 12 probe すべて ok を返しながら vacuous であり、Codex・correctness・test-reviewer の 3 者が独立に同じ 1 行へ収束した
+- **Decided**: 2026-09-10 13:03
+
+### Insight 3
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: cycle-scoped
+- **Reason**: 「読み取り並列・実行直列」は agent-prompts.md L37 に**既に条項として存在する**（cycle 20260702_1200 #2 由来）。それでも本 cycle で破られ load average 14.37 に達し、worker が打ち切られて Cycle doc の記録が全て失われた。直近 10 cycle でも 2 cycle が同型に言及（20260721_1503 / 20260717_1605）。**散文条項が 3 回目に破られた**ため、2-strike rule（cycle 20260703_1215 #2）に従い機械的手順へ格上げする: 「テストを実行するプロセスを起動する前に  が空であることを確認する」を agent-prompts.md の当該条項へ追記。issue #221 の phase-exit-gate に取り込める場合はそちらへ寄せる
+- **Decided**: 2026-09-10 13:03
+
+### Insight 4
+- **Decision**: codified
+- **Destination**: inline-update
+- **Reason**: novel（直近 10 cycle に同型なし）。skills/refactor/SKILL.md のチェックリスト項目 3「未使用import」を「未使用定義（残存する assertion のいずれかが実際に消費しているか）」へ拡張する 1 行の変更で、次 cycle の REFACTOR から即座に効く。参照カウントは足場の生死を判定できない（足場同士が互いを参照していれば両方とも「参照あり」になる）という判定基準そのものの誤りであり、rule 化より skill のチェックリスト本体を直す方が適切
+- **Decided**: 2026-09-10 13:03
