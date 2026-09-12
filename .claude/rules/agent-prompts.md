@@ -38,6 +38,8 @@ architect や subagent へ委譲する際のプロンプト設計規律。scope 
 
 同じ規約違反が複数 worker で再発する場合、原因は worker ではなく委譲 prompt の共通テンプレートにある。違反除去と同時に指示テンプレートを疑い grep 監査する (cycle 20260703_1650 #1)。
 
+完了通知は agent の turn が終わったことを示すだけで、**その agent が起動した background descendant の終了を保証しない**。通知直後に次を起動すると、通知元の子孫と並走し得る (docs/cycles/20260913_0059_runner-admission-snapshot.md)。
+
 ## 具体例
 
 ```markdown
@@ -64,3 +66,4 @@ plan v3 の Files to Change を全量尊重し、独自判断で追加・削除�
 - `docs/cycles/20260717_1126_approval-reorder.md #4` — 委譲 worker のフェーズ完了マーカーを必須項目化（2-strike）
 - `docs/cycles/20260717_1126_approval-reorder.md #1` — 二次検証者の実装独立性（被検証者の実装を流用しない）
 - `docs/cycles/20260721_1503_rules-load-trigger-reclassification.md #2` — timestamp 契約を Progress Log 追記全般へ拡張
+- `docs/cycles/20260913_0059_runner-admission-snapshot.md` — 完了通知は turn 終了のみを示し、background descendant の終了は保証しない

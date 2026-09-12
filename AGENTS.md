@@ -21,10 +21,10 @@ Skills available: spec, red, green, refactor, review, commit, orchestrate, diagn
 
 ```bash
 # Run all structure validation tests
-for f in tests/test-*.sh; do bash "$f"; done
+bash run-tests.sh
 
 # Run a specific test
-bash tests/test-plugin-structure.sh
+bash run-tests.sh tests/test-plugin-structure.sh
 ```
 
 ## TDD Workflow

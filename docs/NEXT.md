@@ -1,6 +1,6 @@
 # Next Steps
 
-最終更新: 2026-09-11
+最終更新: 2026-09-13
 
 次に何をするかの単一の参照点。着手したら該当項目を `docs/cycles/` の cycle doc へ移し、ここからは削る。
 
@@ -86,30 +86,32 @@ tip からは除去済み（PR #230）。**履歴には残る。**
 
 ---
 
-## 4. 逐次実行の判定条件を機械化する【依存なし】
+## 4. 逐次実行の機械化【Cycle A 完了 2026-09-13 / Cycle B・C 残】
 
-未解決の依存が無い唯一の項目。着手順としては最優先候補。
+`docs/cycles/20260913_0059_runner-admission-snapshot.md` で **Cycle A 完了**。
 
-**根拠は十分。本 cycle で規律に 4 回抵触し、うち 2 回で実害が出た。**
+### 完了したこと（Cycle A）
 
-| # | 事象 | 実害 |
+`run-tests.sh` をこの repo の正規 runner にし、フルスイートも単一テストも同じ入口を通るようにした。
+
+- **admission 3 条件**（テストプロセス数 / load1 / 空きメモリ）。条件単位 fail-open
+- **immutable snapshot 上での実行**。manifest 三者照合 `A == B == C` が成立したときだけ実行し、コピー中の変更と ABA を検出する。**これで実行中の live tree 書き換えは構造的に無害になり、事故 1・2 の実害（非再現 FAIL）は根で消えた**
+- 起動時の stale snapshot 掃除（age 単独では削除せず PID liveness と起動時刻トークンで判定）
+- `rules/agent-prompts.md` に完了通知の意味論を追記
+
+実測: TC 57 件・変異注入 12/12 検出・単一テスト経路 31.5 秒 → 4.89 秒（manifest batch 化。`--no-snapshot` は不採用）。
+
+### 残っていること
+
+| | 内容 | 理由 |
 |---|---|---|
-| 1 | architect が full suite と他を並行実行 | `test-doc-consistency.sh` の非再現 FAIL（D-06） |
-| 2 | 完了通知を見て次を起動したが通知元に child が残存 | full suite と green-worker が並走 |
-| 3 | REVIEW 中に外部 reviewer と検算を並行 | なし |
-| 4 | load 38 の状態で full suite を起動 | **OOM kill + snapshot 26MB 残留**（trap が発火せず） |
+| **Cycle B** | hook による inline ループの runner 誘導 + `tests/test-post-approve-gate-removal.sh` TC-07 契約の縮小 | `run-tests.sh` を経由しない inline ループは現状素通りする。TC-07 は「廃止済み `post-approve-gate` の現在形記述」を doc から 0 件に保つ negative 契約であり、その検索語が新 hook の説明文にも一致してしまう（**この行を書いた時点で実際に踏んだ** — 検索語を引用しただけで FAIL した）。**文言回避は oracle gaming なので契約側を旧 `post-approve-gate` 限定へ縮小し、再注入 mutation で検出力を実測する** |
+| **Cycle C** | 排他ロック | 二重起動の TOCTOU が残る。ただし owner 公開前 race・reaper の crash recovery・PID 再利用・ABA・signal の子伝播 が必要になり、単一開発者の repo に分散システムの機構を持ち込む形になったため分離した。**必要性が実運用で確かめられてから着手する** |
 
-**診断**: 逐次化の判定を「自分の管理下のプロセス」だけで定義したのが狭すぎた。`pgrep -f 'tests/test-'` は 4 で 0 を返している。
+### 本 cycle で分かったこと（次に効く）
 
-### やること
-
-- 起動前チェックを 3 条件へ: テストプロセス 0 / load < 閾値 / 空きメモリ > 閾値
-- snapshot の後始末を kill 耐性にする（trap は SIGKILL で発火しない。起動時に古い snapshot を掃除する形が確実）
-- 完了通知の意味論を明記（"no live background children of its own" であって「完全終了」ではない）
-
-2-strike rule を超えている。条項の追加ではなく機械化の段階。
-
----
+- **規律違反は本 cycle 中にさらに 2 件追加され計 6 件**。5 件目は sync-plan が admission なしでフルスイートを誤起動、**6 件目は PdM 自身**が worker 稼働中に並行してテストを起動した。「自分は分かっているから大丈夫」は成立しない
+- 効いた条項と効かなかった条項の差は「**参照する工程が存在するか**」だった。plan 作成・Verification 実行という手を止める工程では過去 doc が実際に設計を変えた。一方「次の agent を起動する」という反射的操作には条項が届かない。**Cycle B・C を残す理由がここにある**
 
 ## 5. 台帳を使う後続作業（本 cycle の成果物が入力）
 
@@ -128,5 +130,10 @@ tip からは除去済み（PR #230）。**履歴には残る。**
 | #226 | `retro-insight-ledger.sh` の git 分岐（bare repo で無出力終了）と太字 container の非対称 |
 | #227 | 既 commit 済みトークンの文脈行で漏洩ガードが false positive を出す |
 | #228 | full suite ブロックが FAIL 時に診断情報を残さない |
+| #233 | `docs/NEXT.md` が派生数値ガードの対象外 |
+| #234 | `tests/` に trap を持たない `mktemp -d` が 10 本以上あり leak する |
+| #235 | orchestrate の Block 0 に baseline 実測の指示がない（`plan-discipline.md:23` との乖離） |
+| #236 | `20260424_1356` の codify `deferred` が 5 ヶ月未実装。**`deferred` の追跡機構が無いこと自体が論点** |
+| #237 | 汎用テンプレート（onboard / spec / evolve）のテストコマンド表記の抽象化 |
 
 その他の backlog は `gh issue list` を参照。
