@@ -43,17 +43,10 @@ plan 作成・承認・実行における規律。実測ベースの計画、逆
 ## 具体例
 
 ```bash
-# Block 0: baseline 実測（immutable snapshot 複製上で実行し、evidence は隔離 path に保存）
-SNAP=$(mktemp -d)
-cp -R . "$SNAP"
-(
-  cd "$SNAP"
-  for f in tests/test-*.sh; do
-    bash "$f" >/dev/null 2>&1
-    rc=$?
-    printf "%s rc=%d\n" "$(basename "$f")" "$rc"
-  done | sort
-) > "$SCRATCH/baseline.txt"
+# Block 0: baseline 実測。run-tests.sh が admission check + immutable snapshot
+# 複製 + 三者照合（A==B==C）+ 起動時掃除を内包する正規 runner であり、
+# 独自の snapshot loop をここに書かない（cycle 20260913_0059）。
+bash run-tests.sh > "$SCRATCH/baseline.txt" 2>&1
 cat "$SCRATCH/baseline.txt"
 ```
 
@@ -73,3 +66,4 @@ cat "$SCRATCH/baseline.txt"
 - `docs/cycles/20260709_1313_reviewer-model-policy-v1.md #1` — 継承デフォルト前提は公式 doc の解決順で確認
 - `docs/cycles/20260716_1328_doc-drift-fix.md #2` — 連番次値は実装 grep で実測（ヘッダは drift 前提）
 - `docs/cycles/20260717_1605_approval-reorder-cycle2.md #2` — Block 0 codify の前 cycle doc 更新は scope 同梱として透明化
+- `docs/cycles/20260913_0059_runner-admission-snapshot.md` — baseline snapshot loop を `run-tests.sh`（admission + immutable snapshot + 三者照合を内包する正規 runner）呼び出しへ集約

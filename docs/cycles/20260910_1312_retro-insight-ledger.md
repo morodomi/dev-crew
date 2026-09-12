@@ -5,11 +5,11 @@ phase: DONE
 complexity: standard
 test_count: 59
 risk_level: low
-retro_status: captured
+retro_status: resolved
 codex_session_id: "01a088e7-1fbe-7b41-8a71-728d3e6fd594"
 plan_file: /Users/morodomi/.claude/plans/twinkling-petting-kitten.md
 created: 2026-09-10 13:12
-updated: 2026-09-10 16:21
+updated: 2026-09-13 00:54
 ---
 
 # Retrospective 節を script で機械集計し、行単位の台帳に落とす
@@ -1255,3 +1255,46 @@ dev-crew 側の commit。全 gate PASS:
 private 側は先行して確定済み: https://github.com/morodomi/morodomi-holdings/pull/1
 
 - Phase completed
+
+## Codify Decisions
+
+### Insight 1
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: cycle-scoped
+- **Target**: `rules/agent-prompts.md`（「読み取り並列・実行直列」条項へ追記）
+- **Reason**: 直近 10 cycle のうち 3 本（20260706_1216 / 20260908_1715 / 本 cycle）で同一主題が再発。2-strike rule 超過。完了通知の意味論は既存条項が触れていない欠落部分である。**後続 Cycle A が D5 として直接実装する**
+- **Decided**: 2026-09-13 00:54
+
+### Insight 2
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: cycle-scoped
+- **Target**: `rules/plan-discipline.md`（既存の「否定形前提の未検証記述」条項の姉妹条項として）
+- **Reason**: 「何を守るか」を決める前に「それは今どれだけ露出しているか」を実測する。既存の「未確認での Problem 記述禁止」「否定形前提の未検証記述禁止」と同じ assert-before-measure 系列であり、単独条項ではなく既存系列への追加として収まる
+- **Decided**: 2026-09-13 00:54
+
+### Insight 3
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: file-scoped
+- **Paths**: `tests/**`
+- **Target**: `rules/test-patterns.md`
+- **Reason**: 直近 10 cycle のうち 3 本で「変異注入」が再発。「テストが通る」と「テストが守っている」の分離は oracle 設計の一般原則であり、レビューで「oracle が弱い」と言われたら変異を 1 つ書いて実測する、という手順まで含めて条項化できる
+- **Decided**: 2026-09-13 00:54
+
+### Insight 4
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: cycle-scoped
+- **Target**: `rules/plan-discipline.md`（Recall 節の書式契約）
+- **Reason**: 「rule を Recall に引用したら、この cycle で何がその rule の対象かを 1 行書く」。**後続 Cycle A の plan 初版が同型の失敗を再現した**（immutable snapshot 条項を計測にだけ適用し runner 本体に適用しなかった）ため、本 insight は 2 回目の観測となり自動契約化の条件を満たす
+- **Decided**: 2026-09-13 00:54
+
+### Insight 5
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: cycle-scoped
+- **Target**: `rules/agent-prompts.md`（既存「二次検証者の実装独立性」条項の精緻化）
+- **Reason**: 既存条項は「一次と異なる実装（別言語/別ツール）を使わせる」で止まっており、本 insight は「言語を変えるだけでは成立しない。**期待値がどこから来たか**が独立性を決める」と条件を正す。既存条項を置換せず精緻化として追記する
+- **Decided**: 2026-09-13 00:54

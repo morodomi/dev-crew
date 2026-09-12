@@ -2,6 +2,23 @@
 
 ## [Unreleased]
 
+### Added
+- `run-tests.sh` を dev-crew の正規 test runner にした。フルスイートも単一テストも同じ入口を通り、(1) **admission check**（テストプロセス数 / load1 / 空きメモリの 3 条件。条件単位 fail-open で、probe 不在・rc >= 2・空出力・非数値は当該条件のみ skip し stderr に明示）、(2) **immutable snapshot 上での実行**（`rules/plan-discipline.md` が既に条項化していた「baseline は immutable snapshot 複製上で実測する」を runner 本体へ適用。copy 直前の source / copy 後の snapshot / copy 後の source の **manifest 三者照合 `A == B == C`** が成立したときだけ実行し、コピー中の変更と ABA を検出する）、(3) 起動時の stale snapshot 掃除（age 単独では削除せず `.owner` の PID liveness と起動時刻トークンで判定）を行う。`.git` は snapshot へ複製しつつファイル単位 manifest からは除外し、suite が実際に読む `git ls-files -z` の出力を virtual entry として三者照合に含める。exit code は `0`=PASS / `1`=1 件以上 FAIL（既存契約、不変）/ `2`=admission BLOCK / `3`=引数拒否 / `4`=live tree 書き込み中による manifest 不一致 / `5`=インフラ障害 で一意に分離した。実行後の live tree 変化は **advisory**（exit code を変えない）— 結果の正しさを決めるのはコピー時点の一貫性であり、実行後の変化は「この baseline が現 HEAD を記述しているか」という別の話であるため。これにより orchestrate が worker 実行中に Cycle doc の Progress Log を追記する現行運用と衝突しない
+- `.claude/test-serialization.json`: runner の閾値設定（`k_load` / `mem_min_mib` / `snapshot_stale_minutes` / `warn_on_live_changes`）。`load_max` を直接持たず `k_load` を持ち `ncpu × k_load` を実行時算出するのは、`16` が 8 core 機固有の値で他機では誤るため。キー欠落・型不一致・範囲外は**そのキーのみ**既定値へフォールバックし、設定破損で fail-open しない。`.gitignore` の `.claude/*` に対する negation 行が無いとこのファイルは commit されず設定全体が無効化されるため、negation を併せて追加した
+- `tests/test-run-tests-runner.sh`（新規、TC 57 件）: 全て mktemp fixture で、runner を複製した subject と dummy test のみを使い実 `tests/` ツリーへ戻らない（戻ると runner 自身のフルスイート実行へ再帰する）。probe は `PATH` shim で fake 化し実機の負荷状態に依存させない
+
+### Changed
+- `AGENTS.md` Quick Start の 2 行を `bash run-tests.sh` / `bash run-tests.sh tests/test-plugin-structure.sh` へ。フルスイート起動の SSOT が `run-tests.sh`（どこからも参照されていなかった）と `AGENTS.md` の inline ループに二重化していた状態を解消した
+- `rules/plan-discipline.md` の `## 具体例` を `bash run-tests.sh` 呼び出しへ。従来の正典 harness は独自の snapshot loop を持ちながら **`trap` を一切持たず**、これが snapshot 残留の出所だった。snapshot 所有を runner へ集約する以上、正典に別実装を残すと二重管理になる
+- `rules/agent-prompts.md` の「読み取り並列・実行直列」条項に**完了通知の意味論**を追記: 完了通知は agent の turn が終わったことを示すだけで、その agent が起動した background descendant の終了を保証しない
+- いずれも `.claude/rules/` 側の mirror を同時更新（`tests/test-rules-mirror.sh` が完全一致を要求する）
+
+### Notes
+- **設計は承認前 Codex plan review 5 ラウンドで 3 回縮小した**。初版「PreToolUse hook 単独」は、(a) 同種 hook が「バイパス可能」を理由に削除された先例（`docs/cycles/20260326_2320`）、(b) PreToolUse は tool call 直前に 1 回発火するだけでロックを保持せず、2 つの Bash 呼び出しが同時通過すれば両方が `pgrep=0` を観測する check-then-act race、の 2 点で誤っていた。「runner + 排他ロック」へ変更したが owner 公開前 race / reaper の crash recovery / PID 再利用 / ABA / signal の子伝播 が次々に必要になり、単一開発者の repo に分散システムの機構を持ち込む形になったため、ロックを Cycle C へ分離した。**ロックが潰していたのは「二重起動で時間と負荷を無駄にする」だけで、実害（実行中の tree 書き換えによる非再現 FAIL、OOM）はロック無しで消える**
+- **REVIEW は Codex と Claude の competitive で BLOCK となり、両者は互いに見落とした欠陥を出した**。Codex は manifest/copy の fail-open（走査不能なディレクトリが A/B/C から同様に欠落すると不完全な snapshot でも `A==B==C` が成立する）と引数契約の穴（`tests/` 配下のディレクトリが通過して TOTAL=0 / exit 0）を、Claude は exit code 契約の破壊（インフラ障害を「テスト失敗」と誤報）と子孫除外が**呼び出し順序上の dead code** であること（`build_exclude_set()` は自分の子孫が存在しない時点で走る）を検出した。mini-iteration 後、変異注入の検出率は 10/12 → **12/12**
+- 単一テスト経路のオーバーヘッドは manifest の batch 化で **31.5 秒 → 4.89 秒**。安全保証をオプションで捨てる `--no-snapshot` は導入していない
+- 残余リスクは明示的に残した: 二重起動の TOCTOU（ロック不採用のため。Cycle C）、`run-tests.sh` を経由しない inline ループ（Cycle B）
+
 ### Removed
 - `AGENTS.md` / `README.md` のツリー行コメントに残っていた派生数値と、それらを pin していた逆向き契約を削除: `tests/test-skills-structure.sh` の TC-B1・TC-B2、`tests/test-agents-md-count.sh`（ファイルごと削除）、`tests/test-doc-consistency.sh` の TC-01、`tests/test-cycle-retrospective.sh` の TC-15、`tests/test-agents-md-propagation.sh` の TC-14、`tests/test-review-integration-v24.sh` の TC-11。`skills/onboard/reference.md` の「派生数値は doc に書かない」指針に dev-crew 自身の doc を整合させた
 - `scripts/hooks/check-claude-md-staleness.sh` を削除（#207）: hooks.json / .git/hooks / skills/onboard のいずれにも登録がない orphan であり、かつ git commit 経過日数は「内容が現状と乖離しているか」の代理指標として機能していなかった（50 日 stale の CLAUDE.md は内容が正確で、8 日前更新の AGENTS.md 側に不整合があった）。関連する tests/test-hooks-structure.sh の TC-04/TC-05a〜f/TC-06 と staleness 専用 fixture helper 群、tests/test-agents-md-propagation.sh の TC-10/TC-11 も削除。直前 cycle（#144/#195）の hermetic 化は TC-03 の実ツリー汚染除去として独立に価値が残る（同 [Unreleased] の Fixed エントリ参照）
