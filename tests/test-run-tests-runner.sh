@@ -1,6 +1,6 @@
 #!/bin/bash
 # test-run-tests-runner.sh - run-tests.sh admission + immutable snapshot tests
-# TC-01~TC-46 + TC-04b/25b/25c/27b/27c/29b/35b (57 total). All fixture-based; the real
+# TC-01~TC-48 + TC-04b/25b/25c/27b/27c/29b/35b (58 total). All fixture-based; the real
 # tests/ suite is NEVER invoked from inside this file (that would recurse into
 # run-tests.sh's own full-suite execution — see docs/cycles/20260913_0059).
 #
@@ -1743,6 +1743,46 @@ if ! printf '%s' "$ex" | grep -qF 'cp -R . "$SNAP"' \
   pass "TC-44: '## 具体例' no longer duplicates the snapshot loop; delegates to run-tests.sh"
 else
   fail "TC-44: '## 具体例' no longer duplicates the snapshot loop; delegates to run-tests.sh"
+fi
+
+# TC-48
+# Given: an explicit test argument that exists at argument-validation time
+#        (normalize_args() checks it against the LIVE tree), then a
+#        DEV_CREW_TEST_HOOK_BEFORE_COPY hook that deletes exactly that file
+#        from the LIVE tree before the snapshot `cp -Rp` runs -- a TOCTOU
+#        window that is real because argument validation happens against the
+#        live tree while the snapshot copy happens strictly afterward
+# When: runner invoked with that explicit argument
+# Then: exit 3 (argument rejected), NOT exit 0. Pre-fix, the explicit
+#       target's absence from the snapshot was never re-checked: the
+#       0-targets guard only fires for an EMPTY targets array (never true
+#       for an explicit arg, which is always appended unconditionally), and
+#       the execution loop's `[ -f "$f" ] || continue` silently skipped the
+#       missing file -- so the run reported 0 executed / PASS 0 / FAIL 0 and
+#       STILL exited 0: a vacuous PASS for a test that never ran.
+echo ""
+echo "TC-48: an explicit test arg deleted from the live tree after validation (before snapshot copy) is rejected (exit 3), not silently skipped"
+new_fixture
+cat > "$F_DEV/tests/test-zz-target.sh" <<'TARGET'
+#!/bin/bash
+exit 0
+TARGET
+chmod +x "$F_DEV/tests/test-zz-target.sh"
+cat > "$F_CTL/hook_before48.sh" <<HOOK
+#!/bin/bash
+rm -f "$F_DEV/tests/test-zz-target.sh"
+HOOK
+chmod +x "$F_CTL/hook_before48.sh"
+EXTRA_ENV="DEV_CREW_TEST_HOOK_BEFORE_COPY=$F_CTL/hook_before48.sh"
+run_subject tests/test-zz-target.sh
+unset EXTRA_ENV
+combined="$RUN_OUT$RUN_ERR"
+# rc==3 alone cannot distinguish "the new snapshot re-validation fired" from
+# some unrelated exit-3 path, so the message is pinned too.
+if [ "$RUN_RC" -eq 3 ] && printf '%s' "$combined" | grep -qF "not present in the snapshot"; then
+  pass "TC-48: explicit-arg TOCTOU deletion (post-validation, pre-copy) rejected with exit 3 and the snapshot-specific reason, not a vacuous PASS"
+else
+  fail "TC-48: explicit-arg TOCTOU deletion (post-validation, pre-copy) rejected with exit 3 and the snapshot-specific reason, not a vacuous PASS (rc=$RUN_RC out+err='$combined')"
 fi
 
 # Summary
