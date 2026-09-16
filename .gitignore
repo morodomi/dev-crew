@@ -3,4 +3,3 @@ docs/requests
 .claude/*
 !.claude/dev-crew.json
 !.claude/rules/
-!.claude/test-serialization.json

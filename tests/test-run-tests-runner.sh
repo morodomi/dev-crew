@@ -1,29 +1,37 @@
 #!/bin/bash
 # test-run-tests-runner.sh - run-tests.sh admission + immutable snapshot tests
-# TC-01~TC-48 + TC-04b/25b/25c/27b/27c/29b/35b (58 total). All fixture-based; the real
-# tests/ suite is NEVER invoked from inside this file (that would recurse into
-# run-tests.sh's own full-suite execution — see docs/cycles/20260913_0059).
+# TC-01~TC-52 (30 labels / 31 assertions; TC-27b lives inside the TC-27 block).
+# All fixture-based; the real tests/ suite is NEVER invoked from inside this
+# file (that would recurse into run-tests.sh's own full-suite execution — see
+# docs/cycles/20260913_0059).
 #
 # Fixture design (per Cycle doc fixture 設計 section):
 #   - subject = a COPY of run-tests.sh under a mktemp'd fixture root, never the live one
 #   - dummy test(s) only under the fixture tests/, never the real tests/ tree
-#   - fixture-local .claude/test-serialization.json
 #   - fixture-local TMPDIR passed via `env TMPDIR=...`, a SIBLING of the fixture
 #     source tree (D3: "${TMPDIR} が source repo 内を指す場合は拒否" — TMPDIR must
 #     not be nested inside the copied repo)
-#   - probes (pgrep/sysctl/vm_stat) faked via a PATH-prepended shim directory that
-#     defaults to REAL passthrough unless a control file requests fake/absent
+#   - probes (pgrep) faked via a PATH-prepended shim directory that defaults to
+#     REAL passthrough unless a control file requests fake/absent
 #
-# Invented contracts (no prior contract exists; GREEN must implement to match):
-#   - exit code classes: 0=PASS, 1=FAIL (existing, unchanged), 2=admission BLOCK,
-#     3=argument rejection, 4=snapshot manifest retry exceeded. Kept pairwise
-#     distinct so a lazy blanket `exit 1` cannot satisfy these tests (TC-24 dist.).
-#   - `.owner` snapshot metadata: text file with lines `pid=<PID>` `start=<token>`
-#     `created=<epoch>` (TC-28~35 read/write against this shape via fixture control).
-#   - probe "absent" == shim exits rc=127 (>=2). We cannot remove /usr/bin from PATH
-#     inside this sandbox, so "absent" and "rc>=2" collapse to the same fixture
-#     mechanism; both are exercised as literal rc values, which is harmless because
-#     D2 defines both as the same "skip this condition" outcome (TC-08).
+# Exit code contract (docs/cycles/20260916_1634_shrink-runner-remove-nesting.md):
+#   0=all PASS, 1=one or more executed tests FAILed (never repurposed for infra
+#   failure), 2=runner could not start (admission BLOCK / snapshot creation
+#   failure / copy failure, unified), 3=argument rejection. 4/5 retired.
+#   Signal-driven exits (129/130/143) remain separate.
+#
+# `.owner` snapshot metadata, the fingerprint three-way match, the retry
+# protocol, load/memory admission, the config file they read
+# (.claude/test-serialization.json), and the jq dependency it required were
+# all removed in the same cycle. The TCs that pinned that machinery were
+# removed with it -- 31 TC total: TC-04/04b (pgrep self/ancestor-exclusion
+# oracle, vacuous under real pgrep on macOS), TC-05/06/10 (load/memory
+# admission), TC-07/08/09 (multi-condition fail-open combinations),
+# TC-11/12/13 (config file + jq), TC-21/22/23/24/24b/25c (fingerprint
+# three-way match + retry protocol), TC-28~35/35b (owner metadata / staleness
+# / reaper), TC-36/37/38 (live-tree-change advisory), TC-45
+# (DEV_CREW_RUNNER_LIB_ONLY / source-as-library). See the Cycle doc Test List
+# for the full deletion/keep breakdown.
 #
 # Given/When/Then is written inline as a comment immediately above each TC block.
 
@@ -58,26 +66,6 @@ cleanup_all() {
 trap cleanup_all EXIT INT TERM
 
 # ---------------------------------------------------------------------------
-# jq-absence farm (TC-12): a directory of symlinks mirroring every standard
-# system bin dir EXCEPT jq, so that PATH="$F_BIN:$NOJQ_BIN" (a full
-# replacement of $PATH, not an append) makes jq genuinely unresolvable while
-# every other tool the subject needs (bash, awk, sed, mktemp, shasum, ...)
-# still resolves. Built once, shared across TCs.
-# ---------------------------------------------------------------------------
-NOJQ_BIN="$(mktemp -d)"
-ALL_FIX+=("$NOJQ_BIN")
-for d in /usr/bin /bin /usr/sbin /sbin; do
-  [ -d "$d" ] || continue
-  for f in "$d"/*; do
-    [ -e "$f" ] || continue
-    b="$(basename "$f")"
-    [ "$b" = "jq" ] && continue
-    [ -e "$NOJQ_BIN/$b" ] && continue
-    ln -s "$f" "$NOJQ_BIN/$b" 2>/dev/null || true
-  done
-done
-
-# ---------------------------------------------------------------------------
 # Fixture construction
 # ---------------------------------------------------------------------------
 # new_fixture: builds a fresh isolated fixture tree and sets:
@@ -87,7 +75,7 @@ done
 #     repo-root/docs/test_architecture.md          (parent-of-parent doc, per D3 layout)
 #     repo-root/agents/dev-crew/ = F_DEV            (copy of run-tests.sh + dummy test)
 #     tmpbase/                   = F_TMPBASE         (sibling TMPDIR, NOT inside repo-root)
-#     bin/                       = F_BIN             (PATH-shimmed pgrep/sysctl/vm_stat)
+#     bin/                       = F_BIN             (PATH-shimmed pgrep/cp)
 #     ctl/                       = F_CTL             (shim control files + evidence, outside repo-root)
 new_fixture() {
   F_ROOT="$(mktemp -d)"
@@ -97,7 +85,7 @@ new_fixture() {
   F_TMPBASE="$F_ROOT/tmpbase"
   F_BIN="$F_ROOT/bin"
   F_CTL="$F_ROOT/ctl"
-  mkdir -p "$F_REPO/docs" "$F_DEV/tests" "$F_DEV/.claude" "$F_TMPBASE" "$F_BIN" "$F_CTL"
+  mkdir -p "$F_REPO/docs" "$F_DEV/tests" "$F_TMPBASE" "$F_BIN" "$F_CTL"
 
   printf 'fixture parent doc (stand-in for docs/test_architecture.md)\n' > "$F_REPO/docs/test_architecture.md"
 
@@ -122,10 +110,6 @@ exit 0
 DUMMY
   chmod +x "$F_DEV/tests/test-zz-dummy.sh"
 
-  cat > "$F_DEV/.claude/test-serialization.json" <<'CONF'
-{"k_load": 2, "mem_min_mib": 3584, "snapshot_stale_minutes": 60, "warn_on_live_changes": true}
-CONF
-
   # --- PATH shims: default to REAL passthrough; a control file switches a
   # given probe to "fake" (canned rc/output) or "absent" (rc=127) ---
   cat > "$F_BIN/pgrep" <<'SHIM'
@@ -145,92 +129,58 @@ case "$mode" in
 esac
 SHIM
 
-  cat > "$F_BIN/sysctl" <<'SHIM'
-#!/bin/bash
-CTL="${DCRUN_CTL:?DCRUN_CTL not set}"
-key="${2:-}"
-safe="$(printf '%s' "$key" | tr '.' '_')"
-mode="real"
-[ -f "$CTL/sysctl_${safe}.mode" ] && mode="$(cat "$CTL/sysctl_${safe}.mode")"
-case "$mode" in
-  absent) exit 127 ;;
-  fake)
-    rc=0
-    [ -f "$CTL/sysctl_${safe}.rc" ] && rc="$(cat "$CTL/sysctl_${safe}.rc")"
-    [ -f "$CTL/sysctl_${safe}.out" ] && cat "$CTL/sysctl_${safe}.out"
-    exit "$rc"
-    ;;
-  *) exec /usr/sbin/sysctl "$@" ;;
-esac
-SHIM
+  chmod +x "$F_BIN/pgrep"
 
-  cat > "$F_BIN/vm_stat" <<'SHIM'
+  # cp shim (TC-48/TC-49): defaults to REAL passthrough, like the probes
+  # above. Two non-default modes:
+  #   fail          -- every invocation fails (TC-49: build_snapshot's copy
+  #                    step cannot succeed at all)
+  #   delete-before -- before exec'ing the real /bin/cp, rm -f a single
+  #                    target path (TC-48: reproduces the post-validation /
+  #                    pre-copy TOCTOU window WITHOUT depending on the
+  #                    production DEV_CREW_TEST_HOOK_BEFORE_COPY variable,
+  #                    which B removes entirely from run-tests.sh)
+  cat > "$F_BIN/cp" <<'SHIM'
 #!/bin/bash
 CTL="${DCRUN_CTL:?DCRUN_CTL not set}"
 mode="real"
-[ -f "$CTL/vm_stat.mode" ] && mode="$(cat "$CTL/vm_stat.mode")"
+[ -f "$CTL/cp.mode" ] && mode="$(cat "$CTL/cp.mode")"
 case "$mode" in
-  absent) exit 127 ;;
-  fake)
-    rc=0
-    [ -f "$CTL/vm_stat.rc" ] && rc="$(cat "$CTL/vm_stat.rc")"
-    [ -f "$CTL/vm_stat.out" ] && cat "$CTL/vm_stat.out"
-    exit "$rc"
+  fail)
+    echo "cp: shim forced failure" >&2
+    exit 1
     ;;
-  *) exec /usr/bin/vm_stat ;;
+  delete-before)
+    t="$(cat "$CTL/cp.delete_target" 2>/dev/null || true)"
+    [ -n "$t" ] && rm -f "$t"
+    exec /bin/cp "$@"
+    ;;
+  *) exec /bin/cp "$@" ;;
 esac
 SHIM
-
-  chmod +x "$F_BIN/pgrep" "$F_BIN/sysctl" "$F_BIN/vm_stat"
+  chmod +x "$F_BIN/cp"
 
   set_admission_healthy
 }
 
 # --- probe control setters (write into $F_CTL, read by the shims above) ---
-set_pgrep_real()   { echo real   > "$F_CTL/pgrep.mode"; }
 set_pgrep_absent() { echo absent > "$F_CTL/pgrep.mode"; }
 set_pgrep_fake() { # rc out
   echo fake > "$F_CTL/pgrep.mode"
   printf '%s' "$1" > "$F_CTL/pgrep.rc"
   printf '%s' "$2" > "$F_CTL/pgrep.out"
 }
-set_sysctl_real()   { local k="${1//./_}"; echo real   > "$F_CTL/sysctl_${k}.mode"; }
-set_sysctl_absent() { local k="${1//./_}"; echo absent > "$F_CTL/sysctl_${k}.mode"; }
-set_sysctl_fake() { # key rc out
-  local k="${1//./_}"
-  echo fake > "$F_CTL/sysctl_${k}.mode"
-  printf '%s' "$2" > "$F_CTL/sysctl_${k}.rc"
-  printf '%s' "$3" > "$F_CTL/sysctl_${k}.out"
+set_cp_real() { echo real > "$F_CTL/cp.mode"; }
+set_cp_fail() { echo fail > "$F_CTL/cp.mode"; }
+set_cp_delete_before() { # abs_path_to_delete
+  echo delete-before > "$F_CTL/cp.mode"
+  printf '%s' "$1" > "$F_CTL/cp.delete_target"
 }
-set_vmstat_real()   { echo real   > "$F_CTL/vm_stat.mode"; }
-set_vmstat_absent() { echo absent > "$F_CTL/vm_stat.mode"; }
-set_vmstat_fake() { # rc out
-  echo fake > "$F_CTL/vm_stat.mode"
-  printf '%s' "$1" > "$F_CTL/vm_stat.rc"
-  printf '%s' "$2" > "$F_CTL/vm_stat.out"
-}
-vmstat_text() { # free_pages inactive_pages -> vm_stat-formatted text, page size 16384
-  printf 'Mach Virtual Memory Statistics: (page size of 16384 bytes)\n'
-  printf 'Pages free:                             %d.\n' "$1"
-  printf 'Pages active:                           2000.\n'
-  printf 'Pages inactive:                         %d.\n' "$2"
-  printf 'Pages speculative:                      500.\n'
-  printf 'Pages wired down:                       3000.\n'
-  printf 'Pages purgeable:                        0.\n'
-  printf 'Pages occupied by compressor:           0.\n'
-}
-set_vmstat_fake_pages() { # rc free_pages inactive_pages
-  echo fake > "$F_CTL/vm_stat.mode"
-  printf '%s' "$1" > "$F_CTL/vm_stat.rc"
-  vmstat_text "$2" "$3" > "$F_CTL/vm_stat.out"
-}
-# Healthy defaults so TCs that are NOT about admission specifics (arg
+# Healthy default so TCs that are NOT about admission specifics (arg
 # normalization, snapshot consistency, cleanup, ...) sail through admission.
+# Only pgrep remains as an admission condition (load/memory were removed).
 set_admission_healthy() {
   set_pgrep_fake 1 ""
-  set_sysctl_fake vm.loadavg 0 "{ 1.00 1.00 1.00 }"
-  set_sysctl_fake hw.ncpu 0 "4"
-  set_vmstat_fake_pages 0 3000000 2000000
 }
 
 # ---------------------------------------------------------------------------
@@ -241,50 +191,23 @@ set_admission_healthy() {
 # a non-zero rc trip `set -e` (guarded with `|| RUN_RC=$?`).
 run_subject() {
   RUN_RC=0
-  # ${EXTRA_ENV:-} is intentionally unquoted: callers (TC-21/22/23/24/25c/37) set
-  # it to space-separated KEY=val pairs (e.g. TC-22's two hook vars) and rely on
-  # word splitting to hand `env` one assignment per word. Quoting it would pass
-  # a single malformed "KEY=val KEY2=val2" token instead.
+  # ${EXTRA_ENV:-} is intentionally unquoted: callers (TC-46/TC-50, both
+  # overriding TMPDIR to exercise the source-tree-boundary fallback) set it
+  # to space-separated KEY=val pairs and rely on word splitting to hand `env`
+  # one assignment per word. Quoting it would pass a single malformed
+  # "KEY=val KEY2=val2" token instead.
   ( cd "$F_DEV" && env TMPDIR="$F_TMPBASE" PATH="$F_BIN:$PATH" DCRUN_CTL="$F_CTL" DCRUN_EVIDENCE="$F_CTL" ${EXTRA_ENV:-} bash run-tests.sh "$@" >"$F_CTL/.stdout" 2>"$F_CTL/.stderr" ) || RUN_RC=$?
   RUN_OUT="$(cat "$F_CTL/.stdout" 2>/dev/null || true)"
   RUN_ERR="$(cat "$F_CTL/.stderr" 2>/dev/null || true)"
 }
 evidence_where() { cat "$F_CTL/where" 2>/dev/null || true; }
-reset_evidence()  { : > "$F_CTL/where" 2>/dev/null || true; }
-write_config() { printf '%s' "$1" > "$F_DEV/.claude/test-serialization.json"; }
 
-# add_git_repo: turns $F_DEV into a tiny self-contained git repo (for TC-25b/25c
+# add_git_repo: turns $F_DEV into a tiny self-contained git repo (for TC-25b
 # only -- NOT the real 22MB .git, a throwaway one committing whatever is
 # currently in $F_DEV).
 add_git_repo() {
   ( cd "$F_DEV" && git init -q && git config user.email "fixture@example.com" \
     && git config user.name "Fixture" && git add -A && git commit -q -m init )
-}
-
-# mk_stale_snap <name> <owner-content|MISSING|GARBAGE> [minutes_ago]
-# Seeds a fake dev-crew-snap.* directory directly under $F_TMPBASE, with a
-# non-empty payload (so permission-based deletion failures are observable),
-# and an invented `.owner` metadata file (schema: `pid=` `start=` `created=`
-# lines) in the state the TC needs. Optionally backdates its mtime.
-mk_stale_snap() {
-  local dir="$F_TMPBASE/$1"
-  mkdir -p "$dir/agents/dev-crew"
-  printf 'payload\n' > "$dir/agents/dev-crew/payload.txt"
-  case "$2" in
-    MISSING) : ;;
-    GARBAGE) printf 'not-parseable-garbage' > "$dir/.owner" ;;
-    *) printf '%s\n' "$2" > "$dir/.owner" ;;
-  esac
-  if [ -n "${3:-}" ]; then
-    local target="$dir/.owner"
-    [ -e "$target" ] || target="$dir"
-    touch_backdate "$target" "$3"
-  fi
-}
-touch_backdate() { # path minutes_ago (BSD/macOS date, per repo's macOS-only tooling policy)
-  local ts
-  ts="$(date -v-"${2}M" "+%Y%m%d%H%M.%S" 2>/dev/null)"
-  [ -n "$ts" ] && touch -t "$ts" "$1"
 }
 
 # section_lines <file> <exact H2 heading text without '## '>
@@ -351,387 +274,6 @@ if [ "$RUN_RC" -eq 0 ] && printf '%s' "$where" | grep -q "dev-crew-snap\." \
   pass "TC-03: pgrep rc=1 satisfies the condition; no probe-failure skip logged"
 else
   fail "TC-03: pgrep rc=1 satisfies the condition; no probe-failure skip logged (rc=$RUN_RC err='$RUN_ERR')"
-fi
-
-# TC-04
-# Given: self + an ancestor wrapper (`sh -c 'bash run-tests.sh tests/test-foo.sh'`)
-#        (real pgrep, no fake; admission_check runs before any test child is
-#        spawned, so there are no descendants matching 'tests/test-' to
-#        exclude -- exclusion is ancestor-only, see build_exclude_set)
-# When: single-test invocation via that wrapper
-# Then: runner does NOT self-BLOCK (lineage-based exclusion, not cmdline substring)
-echo ""
-echo "TC-04: self / ancestor wrapper / descendant matches are excluded (no self-BLOCK)"
-new_fixture
-set_pgrep_real
-RUN_RC=0
-( cd "$F_DEV" && sh -c "TMPDIR='$F_TMPBASE' PATH='$F_BIN:$PATH' DCRUN_CTL='$F_CTL' DCRUN_EVIDENCE='$F_CTL' bash run-tests.sh tests/test-zz-dummy.sh" >"$F_CTL/.stdout" 2>"$F_CTL/.stderr" ) || RUN_RC=$?
-RUN_OUT="$(cat "$F_CTL/.stdout" 2>/dev/null || true)"
-RUN_ERR="$(cat "$F_CTL/.stderr" 2>/dev/null || true)"
-where="$(evidence_where)"
-if [ "$RUN_RC" -eq 0 ] && printf '%s' "$where" | grep -q "dev-crew-snap\."; then
-  pass "TC-04: sh -c wrapper ancestor (cmdline matches tests/test-) does not self-BLOCK"
-else
-  fail "TC-04: sh -c wrapper ancestor (cmdline matches tests/test-) does not self-BLOCK (rc=$RUN_RC err='$RUN_ERR')"
-fi
-
-# TC-04b (anti-oracle for TC-04's exclusion)
-# Given: an UNRELATED process (sibling, not ancestor/descendant) whose cmdline
-#        also matches 'tests/test-' (real pgrep)
-# When: runner invoked
-# Then: it IS counted -> BLOCK (exclusion is not overbroad)
-echo ""
-echo "TC-04b: an unrelated tests/test- process still BLOCKs (exclusion not overbroad)"
-new_fixture
-set_pgrep_real
-mkdir -p "$F_CTL/decoy/tests"
-cat > "$F_CTL/decoy/tests/test-zzz-unrelated.sh" <<'DECOY'
-#!/bin/bash
-# No `exec` here: an `exec sleep 600` would replace this bash process's image
-# with sleep's, changing its cmdline from "bash tests/test-zzz-unrelated.sh" to
-# "sleep 600" -- which no longer matches 'tests/test-' and defeats this TC's
-# purpose as an anti-oracle for TC-04's exclusion. Running sleep as a foreground
-# child keeps this process's own cmdline (and its 'tests/test-' match) intact.
-sleep 600
-DECOY
-chmod +x "$F_CTL/decoy/tests/test-zzz-unrelated.sh"
-( cd "$F_CTL/decoy" && exec bash tests/test-zzz-unrelated.sh ) &
-up=$!
-ALL_SLEEP_PIDS+=("$up")
-sleep 0.3
-run_subject
-if [ "$RUN_RC" -eq 2 ]; then
-  pass "TC-04b: unrelated tests/test- process is not excluded, admission BLOCKs"
-else
-  fail "TC-04b: unrelated tests/test- process is not excluded, admission BLOCKs (rc=$RUN_RC)"
-fi
-kill -KILL "$up" >/dev/null 2>&1 || true
-
-# TC-05
-# Given: load1 just below / at / just above load_max (= ncpu(4) * k_load(2) = 8)
-# When: runner invoked (3 sub-cases)
-# Then: below allow(0) / at BLOCK(2, equal is BLOCK side) / above BLOCK(2)
-echo ""
-echo "TC-05: load1 boundary (below/at/above load_max) -> allow/BLOCK/BLOCK"
-new_fixture
-set_sysctl_fake vm.loadavg 0 "{ 7.99 1.00 1.00 }"
-run_subject
-below_rc=$RUN_RC
-below_where="$(evidence_where)"
-reset_evidence
-set_sysctl_fake vm.loadavg 0 "{ 8.00 1.00 1.00 }"
-run_subject
-at_rc=$RUN_RC
-set_sysctl_fake vm.loadavg 0 "{ 8.01 1.00 1.00 }"
-run_subject
-above_rc=$RUN_RC
-if [ "$below_rc" -eq 0 ] && printf '%s' "$below_where" | grep -q "dev-crew-snap\." \
-   && [ "$at_rc" -eq 2 ] && [ "$above_rc" -eq 2 ]; then
-  pass "TC-05: load boundary below=allow(0) at=BLOCK(2) above=BLOCK(2)"
-else
-  fail "TC-05: load boundary below=allow(0) at=BLOCK(2) above=BLOCK(2) (below=$below_rc at=$at_rc above=$above_rc)"
-fi
-
-# TC-06
-# Given: free memory just above / at / just below mem_min_mib (3584 MiB = 229376
-#        pages at 16384-byte page size)
-# When: runner invoked (3 sub-cases)
-# Then: above allow(0) / at BLOCK(2, equal is BLOCK side) / below BLOCK(2)
-echo ""
-echo "TC-06: free memory boundary (above/at/below mem_min_mib) -> allow/BLOCK/BLOCK"
-new_fixture
-set_vmstat_fake_pages 0 200000 29377   # 229377 pages -> 3584 MiB + 1 page
-run_subject
-above_rc=$RUN_RC
-above_where="$(evidence_where)"
-reset_evidence
-set_vmstat_fake_pages 0 200000 29376   # 229376 pages -> exactly 3584 MiB
-run_subject
-at_rc=$RUN_RC
-set_vmstat_fake_pages 0 200000 29375   # 229375 pages -> 3584 MiB - 1 page
-run_subject
-below_rc=$RUN_RC
-if [ "$above_rc" -eq 0 ] && printf '%s' "$above_where" | grep -q "dev-crew-snap\." \
-   && [ "$at_rc" -eq 2 ] && [ "$below_rc" -eq 2 ]; then
-  pass "TC-06: memory boundary above=allow(0) at=BLOCK(2) below=BLOCK(2)"
-else
-  fail "TC-06: memory boundary above=allow(0) at=BLOCK(2) below=BLOCK(2) (above=$above_rc at=$at_rc below=$below_rc)"
-fi
-
-# TC-07
-# Given: all 3 conditions unsatisfied simultaneously
-# When: runner invoked
-# Then: all 3 are reported before BLOCK (not just the first one hit)
-echo ""
-echo "TC-07: all 3 admission conditions fail -> all reported before BLOCK"
-new_fixture
-sleep 600 & p1=$!; ALL_SLEEP_PIDS+=("$p1")
-set_pgrep_fake 0 "$p1"
-set_sysctl_fake vm.loadavg 0 "{ 20.00 20.00 20.00 }"
-set_vmstat_fake_pages 0 1000 1000
-run_subject
-combined="$RUN_OUT$RUN_ERR"
-if [ "$RUN_RC" -eq 2 ] && printf '%s' "$combined" | grep -qi 'process' \
-   && printf '%s' "$combined" | grep -qi 'load' \
-   && printf '%s' "$combined" | grep -qi 'mem'; then
-  pass "TC-07: all 3 unsatisfied conditions reported, then BLOCK"
-else
-  fail "TC-07: all 3 unsatisfied conditions reported, then BLOCK (rc=$RUN_RC out+err='$combined')"
-fi
-
-# TC-08
-# Given: each of {process-count, load, memory} probe fails in each of 4 ways
-#        (absent / rc>=2 / empty output / non-numeric output) -- 3x4 = 12 cases
-# When: runner invoked, other 2 conditions kept healthy
-# Then: only the broken condition is skipped (stderr says so), the other 2
-#       still decide, and overall admission still PASSes (snapshot evidence present)
-echo ""
-echo "TC-08: probe failure (absent/rc>=2/empty/non-numeric) skips only that condition"
-tc08_ok=1
-tc08_detail=""
-for cond in pgrep loadavg vmstat; do
-  for mode in absent rc2 empty nonnum; do
-    new_fixture
-    case "$cond" in
-      pgrep)
-        case "$mode" in
-          absent) set_pgrep_absent ;;
-          rc2)    set_pgrep_fake 2 "" ;;
-          empty)  set_pgrep_fake 0 "" ;;
-          nonnum) set_pgrep_fake 0 "abc" ;;
-        esac
-        ;;
-      loadavg)
-        case "$mode" in
-          absent) set_sysctl_absent vm.loadavg ;;
-          rc2)    set_sysctl_fake vm.loadavg 2 "" ;;
-          empty)  set_sysctl_fake vm.loadavg 0 "" ;;
-          nonnum) set_sysctl_fake vm.loadavg 0 "{ n/a n/a n/a }" ;;
-        esac
-        ;;
-      vmstat)
-        case "$mode" in
-          absent) set_vmstat_absent ;;
-          rc2)    set_vmstat_fake 2 "" ;;
-          empty)  set_vmstat_fake 0 "" ;;
-          nonnum) set_vmstat_fake 0 "Pages free: n/a.
-Pages inactive: n/a." ;;
-        esac
-        ;;
-    esac
-    run_subject
-    where="$(evidence_where)"
-    if [ "$RUN_RC" -ne 0 ] || ! printf '%s' "$where" | grep -q "dev-crew-snap\." \
-       || ! printf '%s%s' "$RUN_OUT" "$RUN_ERR" | grep -qi "skip"; then
-      tc08_ok=0
-      tc08_detail="$tc08_detail [${cond}/${mode}: rc=$RUN_RC where='$where']"
-    fi
-  done
-done
-if [ "$tc08_ok" -eq 1 ]; then
-  pass "TC-08: each of 4 failure modes x 3 conditions skips only that condition, others still decide"
-else
-  fail "TC-08: each of 4 failure modes x 3 conditions skips only that condition, others still decide -$tc08_detail"
-fi
-
-# TC-09
-# Given: all 3 conditions unmeasurable (all probes absent)
-# When: runner invoked
-# Then: admission PASS (fail-open when judgment is impossible for everything)
-echo ""
-echo "TC-09: all 3 conditions skip (all probes unusable) -> admission PASS"
-new_fixture
-set_pgrep_absent
-set_sysctl_absent vm.loadavg
-set_sysctl_absent hw.ncpu
-set_vmstat_absent
-run_subject
-where="$(evidence_where)"
-if [ "$RUN_RC" -eq 0 ] && printf '%s' "$where" | grep -q "dev-crew-snap\."; then
-  pass "TC-09: all conditions unmeasurable -> fail-open PASS (does not block work)"
-else
-  fail "TC-09: all conditions unmeasurable -> fail-open PASS (rc=$RUN_RC where='$where')"
-fi
-
-# TC-10
-# Given: ncpu probe fails (hw.ncpu absent)
-# When: runner invoked
-# Then: only the load condition is skipped (load_max needs ncpu); process-count
-#       and memory conditions still decide, admission PASSes
-echo ""
-echo "TC-10: ncpu probe failure -> only the load condition is skipped"
-new_fixture
-set_sysctl_absent hw.ncpu
-run_subject
-where="$(evidence_where)"
-combined="$RUN_OUT$RUN_ERR"
-if [ "$RUN_RC" -eq 0 ] && printf '%s' "$where" | grep -q "dev-crew-snap\." \
-   && printf '%s' "$combined" | grep -qi "load"; then
-  pass "TC-10: ncpu unavailable -> load condition skipped, others decide, admission PASS"
-else
-  fail "TC-10: ncpu unavailable -> load condition skipped, others decide, admission PASS (rc=$RUN_RC where='$where')"
-fi
-
-# ===========================================================================
-# config
-# ===========================================================================
-
-# TC-11
-# Given: config key missing / type mismatch / out-of-range / whole file invalid JSON
-# When: runner invoked
-# Then: ONLY the broken key falls back to its default (whole-file-invalid falls
-#       back on ALL keys) -- and the default is genuinely EVALUATED (proven via
-#       a boundary probe that only BLOCKs if the default value is truly in effect)
-echo ""
-echo "TC-11: broken config -> only broken key defaults (whole-file invalid -> all keys), always evaluated"
-tc11_ok=1
-tc11_detail=""
-
-# (a) missing key: mem_min_mib entirely absent -> default 3584 MiB applies
-new_fixture
-write_config '{"k_load": 2, "snapshot_stale_minutes": 60, "warn_on_live_changes": true}'
-set_vmstat_fake_pages 0 200000 29376   # exactly 3584 MiB (default boundary) -> BLOCK
-run_subject
-if [ "$RUN_RC" -ne 2 ] || ! printf '%s%s' "$RUN_OUT" "$RUN_ERR" | grep -q "mem_min_mib"; then
-  tc11_ok=0; tc11_detail="$tc11_detail [missing-key: rc=$RUN_RC]"
-fi
-
-# (b) type mismatch: k_load is a string -> default 2 applies (load_max = ncpu(4)*2 = 8.00)
-new_fixture
-write_config '{"k_load": "two", "mem_min_mib": 3584, "snapshot_stale_minutes": 60, "warn_on_live_changes": true}'
-set_sysctl_fake vm.loadavg 0 "{ 8.00 1.00 1.00 }"   # exactly default boundary -> BLOCK
-run_subject
-if [ "$RUN_RC" -ne 2 ] || ! printf '%s%s' "$RUN_OUT" "$RUN_ERR" | grep -q "k_load"; then
-  tc11_ok=0; tc11_detail="$tc11_detail [type-mismatch: rc=$RUN_RC]"
-fi
-
-# (c) out of range: mem_min_mib negative (contract requires >= 0) -> default 3584 applies
-new_fixture
-write_config '{"k_load": 2, "mem_min_mib": -100, "snapshot_stale_minutes": 60, "warn_on_live_changes": true}'
-set_vmstat_fake_pages 0 200000 29376
-run_subject
-if [ "$RUN_RC" -ne 2 ] || ! printf '%s%s' "$RUN_OUT" "$RUN_ERR" | grep -q "mem_min_mib"; then
-  tc11_ok=0; tc11_detail="$tc11_detail [out-of-range: rc=$RUN_RC]"
-fi
-
-# (d) whole file invalid JSON -> ALL keys default (both boundaries active simultaneously)
-new_fixture
-write_config '{not valid json'
-set_sysctl_fake vm.loadavg 0 "{ 8.00 1.00 1.00 }"
-set_vmstat_fake_pages 0 200000 29376
-run_subject
-if [ "$RUN_RC" -ne 2 ]; then
-  tc11_ok=0; tc11_detail="$tc11_detail [invalid-json: rc=$RUN_RC]"
-fi
-
-# (e) mini-iteration follow-up (B5): mem_min_mib given as a non-integer NUMBER
-# (1.5). `jq -r` on `.[$k]` would print "1.5" whether the JSON value is the
-# number 1.5 or (as in (b)/(h) below) a string -- a bash-side regex like
-# `^-?[0-9]+(\.[0-9]+)?$` cannot reject this, so a config-parser that skips
-# an in-jq integer check silently accepts a fractional MiB threshold that
-# never blocks anything. Correct: rejected (not an integer) -> default 3584
-# applies -> BLOCKs at the default boundary.
-new_fixture
-write_config '{"k_load": 2, "mem_min_mib": 1.5, "snapshot_stale_minutes": 60, "warn_on_live_changes": true}'
-set_vmstat_fake_pages 0 200000 29376   # exactly 3584 MiB (default boundary) -> BLOCK
-run_subject
-if [ "$RUN_RC" -ne 2 ] || ! printf '%s%s' "$RUN_OUT" "$RUN_ERR" | grep -q "mem_min_mib"; then
-  tc11_ok=0; tc11_detail="$tc11_detail [float-for-integer-mem_min_mib: rc=$RUN_RC]"
-fi
-
-# (f) mini-iteration follow-up (B5): snapshot_stale_minutes given as a
-# non-integer number (0.5). Discriminates via startup cleanup rather than
-# admission: a MISSING-owner snapshot backdated 1 minute is NOT stale under
-# the correct default (60) -> preserved; it WOULD be treated as stale under
-# a wrongly-accepted 0.5 -> deleted.
-new_fixture
-write_config '{"k_load": 2, "mem_min_mib": 3584, "snapshot_stale_minutes": 0.5, "warn_on_live_changes": true}'
-mk_stale_snap "dev-crew-snap.tc11f" MISSING 1
-run_subject
-if [ "$RUN_RC" -ne 0 ] || [ ! -d "$F_TMPBASE/dev-crew-snap.tc11f" ] \
-   || ! printf '%s%s' "$RUN_OUT" "$RUN_ERR" | grep -q "snapshot_stale_minutes"; then
-  tc11_ok=0; tc11_detail="$tc11_detail [float-for-integer-stale-minutes: rc=$RUN_RC exists=$([ -d "$F_TMPBASE/dev-crew-snap.tc11f" ] && echo yes || echo no)]"
-fi
-
-# (g) mini-iteration follow-up (B5): warn_on_live_changes given as the JSON
-# STRING "false" (not the JSON boolean). `jq -r` stringifies both identically
-# ("false"), so a parser that matches the raw text against `true|false`
-# without an in-jq `type` check wrongly honors it. Correct: rejected (wrong
-# type) -> default true applies -> the concurrent live-tree edit IS reported.
-new_fixture
-write_config '{"k_load": 2, "mem_min_mib": 3584, "snapshot_stale_minutes": 60, "warn_on_live_changes": "false"}'
-cat > "$F_DEV/tests/test-mm-mutator.sh" <<'MUTTC11G'
-#!/bin/bash
-if [ -n "${DCRUN_LIVE_DEV:-}" ]; then
-  printf 'concurrent edit\n' >> "$DCRUN_LIVE_DEV/LIVE_EDIT_DURING_RUN.txt"
-fi
-exit 0
-MUTTC11G
-chmod +x "$F_DEV/tests/test-mm-mutator.sh"
-EXTRA_ENV="DCRUN_LIVE_DEV=$F_DEV"
-run_subject
-unset EXTRA_ENV
-if [ "$RUN_RC" -ne 0 ] || ! printf '%s%s' "$RUN_OUT" "$RUN_ERR" | grep -q "LIVE_EDIT_DURING_RUN.txt" \
-   || ! printf '%s%s' "$RUN_OUT" "$RUN_ERR" | grep -q "warn_on_live_changes"; then
-  tc11_ok=0; tc11_detail="$tc11_detail [string-for-boolean-warn_on_live_changes: rc=$RUN_RC]"
-fi
-
-# (h) mini-iteration follow-up (B5): k_load given as a numeric-LOOKING JSON
-# STRING "3" (not a JSON number). Same jq -r stringification blind spot as
-# (g), but for get_num_key: the buggy value 3 gives load_max=12.00, the
-# correct default 2 gives load_max=8.00 -- load1 pinned at exactly 8.00
-# discriminates (correct -> BLOCK, buggy accepted-as-3 -> allow).
-new_fixture
-write_config '{"k_load": "3", "mem_min_mib": 3584, "snapshot_stale_minutes": 60, "warn_on_live_changes": true}'
-set_sysctl_fake vm.loadavg 0 "{ 8.00 1.00 1.00 }"
-run_subject
-if [ "$RUN_RC" -ne 2 ] || ! printf '%s%s' "$RUN_OUT" "$RUN_ERR" | grep -q "k_load"; then
-  tc11_ok=0; tc11_detail="$tc11_detail [numeric-string-k_load: rc=$RUN_RC]"
-fi
-
-if [ "$tc11_ok" -eq 1 ]; then
-  pass "TC-11: broken config falls back per-key to defaults (whole-file invalid -> all keys), always evaluated"
-else
-  fail "TC-11: broken config falls back per-key to defaults (whole-file invalid -> all keys), always evaluated -$tc11_detail"
-fi
-
-# TC-12
-# Given: jq is genuinely unresolvable on PATH (not merely a failing shim)
-# When: runner invoked
-# Then: all keys default and evaluation continues (BLOCK still triggers at the
-#       default boundary); stderr names jq specifically (distinct path from
-#       invalid-JSON handling in TC-11d)
-echo ""
-echo "TC-12: jq absent -> all keys default, continues, distinct from invalid-JSON path"
-new_fixture
-write_config '{"k_load": 1, "mem_min_mib": 100, "snapshot_stale_minutes": 5, "warn_on_live_changes": false}'
-set_sysctl_fake vm.loadavg 0 "{ 8.00 1.00 1.00 }"
-set_vmstat_fake_pages 0 200000 29376
-RUN_RC=0
-( cd "$F_DEV" && env TMPDIR="$F_TMPBASE" PATH="$F_BIN:$NOJQ_BIN" DCRUN_CTL="$F_CTL" DCRUN_EVIDENCE="$F_CTL" bash run-tests.sh >"$F_CTL/.stdout" 2>"$F_CTL/.stderr" ) || RUN_RC=$?
-RUN_OUT="$(cat "$F_CTL/.stdout" 2>/dev/null || true)"
-RUN_ERR="$(cat "$F_CTL/.stderr" 2>/dev/null || true)"
-if [ "$RUN_RC" -eq 2 ] && printf '%s' "$RUN_ERR" | grep -qi "jq"; then
-  pass "TC-12: jq absent -> defaults applied (boundary still enforced), stderr mentions jq"
-else
-  fail "TC-12: jq absent -> defaults applied (boundary still enforced), stderr mentions jq (rc=$RUN_RC err='$RUN_ERR')"
-fi
-
-# TC-13
-# Given: config file does not exist at all
-# When: runner invoked
-# Then: all keys default (same boundary-proof technique as TC-11)
-echo ""
-echo "TC-13: config file absent -> all keys default"
-new_fixture
-rm -f "$F_DEV/.claude/test-serialization.json"
-set_sysctl_fake vm.loadavg 0 "{ 8.00 1.00 1.00 }"
-set_vmstat_fake_pages 0 200000 29376
-run_subject
-if [ "$RUN_RC" -eq 2 ]; then
-  pass "TC-13: missing config file -> default k_load/mem_min_mib enforced (BLOCK at default boundary)"
-else
-  fail "TC-13: missing config file -> default k_load/mem_min_mib enforced (BLOCK at default boundary) (rc=$RUN_RC)"
 fi
 
 # ===========================================================================
@@ -899,147 +441,6 @@ else
   fail "TC-20: live tree left untouched (no marker); execution evidence points at a snapshot copy (rc=$RUN_RC marker=$marker_state where='$where')"
 fi
 
-# ===========================================================================
-# snapshot の一貫性 (invented test-hook contract: DEV_CREW_TEST_HOOK_BEFORE_COPY
-# runs once after manifest A / before copy; DEV_CREW_TEST_HOOK_AFTER_COPY runs
-# once after copy / before manifests B and C. Both receive $1 = snapshot root.
-# GREEN must implement both for TC-21/22/23/24/25c to be satisfiable.)
-# ===========================================================================
-
-# TC-21
-# Given: source changes once during copy and the change persists (A != B == C
-#        is a NORMAL form per the design, not itself an error)
-# When: runner invoked
-# Then: NOT(A==B AND B==C) is detected, the snapshot is rebuilt, and (since the
-#       2nd attempt sees a stable source) the run ultimately succeeds
-echo ""
-echo "TC-21: source changes during copy and stays changed -> rebuild, then succeeds"
-new_fixture
-printf 'v1\n' > "$F_DEV/MUTATE_ME.txt"
-cat > "$F_CTL/hook_before21.sh" <<HOOK
-#!/bin/bash
-if [ ! -e "$F_CTL/tc21_mutated" ]; then
-  touch "$F_CTL/tc21_mutated"
-  printf 'v2\n' > "$F_DEV/MUTATE_ME.txt"
-fi
-HOOK
-chmod +x "$F_CTL/hook_before21.sh"
-EXTRA_ENV="DEV_CREW_TEST_HOOK_BEFORE_COPY=$F_CTL/hook_before21.sh"
-run_subject
-unset EXTRA_ENV
-where="$(evidence_where)"
-combined="$RUN_OUT$RUN_ERR"
-if [ "$RUN_RC" -eq 0 ] && printf '%s' "$where" | grep -q "dev-crew-snap\." \
-   && printf '%s' "$combined" | grep -Eqi 'rebuild|retry|mismatch|recreat'; then
-  pass "TC-21: continuous mid-copy change (A!=B=C) detected, snapshot rebuilt, run succeeds"
-else
-  fail "TC-21: continuous mid-copy change (A!=B=C) detected, snapshot rebuilt, run succeeds (rc=$RUN_RC where='$where' out+err='$combined')"
-fi
-
-# TC-22
-# Given: source changes then reverts DURING copy (ABA), and the snapshot
-#        genuinely captured the intermediate value (deterministic via the
-#        before/after hooks, not a sleep race)
-# When: runner invoked
-# Then: the 3-way check catches it (A==C but B differs -- a naive 2-point
-#       A-vs-C compare would miss this entirely)
-echo ""
-echo "TC-22: ABA mid-copy change (A==C, B differs) is caught by the 3-way check"
-new_fixture
-printf 'v1\n' > "$F_DEV/MUTATE_ME.txt"
-cat > "$F_CTL/hook_before22.sh" <<HOOK
-#!/bin/bash
-if [ ! -e "$F_CTL/tc22_done" ]; then
-  printf 'v2\n' > "$F_DEV/MUTATE_ME.txt"
-fi
-HOOK
-cat > "$F_CTL/hook_after22.sh" <<HOOK
-#!/bin/bash
-if [ ! -e "$F_CTL/tc22_done" ]; then
-  printf 'v1\n' > "$F_DEV/MUTATE_ME.txt"
-  touch "$F_CTL/tc22_done"
-fi
-HOOK
-chmod +x "$F_CTL/hook_before22.sh" "$F_CTL/hook_after22.sh"
-EXTRA_ENV="DEV_CREW_TEST_HOOK_BEFORE_COPY=$F_CTL/hook_before22.sh DEV_CREW_TEST_HOOK_AFTER_COPY=$F_CTL/hook_after22.sh"
-run_subject
-unset EXTRA_ENV
-combined="$RUN_OUT$RUN_ERR"
-if [ "$RUN_RC" -eq 0 ] && printf '%s' "$combined" | grep -Eqi 'rebuild|retry|mismatch|recreat'; then
-  pass "TC-22: ABA mid-copy corruption (A==C, B differs) detected via the 3-way check, rebuilt, succeeds"
-else
-  fail "TC-22: ABA mid-copy corruption (A==C, B differs) detected via the 3-way check, rebuilt, succeeds (rc=$RUN_RC out+err='$combined')"
-fi
-
-# TC-23
-# Given: the parent docs/test_architecture.md changes during copy
-# When: runner invoked
-# Then: it is included in the manifest and the change is detected (proving the
-#       parent doc participates in the 3-way check, not just the repo proper)
-echo ""
-echo "TC-23: parent docs/test_architecture.md change during copy is included in the manifest & detected"
-new_fixture
-cat > "$F_CTL/hook_before23.sh" <<HOOK
-#!/bin/bash
-if [ ! -e "$F_CTL/tc23_done" ]; then
-  touch "$F_CTL/tc23_done"
-  printf 'mutated\n' >> "$F_REPO/docs/test_architecture.md"
-fi
-HOOK
-chmod +x "$F_CTL/hook_before23.sh"
-EXTRA_ENV="DEV_CREW_TEST_HOOK_BEFORE_COPY=$F_CTL/hook_before23.sh"
-run_subject
-unset EXTRA_ENV
-combined="$RUN_OUT$RUN_ERR"
-if [ "$RUN_RC" -eq 0 ] && printf '%s' "$combined" | grep -Eqi 'rebuild|retry|mismatch|recreat'; then
-  pass "TC-23: parent docs/test_architecture.md change during copy is included in the manifest & detected"
-else
-  fail "TC-23: parent docs/test_architecture.md change during copy is included in the manifest & detected (rc=$RUN_RC out+err='$combined')"
-fi
-
-# TC-24
-# Given: source keeps changing on every single attempt (never stabilizes)
-# When: runner invoked
-# Then: the rebuild cap (3 attempts) is exceeded -> exit non-zero, distinct
-#       from admission BLOCK / arg-rejection (rc=4), reason explicitly stated
-echo ""
-echo "TC-24: rebuild cap (3) exceeded when source never stabilizes -> exit 4 with the specified reason"
-new_fixture
-printf 'v1\n' > "$F_DEV/MUTATE_ME.txt"
-cat > "$F_CTL/hook_before24.sh" <<HOOK
-#!/bin/bash
-printf 'v-%s\n' "\$RANDOM" >> "$F_DEV/MUTATE_ME.txt"
-HOOK
-chmod +x "$F_CTL/hook_before24.sh"
-EXTRA_ENV="DEV_CREW_TEST_HOOK_BEFORE_COPY=$F_CTL/hook_before24.sh"
-run_subject
-unset EXTRA_ENV
-combined="$RUN_OUT$RUN_ERR"
-if [ "$RUN_RC" -eq 4 ] && printf '%s' "$combined" | grep -q '書き込み中'; then
-  pass "TC-24: rebuild cap exceeded -> exit 4, reason names the writing-in-progress cause"
-else
-  fail "TC-24: rebuild cap exceeded -> exit 4, reason names the writing-in-progress cause (rc=$RUN_RC out+err='$combined')"
-fi
-
-# TC-24b (mini-iteration follow-up, B1/B4)
-# Given: a FIFO planted under the live tree (a special file compute_manifest
-#        cannot hash)
-# When: runner invoked
-# Then: a DISTINCT infra exit code (5) is used, NOT exit 1 -- which per the
-#       header contract means ">=1 test FAILED" and must never be produced
-#       by an infra condition unrelated to any test's outcome
-echo ""
-echo "TC-24b: a FIFO under the live tree yields a distinct infra exit code (5), not exit 1 (FAIL misattribution)"
-new_fixture
-mkfifo "$F_DEV/a-fifo" 2>/dev/null || true
-run_subject
-if [ "$RUN_RC" -eq 5 ]; then
-  pass "TC-24b: FIFO under the tree -> exit 5 (infra), distinguishable from exit 1 (test FAIL)"
-else
-  fail "TC-24b: FIFO under the tree -> exit 5 (infra), distinguishable from exit 1 (test FAIL) (rc=$RUN_RC)"
-fi
-rm -f "$F_DEV/a-fifo" 2>/dev/null || true
-
 # TC-25
 # Given: the real tests/test-paradigm-selection.sh, which depends on
 #        $BASE_DIR/../.. to find docs/test_architecture.md
@@ -1088,43 +489,6 @@ if [ "$RUN_RC" -eq 0 ] && printf '%s' "$where" | grep -q "dev-crew-snap\."; then
   pass "TC-25b: git ls-files works inside the snapshot (.git replicated)"
 else
   fail "TC-25b: git ls-files works inside the snapshot (.git replicated) (rc=$RUN_RC where='$where')"
-fi
-
-# TC-25c
-# Given: the snapshot's own git state is tampered with post-copy (one attempt
-#        only), so its `git ls-files` output diverges from the source's
-# When: runner invoked (AFTER_COPY hook does the tampering)
-# Then: the virtual `git ls-files` manifest entry catches the divergence via
-#       the 3-way check, the snapshot is rebuilt, and the (clean) retry succeeds
-echo ""
-echo "TC-25c: snapshot's 'git ls-files' output diverging from source is caught by the 3-way check"
-new_fixture
-cat > "$F_DEV/tests/test-zz-git-check.sh" <<'GITCHK'
-#!/bin/bash
-set -euo pipefail
-D="$(cd "$(dirname "$0")/.." && pwd)"
-git -C "$D" ls-files >/dev/null 2>&1
-exit 0
-GITCHK
-chmod +x "$F_DEV/tests/test-zz-git-check.sh"
-add_git_repo
-cat > "$F_CTL/hook_after25c.sh" <<HOOK
-#!/bin/bash
-# \$1 = snapshot root, passed by the runner
-if [ ! -e "$F_CTL/tc25c_done" ]; then
-  touch "$F_CTL/tc25c_done"
-  git -C "\$1/agents/dev-crew" rm --cached tests/test-zz-git-check.sh >/dev/null 2>&1 || true
-fi
-HOOK
-chmod +x "$F_CTL/hook_after25c.sh"
-EXTRA_ENV="DEV_CREW_TEST_HOOK_AFTER_COPY=$F_CTL/hook_after25c.sh"
-run_subject
-unset EXTRA_ENV
-combined="$RUN_OUT$RUN_ERR"
-if [ "$RUN_RC" -eq 0 ] && printf '%s' "$combined" | grep -Eqi 'rebuild|retry|mismatch|recreat'; then
-  pass "TC-25c: snapshot git-ls-files divergence from source detected via the virtual entry, rebuilt, succeeds"
-else
-  fail "TC-25c: snapshot git-ls-files divergence from source detected via the virtual entry, rebuilt, succeeds (rc=$RUN_RC out+err='$combined')"
 fi
 
 # ===========================================================================
@@ -1253,392 +617,34 @@ else
 fi
 pkill -KILL -f "test-aa-slow.sh" >/dev/null 2>&1 || true
 
-# TC-28
-# Given: a dev-crew-snap.* with a dead owner PID
-# When: startup cleanup runs
-# Then: it is removed
-echo ""
-echo "TC-28: a dev-crew-snap.* with a dead owner PID is removed at startup"
-new_fixture
-( exit 0 ) & dead_pid=$!; wait "$dead_pid" 2>/dev/null || true
-mk_stale_snap "dev-crew-snap.tc28dead" "pid=$dead_pid
-start=x
-created=0"
-run_subject
-if [ "$RUN_RC" -eq 0 ] && [ ! -d "$F_TMPBASE/dev-crew-snap.tc28dead" ]; then
-  pass "TC-28: dead-owner snapshot removed at startup"
-else
-  fail "TC-28: dead-owner snapshot removed at startup (rc=$RUN_RC exists=$([ -d "$F_TMPBASE/dev-crew-snap.tc28dead" ] && echo yes || echo no))"
-fi
-
-# TC-29
-# Given: a dev-crew-snap.* with a LIVE owner PID, but old (old-but-live)
-# When: startup cleanup runs
-# Then: it is NOT removed
-echo ""
-echo "TC-29: a dev-crew-snap.* with a LIVE owner PID is preserved even if old (old-but-live)"
-new_fixture
-sleep 300 & live_pid=$!; ALL_SLEEP_PIDS+=("$live_pid")
-# W6/B3 mini-iteration follow-up: the `.owner` `start=` token is now actually
-# used by startup_cleanup (cross-checked against the live process's real
-# lstart, to detect PID reuse -- see TC-29b). A placeholder like "x" would
-# itself look like a reused PID and be wrongly removed, so this must be the
-# process's REAL start time, not a filler value.
-sleep 0.05
-real_start="$(ps -o lstart= -p "$live_pid" 2>/dev/null | tr -s ' ' '_')"
-mk_stale_snap "dev-crew-snap.tc29live" "pid=$live_pid
-start=$real_start
-created=0" 120
-run_subject
-if [ "$RUN_RC" -eq 0 ] && [ -d "$F_TMPBASE/dev-crew-snap.tc29live" ]; then
-  pass "TC-29: live-owner snapshot preserved despite being old"
-else
-  fail "TC-29: live-owner snapshot preserved despite being old (rc=$RUN_RC exists=$([ -d "$F_TMPBASE/dev-crew-snap.tc29live" ] && echo yes || echo no))"
-fi
-kill -KILL "$live_pid" >/dev/null 2>&1 || true
-
-# TC-29b (mini-iteration follow-up, W6/B3)
-# Given: owner PID is LIVE, but the recorded start token does NOT match that
-#        process's actual start time (simulates the PID having been reused
-#        by an unrelated process after the true owner already exited)
-# When: startup cleanup runs
-# Then: it IS removed -- `kill -0` succeeding is not, by itself, sufficient
-#       evidence that the live process is the true owner
-echo ""
-echo "TC-29b: live PID but mismatched start token (simulated PID reuse) -> removed"
-new_fixture
-sleep 300 & live_pid2=$!; ALL_SLEEP_PIDS+=("$live_pid2")
-mk_stale_snap "dev-crew-snap.tc29bstale" "pid=$live_pid2
-start=not-the-real-start-time
-created=0" 120
-run_subject
-if [ "$RUN_RC" -eq 0 ] && [ ! -d "$F_TMPBASE/dev-crew-snap.tc29bstale" ]; then
-  pass "TC-29b: live PID with a mismatched start token (simulated reuse) is removed"
-else
-  fail "TC-29b: live PID with a mismatched start token (simulated reuse) is removed (rc=$RUN_RC exists=$([ -d "$F_TMPBASE/dev-crew-snap.tc29bstale" ] && echo yes || echo no))"
-fi
-kill -KILL "$live_pid2" >/dev/null 2>&1 || true
-
-# TC-30
-# Given: owner metadata missing/unparseable, AND under snapshot_stale_minutes
-# When: startup cleanup runs
-# Then: NOT removed
-echo ""
-echo "TC-30: owner missing/unparseable AND under snapshot_stale_minutes -> preserved"
-new_fixture
-mk_stale_snap "dev-crew-snap.tc30missing" MISSING 5
-mk_stale_snap "dev-crew-snap.tc30garbage" GARBAGE 5
-run_subject
-if [ "$RUN_RC" -eq 0 ] && [ -d "$F_TMPBASE/dev-crew-snap.tc30missing" ] && [ -d "$F_TMPBASE/dev-crew-snap.tc30garbage" ]; then
-  pass "TC-30: missing/unparseable owner under the staleness threshold is preserved"
-else
-  fail "TC-30: missing/unparseable owner under the staleness threshold is preserved (rc=$RUN_RC missing=$([ -d "$F_TMPBASE/dev-crew-snap.tc30missing" ] && echo yes || echo no) garbage=$([ -d "$F_TMPBASE/dev-crew-snap.tc30garbage" ] && echo yes || echo no))"
-fi
-
-# TC-31
-# Given: owner metadata missing/unparseable, AND past snapshot_stale_minutes
-# When: startup cleanup runs
-# Then: removed
-echo ""
-echo "TC-31: owner missing/unparseable AND past snapshot_stale_minutes -> removed"
-new_fixture
-mk_stale_snap "dev-crew-snap.tc31missing" MISSING 90
-mk_stale_snap "dev-crew-snap.tc31garbage" GARBAGE 90
-run_subject
-if [ "$RUN_RC" -eq 0 ] && [ ! -d "$F_TMPBASE/dev-crew-snap.tc31missing" ] && [ ! -d "$F_TMPBASE/dev-crew-snap.tc31garbage" ]; then
-  pass "TC-31: missing/unparseable owner past the staleness threshold is removed"
-else
-  fail "TC-31: missing/unparseable owner past the staleness threshold is removed (rc=$RUN_RC missing=$([ -d "$F_TMPBASE/dev-crew-snap.tc31missing" ] && echo yes || echo no) garbage=$([ -d "$F_TMPBASE/dev-crew-snap.tc31garbage" ] && echo yes || echo no))"
-fi
-
-# TC-32
-# Given: a temp dir under the same TMPDIR but with a DIFFERENT prefix
-# When: startup cleanup runs
-# Then: left alone
-echo ""
-echo "TC-32: a temp dir with a DIFFERENT prefix is left alone"
-new_fixture
-mkdir -p "$F_TMPBASE/other-tool.abcdef"
-run_subject
-if [ "$RUN_RC" -eq 0 ] && [ -d "$F_TMPBASE/other-tool.abcdef" ]; then
-  pass "TC-32: differently-prefixed temp dir is not touched"
-else
-  fail "TC-32: differently-prefixed temp dir is not touched (rc=$RUN_RC exists=$([ -d "$F_TMPBASE/other-tool.abcdef" ] && echo yes || echo no))"
-fi
-
-# TC-33
-# Given: a dev-crew-snap.* entry that is a symlink to a target OUTSIDE TMPDIR
-# When: startup cleanup runs
-# Then: not followed, target not deleted
-echo ""
-echo "TC-33: a dev-crew-snap.* symlink pointing outside TMPDIR is not followed or deleted"
-new_fixture
-outside_dir="$(mktemp -d)"
-ALL_FIX+=("$outside_dir")
-touch "$outside_dir/canary"
-ln -s "$outside_dir" "$F_TMPBASE/dev-crew-snap.tc33link"
-run_subject
-if [ "$RUN_RC" -eq 0 ] && [ -e "$outside_dir/canary" ]; then
-  pass "TC-33: symlink target outside TMPDIR survives (not followed/deleted)"
-else
-  fail "TC-33: symlink target outside TMPDIR survives (not followed/deleted) (rc=$RUN_RC canary_exists=$([ -e "$outside_dir/canary" ] && echo yes || echo no))"
-fi
-
-# TC-34
-# Given: a dev-crew-snap.* entry that is NOT a directory
-# When: startup cleanup runs
-# Then: it is out of scope for cleanup (left alone)
-echo ""
-echo "TC-34: a non-directory dev-crew-snap.* entry is left alone (not a cleanup target)"
-new_fixture
-printf 'not a directory\n' > "$F_TMPBASE/dev-crew-snap.tc34file"
-run_subject
-if [ "$RUN_RC" -eq 0 ] && [ -f "$F_TMPBASE/dev-crew-snap.tc34file" ]; then
-  pass "TC-34: non-directory dev-crew-snap.* entry survives"
-else
-  fail "TC-34: non-directory dev-crew-snap.* entry survives (rc=$RUN_RC exists=$([ -f "$F_TMPBASE/dev-crew-snap.tc34file" ] && echo yes || echo no))"
-fi
-
-# TC-35
-# Given: a dead-owner stale snapshot that cannot be deleted (permission denied)
-# When: startup cleanup runs
-# Then: only a warning is emitted; the suite still runs to completion
-echo ""
-echo "TC-35: a deletion failure (permission denied) only warns; the suite still continues"
-new_fixture
-( exit 0 ) & dead_pid2=$!; wait "$dead_pid2" 2>/dev/null || true
-mk_stale_snap "dev-crew-snap.tc35locked" "pid=$dead_pid2
-start=x
-created=0"
-chmod 000 "$F_TMPBASE/dev-crew-snap.tc35locked"
-run_subject
-if [ "$RUN_RC" -eq 0 ] && printf '%s' "$RUN_ERR" | grep -qi "warn"; then
-  pass "TC-35: undeletable stale snapshot only warns, suite still completes"
-else
-  fail "TC-35: undeletable stale snapshot only warns, suite still completes (rc=$RUN_RC err='$RUN_ERR')"
-fi
-chmod -R u+rwx "$F_TMPBASE/dev-crew-snap.tc35locked" 2>/dev/null || true
-
-# TC-35b (mini-iteration follow-up, B3)
-# Given: an EMPTY dev-crew-snap.* directory that cannot be inspected (chmod
-#        000, simulating a crash immediately after `mktemp -d`, before
-#        `.owner` or any payload was written)
-# When: startup cleanup runs
-# Then: it is WARNED about and PRESERVED, not silently removed. This is the
-#       actual discriminator for the "inspect-fail -> warn and keep" fix: a
-#       payload-bearing 000 dir (TC-35) already fails `rm -rf` loudly on its
-#       own and looks identical whether or not this branch even attempts a
-#       delete, but an EMPTY 000 dir's final `rmdir` succeeds even without
-#       read/execute on the entry itself (permission for removing a
-#       directory entry is checked on the PARENT, not the entry) -- so the
-#       pre-fix code silently removed it with no warning at all.
-echo ""
-echo "TC-35b: an empty unreadable snapshot dir is warned about and preserved, not silently removed"
-new_fixture
-mkdir -p "$F_TMPBASE/dev-crew-snap.tc35bempty"
-chmod 000 "$F_TMPBASE/dev-crew-snap.tc35bempty"
-run_subject
-if [ "$RUN_RC" -eq 0 ] && [ -d "$F_TMPBASE/dev-crew-snap.tc35bempty" ] && printf '%s' "$RUN_ERR" | grep -qi "warn"; then
-  pass "TC-35b: empty unreadable snapshot dir preserved with a warning"
-else
-  fail "TC-35b: empty unreadable snapshot dir preserved with a warning (rc=$RUN_RC exists=$([ -d "$F_TMPBASE/dev-crew-snap.tc35bempty" ] && echo yes || echo no) err='$RUN_ERR')"
-fi
-chmod -R u+rwx "$F_TMPBASE/dev-crew-snap.tc35bempty" 2>/dev/null || true
-
-# ===========================================================================
-# 実行後の live tree 変化 (advisory)
-# ===========================================================================
-
-# TC-36
-# Given: the live tree does not change during the run
-# When: runner completes
-# Then: reported as unchanged, exit 0
-echo ""
-echo "TC-36: no live-tree changes during the run -> reported as unchanged, exit 0"
-new_fixture
-run_subject
-if [ "$RUN_RC" -eq 0 ] && printf '%s' "$RUN_OUT$RUN_ERR" | grep -Eqi 'no.*change|unchanged|0 change'; then
-  pass "TC-36: unchanged live tree reported, exit 0"
-else
-  fail "TC-36: unchanged live tree reported, exit 0 (rc=$RUN_RC out+err='$RUN_OUT$RUN_ERR')"
-fi
-
-# TC-37
-# Given: a test that, while the suite runs (from inside the snapshot or not),
-#        writes into the KNOWN live tree path -- simulating e.g. a PdM
-#        appending to the Cycle doc concurrently with the suite run
-# When: runner completes
-# Then: the changed path is listed as a warning, but exit stays 0
-echo ""
-echo "TC-37: live tree changes during the run -> changed paths listed, exit remains 0"
-new_fixture
-cat > "$F_DEV/tests/test-mm-mutator.sh" <<'MUT'
-#!/bin/bash
-if [ -n "${DCRUN_LIVE_DEV:-}" ]; then
-  printf 'concurrent edit\n' >> "$DCRUN_LIVE_DEV/LIVE_EDIT_DURING_RUN.txt"
-fi
-exit 0
-MUT
-chmod +x "$F_DEV/tests/test-mm-mutator.sh"
-EXTRA_ENV="DCRUN_LIVE_DEV=$F_DEV"
-run_subject
-unset EXTRA_ENV
-combined="$RUN_OUT$RUN_ERR"
-if [ "$RUN_RC" -eq 0 ] && printf '%s' "$combined" | grep -q "LIVE_EDIT_DURING_RUN.txt"; then
-  pass "TC-37: live-tree change during the run is listed as a warning, exit stays 0"
-else
-  fail "TC-37: live-tree change during the run is listed as a warning, exit stays 0 (rc=$RUN_RC out+err='$combined')"
-fi
-
-# TC-38
-# Given: warn_on_live_changes = false, same concurrent live-tree edit as TC-37
-# When: runner completes
-# Then: no warning is emitted, exit remains 0
-echo ""
-echo "TC-38: warn_on_live_changes=false -> the same live-tree change is not warned about"
-new_fixture
-write_config '{"k_load": 2, "mem_min_mib": 3584, "snapshot_stale_minutes": 60, "warn_on_live_changes": false}'
-cat > "$F_DEV/tests/test-mm-mutator.sh" <<'MUT2'
-#!/bin/bash
-if [ -n "${DCRUN_LIVE_DEV:-}" ]; then
-  printf 'concurrent edit\n' >> "$DCRUN_LIVE_DEV/LIVE_EDIT_DURING_RUN.txt"
-fi
-exit 0
-MUT2
-chmod +x "$F_DEV/tests/test-mm-mutator.sh"
-EXTRA_ENV="DCRUN_LIVE_DEV=$F_DEV"
-run_subject
-unset EXTRA_ENV
-combined="$RUN_OUT$RUN_ERR"
-if [ "$RUN_RC" -eq 0 ] && ! printf '%s' "$combined" | grep -q "LIVE_EDIT_DURING_RUN.txt"; then
-  pass "TC-38: warn_on_live_changes=false suppresses the live-change warning"
-else
-  fail "TC-38: warn_on_live_changes=false suppresses the live-change warning (rc=$RUN_RC out+err='$combined')"
-fi
-
-# ===========================================================================
-# ps-shim direct unit test (mini-iteration follow-up, B6)
-# ===========================================================================
-
-# TC-45
-# Given: a fabricated `ps -axo pid=,ppid=` table (self -> a fake ancestor ->
-#        a fake grandparent -> pid 1, plus an unrelated sibling PID with no
-#        path back to self), delivered via a PATH shim that dispatches ONLY
-#        that exact `ps` invocation to the fabricated table and passes every
-#        OTHER `ps` call straight through to the real binary
-# When: build_exclude_set()/is_excluded_pid() are unit-tested directly by
-#       sourcing the runner as a library (DEV_CREW_RUNNER_LIB_ONLY=1, a
-#       source guard added for exactly this purpose) -- not by shelling out
-#       through `pgrep`
-# Then: self and the fabricated ancestor ARE excluded; the unrelated sibling
-#       is NOT. This exercises the PID-lineage logic itself, independent of
-#       macOS pgrep's own built-in ancestor-exclusion default, which is what
-#       made TC-04/TC-04b unable to discriminate a correct vs. broken
-#       self/ancestor exclusion implementation (`man pgrep`'s `-a` section:
-#       "By default, the current pgrep or pkill process and all of its
-#       ancestors are excluded" -- see docs/cycles/20260913_0059 VERIFY /
-#       DISCOVERED). Descendant exclusion is deliberately NOT exercised here:
-#       it was removed as dead code in this mini-iteration (admission_check,
-#       which calls build_exclude_set, runs strictly before any test child
-#       is forked).
-echo ""
-echo "TC-45: build_exclude_set()/is_excluded_pid() unit-tested via a fabricated ps table"
-new_fixture
-mkdir -p "$F_CTL/psbin"
-cat > "$F_CTL/psbin/ps" <<'PSSHIM'
-#!/bin/bash
-TBL="${DCRUN_PS_TABLE:?DCRUN_PS_TABLE not set}"
-case "$*" in
-  "-axo pid=,ppid="*) cat "$TBL" ;;
-  *) exec /bin/ps "$@" ;;
-esac
-PSSHIM
-chmod +x "$F_CTL/psbin/ps"
-
-cat > "$F_CTL/tc45_inner.sh" <<'INNER'
-#!/bin/bash
-set -uo pipefail
-SELF=$$
-ANCESTOR=$((SELF + 1000000))
-GRANDPARENT=$((SELF + 2000000))
-UNRELATED=$((SELF + 3000000))
-{
-  printf '%s %s\n' "$SELF" "$ANCESTOR"
-  printf '%s %s\n' "$ANCESTOR" "$GRANDPARENT"
-  printf '%s %s\n' "$GRANDPARENT" "1"
-  printf '%s %s\n' "$UNRELATED" "1"
-} > "$DCRUN_PS_TABLE"
-DEV_CREW_RUNNER_LIB_ONLY=1 source ./run-tests.sh
-build_exclude_set
-is_excluded_pid "$SELF";       echo "self=$?"
-is_excluded_pid "$ANCESTOR";   echo "ancestor=$?"
-is_excluded_pid "$UNRELATED";  echo "unrelated=$?"
-INNER
-chmod +x "$F_CTL/tc45_inner.sh"
-
-tc45_out="$F_CTL/tc45_out"
-( cd "$F_DEV" && env PATH="$F_CTL/psbin:$PATH" DCRUN_PS_TABLE="$F_CTL/ps.table" bash "$F_CTL/tc45_inner.sh" ) > "$tc45_out" 2>&1
-if grep -q '^self=0$' "$tc45_out" && grep -q '^ancestor=0$' "$tc45_out" && grep -q '^unrelated=1$' "$tc45_out"; then
-  pass "TC-45: self + fabricated ancestor excluded, unrelated sibling not excluded"
-else
-  fail "TC-45: self + fabricated ancestor excluded, unrelated sibling not excluded (out='$(cat "$tc45_out")')"
-fi
-
 # TC-46
-# Given: TMPDIR resolves to a directory INSIDE BASE_DIR (the fixture's
-#        agents/dev-crew tree), AND a `mktemp` PATH shim that forces GNU/Linux
-#        bare-mktemp semantics (bare `mktemp` honors $TMPDIR). This shim is
-#        required for the TC to be non-vacuous on macOS: macOS's own BSD
-#        mktemp prioritizes _CS_DARWIN_USER_TEMP_DIR over $TMPDIR for a bare
-#        call (confirmed by `man mktemp` + measurement: `TMPDIR=/x mktemp`
-#        still resolves under /var/folders/.../T on this platform), so
-#        without the shim compute_manifest()'s bare `mktemp` calls never
-#        actually land under BASE_DIR here and this TC would pass vacuously
-#        even against the pre-fix implementation (measured directly: it did).
-#        determine_safe_tmpdir() detects TMPDIR-inside-BASE_DIR and falls
-#        SAFE_TMPDIR back to /tmp, but the TMPDIR *environment variable
-#        itself* is left untouched (docs/cycles/20260913_0059 review F1:
-#        compute_manifest()'s `mktemp` calls read $TMPDIR directly, bypassing
-#        $SAFE_TMPDIR, so pre-fix -- under GNU semantics -- their scratch
-#        files still land under BASE_DIR)
-# When: runner invoked with that TMPDIR and the mktemp shim
-# Then: compute_manifest's own scratch files never land under BASE_DIR, so
-#       manifest A/B/C stay mutually consistent and the run exits 0 (the
-#       fixture's one dummy test passes). Pre-fix -- under the shim's GNU
-#       semantics -- the scratch file self-included in the BASE_DIR find
-#       corrupts manifest A: the file is deleted before the batched
-#       stat/shasum pass (L695-ish `rm -f "$filelist"`), so `xargs stat`
-#       fails on a vanished path, compute_manifest returns 1 (not 2), and
-#       build_snapshot classifies this as "infra", not "mismatch" -- so the
-#       actual pre-fix failure is exit 5, NOT the exit-4 the reviewer's
-#       static analysis predicted (measured directly). Assert rc==0 rather
-#       than rc!=4 so this TC still catches the regression on either wrong
-#       exit code.
+# Given: TMPDIR resolves to a directory INSIDE BASE_DIR (the fixture's own
+#        agents/dev-crew tree)
+# When: runner invoked with that TMPDIR
+# Then: the snapshot is NOT created inside the source tree -- this is the
+#       MINIMAL source-tree-boundary contract this cycle keeps (B: 「削れな
+#       い」。TMPDIR が repo 配下のとき `cp -Rp "$BASE_DIR"` が snapshot を
+#       再帰的に含んでしまう事故の防止). Everything the prior TC-46
+#       additionally pinned -- compute_manifest()'s own scratch-file
+#       placement, exercised only via a GNU-mktemp-semantics PATH shim --
+#       tested the fingerprint three-way-match machinery, which B removes
+#       entirely; that coverage is deliberately NOT reintroduced here
+#       (narrowed scope, not a weaker guarantee: the surviving assertion is
+#       exactly what B commits to keeping, no more, no less).
 echo ""
-echo "TC-46: TMPDIR pointing inside BASE_DIR does not corrupt the manifest (compute_manifest scratch files must go through SAFE_TMPDIR)"
+echo "TC-46: TMPDIR pointing inside BASE_DIR does not place the snapshot inside the source tree"
 new_fixture
 mkdir -p "$F_DEV/tmp-inside-repo"
-cat > "$F_BIN/mktemp" <<'SHIM'
-#!/bin/bash
-# GNU/Linux bare-mktemp semantics: honor $TMPDIR. macOS's own mktemp ignores
-# $TMPDIR for the bare (no-argument) form (prioritizes _CS_DARWIN_USER_TEMP_DIR
-# instead), which would make TC-46 vacuous without this shim. A templated call
-# (e.g. `mktemp -d ".../XXXXXX"`, used by run-tests.sh's own SNAP creation and,
-# post-fix, by compute_manifest) is passed straight through untouched.
-if [ $# -eq 0 ]; then
-  exec /usr/bin/mktemp "${TMPDIR:-/tmp}/tmp.XXXXXXXXXX"
-fi
-exec /usr/bin/mktemp "$@"
-SHIM
-chmod +x "$F_BIN/mktemp"
 EXTRA_ENV="TMPDIR=$F_DEV/tmp-inside-repo"
 run_subject
 unset EXTRA_ENV
 where="$(evidence_where)"
-if [ "$RUN_RC" -eq 0 ] && printf '%s' "$where" | grep -q "dev-crew-snap\."; then
-  pass "TC-46: TMPDIR inside BASE_DIR does not corrupt the manifest (rc=$RUN_RC)"
+if [ "$RUN_RC" -eq 0 ] \
+   && printf '%s' "$where" | grep -q "dev-crew-snap\." \
+   && ! printf '%s' "$where" | grep -qF "$F_DEV/"; then
+  pass "TC-46: TMPDIR inside BASE_DIR -> snapshot stays outside the source tree (where=$where)"
 else
-  fail "TC-46: TMPDIR inside BASE_DIR does not corrupt the manifest (rc=$RUN_RC err='$RUN_ERR')"
+  fail "TC-46: TMPDIR inside BASE_DIR -> snapshot stays outside the source tree (rc=$RUN_RC where='$where')"
 fi
 
 # ===========================================================================
@@ -1732,26 +738,68 @@ else
 fi
 
 # TC-44
-# Given: rules/plan-discipline.md's '## 具体例' section
+# Given: rules/plan-discipline.md's '## 具体例' section (regression pin, kept
+#        from the prior TC-44), its '## 推奨' section (extended by this
+#        cycle -- Scope A: 「推奨行の direct loop を bash run-tests.sh へ」),
+#        AND its '## 出典' section (the mini-iteration REVIEW B1 fix target:
+#        both '## 具体例' and '## 出典' used to describe run-tests.sh as
+#        still containing 三者照合（A==B==C）/ 起動時掃除 after cycle
+#        20260916_1634 deleted that machinery -- doc drift the original
+#        TC-44 never pinned), checked against BOTH rules/plan-discipline.md
+#        and its .claude/rules/ mirror (test-rules-mirror.sh requires the
+#        two trees to match exactly; fixing only one half would break that
+#        contract)
 # When: inspected
-# Then: its own ad-hoc snapshot loop is gone, replaced by a run-tests.sh call
+# Then: '## 具体例' still delegates to run-tests.sh (unchanged) AND no longer
+#       claims run-tests.sh currently performs 三者照合; '## 推奨' no longer
+#       recommends its own ad-hoc `for f in tests/test-*.sh` baseline loop --
+#       it too must delegate to run-tests.sh; '## 出典' no longer claims
+#       run-tests.sh currently contains 三者照合 either. All three checked in
+#       both the primary file and the mirror
 echo ""
-echo "TC-44: rules/plan-discipline.md '## 具体例' no longer has its own snapshot loop"
-ex="$(section_lines "$BASE_DIR/rules/plan-discipline.md" "具体例")"
-if ! printf '%s' "$ex" | grep -qF 'cp -R . "$SNAP"' \
-   && printf '%s' "$ex" | grep -qF "run-tests.sh"; then
-  pass "TC-44: '## 具体例' no longer duplicates the snapshot loop; delegates to run-tests.sh"
+echo "TC-44: rules/plan-discipline.md (+ mirror) '## 具体例'/'## 推奨'/'## 出典' no longer duplicate the snapshot/baseline loop or claim the deleted 三者照合 machinery is still current"
+tc44_ok=1
+tc44_detail=""
+for f in "$BASE_DIR/rules/plan-discipline.md" "$BASE_DIR/.claude/rules/plan-discipline.md"; do
+  ex="$(section_lines "$f" "具体例")"
+  rec="$(section_lines "$f" "推奨")"
+  src="$(section_lines "$f" "出典")"
+  if printf '%s' "$ex" | grep -qF 'cp -R . "$SNAP"'; then
+    tc44_ok=0; tc44_detail="$tc44_detail $f:具体例-has-ad-hoc-loop"
+  fi
+  if ! printf '%s' "$ex" | grep -qF "run-tests.sh"; then
+    tc44_ok=0; tc44_detail="$tc44_detail $f:具体例-missing-run-tests.sh"
+  fi
+  if printf '%s' "$ex" | grep -qF "三者照合"; then
+    tc44_ok=0; tc44_detail="$tc44_detail $f:具体例-still-claims-三者照合"
+  fi
+  if printf '%s' "$rec" | grep -qF 'for f in tests/test-*.sh'; then
+    tc44_ok=0; tc44_detail="$tc44_detail $f:推奨-still-has-direct-loop"
+  fi
+  if ! printf '%s' "$rec" | grep -qF "run-tests.sh"; then
+    tc44_ok=0; tc44_detail="$tc44_detail $f:推奨-missing-run-tests.sh"
+  fi
+  if printf '%s' "$src" | grep -qF "三者照合"; then
+    tc44_ok=0; tc44_detail="$tc44_detail $f:出典-still-claims-三者照合"
+  fi
+done
+if [ "$tc44_ok" -eq 1 ]; then
+  pass "TC-44: '## 具体例' + '## 推奨' + '## 出典' (rules/ and mirror) delegate to run-tests.sh; no ad-hoc loops or stale 三者照合 claims remain"
 else
-  fail "TC-44: '## 具体例' no longer duplicates the snapshot loop; delegates to run-tests.sh"
+  fail "TC-44: '## 具体例' + '## 推奨' + '## 出典' (rules/ and mirror) delegate to run-tests.sh; no ad-hoc loops or stale 三者照合 claims remain -$tc44_detail"
 fi
 
 # TC-48
 # Given: an explicit test argument that exists at argument-validation time
-#        (normalize_args() checks it against the LIVE tree), then a
-#        DEV_CREW_TEST_HOOK_BEFORE_COPY hook that deletes exactly that file
-#        from the LIVE tree before the snapshot `cp -Rp` runs -- a TOCTOU
-#        window that is real because argument validation happens against the
-#        live tree while the snapshot copy happens strictly afterward
+#        (normalize_args() checks it against the LIVE tree), then a `cp`
+#        PATH shim (delete-before mode) that deletes exactly that file from
+#        the LIVE tree the moment the first `cp` invocation happens -- a
+#        TOCTOU window that is real because argument validation happens
+#        against the live tree while the snapshot copy happens strictly
+#        afterward. B removes DEV_CREW_TEST_HOOK_* entirely from production
+#        code (「案 a 確定」), so this replaces the prior TC-48's dependency
+#        on DEV_CREW_TEST_HOOK_BEFORE_COPY with a fixture-only mechanism that
+#        does not read any production hook variable at all
 # When: runner invoked with that explicit argument
 # Then: exit 3 (argument rejected), NOT exit 0. Pre-fix, the explicit
 #       target's absence from the snapshot was never re-checked: the
@@ -1759,30 +807,244 @@ fi
 #       for an explicit arg, which is always appended unconditionally), and
 #       the execution loop's `[ -f "$f" ] || continue` silently skipped the
 #       missing file -- so the run reported 0 executed / PASS 0 / FAIL 0 and
-#       STILL exited 0: a vacuous PASS for a test that never ran.
+#       STILL exited 0: a vacuous PASS for a test that never ran. B's fix
+#       (run_tests_in_snapshot's explicit-arg re-validation against the
+#       snapshot, not the live tree it was originally checked against) has
+#       no fingerprinting or retry involved -- a single cp attempt, no
+#       manifest comparison -- so no other stderr output is expected here.
 echo ""
-echo "TC-48: an explicit test arg deleted from the live tree after validation (before snapshot copy) is rejected (exit 3), not silently skipped"
+echo "TC-48: an explicit test arg deleted from the live tree via a cp shim (post-validation, pre-copy) is rejected (exit 3), not silently skipped"
 new_fixture
 cat > "$F_DEV/tests/test-zz-target.sh" <<'TARGET'
 #!/bin/bash
 exit 0
 TARGET
 chmod +x "$F_DEV/tests/test-zz-target.sh"
-cat > "$F_CTL/hook_before48.sh" <<HOOK
-#!/bin/bash
-rm -f "$F_DEV/tests/test-zz-target.sh"
-HOOK
-chmod +x "$F_CTL/hook_before48.sh"
-EXTRA_ENV="DEV_CREW_TEST_HOOK_BEFORE_COPY=$F_CTL/hook_before48.sh"
+set_cp_delete_before "$F_DEV/tests/test-zz-target.sh"
 run_subject tests/test-zz-target.sh
-unset EXTRA_ENV
+set_cp_real
 combined="$RUN_OUT$RUN_ERR"
 # rc==3 alone cannot distinguish "the new snapshot re-validation fired" from
 # some unrelated exit-3 path, so the message is pinned too.
 if [ "$RUN_RC" -eq 3 ] && printf '%s' "$combined" | grep -qF "not present in the snapshot"; then
-  pass "TC-48: explicit-arg TOCTOU deletion (post-validation, pre-copy) rejected with exit 3 and the snapshot-specific reason, not a vacuous PASS"
+  pass "TC-48: explicit-arg TOCTOU deletion via cp shim (no DEV_CREW_TEST_HOOK_* dependency) rejected with exit 3 and the snapshot-specific reason, not a vacuous PASS"
 else
-  fail "TC-48: explicit-arg TOCTOU deletion (post-validation, pre-copy) rejected with exit 3 and the snapshot-specific reason, not a vacuous PASS (rc=$RUN_RC out+err='$combined')"
+  fail "TC-48: explicit-arg TOCTOU deletion via cp shim (no DEV_CREW_TEST_HOOK_* dependency) rejected with exit 3 and the snapshot-specific reason, not a vacuous PASS (rc=$RUN_RC out+err='$combined')"
+fi
+
+# ===========================================================================
+# 新設 TC -- replace the deleted PID/owner/reaper coverage and pin the new
+# copy-failure exit code
+# ===========================================================================
+
+# TC-49
+# Given: a `cp` PATH shim forced to fail on EVERY invocation (fixture-level
+#        only -- NOT the production DEV_CREW_TEST_HOOK_* mechanism, which B
+#        removes entirely). build_snapshot() makes up to two cp calls: the
+#        parent-doc copy (guarded by `[ -f "$PARENT_DOC_SRC" ]`, which the
+#        fixture's new_fixture() satisfies) THEN the repo copy (`cp -Rp
+#        "$BASE_DIR" ...`, the actual target of this TC). With the parent doc
+#        left in place, the "fail every call" shim fails at the FIRST cp
+#        (the parent-doc copy) and the run never reaches the repo-copy path
+#        at all -- both failures exit 2, so rc alone cannot tell them apart,
+#        and the emitted message would be "failed to copy the parent doc",
+#        not "failed to copy the repo" (REVIEW mini-iteration A3 / Codex
+#        BLOCK: this TC previously never reached what it claimed to test).
+#        Removing the fixture's parent doc makes the `[ -f ... ]` guard
+#        false, so build_snapshot skips straight to the repo copy -- the
+#        only cp call left, and the one this TC is actually about.
+# When: runner invoked
+# Then: exit 2, with the repo-copy-specific message. B's exit-code table
+#       collapses admission BLOCK, snapshot creation failure, AND copy
+#       failure into a single exit 2 ("runner が開始不能"); exit 1 is
+#       reserved exclusively for "1 件以上 FAIL（実行したテストの FAIL の
+#       み、流用禁止）". A copy failure means no test ever got the chance to
+#       run, so it must never surface as exit 1 (which a caller would
+#       misread as "the code under test is broken") nor as today's exit 4/5
+#       (both retired by B).
+echo ""
+echo "TC-49: repo copy failure exits 2 with the repo-copy message, never conflated with exit 1's 'a test FAILed' or the parent-doc-copy failure path"
+new_fixture
+rm -f "$F_REPO/docs/test_architecture.md"
+set_cp_fail
+run_subject
+set_cp_real
+combined="$RUN_OUT$RUN_ERR"
+if [ "$RUN_RC" -eq 2 ] && printf '%s' "$combined" | grep -qF "failed to copy the repo"; then
+  pass "TC-49: copy failure exits 2 (repo-copy path, not the parent-doc copy), not 1 (rc=$RUN_RC)"
+else
+  fail "TC-49: copy failure exits 2 (repo-copy path, not the parent-doc copy), not 1 (rc=$RUN_RC out='$RUN_OUT' err='$RUN_ERR')"
+fi
+
+# TC-50
+# Given/When/Then (three sub-scenarios against ONE pass/fail, matching the
+# TC-42/TC-44 tc44_ok/tc44_detail pattern -- keeps this a single Test List
+# label, kept to a single Test List entry rather than three):
+#
+#   50-a) a pre-existing dev-crew-snap.* directory already sits under the
+#         run's actual SAFE_TMPDIR (F_TMPBASE here -- no repo-boundary
+#         fallback involved) => runner warns about it on stderr AND leaves
+#         it in place (B-2: 「受容する」強制終了後の残骸を自動削除しない /
+#         「警告は残す」). This replaces the deleted PID/owner/reaper
+#         machinery (TC-28~35b) with a non-destructive report: the runner no
+#         longer guesses which leftovers are safe to delete.
+#   50-b) zero leftover snapshot directories under SAFE_TMPDIR => stderr is
+#         completely silent about it (Round 4 finding #3: a naive `ls
+#         "$dir"/dev-crew-snap.*` glob-no-match emits "No such file or
+#         directory" to stderr even when there is genuinely nothing to warn
+#         about; the fix must use an existence-guarded glob, not `ls`).
+#   50-c) TMPDIR points INSIDE the repo (triggers determine_safe_tmpdir's
+#         fallback to /tmp) and the leftover snapshot directory is seeded
+#         directly under the REAL /tmp (the actual post-fallback
+#         SAFE_TMPDIR), never under the raw repo-internal TMPDIR path =>
+#         still warned about. This is the discriminating case: a scan that
+#         (incorrectly) reads the raw $TMPDIR env var instead of the
+#         boundary-checked $SAFE_TMPDIR would find nothing here and stay
+#         silent, which this sub-scenario would catch. /tmp is a symlink to
+#         /private/tmp on macOS, so the warning is matched by basename, not
+#         full path (a `pwd -P`/realpath-based implementation would print
+#         the /private/tmp form).
+echo ""
+echo "TC-50: startup residue scan warns about (never deletes) leftover snapshot directories, using the actual post-boundary-check SAFE_TMPDIR, and stays silent when there is nothing to report"
+tc50_ok=1
+tc50_detail=""
+
+# 50-a: leftover under the normal (non-fallback) SAFE_TMPDIR
+new_fixture
+leftover_a="$F_TMPBASE/dev-crew-snap.leftovera"
+mkdir -p "$leftover_a/agents/dev-crew"
+printf 'payload\n' > "$leftover_a/agents/dev-crew/payload.txt"
+run_subject
+if [ "$RUN_RC" -ne 0 ] \
+   || ! printf '%s' "$RUN_ERR" | grep -qF "leftover snapshot directory" \
+   || ! printf '%s' "$RUN_ERR" | grep -qF "$(basename "$leftover_a")" \
+   || [ ! -d "$leftover_a" ] || [ ! -f "$leftover_a/agents/dev-crew/payload.txt" ]; then
+  tc50_ok=0
+  tc50_detail="$tc50_detail 50a(rc=$RUN_RC err='$RUN_ERR' still_exists=$([ -d "$leftover_a" ] && echo yes || echo no))"
+fi
+
+# 50-b: zero leftovers -> completely silent stderr
+new_fixture
+run_subject
+if [ "$RUN_RC" -ne 0 ] || [ -n "$RUN_ERR" ]; then
+  tc50_ok=0
+  tc50_detail="$tc50_detail 50b(rc=$RUN_RC err='$RUN_ERR')"
+fi
+
+# 50-c: leftover under the REAL fallback root (/tmp), TMPDIR points inside repo
+new_fixture
+mkdir -p "$F_DEV/tmp-inside-repo"
+real_leftover="$(mktemp -d "/tmp/dev-crew-snap.XXXXXX")"
+ALL_FIX+=("$real_leftover")
+mkdir -p "$real_leftover/agents/dev-crew"
+printf 'payload\n' > "$real_leftover/agents/dev-crew/payload.txt"
+EXTRA_ENV="TMPDIR=$F_DEV/tmp-inside-repo"
+run_subject
+unset EXTRA_ENV
+if [ "$RUN_RC" -ne 0 ] \
+   || ! printf '%s' "$RUN_ERR" | grep -qF "leftover snapshot directory" \
+   || ! printf '%s' "$RUN_ERR" | grep -qF "$(basename "$real_leftover")"; then
+  tc50_ok=0
+  tc50_detail="$tc50_detail 50c(rc=$RUN_RC err='$RUN_ERR')"
+fi
+
+if [ "$tc50_ok" -eq 1 ]; then
+  pass "TC-50: leftover snapshots warned about (not deleted) via the actual post-boundary SAFE_TMPDIR; silent when there are none"
+else
+  fail "TC-50: leftover snapshots warned about (not deleted) via the actual post-boundary SAFE_TMPDIR; silent when there are none -$tc50_detail"
+fi
+
+# ===========================================================================
+# REVIEW mini-iteration (docs/cycles/20260916_1634) -- A1/A2 safety-valve TCs
+# ===========================================================================
+
+# TC-51
+# Given/When/Then (three sub-scenarios against ONE pass/fail, matching the
+# TC-42/44/50 *_ok/*_detail pattern): eval_pgrep()'s three DISTINCT fail-open
+# ("skip") code paths, none of which any TC previously exercised --
+# `set_pgrep_absent()` (defined since this cycle's RED) had zero call sites
+# before this TC (Codex/Claude REVIEW A2):
+#   51-a) probe absent (the `pgrep` binary itself resolves to nothing, rc=127
+#         -- hits the same "rc>=2: probe unavailable" branch a genuine
+#         non-127 execution error would)
+#   51-b) probe returns rc=0 but non-numeric stdout (a corrupted/unexpected
+#         pgrep implementation)
+#   51-c) probe returns rc=0 with EMPTY stdout (contradicts rc=0's normal
+#         meaning of "at least one match")
+# When: runner invoked once per sub-case
+# Then: admission_check() logs a SKIP reason to stderr for the unsatisfiable
+#       condition but does NOT BLOCK (exit 2) or crash -- the run proceeds
+#       past admission to build_snapshot/run_tests_in_snapshot (dummy
+#       evidence shows it executed inside a dev-crew-snap.* snapshot). A
+#       fail-open condition that silently blocked, or that crashed instead of
+#       degrading, would be worse than the condition it was meant to guard.
+echo ""
+echo "TC-51: eval_pgrep's 3 fail-open paths (probe absent / non-numeric output / rc=0 empty output) skip the condition (stderr SKIP) without blocking or crashing"
+tc51_ok=1
+tc51_detail=""
+
+new_fixture
+set_pgrep_absent
+run_subject
+where="$(evidence_where)"
+if [ "$RUN_RC" -ne 0 ] || ! printf '%s' "$where" | grep -q "dev-crew-snap\." \
+   || ! printf '%s' "$RUN_ERR" | grep -qi 'skip'; then
+  tc51_ok=0
+  tc51_detail="$tc51_detail 51a-absent(rc=$RUN_RC where='$where' err='$RUN_ERR')"
+fi
+
+new_fixture
+set_pgrep_fake 0 "not-a-number"
+run_subject
+where="$(evidence_where)"
+if [ "$RUN_RC" -ne 0 ] || ! printf '%s' "$where" | grep -q "dev-crew-snap\." \
+   || ! printf '%s' "$RUN_ERR" | grep -qi 'skip'; then
+  tc51_ok=0
+  tc51_detail="$tc51_detail 51b-non-numeric(rc=$RUN_RC where='$where' err='$RUN_ERR')"
+fi
+
+new_fixture
+set_pgrep_fake 0 ""
+run_subject
+where="$(evidence_where)"
+if [ "$RUN_RC" -ne 0 ] || ! printf '%s' "$where" | grep -q "dev-crew-snap\." \
+   || ! printf '%s' "$RUN_ERR" | grep -qi 'skip'; then
+  tc51_ok=0
+  tc51_detail="$tc51_detail 51c-rc0-empty(rc=$RUN_RC where='$where' err='$RUN_ERR')"
+fi
+
+if [ "$tc51_ok" -eq 1 ]; then
+  pass "TC-51: probe-absent / non-numeric / rc=0-empty all skip (stderr SKIP) and execution still proceeds"
+else
+  fail "TC-51: probe-absent / non-numeric / rc=0-empty all skip (stderr SKIP) and execution still proceeds -$tc51_detail"
+fi
+
+# TC-52
+# Given: one dummy test that FAILs (exits 42, a value distinct from bash's
+#        own generic 1, so a match cannot be mistaken for some other cause)
+#        alongside the fixture's always-PASSing dummy
+# When: runner invoked
+# Then: the runner's OWN exit code is 1 (exit 1 was, until this TC, never
+#       pinned by a single live case -- REVIEW mini-iteration A1: 31 deleted
+#       TCs left FAIL-aggregation -> exit 1 completely unverified), and the
+#       stdout summary reports the FAIL count and names the specific failed
+#       test -- never conflated with exit 2 (runner start-failure, e.g.
+#       TC-49's copy failure)
+echo ""
+echo "TC-52: a single executed test FAILing drives the runner's own exit code to 1, with the FAIL count + failed-test name in stdout (never exit 2's start-failure)"
+new_fixture
+cat > "$F_DEV/tests/test-zz-failing.sh" <<'DUMMY'
+#!/bin/bash
+exit 42
+DUMMY
+chmod +x "$F_DEV/tests/test-zz-failing.sh"
+run_subject
+if [ "$RUN_RC" -eq 1 ] \
+   && printf '%s' "$RUN_OUT" | grep -Eq 'FAIL: 1( |$)' \
+   && printf '%s' "$RUN_OUT" | grep -qF "test-zz-failing.sh"; then
+  pass "TC-52: exit 1 + FAIL count + failed-test name (rc=$RUN_RC)"
+else
+  fail "TC-52: exit 1 + FAIL count + failed-test name (rc=$RUN_RC out='$RUN_OUT')"
 fi
 
 # Summary

@@ -1,6 +1,8 @@
 #!/bin/bash
 # test-doc-consistency.sh - Document consistency validation
-# TC-01 ~ TC-32（欠番: 01, 03, 06-10, 26, 27 — 削除済みTC）+ TC-C2-3 ~ TC-C2-5 + TC-33a~f
+# TC-01 ~ TC-32（欠番: 01, 03, 06-10, 13, 26, 27 — 削除済みTC。TC-13 は
+# docs/cycles/20260916_1634_shrink-runner-remove-nesting.md で run-tests.sh
+# への nested full-suite 実行を除去するため削除）+ TC-C2-3 ~ TC-C2-5 + TC-33a~f
 
 set -euo pipefail
 
@@ -809,31 +811,6 @@ assert_exact_hits "TC-33f" "$BASE_DIR/README.md" "-cE" \
   '^### Language Quality$' 1 "README.md '### Language Quality' heading"
 assert_exact_hits "TC-33f" "$BASE_DIR/README.md" "-cE" \
   '^### Meta$' 1 "README.md '### Meta' heading"
-
-########################################
-# Regression
-########################################
-
-echo ""
-echo "--- Regression ---"
-
-# TC-13: All existing tests pass
-echo ""
-echo "TC-13: Existing tests pass"
-existing_fail=0
-for test_file in "$BASE_DIR/tests"/test-*.sh; do
-  test_name=$(basename "$test_file")
-  # Skip ourselves and meta test to avoid recursion
-  [ "$test_name" = "test-doc-consistency.sh" ] && continue
-  [ "$test_name" = "test-meta-doc-consistency.sh" ] && continue
-  if ! bash "$test_file" > /dev/null 2>&1; then
-    fail "Existing test failed: $test_name"
-    existing_fail=1
-  fi
-done
-if [ "$existing_fail" -eq 0 ]; then
-  pass "All existing tests pass"
-fi
 
 # Summary
 echo ""

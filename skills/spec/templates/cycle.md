@@ -112,8 +112,12 @@ python -m myapp --config new.yaml && grep "loaded_from: new.yaml" /tmp/myapp.log
 # Library 例
 python -c "from mymod import run; run('config.yaml')"
 
-# テスト実行 (補完)
+# テスト実行 (補完、汎用テンプレート例)
 for f in tests/test-*.sh; do bash "$f"; done
+# dev-crew 自身の repo では上記の代わりに正規 runner `bash run-tests.sh` を
+# 使う（admission check + immutable snapshot 実行を内包する。独自の direct
+# loop を書かない）。他プロジェクトには run-tests.sh が存在しないため、この
+# テンプレートの direct loop 自体はそのまま残す。
 ```
 
 Evidence: (orchestrate が自動記入)

@@ -5,11 +5,11 @@ phase: DONE
 complexity: complex
 test_count: 57
 risk_level: medium
-retro_status: captured
+retro_status: resolved
 codex_session_id: "01a09143-d966-7762-95c4-52eeb3acd990"
 plan_file: /Users/morodomi/.claude/plans/magical-plotting-sketch.md
 created: 2026-09-13 00:59
-updated: 2026-09-13 05:48
+updated: 2026-09-16 16:30
 ---
 
 # テスト実行を admission + immutable snapshot で機械化する — Cycle A
@@ -862,3 +862,41 @@ PdM が COMMIT フェーズで `docs/NEXT.md` に書いた Cycle B の説明文�
 **修正後の最終結果**: `bash run-tests.sh` → **PASS 117 / FAIL 0 / TOTAL 117**。Live tree の変化なし（advisory 報告）。
 
 - Phase completed
+
+## Codify Decisions
+
+### Insight 1
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: file-scoped
+- **Paths**: `tests/**`
+- **Target**: `rules/test-patterns.md`
+- **Reason**: 直近 10 cycle のうち 4 本で再発。前 cycle で codify したばかりの条項が、その次の cycle で再び実証された（49/49 PASS のまま BLOCK 級欠陥が 12 件残存）。**追記すべきは「両 reviewer が互いに見落とした」という観測** — モデルを変えても問いが同じなら両方とも追加方向にしか働かない
+- **Decided**: 2026-09-16 16:30
+
+### Insight 2
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: cycle-scoped
+- **Target**: `rules/agent-prompts.md`（委譲 prompt の契約）
+- **Reason**: 初出だが**実害の可能性が最大**（未コミット実装 719 行の消失）。「破壊的コマンドを委譲文に書くときは、対象の現在状態を実測してから書く」。意図の正しさではなく対象の状態で安全性が決まる。委譲 prompt の条項として置くのが正しい位置
+- **Decided**: 2026-09-16 16:30
+
+### Insight 3
+- **Decision**: no-codify
+- **Reason**: 観察としては重いが、**条項化しても防げない型**であることが Insight 4 と同じ構造で示されている。本 cycle の成果物（runner）と後続 Cycle B の hook が機械側の対策であり、条項を増やす対象ではない。retrospective の想起漏れ回答が示すとおり「参照する工程が存在しない反射的操作には条項が届かない」
+- **Decided**: 2026-09-16 16:30
+
+### Insight 4
+- **Decision**: deferred
+- **Destination**: new-cycle
+- **Reason**: 直近 10 cycle のうち 4 本で再発し、本 cycle だけで PdM が 2 回踏んだ（Codex 依頼文、`docs/NEXT.md`）。**ただし条項では防げないと当の insight が述べている。** 必要なのは hook 側の改修（実行文脈に限定した判定）であり、rule への追記ではない。**Cycle B の scope に含める**
+- **Decided**: 2026-09-16 16:30
+
+### Insight 5
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: cycle-scoped
+- **Target**: `rules/plan-discipline.md`（既存の「実測ベース」系列へ）
+- **Reason**: 初出だが、既存の「未確認での Problem 記述禁止」「否定形前提の未検証記述禁止」と同じ assert-before-measure 系列に収まる。**指摘が正しくても、その発現機序が自分の環境で成立するとは限らない**（macOS BSD `mktemp` が `$TMPDIR` より `_CS_DARWIN_USER_TEMP_DIR` を優先し、レビュアーの Linux 前提の機序が再現しなかった）。**本 cycle でも同型が再発している**（Codex が「三点照合は必須」と「過剰」を別ラウンドで言った）
+- **Decided**: 2026-09-16 16:30

@@ -1,6 +1,0 @@
-{
-  "k_load": 2,
-  "mem_min_mib": 3584,
-  "snapshot_stale_minutes": 60,
-  "warn_on_live_changes": true
-}

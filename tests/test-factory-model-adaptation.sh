@@ -1,6 +1,9 @@
 #!/bin/bash
 # test-factory-model-adaptation.sh - Phase 7: Factory Model Adaptation
-# 7.1 Spec Precision (TC-01~TC-07), 7.2 Test Plan Verification (TC-08~TC-13), Regression (TC-14)
+# 7.1 Spec Precision (TC-01~TC-07), 7.2 Test Plan Verification (TC-08~TC-13)
+# TC-14 (nested full-suite regression) removed in
+# docs/cycles/20260916_1634_shrink-runner-remove-nesting.md — run-tests.sh is
+# the regression entry point now, not a self-invoked loop inside this file.
 
 set -euo pipefail
 
@@ -145,32 +148,6 @@ if [ "$red_lines" -le 100 ]; then
   pass "TC-13: red SKILL.md is $red_lines lines (max 100)"
 else
   fail "TC-13: red SKILL.md is $red_lines lines (exceeds 100)"
-fi
-
-echo ""
-echo "=== Regression Tests ==="
-
-# TC-14: 既存テスト全PASSの確認
-echo ""
-echo "TC-14: All existing tests pass"
-regression_fail=0
-for test_file in "$BASE_DIR"/tests/test-*.sh; do
-  [ -f "$test_file" ] || continue
-  test_name=$(basename "$test_file")
-  # Skip self and known recursive / slow tests (cascade timeout 対応)
-  [ "$test_name" = "test-factory-model-adaptation.sh" ] && continue
-  [ "$test_name" = "test-doc-consistency.sh" ] && continue
-  [ "$test_name" = "test-meta-doc-consistency.sh" ] && continue
-  [ "$test_name" = "test-review-integration-v24.sh" ] && continue
-  if timeout 90 bash "$test_file" > /dev/null 2>&1; then
-    : # pass silently
-  else
-    fail "TC-14: $test_name failed"
-    regression_fail=$((regression_fail + 1))
-  fi
-done
-if [ "$regression_fail" -eq 0 ]; then
-  pass "TC-14: All existing tests pass"
 fi
 
 # Summary
