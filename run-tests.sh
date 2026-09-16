@@ -941,9 +941,21 @@ run_tests_in_snapshot() {
       targets+=("$f")
     done
   else
-    local rel
+    # normalize_args() validated these against the LIVE tree, before
+    # build_snapshot() ran; it proves nothing about the SNAPSHOT copy made
+    # afterward. If the file is removed from the live tree in that window
+    # (validated, then deleted before `cp -Rp` runs), the snapshot simply
+    # never has it. Re-validate against the snapshot here and reject rather
+    # than silently omit it -- an explicitly requested test that never ran
+    # must never collapse into "0 executed, exit 0".
+    local rel target
     for rel in "${NORMALIZED_ARGS[@]}"; do
-      targets+=("$snap_dev/$rel")
+      target="$snap_dev/$rel"
+      if [ ! -f "$target" ]; then
+        echo "ERROR: argument rejected (test not present in the snapshot; it may have been deleted from the live tree between argument validation and snapshot copy): $rel" >&2
+        exit 3
+      fi
+      targets+=("$target")
     done
   fi
 
@@ -954,7 +966,17 @@ run_tests_in_snapshot() {
 
   local f name rc
   for f in "${targets[@]}"; do
-    [ -f "$f" ] || continue
+    if [ ! -f "$f" ]; then
+      # Every entry in $targets already passed an existence check at
+      # selection time (the glob branch's own check, or the snapshot
+      # re-validation above for explicit args). The snapshot is immutable
+      # for the rest of this run, so a target missing here means something
+      # outside our control altered it after selection -- an infra anomaly,
+      # not a normal "0 tests" case. Fail loudly instead of silently
+      # shrinking PASS+FAIL below the selected count.
+      echo "ERROR: test target vanished from the snapshot after selection (infra anomaly): $f" >&2
+      exit 5
+    fi
     name="$(basename "$f")"
     ( cd "$snap_dev" && exec bash "$f" ) > /dev/null 2>&1 < /dev/null &
     CHILD_PID=$!
