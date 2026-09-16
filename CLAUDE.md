@@ -50,6 +50,18 @@ Phase-boundary compaction:
 | PreToolUse | Bash | `scripts/hooks/no-verify-guard.sh` | Blocks --no-verify commands (exit 2) |
 | PreCompact | manual | `scripts/hooks/pre-compact.sh` | Persists phase summary before /compact |
 
+## 人間の判断点（ブラウザで見せる）
+
+terminal では図が読めず、長い報告は流れる。以下の 3 点では **1 枚の md を書き、`mdopen <path>` を案内してから** AskUserQuestion で OK/NG を求める。terminal に長文を流して判断を求めない。
+
+| 止める場所 | 見せるもの |
+|---|---|
+| 計画の承認前 | `docs/OVERVIEW.md` の図の上で「どこを触るか」。作る量の見積もりも添える |
+| 規模が予想を超えたとき | 想定と実際の差分。続行 / 分割 / 縮小を選んでもらう |
+| REVIEW 完了後・COMMIT 前 | 結局どこが変わったか。テスト結果だけを報告しない |
+
+レビュー指摘への対応は AI 側で完結させる（実装の細部を裁定として投げない）。ただし**指摘に応えると規模が膨らむ場合は「規模が予想を超えたとき」に該当する**。
+
 ## Usage Patterns
 
 | Scenario | Mode | Context Management |

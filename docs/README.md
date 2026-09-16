@@ -4,6 +4,7 @@
 
 | ドキュメント | 内容 |
 |-------------|------|
+| [OVERVIEW.md](OVERVIEW.md) | **全体図（ここから読む）**。何があってどう繋がっているか。ブラウザ向け |
 | [CONSTITUTION.md](../CONSTITUTION.md) | 最上位規範。原則、品質基準、5-Layer Authority |
 | [workflow.md](workflow.md) | 開発フロー。承認ゲート、決定論的ゲート、Findings判断 |
 | [ROADMAP.md](../ROADMAP.md) | Phase 11+。sync-plan移行、Codex委譲、ドキュメント整備 |
