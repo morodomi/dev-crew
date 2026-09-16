@@ -20,7 +20,7 @@ plan 作成・承認・実行における規律。実測ベースの計画、逆
 ## 推奨
 
 - plan 記述前に target script を bash で実行し、実測結果を記録する
-- Block 0 で `for f in tests/test-*.sh; ...` を実行し baseline を実測する
+- Block 0 で `bash run-tests.sh` を実行し baseline を実測する（正規 runner を使う。独自の direct loop を書かない）
 - plan 時に `grep -rn "<target_value>" tests/` で逆向き契約を検索する (count/state bump 時必須)
 - pre-existing FAIL 発見時「本 cycle 1 行 fix 可能？」を必ず確認する
 - `grep -r "<file>" tests/ skills/commit/` で既存 convention の影響範囲を事前洗い出しする (cycle 20260420_1752 #5)
@@ -43,9 +43,11 @@ plan 作成・承認・実行における規律。実測ベースの計画、逆
 ## 具体例
 
 ```bash
-# Block 0: baseline 実測。run-tests.sh が admission check + immutable snapshot
-# 複製 + 三者照合（A==B==C）+ 起動時掃除を内包する正規 runner であり、
-# 独自の snapshot loop をここに書かない（cycle 20260913_0059）。
+# Block 0: baseline 実測。run-tests.sh が admission check（プロセス数判定
+# のみ）+ 境界チェック付きコピー（source tree 外への immutable snapshot
+# 複製）+ 起動時の残骸警告（削除はしない）を内包する正規 runner であり、
+# 独自の snapshot loop をここに書かない（cycle 20260913_0059、
+# cycle 20260916_1634）。
 bash run-tests.sh > "$SCRATCH/baseline.txt" 2>&1
 cat "$SCRATCH/baseline.txt"
 ```
@@ -66,4 +68,4 @@ cat "$SCRATCH/baseline.txt"
 - `docs/cycles/20260709_1313_reviewer-model-policy-v1.md #1` — 継承デフォルト前提は公式 doc の解決順で確認
 - `docs/cycles/20260716_1328_doc-drift-fix.md #2` — 連番次値は実装 grep で実測（ヘッダは drift 前提）
 - `docs/cycles/20260717_1605_approval-reorder-cycle2.md #2` — Block 0 codify の前 cycle doc 更新は scope 同梱として透明化
-- `docs/cycles/20260913_0059_runner-admission-snapshot.md` — baseline snapshot loop を `run-tests.sh`（admission + immutable snapshot + 三者照合を内包する正規 runner）呼び出しへ集約
+- `docs/cycles/20260913_0059_runner-admission-snapshot.md` / `docs/cycles/20260916_1634_shrink-runner-remove-nesting.md` — baseline snapshot loop を `run-tests.sh`（admission[プロセス数判定] + 境界チェック付きコピー + 起動時の残骸警告を内包する正規 runner。三点照合・owner metadata・reaper・load/memory admission は cycle 20260916_1634 で削除済み）呼び出しへ集約
