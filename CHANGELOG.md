@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [2.18.0] - 2026-09-17
+
 > v2.17.0 からの**最終状態**を記す。途中の試行錯誤（`run-tests.sh` に積んだ機構を同じ期間内に削り直した経緯など）は各 cycle doc と `docs/decisions/adr-test-isolation-boundary.md` に残る。
 
 ### Added
