@@ -2,48 +2,46 @@
 
 ## [Unreleased]
 
-### Removed
-- テストスイートの入れ子重複を除去した（`docs/cycles/20260916_1634_shrink-runner-remove-nesting.md`、ADR-004）: `tests/test-doc-consistency.sh` TC-13 と `tests/test-factory-model-adaptation.sh` TC-14（いずれも「全テストを nested 実行するだけ」の meta test で `run-tests.sh` と役割が重複していた）を削除。延べテスト実行回数は **458 回 → 117 回**。フルスイートは実測 **154.82 秒**（入れ子除去のみの単独計測）まで短縮
-- `run-tests.sh` から前 cycle（20260913_0059）が積み上げた機構を削った: 指紋の三点照合・再試行プロトコル・PID/起動時刻/所有者追跡・reaper・admission の load/memory 判定・`.claude/test-serialization.json`（+ `jq` 処理 + `.gitignore` negation 行）・実行後 live tree advisory・`DEV_CREW_RUNNER_LIB_ONLY`（source-as-library）・`DEV_CREW_TEST_HOOK_BEFORE_COPY`/`DEV_CREW_TEST_HOOK_AFTER_COPY`。exit code は `0/1/2/3` の 4 値へ縮小（`4`/`5` 廃止。signal 終了 129/130/143 は別枠のまま）。**削る前に測った**: memory admission は `free + inactive` を空きメモリとして報告していたが、実 `Pages free` はその 1/80 で、この誤判定の直後にジョブが 2 回 OOM 停止していた。`run-tests.sh`: 1,068 行 → 479 行。`tests/test-run-tests-runner.sh` から対応する 31 TC を削除（TC-04/04b/05/06/07/08/09/10/11/12/13/21/22/23/24/24b/25c/28/29/29b/30/31/32/33/34/35/35b/36/37/38/45）。**この縮小自体の速度への寄与は小さい（148.96 秒、入れ子除去単独の 154.82 秒から約 4% で誤差に近い）** — 速度改善のほぼ全部は上の入れ子除去に由来し、本項の目的は複雑さ・保守負債の削減であって速度ではない
-- ADR-004（`docs/decisions/adr-test-isolation-boundary.md`）の Status を `deferred` → `accepted` に確定。「コピーして実行」は残し、それ以外は上記のとおり削る境界を確定した。受容する失敗（混成 snapshot・残骸を自動削除しない・単体ファイル実行では全スイート保証が効かない・pgrep 自己/祖先除外の検証手段喪失）を明記
+> v2.17.0 からの**最終状態**を記す。途中の試行錯誤（`run-tests.sh` に積んだ機構を同じ期間内に削り直した経緯など）は各 cycle doc と `docs/decisions/adr-test-isolation-boundary.md` に残る。
 
 ### Added
-- `run-tests.sh` を dev-crew の正規 test runner にした。フルスイートも単一テストも同じ入口を通り、(1) **admission check**（テストプロセス数 / load1 / 空きメモリの 3 条件。条件単位 fail-open で、probe 不在・rc >= 2・空出力・非数値は当該条件のみ skip し stderr に明示）、(2) **immutable snapshot 上での実行**（`rules/plan-discipline.md` が既に条項化していた「baseline は immutable snapshot 複製上で実測する」を runner 本体へ適用。copy 直前の source / copy 後の snapshot / copy 後の source の **manifest 三者照合 `A == B == C`** が成立したときだけ実行し、コピー中の変更と ABA を検出する）、(3) 起動時の stale snapshot 掃除（age 単独では削除せず `.owner` の PID liveness と起動時刻トークンで判定）を行う。`.git` は snapshot へ複製しつつファイル単位 manifest からは除外し、suite が実際に読む `git ls-files -z` の出力を virtual entry として三者照合に含める。exit code は `0`=PASS / `1`=1 件以上 FAIL（既存契約、不変）/ `2`=admission BLOCK / `3`=引数拒否 / `4`=live tree 書き込み中による manifest 不一致 / `5`=インフラ障害 で一意に分離した。実行後の live tree 変化は **advisory**（exit code を変えない）— 結果の正しさを決めるのはコピー時点の一貫性であり、実行後の変化は「この baseline が現 HEAD を記述しているか」という別の話であるため。これにより orchestrate が worker 実行中に Cycle doc の Progress Log を追記する現行運用と衝突しない
-- `.claude/test-serialization.json`: runner の閾値設定（`k_load` / `mem_min_mib` / `snapshot_stale_minutes` / `warn_on_live_changes`）。`load_max` を直接持たず `k_load` を持ち `ncpu × k_load` を実行時算出するのは、`16` が 8 core 機固有の値で他機では誤るため。キー欠落・型不一致・範囲外は**そのキーのみ**既定値へフォールバックし、設定破損で fail-open しない。`.gitignore` の `.claude/*` に対する negation 行が無いとこのファイルは commit されず設定全体が無効化されるため、negation を併せて追加した
-- `tests/test-run-tests-runner.sh`（新規、TC 57 件）: 全て mktemp fixture で、runner を複製した subject と dummy test のみを使い実 `tests/` ツリーへ戻らない（戻ると runner 自身のフルスイート実行へ再帰する）。probe は `PATH` shim で fake 化し実機の負荷状態に依存させない
+
+- **`run-tests.sh` を dev-crew の正規 test runner にした。** フルスイートも単一テストも同じ入口を通る（`bash run-tests.sh` / `bash run-tests.sh tests/test-foo.sh`）。従来 `AGENTS.md` の inline ループと `run-tests.sh`（どこからも参照されない孤児）に二重化していた起動経路を一本化した
+  - **起動前チェック**: 実行中のテストプロセス数のみ。0 でなければ開始しない
+  - **immutable snapshot 上での実行**: リポジトリのコピーを作りその上で走らせる。実行中に live tree を書き換えても結果が汚れない。`TMPDIR` が repo 配下を指す場合は snapshot を source tree 内に作らないよう境界判定して退避する
+  - **起動時の残骸警告**: 強制終了で残った snapshot を**削除せず警告のみ**。自動削除は停止・スリープ中の実行を巻き込み得るため採らない
+  - **exit code**: `0`=全通過 / `1`=実行したテストの FAIL のみ / `2`=runner が開始不能（起動前チェック拒否・snapshot 作成失敗・コピー失敗）/ `3`=引数拒否。signal 終了（TERM=143 / INT=130 / HUP=129）は別枠
+- `docs/OVERVIEW.md`（新規）: dev-crew の全体図。Mermaid で spec から COMMIT までの流れを示し、**人間が判断する場所と機械が止める場所**を色で分ける。ブラウザで読む前提
+- `docs/decisions/adr-test-isolation-boundary.md`（ADR-004、accepted）: テスト実行をどこまで隔離するかの境界決定。**受容する失敗**を明記（混成 snapshot / 残骸は自動削除しない / 全スイートの保証は runner 実行時のみ / 自己・祖先除外は検証手段を失う / probe 利用不可時は fail-open）
+- `scripts/retro-insight-ledger.sh`（新規）: 複数 repo の cycle doc の `## Retrospective` 節を凍結文法で機械集計し、行単位の TSV 台帳へ落とす。合計値ではなく `doc` + `line` 付きの台帳を成果物にすることで第三者が原典へ戻って検証できる
+- `tests/test-run-tests-runner.sh` / `tests/test-retro-insight-ledger.sh`（新規）: いずれも全 TC が mktemp fixture で、実ツリーを読み書きしない
+- `tests/test-doc-consistency.sh` に派生事実の契約テストを追加（#207）: `AGENTS.md` skills 名前集合 / `CLAUDE.md` Hooks 表 / skills 一覧 negative 契約 / `@AGENTS.md` import
 
 ### Changed
-- `AGENTS.md` Quick Start の 2 行を `bash run-tests.sh` / `bash run-tests.sh tests/test-plugin-structure.sh` へ。フルスイート起動の SSOT が `run-tests.sh`（どこからも参照されていなかった）と `AGENTS.md` の inline ループに二重化していた状態を解消した
-- `rules/plan-discipline.md` の `## 具体例` を `bash run-tests.sh` 呼び出しへ。従来の正典 harness は独自の snapshot loop を持ちながら **`trap` を一切持たず**、これが snapshot 残留の出所だった。snapshot 所有を runner へ集約する以上、正典に別実装を残すと二重管理になる
-- `rules/agent-prompts.md` の「読み取り並列・実行直列」条項に**完了通知の意味論**を追記: 完了通知は agent の turn が終わったことを示すだけで、その agent が起動した background descendant の終了を保証しない
-- いずれも `.claude/rules/` 側の mirror を同時更新（`tests/test-rules-mirror.sh` が完全一致を要求する）
 
-### Notes
-- **設計は承認前 Codex plan review 5 ラウンドで 3 回縮小した**。初版「PreToolUse hook 単独」は、(a) 同種 hook が「バイパス可能」を理由に削除された先例（`docs/cycles/20260326_2320`）、(b) PreToolUse は tool call 直前に 1 回発火するだけでロックを保持せず、2 つの Bash 呼び出しが同時通過すれば両方が `pgrep=0` を観測する check-then-act race、の 2 点で誤っていた。「runner + 排他ロック」へ変更したが owner 公開前 race / reaper の crash recovery / PID 再利用 / ABA / signal の子伝播 が次々に必要になり、単一開発者の repo に分散システムの機構を持ち込む形になったため、ロックを Cycle C へ分離した。**ロックが潰していたのは「二重起動で時間と負荷を無駄にする」だけで、実害（実行中の tree 書き換えによる非再現 FAIL、OOM）はロック無しで消える**
-- **REVIEW は Codex と Claude の competitive で BLOCK となり、両者は互いに見落とした欠陥を出した**。Codex は manifest/copy の fail-open（走査不能なディレクトリが A/B/C から同様に欠落すると不完全な snapshot でも `A==B==C` が成立する）と引数契約の穴（`tests/` 配下のディレクトリが通過して TOTAL=0 / exit 0）を、Claude は exit code 契約の破壊（インフラ障害を「テスト失敗」と誤報）と子孫除外が**呼び出し順序上の dead code** であること（`build_exclude_set()` は自分の子孫が存在しない時点で走る）を検出した。mini-iteration 後、変異注入の検出率は 10/12 → **12/12**
-- 単一テスト経路のオーバーヘッドは manifest の batch 化で **31.5 秒 → 4.89 秒**。安全保証をオプションで捨てる `--no-snapshot` は導入していない
-- 残余リスクは明示的に残した: 二重起動の TOCTOU（ロック不採用のため）、`run-tests.sh` を経由しない inline ループ（いずれも `docs/NEXT.md` item 4 に残タスクとして記載）
+- **`CLAUDE.md` に人間の判断点を定義**: 計画の承認前 / 規模が予想を超えたとき / REVIEW 完了後・COMMIT 前 の 3 点。**terminal に長文を流して判断を求めない。実装の細部を裁定として投げない**
+- `AGENTS.md` Quick Start と `rules/plan-discipline.md` の推奨・具体例を `bash run-tests.sh` へ。汎用テンプレート（`skills/onboard` / `skills/spec` / `skills/evolve`）は導入先に存在しないコマンドを配布しないため現行表記のまま注記のみ
+- `rules/agent-prompts.md` の「読み取り並列・実行直列」条項に**完了通知の意味論**を追記: 完了通知は agent の turn が終わったことを示すだけで、起動した background descendant の終了を保証しない
+- いずれも `.claude/rules/` 側の mirror を同時更新（`tests/test-rules-mirror.sh` が完全一致を要求）
+- `skills/onboard/reference.md` の指針を「数値カウントは STATUS.md へ」から「**派生数値は doc に書かず実ファイルから導出する**」へ反転
 
 ### Removed
-- `AGENTS.md` / `README.md` のツリー行コメントに残っていた派生数値と、それらを pin していた逆向き契約を削除: `tests/test-skills-structure.sh` の TC-B1・TC-B2、`tests/test-agents-md-count.sh`（ファイルごと削除）、`tests/test-doc-consistency.sh` の TC-01、`tests/test-cycle-retrospective.sh` の TC-15、`tests/test-agents-md-propagation.sh` の TC-14、`tests/test-review-integration-v24.sh` の TC-11。`skills/onboard/reference.md` の「派生数値は doc に書かない」指針に dev-crew 自身の doc を整合させた
-- `scripts/hooks/check-claude-md-staleness.sh` を削除（#207）: hooks.json / .git/hooks / skills/onboard のいずれにも登録がない orphan であり、かつ git commit 経過日数は「内容が現状と乖離しているか」の代理指標として機能していなかった（50 日 stale の CLAUDE.md は内容が正確で、8 日前更新の AGENTS.md 側に不整合があった）。関連する tests/test-hooks-structure.sh の TC-04/TC-05a〜f/TC-06 と staleness 専用 fixture helper 群、tests/test-agents-md-propagation.sh の TC-10/TC-11 も削除。直前 cycle（#144/#195）の hermetic 化は TC-03 の実ツリー汚染除去として独立に価値が残る（同 [Unreleased] の Fixed エントリ参照）
-- docs/STATUS.md の Current State 表（派生数値 6 項目）を削除。git commit 経過日数と同じく「doc に書かれた派生数値」は読み手が実在せず drift を検出できない — Agents 値は約 4.5 ヶ月誤ったまま誰も気づかなかった。STATUS.md は「人間・PdM しか知らない編集的情報」（Completed / In Progress / TODO）のみを持つ。あわせて pre-commit-gate.sh の STATUS.md 同期 WARN（表削除により完全な no-op になる）と、これらを pin していた次の契約を削除: tests/test-v2-release.sh TC-04 / test-orchestrate-a2b.sh TC-15 / test-codify-insight.sh TC-19・TC-20 / test-cycle-retrospective.sh TC-14 / test-doc-consistency.sh TC-26・TC-27 / test-pre-commit-gate.sh T-03・T-04・TC-14。数値でなく識別子を列挙するのは、本エントリ自身が主題とする「doc に書かれた派生数値は再導出されず drift する」を繰り返さないため
 
-### Added
-- `scripts/retro-insight-ledger.sh`（新規）: 複数 repo の cycle doc の `## Retrospective` 節を凍結文法 grammar v2 で機械集計し、`ledger`（1 unit = 1 行の 10 列 TSV）と `summary`（Markdown + 機械可読ブロック）を stdout へ出す。合計値ではなく `doc` + `line` 付きの行単位台帳を成果物にすることで、第三者が原典へ戻って検証できる。repo path は対応表 TSV（`<label><TAB><repo_path>`）経由でのみ受け取り、**repo path 自体は出力に現れない**（label へ還元される）。ただし source 由来の文字列は出力を通過する — ledger の `doc` / `container` / `heading` 列と summary の `ZERO` / `SKIP` 行は、cycle doc 名と見出し本文を原文のまま載せる。したがって「出力は label / sha / dirty / files / digest しか含まない」ではなく、**匿名化されるのは repo path のみ**が正確な契約である。unit の form は 7 種（insight / failure-pattern / addendum-pair / pair / pair-bullet / prose-pair / numbered-item）、polarity は 3 値（explicit_failure / explicit_positive / unknown）で、**unknown を推定で埋めない**。unit にしない列挙は `SKIP ... kind=sub-field|derivative|standalone-positive` として、unit 0 件の doc は `ZERO ...` として明示列挙し、除外を沈黙させない。契約は `tests/test-retro-insight-ledger.sh`（TC-01〜TC-59、全て mktemp fixture）が pin する — とくに「太字 container ルールは全 unit ルールの後に評価する」評価順（TC-27）と「positive が failure に優先する」polarity 優先順位（TC-34）は実測した回帰の pin である
-- tests/test-doc-consistency.sh に派生事実の契約テスト TC-20〜TC-28 を追加（#207）: AGENTS.md skills 名前集合 / CLAUDE.md Hooks 表 / CLAUDE.md の skills 一覧 negative 契約 / CLAUDE.md 1 行目の `@AGENTS.md` import を機械検査する（**当初含まれていた docs/STATUS.md の Skills・Agents 数の契約（TC-26/TC-27）は、同 [Unreleased] の Removed のとおり本リリース内で撤去された** — 読み手が実在しない派生数値を pin していたという判断の是正）。**これらは full suite 実行時にのみ検査される** — `pre-commit-gate.sh` も commit skill も現時点では呼んでおらず、COMMIT 経路での決定論的強制は未実装（#211）。したがって本変更は「時間ベース警告を機械検査へ置換した」のではなく「契約テストを追加した。強制は follow-up」が正確な状態である
-
-### Changed
-- `README.md` の Skills 見出し（Development Workflow / Security / Language Quality / Meta）から件数表記を除去。見出し配下のスキル名リストは維持し既存契約（TC-04/TC-05/TC-13/TC-18 等）を壊さない
-- `tests/test-doc-consistency.sh` に helper `assert_min_hits` / `assert_exact_hits` と TC-33a〜f を追加し、削除した派生数値の再混入を検出する静的 negative（ツリー行の件数表記）/ positive（ツリー行・見出しの存在）契約へ置換
-- CLAUDE.md から `Available skills (N total): ...` の skills 一覧行を削除（#207）: 1 行目の `@AGENTS.md` import により同一プロセス内で二重に読まれる純粋な重複であり、CONSTITUTION §8「コードから導出可能な情報は書かない」に反していた。一覧は AGENTS.md 側（Codex が読む cross-tool doc）に一本化
-- docs/STATUS.md の `| Agents | 41 |` を `| Agents | 40 |` に修正（#207）: frontmatter を持つ agent の実数。`agents/false-positive-filter-reference.md` は reference doc で agent ではない
-- skills/onboard/reference.md の指針を「数値カウントは STATUS.md へ」から「派生数値は doc に書かず実ファイルから導出する」へ反転
+- **テストスイートの入れ子重複**: `tests/test-doc-consistency.sh` TC-13 と `tests/test-factory-model-adaptation.sh` TC-14 を削除。どちらも「全テストを実行する」だけで `run-tests.sh` と役割が重複し、前者が後者を除外していなかったため入れ子が二重になっていた。**延べ実行回数 458 → 117、フルスイート 13〜17 分 → 158 秒**
+- `AGENTS.md` / `README.md` / `docs/STATUS.md` / `CLAUDE.md` の派生数値と、それらを pin していた逆向き契約（#207、#210）。doc に書かれた派生数値は読み手が実在せず drift を検出できない（`Agents` の値が約 4.5 ヶ月誤ったまま誰も気づかなかった実測が根拠）
+- `scripts/hooks/check-claude-md-staleness.sh`（#207）: どこにも登録がない orphan であり、git commit 経過日数は「内容が現状と乖離しているか」の代理指標として機能していなかった
 
 ### Fixed
-- tests/test-hooks-structure.sh の壁時計依存を解消（#144）: staleness hook の検査を fixture git repo（相対 backdate commit）へ移し、実行日に依存しない決定論的検証にした。連鎖 FAIL していた 3 test（test-doc-consistency / test-factory-model-adaptation / test-trap-handler）も回復する。**なお staleness hook 自体は同 [Unreleased] の Removed で削除されたため、この検証ロジックも併せて除去された**（TC-03 の実ツリー汚染除去 #195 は独立に残る）
-- tests/test-hooks-structure.sh の drift 検出 fixture を実ソースツリーから mktemp snapshot へ隔離（#195）: 並行実行時に test-agents-structure.sh を汚染しなくなり、TC-41 の暫定除外を撤去した
-- .claude/dev-crew.json の dev_crew_version を 2.17.0 に追随（spec Version Gate の誤 BLOCK 解消。自動化は #186）
+
+- **`run-tests.sh` が「テストを 1 件も実行せずに正常終了を報告する」欠陥**: 明示指定したテストが引数検証後・snapshot コピー前に消えると、実行ループが黙って読み飛ばし `PASS 0 / FAIL 0 / exit 0` になっていた。snapshot 側で再検証して拒否する
+- `tests/test-hooks-structure.sh` の壁時計依存（#144）と実ツリー fixture 汚染（#195）
+
+### Notes
+
+- **速度改善の内訳**: 入れ子除去だけで 154.82 秒に到達し、`run-tests.sh` の縮小による追加短縮は約 4%（誤差域）。**縮小の価値は速度ではなく保守負債の削減にある**。入れ子は 2026-04 から認識されていたが対処は skip 条件の追加と timeout の 30→60→90 秒への延長で、約 5 ヶ月その構造を維持するコストを払い続けていた
+- **起動前チェックから load と memory 判定を外した**: memory 判定は実態を測れていなかった（`free + inactive` で 6,198MB と報告する一方、実 `Pages free` は 75MB。この判定が通った直後にジョブが 2 回停止した）。load 判定は防いだ実績を測れなかった。**受容する失敗: CPU 混雑時にテストが遅くなる・他プロセスと競合する**
+- **排他ロックは不採用**: 二重起動が潰すのは時間と負荷の無駄だけで、実害（実行中の tree 書き換えによる非再現 FAIL）は snapshot 実行で既に消えている。**残余リスク: 二重起動の TOCTOU**。必要性が実測されるまで採らない
+- **`run-tests.sh` を経由しない inline ループは防げない**。`docs/NEXT.md` item 4 に残タスクとして記載
 
 ## [2.17.0] - 2026-09-04
 
