@@ -17,12 +17,13 @@ Codex が利用可能な場合、Plan Review と Code Review は常時 competiti
 # plan review は承認前（spec Step 8、plan mode 内、read-only sandbox）で実行。
 # session ID は plan の Plan Review Record 経由で sync-plan が Cycle doc frontmatter
 # codex_session_id へ転記する（orchestrate 自身は取得しない）
-codex exec --sandbox read-only "review plan <planファイルパス>"
+codex exec --sandbox read-only "review plan <planファイルパス>" < /dev/null
 
 # RED/GREEN/REVIEW 委譲（codex_session_id があれば resume <session-id>、なければ resume --last）
-codex exec resume <session-id> --full-auto "red docs/cycles/xxx.md"
-codex exec resume <session-id> --full-auto "green docs/cycles/xxx.md"
-codex exec resume <session-id> --full-auto "review code docs/cycles/xxx.md"
+# フラグは resume より前に置く（後ろに置くと rc=2）。stdin がパイプのままだとハングするので < /dev/null
+codex exec --sandbox workspace-write resume <session-id> "red docs/cycles/xxx.md" < /dev/null
+codex exec --sandbox workspace-write resume <session-id> "green docs/cycles/xxx.md" < /dev/null
+codex exec --sandbox read-only resume <session-id> "review code docs/cycles/xxx.md" < /dev/null
 ```
 
 Codex 不在時は Claude fallback（既存スキルそのまま）。

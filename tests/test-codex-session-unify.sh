@@ -3,10 +3,11 @@
 # TC-01: steps-codex.md Session Management contains "plan review"
 # TC-02: steps-codex.md Session Management does NOT contain "debate"
 # TC-03: steps-codex.md RED section does NOT have `codex exec --full-auto` (new session)
-# TC-04: steps-codex.md RED section has `codex exec resume --last`
-# TC-05: all codex exec commands in steps-codex.md have --full-auto
-# TC-06: CLAUDE.md Codex patterns consistent with steps-codex.md (RED = resume --last)
+# TC-04: steps-codex.md RED section has `codex exec ... resume`
+# TC-05: codex exec commands in steps-codex.md put --sandbox before resume and read stdin from /dev/null
+# TC-06: CLAUDE.md Codex patterns consistent with steps-codex.md (RED = resume)
 # TC-07: existing test-orchestrate-codex.sh passes (regression)
+# TC-08: no --full-auto in instruction files, and every codex exec command reads stdin from /dev/null
 
 set -euo pipefail
 
@@ -64,29 +65,35 @@ else
   pass "RED section has no new session pattern"
 fi
 
-# TC-04: RED section has `codex exec resume` pattern (--last or <session-id>)
+# TC-04: RED section has `codex exec ... resume` pattern (--last or <session-id>)
 echo ""
 echo "TC-04: RED section has codex exec resume pattern"
-if echo "$red_section" | grep -q 'codex exec resume'; then
+if echo "$red_section" | grep -qE 'codex exec .*resume '; then
   pass "RED section has codex exec resume pattern"
 else
   fail "RED section missing codex exec resume pattern"
 fi
 
-# TC-05: all codex exec commands have --full-auto
+# TC-05: codex-cli 0.159 で --full-auto は廃止され、resume の後ろに置いたフラグは rc=2 になる。
+# stdin がパイプのままだと codex exec はハングする。
 echo ""
-echo "TC-05: all codex exec commands have --full-auto"
-bad_lines=$(grep 'codex exec' "$STEPS_CODEX" | grep -v '\-\-full-auto' | grep -v '^#' || true)
-if [ -z "$bad_lines" ]; then
-  pass "all codex exec commands have --full-auto"
+echo "TC-05: codex exec commands in steps-codex.md use --sandbox before resume and < /dev/null"
+cmd_lines=$(grep 'codex exec' "$STEPS_CODEX" | grep -v '^ *#' || true)
+if [ -z "$cmd_lines" ]; then
+  fail "TC-05: no codex exec command found in steps-codex.md"
 else
-  fail "codex exec without --full-auto found: $bad_lines"
+  bad_lines=$(printf '%s\n' "$cmd_lines" | grep -vE 'codex exec --sandbox [a-z-]+ .*resume .*< /dev/null' || true)
+  if [ -z "$bad_lines" ]; then
+    pass "all codex exec commands use --sandbox before resume and < /dev/null"
+  else
+    fail "codex exec command with wrong form: $bad_lines"
+  fi
 fi
 
 # TC-06: CLAUDE.md RED pattern uses resume (--last or <session-id>, consistent with steps-codex.md)
 echo ""
 echo "TC-06: CLAUDE.md RED pattern uses resume"
-if grep -q 'codex exec resume.*red\|red.*codex exec resume' "$CLAUDE_MD" || \
+if grep -qE 'codex exec .*resume .*red' "$CLAUDE_MD" || \
    grep -A1 'RED.*GREEN.*REVIEW' "$CLAUDE_MD" | grep -q 'resume'; then
   pass "CLAUDE.md RED pattern uses resume"
 else
@@ -100,6 +107,35 @@ if bash "$BASE_DIR/tests/test-orchestrate-codex.sh" > /dev/null 2>&1; then
   pass "test-orchestrate-codex.sh passes"
 else
   fail "test-orchestrate-codex.sh failed (regression)"
+fi
+
+# TC-08: 実行手順を書くファイル全体で、廃止済みの --full-auto を使わず、
+# すべての codex exec 呼び出しが stdin を /dev/null から読む。
+# 行末の \ で続く複数行コマンドは 1 行に連結してから判定する。
+echo ""
+echo "TC-08: instruction files have no --full-auto and every codex exec command has < /dev/null"
+INSTRUCTION_FILES=$(cd "$BASE_DIR" && ls CLAUDE.md AGENTS.md rules/*.md .claude/rules/*.md agents/*.md 2>/dev/null; cd "$BASE_DIR" && find skills -name '*.md' | sort)
+fullauto_hits=""
+devnull_bad=""
+for f in $INSTRUCTION_FILES; do
+  path="$BASE_DIR/$f"
+  [ -f "$path" ] || continue
+  hits=$(grep -n -- '--full-auto' "$path" || true)
+  [ -n "$hits" ] && fullauto_hits="$fullauto_hits $f"
+  joined=$(sed -e ':a' -e '/\\$/N; s/\\\n//; ta' "$path")
+  # 1 行に複数の呼び出しがあっても 1 つずつ判定する（片方の /dev/null が他方の欠落を隠さない）
+  bad=$(printf '%s\n' "$joined" | grep -oE 'codex exec [^`]*' | grep '"' | grep -v '< /dev/null' || true)
+  [ -n "$bad" ] && devnull_bad="$devnull_bad $f"
+done
+if [ -n "$fullauto_hits" ]; then
+  fail "TC-08a: --full-auto still present in:$fullauto_hits"
+else
+  pass "TC-08a: no --full-auto in instruction files"
+fi
+if [ -n "$devnull_bad" ]; then
+  fail "TC-08b: codex exec command without < /dev/null in:$devnull_bad"
+else
+  pass "TC-08b: every codex exec command reads stdin from /dev/null"
 fi
 
 # Summary

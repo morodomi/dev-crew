@@ -8,9 +8,9 @@ Codex plan review は**承認前**（plan mode 内、ExitPlanMode 前）に実�
 
 ### 手順
 
-1. `codex exec --sandbox read-only "review plan <plan path>"` を実行する。session id は下記3段 fallback で取得する。**`--full-auto` での実行は禁止**（plan review は read-only sandbox 必須。`--full-auto` は書き込み権限を伴うため plan mode の read-only 原則に反する）
+1. `codex exec --sandbox read-only "review plan <plan path>" < /dev/null` を実行する。session id は下記3段 fallback で取得する。sandbox は read-only に固定する（書き込みできる sandbox は plan mode の read-only 原則に反する）。`< /dev/null` を外すと stdin 待ちでハングする
 2. findings を draft plan へ直接反映する
-3. 最終版を1回だけ再レビューする: `codex exec --sandbox read-only resume <session-id> "..."`（**フラグは resume より前置**。後置は rc=2 実測済み。ここも `--full-auto` 禁止、`--sandbox read-only` 固定）
+3. 最終版を1回だけ再レビューする: `codex exec --sandbox read-only resume <session-id> "..." < /dev/null`（**フラグは resume より前置**。後置は rc=2 実測済み。ここも `--sandbox read-only` 固定）
 4. `## Plan Review Record` を plan に記録する（フィールド様式は下記）
 5. 未解消 BLOCK は Record の `unresolved_blocks` に列挙し、承認提示文で人間の明示 override を要求する。人間が override した場合は verdict を `BLOCK-overridden` とし、Record の `override` フィールドに承認内容を引用する
 6. Codex 不在時（`which codex` 失敗）: Step 8 の Codex 呼び出しは skip するが、**Record 自体の記録は必須**（詳細は下記「Codex 不在時」参照）

@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- **Codex への委譲が codex-cli 0.159 で動かなかった問題を修正。** 0.159 で `--full-auto` が廃止され、手順どおりに実行すると `unexpected argument` で止まっていた。加えて orchestrate の呼び出しはフラグを `resume` の後ろに置いており、`--full-auto` を外しても rc=2 になる形だった
+  - RED / GREEN の委譲は `--sandbox workspace-write`、REVIEW と plan review は `--sandbox read-only`。フラグはすべて `resume` より前に置く
+  - すべての `codex exec` 呼び出しに `< /dev/null` を付けた（stdin がパイプのままだとハングする）
+  - onboard の配布テンプレートも同じ形にした。**導入済みの repo にある CLAUDE.md / AGENTS.md は自動では更新されない**ので、各 repo で該当行を直す（生成物の追従方法は #247）
+- Progress Log の timestamp 条項（`rules/agent-prompts.md`）を、シェルでの追記を前提にした書き方から「`date` で実測した値を Edit で書く」へ改めた
+
+### Removed
+
+- `ROADMAP.md` の「現在地」節。リリース時に更新する手順がなく v2.12.0 のまま止まっていた。リリース済みの内容はこの CHANGELOG を参照する（#177）
+
 ## [2.18.0] - 2026-09-17
 
 > v2.17.0 からの**最終状態**を記す。途中の試行錯誤（`run-tests.sh` に積んだ機構を同じ期間内に削り直した経緯など）は各 cycle doc と `docs/decisions/adr-test-isolation-boundary.md` に残る。

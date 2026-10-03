@@ -6,8 +6,8 @@
 # TC-04: steps-codex.md has `which codex` pre-check
 # TC-05: steps-codex.md has Gate 1 (RED fail verification)
 # TC-06: steps-codex.md has Gate 2 (GREEN pass verification)
-# TC-07: steps-codex.md has `codex exec resume --last` pattern
-# TC-08: all codex commands in steps-codex.md have --full-auto
+# TC-07: steps-codex.md has `codex exec ... resume` pattern
+# TC-08: orchestrate steps use --sandbox workspace-write for RED/GREEN and --sandbox read-only for REVIEW
 # TC-09: steps-codex.md has Claude Code fallback
 # TC-10: steps-codex.md does NOT use `codex review` directly
 # TC-11: reference.md has TDD Gate section
@@ -82,21 +82,43 @@ fi
 # TC-07: steps-codex.md has `codex exec resume` pattern (--last or <session-id>)
 echo ""
 echo "TC-07: steps-codex.md has codex exec resume pattern"
-if grep -q 'codex exec resume' "$BASE_DIR/skills/orchestrate/steps-codex.md"; then
+if grep -qE 'codex exec .*resume ' "$BASE_DIR/skills/orchestrate/steps-codex.md"; then
   pass "steps-codex.md has codex exec resume pattern"
 else
   fail "steps-codex.md missing codex exec resume pattern"
 fi
 
-# TC-08: all codex exec commands have --full-auto
+# TC-08: 実装を委譲する RED/GREEN は書き込みが要り、REVIEW は読むだけでよい。
+# 用途に合わない sandbox を渡すと、レビューがファイルを書き換えられる。
 echo ""
-echo "TC-08: all codex exec commands have --full-auto"
-# Find lines with "codex exec" that do NOT contain "--full-auto"
-bad_lines=$(grep 'codex exec' "$BASE_DIR/skills/orchestrate/steps-codex.md" | grep -v '\-\-full-auto' | grep -v '^#' || true)
-if [ -z "$bad_lines" ]; then
-  pass "all codex exec commands have --full-auto"
+echo "TC-08: RED/GREEN use --sandbox workspace-write, REVIEW uses --sandbox read-only"
+# フラグを resume の後ろに置くと rc=2 になるため、sandbox は resume より前にあることも見る。
+# 期待する呼び出しが消えた場合に素通りしないよう、ファイルごとに件数も確認する。
+tc08_bad=""
+check_calls() {
+  local f="$1" out="$2" sandbox="$3" min="$4" calls n bad
+  calls=$(printf '%s\n' "$joined" | grep 'codex exec' | grep "$out.md" || true)
+  n=$(printf '%s' "$calls" | grep -c 'codex exec' || true)
+  if [ "$n" -lt "$min" ]; then
+    tc08_bad="$tc08_bad $f:$out(count=$n)"
+    return
+  fi
+  bad=$(printf '%s\n' "$calls" | grep -vE -- "codex exec --sandbox $sandbox .*resume " || true)
+  [ -n "$bad" ] && tc08_bad="$tc08_bad $f:$out(form)"
+  return 0
+}
+for f in steps-codex.md steps-subagent.md steps-teams.md; do
+  joined=$(sed -e ':a' -e '/\\$/N; s/\\\n//; ta' "$BASE_DIR/skills/orchestrate/$f")
+  if [ "$f" = "steps-codex.md" ]; then
+    check_calls "$f" codex_red workspace-write 1
+    check_calls "$f" codex_green workspace-write 1
+  fi
+  check_calls "$f" codex_review read-only 1
+done
+if [ -n "$tc08_bad" ]; then
+  fail "TC-08: wrong or missing codex exec in:$tc08_bad"
 else
-  fail "codex exec without --full-auto found: $bad_lines"
+  pass "TC-08: sandbox matches purpose and precedes resume in all orchestrate steps"
 fi
 
 # TC-09: steps-codex.md has Claude Code fallback
