@@ -174,6 +174,22 @@ else
   fail "TC-11: exit non-0 but output does NOT mention empty/retro_status (output: $output_11)"
 fi
 
+# TC-12: commit SKILL.md の説明が gate の実際の挙動（field 不在で BLOCK、TC-09）と一致する。
+# 説明が「WARN のみで PASS」のままだと、AI は field を足さずに commit へ進もうとする。
+echo ""
+echo "TC-12: commit SKILL.md describes missing retro_status as BLOCK (matches gate)"
+COMMIT_SKILL="$BASE_DIR/skills/commit/SKILL.md"
+retro_line=$(grep -F 'retro_status check' "$COMMIT_SKILL" || true)
+if [ -z "$retro_line" ]; then
+  fail "TC-12: retro_status check line not found in commit SKILL.md"
+elif printf '%s\n' "$retro_line" | grep -qF 'WARN のみで PASS'; then
+  fail "TC-12: commit SKILL.md still says missing retro_status is WARN-only PASS"
+elif printf '%s\n' "$retro_line" | grep -qF 'field 不在も BLOCK'; then
+  pass "TC-12: commit SKILL.md says missing retro_status is BLOCK"
+else
+  fail "TC-12: commit SKILL.md does not state that missing retro_status is BLOCK"
+fi
+
 # Summary
 echo ""
 echo "=== Summary ==="

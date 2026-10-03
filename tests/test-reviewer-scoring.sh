@@ -233,7 +233,7 @@ echo ""
 echo "TC-08: Out-of-scope files still contain 'confidence' (unchanged)"
 SCOPE_EXTERNAL=(
   "$BASE_DIR/agents/observer.md"
-  "$BASE_DIR/agents/false-positive-filter-reference.md"
+  "$BASE_DIR/skills/security-scan/false-positive-filter-reference.md"
   "$BASE_DIR/skills/learn/reference.md"
   "$BASE_DIR/skills/diagnose/steps-subagent.md"
   "$BASE_DIR/skills/diagnose/reference.md"

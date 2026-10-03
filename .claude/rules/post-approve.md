@@ -21,7 +21,7 @@ Edit/Write を直接行わず、必ず /orchestrate に委譲すること。
 ## 禁止事項
 
 - `Skill(dev-crew:sync-plan)` の直接呼び出し禁止（sync-plan は Agent であり Skill ではない）
-- **plan mode 内 pre-approval 実行は正規、承認後の再実行は禁止**（旧条項「`Skill(dev-crew:review --plan)` の /orchestrate 外での呼び出し禁止」を改訂。plan mode 内での review --plan・Codex plan review は spec Step 8 の一部として正規に実行される）
+- **承認後の review --plan・Codex plan review の再実行禁止**（plan mode 内・spec Step 8 での実行は正規手順）
 - sync-plan → architect → orchestrate のような分解実行禁止
 
 全て `/orchestrate` に委譲すること。orchestrate が内部で適切に呼び出す。

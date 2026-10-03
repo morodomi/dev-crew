@@ -47,10 +47,6 @@ for agent_file in "$BASE_DIR"/agents/*.md; do
   [ -f "$agent_file" ] || continue
   basename_file=$(basename "$agent_file")
 
-  # Skip non-agent files (e.g., reference files)
-  if [[ "$basename_file" == *-reference* ]]; then
-    continue
-  fi
 
   name_val=$(get_frontmatter "$agent_file" "name")
   desc_val=$(get_frontmatter "$agent_file" "description")
@@ -100,10 +96,6 @@ for agent_file in "$BASE_DIR"/agents/*.md; do
   [ -f "$agent_file" ] || continue
   basename_file=$(basename "$agent_file")
 
-  # Skip reference files
-  if [[ "$basename_file" == *-reference* ]]; then
-    continue
-  fi
 
   model_val=$(get_frontmatter "$agent_file" "model")
   if [ -z "$model_val" ]; then
@@ -124,10 +116,6 @@ for agent_file in "$BASE_DIR"/agents/*.md; do
   [ -f "$agent_file" ] || continue
   basename_file=$(basename "$agent_file")
 
-  # Skip reference files
-  if [[ "$basename_file" == *-reference* ]]; then
-    continue
-  fi
 
   model_val=$(get_frontmatter "$agent_file" "model")
   if [ -n "$model_val" ] && [[ ! "$model_val" =~ ^(opus|sonnet|haiku)$ ]]; then
@@ -180,15 +168,16 @@ else
   fail "TC-26: architect.md model is '$architect_model' (expected: sonnet)"
 fi
 
-# TC-27: Reference files are excluded from model checks
+# TC-27: agents/ に agent 以外の md を置かない。
+# Claude Code は agents/*.md をすべて agent として登録するため、frontmatter のない参照資料を
+# 置くと、説明なし・全ツール付きの agent として呼び出せる状態になる。
 echo ""
-echo "TC-27: Reference file exclusion"
-# Count reference files
-ref_count=$(find "$BASE_DIR/agents" -name '*-reference.md' | wc -l)
-if [ "$ref_count" -gt 0 ]; then
-  pass "TC-27: Reference files (*-reference.md) excluded from model checks"
+echo "TC-27: agents/ contains no reference (non-agent) files"
+ref_files=$(find "$BASE_DIR/agents" -name '*-reference.md' | sed "s#$BASE_DIR/##")
+if [ -z "$ref_files" ]; then
+  pass "TC-27: no *-reference.md under agents/"
 else
-  fail "TC-27: No reference files found to test exclusion"
+  fail "TC-27: non-agent reference files under agents/ are registered as agents: $ref_files"
 fi
 
 # TC-28: [Negative] Detect missing model field
@@ -355,10 +344,6 @@ for agent_file in "$BASE_DIR"/agents/*.md; do
   [ -f "$agent_file" ] || continue
   basename_file=$(basename "$agent_file")
 
-  # Skip reference files
-  if [[ "$basename_file" == *-reference* ]]; then
-    continue
-  fi
 
   # Check for legacy "Lead" references (as a role/entity, not general English word)
   if grep -qiE '(Leadに報告|Lead に報告|結果をLeadに|結果を Lead に|SendMessage)' "$agent_file"; then
@@ -395,9 +380,6 @@ allowed_tools_count=0
 for agent_file in "$BASE_DIR"/agents/*.md; do
   [ -f "$agent_file" ] || continue
   basename_file=$(basename "$agent_file")
-  if [[ "$basename_file" == *-reference* ]]; then
-    continue
-  fi
   if has_frontmatter_key "$agent_file" "allowed-tools"; then
     fail "TC-36: $basename_file still has 'allowed-tools:' frontmatter (expected: renamed to 'tools:')"
     allowed_tools_count=$((allowed_tools_count + 1))
@@ -483,9 +465,6 @@ canonical_violation=0
 for agent_file in "$BASE_DIR"/agents/*.md; do
   [ -f "$agent_file" ] || continue
   basename_file=$(basename "$agent_file")
-  if [[ "$basename_file" == *-reference* ]]; then
-    continue
-  fi
   tools_val=$(get_frontmatter "$agent_file" "tools")
   [ -z "$tools_val" ] && continue
   IFS=',' read -ra tokens <<< "$tools_val"
@@ -505,13 +484,13 @@ if [ "$canonical_violation" -eq 0 ]; then
 fi
 
 # TC-41: [Given] declared name set (G1 29 + G2/G3 4 + deferred 7 = 40) / [When] diff'd against actual agents/*.md
-#         basenames (excluding *-reference*) / [Then] no diff
+#         basenames (all files; agents/ holds agents only, TC-27) / [Then] no diff
 # Protective contract: count-only comparison (previous impl) misses duplicate+missing pairs that cancel out to
 # the same total. Name-set diff catches both failure modes.
 echo ""
-echo "TC-41: Declared group roster (name set) matches actual non-reference agent files (name set)"
+echo "TC-41: Declared group roster (name set) matches actual agent files (name set)"
 tc41_declared=$(printf '%s\n' "${g1_agents[@]}" "${g23_names[@]}" "${deferred_agents[@]}" | sort)
-tc41_actual=$(ls "$BASE_DIR"/agents/*.md 2>/dev/null | xargs -n1 basename | sed 's/\.md$//' | grep -v -- '-reference' | sort)
+tc41_actual=$(ls "$BASE_DIR"/agents/*.md 2>/dev/null | xargs -n1 basename | sed 's/\.md$//' | sort)
 tc41_diff=$(diff <(printf '%s\n' "$tc41_declared") <(printf '%s\n' "$tc41_actual") || true)
 if [ -z "$tc41_diff" ]; then
   pass "TC-41: Declared roster (40) exactly matches actual non-reference agent file names"

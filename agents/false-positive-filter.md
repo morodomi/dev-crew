@@ -81,7 +81,7 @@ disallowedTools: Write, Edit
 
 ## Reference
 
-詳細: [false-positive-filter-reference.md](false-positive-filter-reference.md)
+詳細: [false-positive-filter-reference.md](../skills/security-scan/false-positive-filter-reference.md)
 
 - Input Format / Output Format
 - Sanitization Patterns by Language

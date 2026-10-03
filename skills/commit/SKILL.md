@@ -21,7 +21,7 @@ Cycle doc の Progress Log を確認し、以下が全て満たされなけれ�
 
 1. **REVIEW完了**: Progress Log に `### ... - REVIEW` セクションがあり、`Phase completed` 記録がある
 2. **Codex review記録** (`which codex` 成功時のみ): Progress Log に `Codex` + `review` の記録がある
-3. **retro_status check**: retro_status: captured / resolved で PASS。none で BLOCK (cycle-retrospective 実行)、field 不在は WARN のみで PASS (legacy compat)
+3. **retro_status check**: retro_status: captured / resolved で PASS。none で BLOCK (cycle-retrospective 実行)、field 不在も BLOCK（frontmatter に `retro_status: none` を足して cycle-retrospective を実行）
 
 ```bash
 # 1. REVIEW チェック（phaseヘッダーにアンカー）

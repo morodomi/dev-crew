@@ -155,16 +155,15 @@ Specialist Panel (Step 4) と Socrates (Step 4.5) 完了後、全 reviewer の f
 
 1. **重複排除**: 同一 file:line への複数 reviewer 指摘は最も詳細な 1 件に集約。集約元 reviewer 名を併記
 2. **3-category 分類** (`rules/review-triage.md` を SSOT として参照。定義は同 rule の Findings 3-Category Triage 節を verbatim 適用)
-3. **raw finding index 保持**: 重複排除で落とした原 findings を Cycle doc の `## Raw Findings` セクションに append (synthesis 段階で証拠を失わない)。plan mode で Cycle doc 不在時（承認前）は append 先がないため、raw findings をそのターンの応答に含めて出力する（skip）
-4. **集計入力**: PdM が triage 結果（severity+category）を triage.json に書き、`bash skills/review/severity-verdict.sh verdict <triage.json> [--invalid <name>]...` を実行する。その verdict 行（`BLOCK|WARN|PASS critical:N important:N optional:N invalid:M`）を Progress Log に記録する。下記 Verdict Aggregation サブセクションの判定基準は **この verdict 行** を根拠とする
+3. **集計入力**: PdM が triage 結果（severity+category）を triage.json に書き、`bash skills/review/severity-verdict.sh verdict <triage.json> [--invalid <name>]...` を実行する。その verdict 行（`BLOCK|WARN|PASS critical:N important:N optional:N invalid:M`）を Progress Log に記録する。下記 Verdict Aggregation サブセクションの判定基準は **この verdict 行** を根拠とする
    - 出力が `INVALID-TRIAGE: <理由>` の場合: triage.json を修正して再実行する（黙殺 PASS の禁止）
    - 出力が `DEGRADED: jq not found` の場合: PdM が Severity 基準表（reference.md 参照）を手動適用し、同一フォーマットの verdict 行を Progress Log に記録する
 
-並列 reviewer (HIGH tier で 7 agents) の出力を単純連結すると synthesis 段階で context overflow する。category 分類 + raw index 保持で「集約後の判断」と「証拠保全」を両立する。
+並列 reviewer (HIGH tier で 7 agents) の出力を単純連結すると synthesis 段階で context overflow する。重複排除と category 分類で、集約後の判断だけを後段に渡す。
 
 ### Verdict Aggregation
 
-Findings Synthesis 手順4の verdict 行（accept-apply/accept-defer の severity 集計、reject カテゴリは集計外）を判定基準とする（designer はスコア対象外（severity 集計にも含めない））:
+Findings Synthesis「集計入力」の verdict 行（accept-apply/accept-defer の severity 集計、reject カテゴリは集計外）を判定基準とする（designer はスコア対象外（severity 集計にも含めない））:
 
 | Severity | 判定 | アクション |
 |----------|------|-----------|
