@@ -2,37 +2,7 @@
 
 > 完了済みの Phase 1-10 は [docs/archive/development-plan.md](docs/archive/development-plan.md) を参照。
 > 完了済みの v2/v2.4/v2.5/v2.6/v2.6.x/v2.7/v3 は [docs/archive/roadmap-v2-v3-completed.md](docs/archive/roadmap-v2-v3-completed.md) を参照。
-
-## 現在地
-
-v2.12.0 リリース済み（2026-07-15）。全完了済みバージョン:
-- v2 (Phase 11-13): Claude + Codex 統合開発フロー
-- v2.4 (Phase 14-17): Review Taxonomy 体系化 (33→40 agents)
-- v2.5 (Phase 18): Constitution-Driven Enforcement
-- v2.6 (Phase 26-29): スキル成熟化 (Gotchas, On-demand hooks, PLUGIN_DATA)
-- v2.6.x (Phase 30-31, #84, #102): 構造厳格化 + Product Verification + designer AI review
-- v2.6.3-v2.6.6: バグ修正 + post-approve-gate廃止 + orchestrate TaskCreate導入
-- v2.7-pre (Phase 24-25, archive label): 動的スキルコンテンツ注入 (released within v2.6.x patches; not a separate tag)
-- v2.7.0: Agile Loop Step 1 — retrospective loop (#119/#120/#121/#122)
-- v2.8.0: orchestrate 統合 (sync-plan → plan-review → TDD を orchestrate が一元管理、post-fix 群 #125-#127)
-- v2.9.0: rules path-scoping (#139)
-- v2.10.0: plan-discipline GREEN 検証の逆向き契約 sweep 規律 (#140)
-- v2.11.0: スキル棚卸し + 品質規律強化 (2026-07-06)
-- v2.12.0: reviewer モデル設定機構 (reviewer-policy v1) + codified rule 群 + gate drift guard + risk-classifier 精度改善 (2026-07-15)
-- v3-pre (Phase 1-8, archive label): Constitution-Driven Development
-
-v2.12.0 リリース後、未リリース分として approval-reorder（#176、2026-07-17）を実装中: plan review の実行タイミングを人間承認の前（plan mode 内、spec Step 8）へ変更する承認ゲート意味論変更。Cycle 1（機構・実行時 memory・権威 doc）は PR #182 で merge 済み、Cycle 2（narrative doc・onboard 生成テンプレート伝播）は本 cycle で完了。CHANGELOG `[Unreleased]` に Breaking 明記済み、正式バージョンタグは次回リリースで付与
-
-次候補（v2.12.0 リリース後）: codify 実装2件 / #156 legacy 正規化 / reviewer-policy follow-up #170-172 / #144 flaky / Agile Loop 1.5
-
----
-
-## v2.11.0 / v2.12.0（リリース済み）
-
-- **v2.11.0**（2026-07-06）: スキル棚卸し（32→28）+ 品質規律の自動契約化。skill-audit を起点に死蔵スキル削除・gate 修復（#145/#150）・codified insight 実装（#143）・parallel 削除（#142）。詳細は [CHANGELOG](../CHANGELOG.md) [2.11.0]。
-- **v2.12.0**（2026-07-15）: reviewer モデル設定機構（reviewer-policy v1、#173）+ codified rule 7件（#165/#166）+ gate drift guard（#148）+ risk-classifier 精度改善（#164/#169）+ phase 図 DONE 終端（#157）。詳細は [CHANGELOG](../CHANGELOG.md) [2.12.0]。
-
-次候補は上記「現在地」を参照。
+> リリース済みの各版の内容は [CHANGELOG.md](CHANGELOG.md)、次に着手する作業は [docs/NEXT.md](docs/NEXT.md) を参照。このファイルは版数を持たない（リリースのたびに古くなるため）。
 
 ---
 
