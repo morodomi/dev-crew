@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- **公開 repo への固有名・実 path の混入を止める hook（ADR-005、#225）。** dev-crew repo の `.claude/settings.json` に PreToolUse（Bash）hook として登録し、Claude Code が `git commit` / `git push` / `gh pr|issue create|edit|comment` を実行する直前に、diff の追加行・commit message・PR / issue の本文を検査する。禁止語リストは repo の外（`~/.config/dev-crew/project-labels.tsv`）から読み、出力には禁止語を書かない。対象は dev-crew repo だけで、plugin の利用者には効かない
+
 ### Fixed
 
 - **Codex への委譲が codex-cli 0.159 で動かなかった問題を修正。** 0.159 で `--full-auto` が廃止され、手順どおりに実行すると `unexpected argument` で止まっていた。加えて orchestrate の呼び出しはフラグを `resume` の後ろに置いており、`--full-auto` を外しても rc=2 になる形だった
