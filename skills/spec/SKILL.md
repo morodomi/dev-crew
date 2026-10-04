@@ -90,7 +90,7 @@ specの記録後、plan mode内で続行（specスキル範囲外）: 探索（�
 
 ### Step 8: Pre-Approval Plan Review (Codex)
 
-Step 7 後・ExitPlanMode（承認）前: `codex exec --sandbox read-only "review plan <plan path>"` → findings を draft plan へ直接反映 → 最終版を1回だけ再レビュー（resume、フラグ前置。詳細は reference）→ `## Plan Review Record` を plan に記録。未解消 BLOCK は人間の明示 override が承認提示文で必須。Codex 不在時は skip し Record に `codex_unavailable` を記録。詳細: [reference.md](reference.md#step-8-pre-approval-plan-review)
+Step 7 後・ExitPlanMode（承認）前: `codex exec --sandbox read-only "review plan <plan path>" < /dev/null` → findings を draft plan へ直接反映 → 最終版を1回だけ再レビュー（resume、フラグ前置。詳細は reference）→ `## Plan Review Record` を plan に記録。未解消 BLOCK は人間の明示 override が承認提示文で必須。Codex 不在時は skip し Record に `codex_unavailable` を記録。詳細: [reference.md](reference.md#step-8-pre-approval-plan-review)
 
 ## Reference
 

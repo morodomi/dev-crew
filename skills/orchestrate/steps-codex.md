@@ -65,7 +65,7 @@ exit 0 → RED へ。exit 1 → BLOCK（gate の出力メッセージで不足�
 2. 実行:
    ```bash
    # codex_session_id があれば resume <session-id>、なければ resume --last
-   codex exec resume ${codex_session_id:-"--last"} --full-auto -o /tmp/codex_red.md "Cycle doc: [path]. Test List: [items]. テストを作成し、失敗を確認せよ。"
+   codex exec --sandbox workspace-write -o /tmp/codex_red.md resume ${codex_session_id:-"--last"} "Cycle doc: [path]. Test List: [items]. テストを作成し、失敗を確認せよ。" < /dev/null
    ```
 3. **Gate 1**: `codex_mode: full` 時はスキップ。それ以外はPdMがプロジェクトのテストコマンドを実行 → 新規テストがFAILし、テストコマンドが非ゼロexit codeを返すことを確認
 4. Test Plan整合性（常時実行・全モード無条件）: テストがCycle doc Test Listと対応しているか確認
@@ -76,7 +76,7 @@ exit 0 → RED へ。exit 1 → BLOCK（gate の出力メッセージで不足�
 1. 実行:
    ```bash
    # codex_session_id があれば resume <session-id>、なければ resume --last
-   codex exec resume ${codex_session_id:-"--last"} --full-auto -o /tmp/codex_green.md "Cycle doc: [path]. テストを通す最小限の実装を行え。"
+   codex exec --sandbox workspace-write -o /tmp/codex_green.md resume ${codex_session_id:-"--last"} "Cycle doc: [path]. テストを通す最小限の実装を行え。" < /dev/null
    ```
 2. **Gate 2**: `codex_mode: full` 時はスキップ。それ以外はPdMがテストコマンドを実行 → 全テストPASS（ゼロexit code）確認（新規テスト含む）
 3. PASS → REFACTOR / FAIL → retry 2回 → fallback to Task(green-worker)
@@ -116,7 +116,7 @@ Claude と Codex が独立にレビューし、PdM が findings を裁定する�
    ```bash
    # codex_session_id があれば resume <session-id>、なければ resume --last
    CHANGED_FILES=$(git diff HEAD --name-only | tr '\n' ', ')
-   codex exec resume ${codex_session_id:-"--last"} --full-auto -o /tmp/codex_review.md "以下のファイルのみレビューせよ: ${CHANGED_FILES}. セキュリティ・正確性・パフォーマンスの観点で問題を指摘せよ。対象外ファイルには言及するな。findings は P1/P2/P3 ラベル付きで出力せよ（P1=critical/P2=important/P3=optional）。"
+   codex exec --sandbox read-only -o /tmp/codex_review.md resume ${codex_session_id:-"--last"} "以下のファイルのみレビューせよ: ${CHANGED_FILES}. セキュリティ・正確性・パフォーマンスの観点で問題を指摘せよ。対象外ファイルには言及するな。findings は P1/P2/P3 ラベル付きで出力せよ（P1=critical/P2=important/P3=optional）。" < /dev/null
    ```
 2. **Claude レビュー実行**: `Skill(dev-crew:review, args: "--code")` を並行実行
 3. **Findings Aggregation**: 両レビュー結果を PdM が集約

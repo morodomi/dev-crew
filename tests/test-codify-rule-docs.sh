@@ -1156,8 +1156,10 @@ clause_check "TC-60" "$RULES_DIR/agent-prompts.md" "推奨" \
 # TC-61: rules/agent-prompts.md 推奨 — timestamp Progress Log 追記全般 clause
 echo ""
 echo "TC-61: agent-prompts.md 推奨 timestamp 契約 Progress Log 追記全般拡張 clause"
+# 追記をシェルで行う前提（TS=$(date) の変数展開）は、Bash でのファイル書き込みを止める
+# hook と矛盾するため、実測値を Edit で書く形へ改めた。
 clause_check "TC-61" "$RULES_DIR/agent-prompts.md" "推奨" \
-  "Progress Log 追記全般" "別ステップでの実測は世代がずれる" \
+  "Progress Log 追記全般" "その値を Edit で書く" \
   "docs/cycles/20260721_1503_rules-load-trigger-reclassification.md #2"
 
 # TC-62: rules/integration-verification.md 推奨 — gate 強化 全 caller pin clause

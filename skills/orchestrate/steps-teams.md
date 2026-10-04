@@ -230,8 +230,8 @@ codex_mode に関わらず常時実行（codex_mode は RED/GREEN 委譲のみ�
 
 ```bash
 # codex_session_id があれば resume <session-id>、なければ resume --last にフォールバック
-codex exec resume ${codex_session_id:-"--last"} --full-auto -o /tmp/codex_review.md \
-  "Review uncommitted changes. セキュリティ・正確性・パフォーマンスの観点で問題を指摘せよ。"
+codex exec --sandbox read-only -o /tmp/codex_review.md resume ${codex_session_id:-"--last"} \
+  "Review uncommitted changes. セキュリティ・正確性・パフォーマンスの観点で問題を指摘せよ。" < /dev/null
 ```
 
 `codex_session_id` は Cycle doc frontmatter から読み取る。Codex 失敗 → Claude レビューのみで続行。findings 裁定は steps-codex.md の Findings Judgment テーブルに準拠。

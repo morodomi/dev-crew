@@ -8,7 +8,7 @@ Edit/Write を直接行わず、必ず /orchestrate に委譲すること。
 
 ## pre-approval plan review（正規手順）
 
-- **承認前**: plan mode 内、spec Step 8 で `codex exec --sandbox read-only "review plan <path>"` を実行し、findings を draft plan へ直接反映、最終版を1回だけ再レビューする。これが正規の実行経路
+- **承認前**: plan mode 内、spec Step 8 で `codex exec --sandbox read-only "review plan <path>" < /dev/null` を実行し、findings を draft plan へ直接反映、最終版を1回だけ再レビューする。これが正規の実行経路
 - **承認後の plan review 再実行は禁止**: 承認後に Codex plan review を再度実行しない（scope 拡大が実測 3 cycle 連続で発生した旧フローの反省）
 - **承認後 findings の 3 分岐**: sync-plan 転記後、architect が Post-Transfer Verification で以下の 3 分岐により判断する
 

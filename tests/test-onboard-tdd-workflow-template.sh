@@ -74,10 +74,13 @@ fi
 # Then Codex Integration literal template exists
 echo ""
 echo "TC-03: Codex Integration literal template exists"
-if echo "$REF_CONTENT" | grep -q 'codex exec --full-auto'; then
-  pass "TC-03: Codex Integration template has 'codex exec --full-auto'"
+# 導入先にコピーされる呼び出し形なので、廃止済みフラグとハングの原因を持ち込まない
+if echo "$REF_CONTENT" | grep -q -- '--full-auto'; then
+  fail "TC-03: reference.md still contains --full-auto (removed in codex-cli 0.159)"
+elif echo "$REF_CONTENT" | grep -F 'codex exec --sandbox workspace-write' | grep -qF '< /dev/null'; then
+  pass "TC-03: Codex Integration template has 'codex exec --sandbox workspace-write ... < /dev/null'"
 else
-  fail "TC-03: Codex Integration template missing 'codex exec --full-auto'"
+  fail "TC-03: Codex Integration template missing 'codex exec --sandbox workspace-write ... < /dev/null'"
 fi
 
 # TC-04: Given reference.md Codex Integration template,
@@ -160,10 +163,10 @@ else
     fail "TC-C2-2c: --full-auto still present in Codex セッション作成 bullet"
     c2_ok=0
   fi
-  general_count=$(grep -cF 'codex exec --full-auto' "$REFERENCE_FILE" || true)
+  general_count=$(grep -cF 'codex exec --sandbox workspace-write' "$REFERENCE_FILE" || true)
   [ -z "$general_count" ] && general_count=0
   if [ "$general_count" -lt 1 ]; then
-    fail "TC-C2-2d: general 'codex exec --full-auto' invocation (Codex Integration bullet, non-review-plan usage) missing from reference.md"
+    fail "TC-C2-2d: general 'codex exec --sandbox workspace-write' invocation (Codex Integration bullet, non-review-plan usage) missing from reference.md"
     c2_ok=0
   fi
   [ "$c2_ok" -eq 1 ] && pass "TC-C2-2: Codex セッション作成 bullet read-only both sides + --full-auto absent + general retained"
