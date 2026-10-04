@@ -8,6 +8,8 @@
 # TC-08: observe.sh exists and is executable
 # TC-09: observe.sh handles empty stdin without error
 # TC-10: hooks.json has NO PreCommit entries
+# TC-13: hook commands (hooks.json + SKILL.md frontmatter) survive a ${CLAUDE_PLUGIN_ROOT}
+#        containing a space (ids 11-12 are retired; test-post-approve-gate-removal.sh TC-06)
 
 set -euo pipefail
 
@@ -160,6 +162,41 @@ if jq -e '.hooks.PreCommit' "$BASE_DIR/hooks/hooks.json" >/dev/null 2>&1; then
   fail "hooks.json still contains PreCommit entries (plugin hooks fire for all projects)"
 else
   pass "hooks.json has no PreCommit entries"
+fi
+
+# TC-13: every hook command still runs when ${CLAUDE_PLUGIN_ROOT} contains a space
+# Given: a plugin root whose path contains a space, with a stub at each referenced script
+# When:  each hooks.json command is run by bash with CLAUDE_PLUGIN_ROOT set to that root
+# Then:  every command reaches its stub (unquoted ${CLAUDE_PLUGIN_ROOT} splits into two words)
+echo ""
+echo "TC-13: hook commands survive a plugin root containing a space"
+tc13_root="$FIXTURE_DIR/plugin root"
+mkdir -p "$tc13_root/scripts/hooks"
+for s in observe.sh no-verify-guard.sh pre-compact.sh careful-guard.sh; do
+  printf '#!/bin/bash\necho "reached %s"\n' "$s" > "$tc13_root/scripts/hooks/$s"
+done
+# Skills can also declare hooks in SKILL.md frontmatter (skills/careful); `claude plugin
+# validate` does not inspect those, so they are collected here alongside hooks.json.
+tc13_cmds=$(jq -r '.hooks[][].hooks[].command' "$BASE_DIR/hooks/hooks.json")
+tc13_skill_cmds=$(for f in "$BASE_DIR"/skills/*/SKILL.md; do
+  awk '/^---$/{c++; next} c==1' "$f" | sed -n 's/^[[:space:]]*command:[[:space:]]*//p'
+done | sed -e 's/^"//' -e 's/"$//' -e 's/\\"/"/g')
+tc13_cmds=$(printf '%s\n%s\n' "$tc13_cmds" "$tc13_skill_cmds")
+tc13_reasons=""
+while IFS= read -r tc13_cmd; do
+  [ -n "$tc13_cmd" ] || continue
+  tc13_out=$(CLAUDE_PLUGIN_ROOT="$tc13_root" bash -c "$tc13_cmd" </dev/null 2>&1) && tc13_rc=0 || tc13_rc=$?
+  case "$tc13_out" in
+    "reached "*) : ;;
+    *) tc13_reasons="${tc13_reasons}[$tc13_cmd] rc=$tc13_rc out='$tc13_out'; " ;;
+  esac
+done <<< "$tc13_cmds"
+if [ -z "$tc13_cmds" ]; then
+  fail "TC-13: no hook commands found"
+elif [ -z "$tc13_reasons" ]; then
+  pass "all hook commands reach their script under a plugin root with a space"
+else
+  fail "hook commands break under a plugin root with a space: $tc13_reasons"
 fi
 
 # Summary
