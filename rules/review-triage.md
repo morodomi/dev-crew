@@ -12,8 +12,8 @@ review のコストはリスクスコアに比例させる (cycle 20260421_2342 
 
 | Score | Tier | Reviewer |
 |-------|------|----------|
-| 0–30  | LOW  | Codex + correctness + security (3 views)。security+correctness は floor として trivial (1 file / 1 line / Codex approve 一発) でも常時必須（省略しない） |
-| 30–60 | MED  | LOW + maintainability |
+| 0–29  | LOW  | Codex + correctness + security (3 views)。security+correctness は floor として trivial (1 file / 1 line / Codex approve 一発) でも常時必須（省略しない） |
+| 30–59 | MED  | LOW + maintainability |
 | 60+   | HIGH | MED + architectural / design-reviewer 候補 |
 
 **根拠**: cycle 20260421_2342 #3 は「Risk LOW + Codex approve 一発 → correctness skip 可」の運用評価だったが、cycle 20260709_1313（reviewer-model-policy-v1）で security+correctness を NON-NEGOTIABLE floor として維持する方針に改め、trivial 案件の省略対象を maintainability に限定した。cycle 20260422_1146 #6 は Score 115 (HIGH) の dogfood で「LOW: 2 views + Codex」「MEDIUM: +maintainability」「HIGH: +architectural」を明文化。両者は重複せず階段状に厚くする指針。

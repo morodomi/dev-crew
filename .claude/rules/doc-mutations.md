@@ -16,7 +16,7 @@ Cycle doc の body は APPEND-ONLY。既存セクション内への middle-inser
 
 ## Plan File — 承認前は可変、承認後は IMMUTABLE (cycle 20260422_1146 #4; cycle 20260717_1126 #2 で承認前/承認後の分岐を明確化)
 
-plan approve 後は plan file を編集しない (`rules/state-ownership.md` L7-10 準拠)。**承認前は可変、承認後は IMMUTABLE** という片方向切替が本節の核:
+plan approve 後は plan file を編集しない (`rules/state-ownership.md` の「Plan File」節に準拠)。**承認前は可変、承認後は IMMUTABLE** という片方向切替が本節の核:
 
 - **承認前**: Codex plan review（spec Step 8）の findings は draft plan へ**直接反映**する。plan は承認前のため可変であり、これが正規の反映先
 - **承認後**: plan file を編集しない（禁止）。承認後に発生した findings（architect の Post-Transfer Verification 等）は以下の 3 分岐で処理する

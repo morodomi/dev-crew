@@ -122,10 +122,12 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# TC-03: section 内に「3-category 分類」と「raw finding index」が両方含まれる (case-sensitive)
+# TC-03: section 内に「3-category 分類」があり、「raw finding index」条項は無い (case-sensitive)
+# Raw Findings の append は 2026-09 の cycle doc で 1 度も守られていなかったため削除した。
+# 守られない条項は残すと他の指示の信頼性まで下げる。
 # ---------------------------------------------------------------------------
 echo ""
-echo "TC-03: Step 5 内に '3-category 分類' と 'raw finding index' が両方含まれる"
+echo "TC-03: Step 5 内に '3-category 分類' があり 'raw finding index' 条項は無い"
 
 if [ ! -f "$SUBJECT" ]; then
   fail "TC-03: $SUBJECT が存在しない"
@@ -139,12 +141,12 @@ else
     count_3cat=$(echo "$section_content" | grep -cF "3-category 分類" || true)
     count_rawindex=$(echo "$section_content" | grep -cF "raw finding index" || true)
 
-    if [ "$count_3cat" -ge 1 ] && [ "$count_rawindex" -ge 1 ]; then
-      pass "TC-03: '3-category 分類' と 'raw finding index' が両方 Step 5 内に存在する"
-    elif [ "$count_3cat" -lt 1 ]; then
+    if [ "$count_3cat" -lt 1 ]; then
       fail "TC-03: Step 5 内に '3-category 分類' が存在しない"
+    elif [ "$count_rawindex" -ge 1 ]; then
+      fail "TC-03: Step 5 内に削除済みの 'raw finding index' 条項が残っている"
     else
-      fail "TC-03: Step 5 内に 'raw finding index' が存在しない"
+      pass "TC-03: '3-category 分類' があり、'raw finding index' 条項は無い"
     fi
   fi
 fi

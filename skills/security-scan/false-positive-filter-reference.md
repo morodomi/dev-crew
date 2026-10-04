@@ -1,6 +1,6 @@
 # False Positive Filter - Reference
 
-false-positive-filter.md の Filter Rules 詳細定義・Output Format・統合ガイド。必要時のみ参照。
+`agents/false-positive-filter.md` の Filter Rules 詳細定義・Output Format・統合ガイド。必要時のみ参照。agent ではないため `agents/` には置かない（`agents/*.md` はすべて agent として登録される）。
 
 ## Input Format
 

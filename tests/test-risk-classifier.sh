@@ -278,6 +278,25 @@ echo "=== Summary ==="
 echo "PASS: $PASS"
 echo "FAIL: $FAIL"
 
+# T-12: rules/review-triage.md の tier 境界が実装（score>=60 HIGH / >=30 MEDIUM）と一致し、
+# 境界値が 2 つの tier に重ならない（0–30 / 30–60 と書くと score 30 と 60 の所属が曖昧になる）
+echo ""
+echo "T-12: review-triage.md tier boundaries match risk-classifier.sh thresholds"
+t05_bad=""
+# 閾値の存在だけでなく、その閾値がどの tier に割り当たるかまで見る
+grep -A1 -E -- '-ge 60 \]' "$SCRIPT" | grep -qF 'level="HIGH"' || t05_bad="$t05_bad script:60->HIGH"
+grep -A1 -E -- '-ge 30 \]' "$SCRIPT" | grep -qF 'level="MEDIUM"' || t05_bad="$t05_bad script:30->MEDIUM"
+for rule in "$BASE_DIR/rules/review-triage.md" "$BASE_DIR/.claude/rules/review-triage.md"; do
+  grep -qE '^\| 0–29 +\| LOW' "$rule" || t05_bad="$t05_bad $(basename "$(dirname "$rule")")/LOW"
+  grep -qE '^\| 30–59 +\| MED' "$rule" || t05_bad="$t05_bad $(basename "$(dirname "$rule")")/MED"
+  grep -qE '^\| 60\+ +\| HIGH' "$rule" || t05_bad="$t05_bad $(basename "$(dirname "$rule")")/HIGH"
+done
+if [ -z "$t05_bad" ]; then
+  pass "review-triage tiers 0–29 / 30–59 / 60+ match risk-classifier thresholds"
+else
+  fail "tier boundary mismatch:$t05_bad"
+fi
+
 if [ "$FAIL" -gt 0 ]; then
   exit 1
 fi

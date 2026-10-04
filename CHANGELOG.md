@@ -9,9 +9,12 @@
   - すべての `codex exec` 呼び出しに `< /dev/null` を付けた（stdin がパイプのままだとハングする）
   - onboard の配布テンプレートも同じ形にした。**導入済みの repo にある CLAUDE.md / AGENTS.md は自動では更新されない**ので、各 repo で該当行を直す（生成物の追従方法は #247）
 - Progress Log の timestamp 条項（`rules/agent-prompts.md`）を、シェルでの追記を前提にした書き方から「`date` で実測した値を Edit で書く」へ改めた
+- 参照資料 `false-positive-filter-reference.md` が `agents/` にあったため、説明なし・全ツール付きの agent として登録されていた。`skills/security-scan/` へ移動し、`agents/` には agent 以外を置かない契約テストを入れた
+- 手順書と実装の食い違いを直した: commit skill の retro_status 不在時の説明（実際は BLOCK）、review-triage の tier 境界（0–29 / 30–59 / 60+）、行番号参照
 
 ### Removed
 
+- review の Findings Synthesis から「Raw Findings を Cycle doc に append する」条項。2026-09 の cycle doc で 1 度も守られていなかった
 - `ROADMAP.md` の「現在地」節。リリース時に更新する手順がなく v2.12.0 のまま止まっていた。リリース済みの内容はこの CHANGELOG を参照する（#177）
 
 ## [2.18.0] - 2026-09-17
