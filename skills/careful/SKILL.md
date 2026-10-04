@@ -7,7 +7,7 @@ hooks:
     - matcher: "Bash"
       hooks:
         - type: command
-          command: "bash ${CLAUDE_PLUGIN_ROOT}/scripts/hooks/careful-guard.sh"
+          command: "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/hooks/careful-guard.sh\""
 ---
 
 # careful
