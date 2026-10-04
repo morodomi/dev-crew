@@ -347,20 +347,20 @@ else
   fi
 fi
 
-# TC-C2-4: ROADMAP.md 現在地 section が approval-reorder または #176 に言及
+# TC-C2-4: ROADMAP.md はリリース済みの版数を持たず、履歴は CHANGELOG に委ねる
+# 「現在地」節はリリースのたびに更新する手順がなく、v2.12.0 のまま 6 版古くなっていた。
+# 同期の仕組みを足すより、版数を書く節そのものを置かない。
 echo ""
-echo "TC-C2-4: ROADMAP.md 現在地 section mentions approval-reorder or #176"
+echo "TC-C2-4: ROADMAP.md has no 現在地 section and defers release history to CHANGELOG"
 FILE="$BASE_DIR/ROADMAP.md"
 if [ ! -f "$FILE" ]; then
   fail "TC-C2-4: ROADMAP.md not found"
+elif grep -q '^## 現在地' "$FILE"; then
+  fail "TC-C2-4: ROADMAP.md still has a '## 現在地' section"
+elif ! grep -q 'CHANGELOG.md' "$FILE"; then
+  fail "TC-C2-4: ROADMAP.md does not point to CHANGELOG.md for release history"
 else
-  count_approval=$(section_grep "$FILE" "現在地" "approval-reorder")
-  count_issue176=$(section_grep "$FILE" "現在地" "#176")
-  if [ "$count_approval" -ge 1 ] || [ "$count_issue176" -ge 1 ]; then
-    pass "TC-C2-4: ROADMAP.md 現在地 mentions approval-reorder or #176"
-  else
-    fail "TC-C2-4: ROADMAP.md 現在地 section missing approval-reorder/#176 reference"
-  fi
+  pass "TC-C2-4: ROADMAP.md has no 現在地 section and points to CHANGELOG.md"
 fi
 
 # TC-C2-5: CHANGELOG.md の [2.13.0] セクションの "### Breaking" subsection 内に
