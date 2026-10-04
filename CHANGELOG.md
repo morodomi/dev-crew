@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [2.18.2] - 2026-10-04
+
 ### Fixed
 
 - **plugin のインストール先のパスに空白があると hook が動かなかった問題を修正。** `hooks/hooks.json` の 3 本と `skills/careful/SKILL.md` の hook が `${CLAUDE_PLUGIN_ROOT}` を引用符で囲んでおらず、パスが 2 語に割れて `No such file or directory`（rc=127）になっていた。`claude plugin validate` の warning 3 件もこれで消える（SKILL.md の hook は validate の検査対象外）
