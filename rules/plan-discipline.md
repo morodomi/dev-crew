@@ -20,7 +20,7 @@ plan 作成・承認・実行における規律。実測ベースの計画、逆
 ## 推奨
 
 - plan 記述前に target script を bash で実行し、実測結果を記録する
-- Block 0 で `bash run-tests.sh` を実行し baseline を実測する（正規 runner を使う。独自の direct loop を書かない）
+- Block 0 で、AGENTS.md の Quick Commands（dev-crew 本体では Quick Start）にあるテストコマンドを実行し baseline を実測する。repo に正規 runner があればそれを使い、独自の direct loop を書かない（dev-crew 本体では `bash run-tests.sh`）
 - plan 時に `grep -rn "<target_value>" tests/` で逆向き契約を検索する (count/state bump 時必須)
 - pre-existing FAIL 発見時「本 cycle 1 行 fix 可能？」を必ず確認する
 - `grep -r "<file>" tests/ skills/commit/` で既存 convention の影響範囲を事前洗い出しする (cycle 20260420_1752 #5)
@@ -41,6 +41,8 @@ plan 作成・承認・実行における規律。実測ベースの計画、逆
 - orchestrate Block 0 の codify gate は前 cycle doc を変更し、この変更は承認済み Files to Change に現れない。plan 段階で「Block 0 codify による前 cycle doc 更新が commit に同梱される」を Files 注記に含めるか、REVIEW で scope 同梱として明示裁定する。承認 scope と実 commit の差分は内容中立でも透明化する (docs/cycles/20260717_1605_approval-reorder-cycle2.md #2)
 
 ## 具体例
+
+dev-crew 本体の例（導入先では、AGENTS.md の Quick Commands にあるテストコマンドに読み替える）。
 
 ```bash
 # Block 0: baseline 実測。run-tests.sh が admission check（プロセス数判定

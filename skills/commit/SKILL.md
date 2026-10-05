@@ -88,4 +88,4 @@ git add <files> && git commit -m "..."
 ## Reference
 
 - 詳細: [reference.md](reference.md)
-- Gitコンベンション: `.claude/rules/git-conventions.md`
+- Gitコンベンション: `.claude/rules/git-conventions.md`（`local-git-conventions.md` があれば併せて）

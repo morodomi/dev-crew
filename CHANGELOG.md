@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- **onboard が導入先独自の rules を上書きして消す問題を修正。** `rules/*.md` を `.claude/rules/` へ identical mirror するため、導入先が mirror ファイルに足した条項は次の onboard で消えた。導入先独自の条項は `.claude/rules/local-<name>.md` に置き、onboard は `local-*.md` を触らない
+  - 既存 mirror に導入先の行があれば、差分の承認時に `local-` へ移すよう案内する
+  - codify-insight の反映先を、本体（`rules/` + mirror）と導入先（`.claude/rules/local-<name>.md`）に分けた。判定は `.claude-plugin/plugin.json` の `name`
+  - spec と commit は、名前指定で読む rule の `local-` 対があれば併せて読む
+- **`plan-discipline` の baseline 手順が dev-crew 本体専用だった問題を修正。** `bash run-tests.sh` は本体にしかないが、この rule は導入先すべてに mirror される。推奨を「AGENTS.md の Quick Commands（本体では Quick Start）のテストコマンドを実行する。正規 runner があればそれを使う」に一般化し、具体例は「dev-crew 本体の例」と明記した
+
 ## [2.18.2] - 2026-10-04
 
 ### Fixed
