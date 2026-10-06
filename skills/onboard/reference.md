@@ -541,7 +541,7 @@ CLAUDE.md から `@docs/architecture.md` のように外部ファイルを参照
 
 ## Step 6: .claude/ 構造（決定論的ブロック・hookテンプレート配布）
 
-core の `rules/*.md` 全ファイルを `.claude/rules/` に identical mirror (drift は tests/test-rules-mirror.sh で検証) + `.claude/hooks/recommended.md` を Read してコピー (--no-verify + rm -rf ブロック、no-verify-guard.sh による決定論的ブロック)。
+core の `rules/*.md` 全ファイルを `.claude/rules/` に identical mirror (drift は tests/test-rules-mirror.sh で検証。`local-*.md` は対象外。下記 local- rules) + `.claude/hooks/recommended.md` を Read してコピー (--no-verify + rm -rf ブロック、no-verify-guard.sh による決定論的ブロック)。
 
 ### ファイル単位の差分チェック
 
@@ -549,10 +549,18 @@ core の `rules/*.md` 全ファイルを `.claude/rules/` に identical mirror (
 |---------|--------|--------|
 | `.claude/dev-crew.json` | 作成 | バージョン差分あれば更新確認 |
 | `.claude/dev-crew.json` の `review_policy` | 作成（既定 `self`/`null`） | presence-check: `jq -e '.review_policy.reviewer_model' .claude/dev-crew.json` |
-| `.claude/rules/*.md` (all from `rules/*.md`) | 作成 | `rules/*.md` と identical mirror。drift は `tests/test-rules-mirror.sh` で検出 |
+| `.claude/rules/*.md` (all from `rules/*.md`) | 作成 | `rules/*.md` と identical mirror。drift は `tests/test-rules-mirror.sh` で検出。`local-*.md` は対象外（下記 local- rules） |
 | `.claude/hooks/recommended.md` | 作成 | 内容差分あれば更新確認 |
 
-既存ファイルの更新時は差分を表示し、個別に承認を得る。
+既存ファイルの更新時は差分を表示し、個別に承認を得る。`.claude/rules/<name>.md` の差分に導入先独自の行があれば、置き換える前に `local-<name>.md` へ移すよう案内する。2-way diff では導入先の追記と上流の変更・削除を区別できないので、どの行を移すかはユーザーが判断する。
+
+### local- rules（導入先独自の rule）
+
+mirror は次の onboard で本体の版に置き換わるため、導入先独自の条項を mirror ファイルに書くと消える。独自の条項は `.claude/rules/local-<name>.md` に置く。
+
+- 命名: 本体 rule を補足する条項は `local-<本体と同じ名前>.md`。対応する本体 rule がない独自 topic は `local-<topic>.md` とし、scope は codify-insight の Rule Tier Contract どおりに決める（always は `paths:` なし）
+- scope: 補足先の本体 rule に `paths:` があれば同じ値、なければ frontmatter なし（always）。補足が本体より広く／狭く読み込まれないようにする
+- 通常の同期では `local-*.md` を作成・上書き・削除しない
 
 ### path targeting rules
 

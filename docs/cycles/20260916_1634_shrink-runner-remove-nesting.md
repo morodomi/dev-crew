@@ -5,11 +5,11 @@ phase: DONE
 complexity: complex
 test_count: 30
 risk_level: medium
-retro_status: captured
+retro_status: resolved
 codex_session_id: "(取得失敗)"
 plan_file: /Users/morodomi/.claude/plans/magical-plotting-sketch.md
 created: 2026-09-16 16:34
-updated: 2026-09-16 18:24
+updated: 2026-10-05 16:32
 ---
 
 # テストスイートの入れ子重複を除去し、run-tests.sh を縮小する
@@ -523,3 +523,38 @@ Claude はさらに **PdM の前提の誤りを訂正**した。委譲文に「`
 ### 2026-09-16 18:23 - RETROSPECTIVE
 
 - Phase completed
+
+## Codify Decisions
+
+### Insight 1
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: cycle-scoped
+- **Reason**: 「X が遅い」の内訳を測る前に対策を設計しない。plan-discipline の実測規律に直接つながり、次の cycle の plan をすぐ硬くできる
+- **Decided**: 2026-10-05 16:32
+
+### Insight 2
+- **Decision**: no-codify
+- **Reason**: Insight 1 と同じ根（構造を測らずに対策を積む）。機械的に判定できる条項にならない観察
+- **Decided**: 2026-10-05 16:32
+
+### Insight 3
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: file-scoped
+- **Paths**: tests/**
+- **Reason**: 再発による自動昇格（vacuous TC が 20260908_1715 / 20260913_0059 / 本 cycle で再発）。新設 TC は修正前の実装で FAIL することを実測し、rc だけでなくメッセージも pin して経路を区別する
+- **Decided**: 2026-10-05 16:32
+
+### Insight 4
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: cycle-scoped
+- **Reason**: レビュー依頼の問いに削除方向を含める（review-triage）。問いを変えるだけで適用できる
+- **Decided**: 2026-10-05 16:32
+
+### Insight 5
+- **Decision**: deferred
+- **Destination**: new-cycle
+- **Reason**: Recall の対象に rules/ を含める改修は scripts/recall-candidates.sh の変更になり、条項の追加では塞げない（Insight 自身の結論）
+- **Decided**: 2026-10-05 16:32

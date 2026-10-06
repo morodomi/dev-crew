@@ -5,11 +5,11 @@ phase: DONE
 complexity: standard
 test_count: 5
 risk_level: low
-retro_status: captured
+retro_status: resolved
 codex_session_id: ""
 plan_file: ""
 created: 2026-10-04 00:20
-updated: 2026-10-04 00:20
+updated: 2026-10-05 16:32
 ---
 
 # prompt audit で見つかった手順書の矛盾を直す
@@ -67,3 +67,13 @@ updated: 2026-10-04 00:20
 
 - **最初の失敗 → 最終解**: TC-27 は「参照資料を agent 検査から除外できていること」を確認するテストで、参照資料が agents/ にあることを前提にしていた。実際の Claude Code は agents/*.md をすべて agent として登録するので、テストが守っていたのは誤った前提だった → 「agents/ には agent しか置かない」契約に反転した
 - **事前知識化**: テストがファイルを除外しているときは、その除外が実行環境（ここでは Claude Code の登録規則）でも成り立つかを確かめる。テストの世界だけで除外すると、本番では除外されないものを守ってしまう
+
+## Codify Decisions
+
+### Insight 1
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: file-scoped
+- **Paths**: tests/**
+- **Reason**: テストでの除外が実行環境の規則でも成り立つかを確かめる。テストを書く時点で適用できる
+- **Decided**: 2026-10-05 16:32

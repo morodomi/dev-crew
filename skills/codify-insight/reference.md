@@ -43,7 +43,7 @@ destination `rule` は次の tier を必ず指定する。
 - `file-scoped` は `paths` に repo-relative glob の指定が必須。repo 全域に一致する glob（`**` 単独・`**/*` 等）は file-scoped として不正 — 実質 always であり、always の交換条件を回避できてしまうため always として申告する。
 - `cycle-scoped` の `paths` は固定値 `docs/cycles/**` とし、個別指定は不要。
 - `always` は `paths` なし。追加時は交換条件が必須で、既存 always rule の scoped 化・統合・削減を同時提示し、常時層凍結契約テストの上限内に収める。
-- codify-insight は tier と paths を decision に記録するのみ。follow-up 実装主体が `rules/` 正本と `.claude/rules/` mirror に同時適用する。
+- codify-insight は tier と paths を decision に記録するのみ。反映先は follow-up 実装主体が、`.claude-plugin/plugin.json` の `name` が `dev-crew` か否かで分ける（`rules/` の有無では判定しない。導入先にも `rules/` ができ得るため）。本体は `rules/` 正本と `.claude/rules/` mirror に同時適用する。導入先（それ以外の全 repo）は `.claude/rules/local-<name>.md` に適用し、mirror には書かない（onboard reference の local- rules）。
 
 ### 正例
 
