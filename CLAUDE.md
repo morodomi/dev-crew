@@ -33,7 +33,7 @@ Codex 不在時は Claude fallback（既存スキルそのまま）。
 一覧は AGENTS.md（`@AGENTS.md` で import 済み）を参照。
 
 - **cycle-retrospective**: TDD サイクル末尾で失敗-成功ペアを抽出する advisory スキル (「retrospective」「振り返り」で起動)
-- **codify-insight**: retrospective insights を既定では自動 triage し、`skill` 候補/低確信時のみ確認する decide gate (「codify」「codify-insight」で起動)
+- **codify-insight**: retrospective insights を既定では自動 triage し、`skill` 候補/低確信時のみ確認する decide gate。モデルからは起動しない。`/dev-crew:codify-insight` を入力して起動する (orchestrate は件数を通知するだけ)
 
 ## Token Optimization
 

@@ -27,7 +27,7 @@ mizchi/chezmoi-dotfiles の `retrospective-codify` skill を参考に、サイ�
 - **位置**: cycle-retrospective を REVIEW → DISCOVERED 処理 → cycle-retrospective → COMMIT に配置。同じ COMMIT に Retrospective セクションを含める（post-commit の worktree 汚染を回避）
 - **inline 範囲**: blocking path には抽出のみ。dedup と codify target 分類は codify-insight 側で実行（重い処理を inline から外す）
 - **失敗時挙動**: retry 上限 N 回 + ユーザー override 可。LLM 都合の一時失敗で hard-block しない
-- **codify-insight = decide gate**: 次回 /orchestrate 開始時、`retro_status: captured` がある Cycle を自動 triage する。既定は AI が `codified` / `deferred` / `no-codify` を決め、`skill` 候補や low-confidence 時のみ AskUserQuestion で補助する。「codify 実行」は強制しない（緊急修正フローを止めない）
+- **codify-insight = decide gate**: 次回 /orchestrate 開始時、`retro_status: captured` がある Cycle を自動 triage する（2026-10-15 改訂: 自動起動は廃止。末尾の改訂を参照）。既定は AI が `codified` / `deferred` / `no-codify` を決め、`skill` 候補や low-confidence 時のみ AskUserQuestion で補助する。「codify 実行」は強制しない（緊急修正フローを止めない）
 - **状態モデル**: frontmatter は `retro_status: none | captured | resolved` の 3 値。本文 insight 個別に `codified | deferred | no-codify` を持たせる
 - **resolved の意味**: 全 insight 処理方針が決定済み（codify 実行有無は問わない）。「insight なし」と「override skip」も resolved に含める
 - **rejected insight は instinct 自動送りしない**: 軸が違う（採用/却下 = 意思決定、codify/instinct = 知識成熟度）ので混ぜない
@@ -77,8 +77,8 @@ v2.7 Agile Loop の Step 1+1b として以下を実装する。残りステッ�
 ### Step 1b: codify-insight skill
 
 - 配置: `skills/codify-insight/SKILL.md`
-- 起動: 次回 /orchestrate 開始時、`docs/cycles/` をスキャンして `retro_status: captured` がある Cycle が見つかったら自動起動（新 Cycle 開始の前段）
-- 処理: captured insights を cycle 単位で自動 triage する
+- 起動: 次回 /orchestrate 開始時、`docs/cycles/` をスキャンして `retro_status: captured` がある Cycle が見つかったら自動起動（新 Cycle 開始の前段）（2026-10-15 改訂: 自動起動は廃止。末尾の改訂を参照）
+- 処理: captured insights を cycle 単位で自動 triage する（2026-10-15 改訂: 自動起動は廃止。末尾の改訂を参照）
   - 次 cycle の TDD を即 harden できるもの → `codified`（通常 `rule` / `inline-update`）
   - post-TDD の広い改善や follow-up が妥当なもの → `deferred`（通常 `new-cycle`）
   - observation-only / duplicate / 2nd-order note → `no-codify`
@@ -98,3 +98,9 @@ v2.7 Agile Loop の Step 1+1b として以下を実装する。残りステッ�
 - LLM 抽出失敗時の override 経路により hard-block を回避する一方、運用初期に override が多発する可能性がある。retry 件数と override 発生は flow-analyze（Step 3b）で監視対象とする
 - 既存 learn / evolve / known-gotchas / DISCOVERED との境界を明文化する必要があるため、Step 1 実装時に workflow.md と architecture.md を同時更新する
 - agile namespace を導入することで dev-crew のスキル数が増える。auto-discovery 劣化の兆候が出たら Deferred 項目（公開制限・narrow trigger）を発動する
+
+## 改訂（2026-10-15）
+
+codify-insight の自動起動をやめ、orchestrate Block 0 は未処理の Cycle doc 件数を通知するだけにした。処理は人間が `/dev-crew:codify-insight` を手動で呼び、タスクとは別の commit で行う。
+
+理由: 比較実験で、自動起動がタスク外の変更（前 cycle doc、STATUS、rules）をタスクの commit に混ぜた。AI が自動起動の途中で rules まで書き換えた。L18「codify は人間承認」とも矛盾していた。codify-insight は `## Codify Decisions` への追記と `retro_status` / `updated` の更新以外を編集しない（SKILL.md `## Restrictions`）。

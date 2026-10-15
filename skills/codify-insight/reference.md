@@ -43,7 +43,7 @@ destination `rule` は次の tier を必ず指定する。
 - `file-scoped` は `paths` に repo-relative glob の指定が必須。repo 全域に一致する glob（`**` 単独・`**/*` 等）は file-scoped として不正 — 実質 always であり、always の交換条件を回避できてしまうため always として申告する。
 - `cycle-scoped` の `paths` は固定値 `docs/cycles/**` とし、個別指定は不要。
 - `always` は `paths` なし。追加時は交換条件が必須で、既存 always rule の scoped 化・統合・削減を同時提示し、常時層凍結契約テストの上限内に収める。
-- codify-insight は tier と paths を decision に記録するのみ。反映先は follow-up 実装主体が、`.claude-plugin/plugin.json` の `name` が `dev-crew` か否かで分ける（`rules/` の有無では判定しない。導入先にも `rules/` ができ得るため）。本体は `rules/` 正本と `.claude/rules/` mirror に同時適用する。導入先（それ以外の全 repo）は `.claude/rules/local-<name>.md` に適用し、mirror には書かない（onboard reference の local- rules）。
+- codify-insight は tier と paths を decision に記録するのみ。follow-up は別サイクルで行い、codify-insight の実行中には反映しない。反映先は follow-up 実装主体が、`.claude-plugin/plugin.json` の `name` が `dev-crew` か否かで分ける（`rules/` の有無では判定しない。導入先にも `rules/` ができ得るため）。本体は `rules/` 正本と `.claude/rules/` mirror に同時適用する。導入先（それ以外の全 repo）は `.claude/rules/local-<name>.md` に適用し、mirror には書かない（onboard reference の local- rules）。
 
 ### 正例
 
@@ -174,10 +174,18 @@ No captured cycles found. Nothing to codify.
 `codified` は「この insight を codify すると判断した」ことの記録（AI 自動 triage / user 確認のどちらでも可）。
 destination を明記して作業方向を固定する (judgment-only record)。
 
-実際のコード書き出しは follow-up 作業（次 cycle / 手動 edit / 別 skill で実施）。
-orchestrate の新 cycle 起票 or 手動 edit で実施する。
+実際の書き出しは follow-up 作業。follow-up は別サイクルで行い、codify-insight の実行中には反映しない。
+destination が rule 以外（skill / inline-update など）の場合も同じ。
 
 ADR-002 L86「codify 実行は強制しない」との整合。
+
+## Exit Contract
+
+手動起動（人間が /dev-crew:codify-insight を呼ぶ）。orchestrate は起動しない。呼び出し元へ次を返す:
+
+- 全 captured cycles が resolved → exit 0
+- user mid-gate abort → exit 1 + stderr「codify-insight aborted by user.」。partial annotations は残し、frontmatter 遷移なし
+- captured 残存（skill 異常終了）→ 次回の手動起動で再スキャン・再処理
 
 ## Failure Modes
 

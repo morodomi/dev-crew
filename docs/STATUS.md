@@ -1,11 +1,12 @@
 # dev-crew Status
 
-Last updated: 2026-10-05
+Last updated: 2026-10-15
 
 ## Completed (Recent)
 
 | Date | Cycle | Type |
 |------|-------|------|
+| 2026-10-15 | 20261015_1750: codify-auto-run-stop (フロー再設計 手順 0。比較実験で現行フローが 9 回中 9 回タスク外の変更を commit に混ぜた原因 — orchestrate Block 0 の codify-insight 自動起動と、実行中の AI による rules 追記 — を止める。Block 0 は captured の Cycle doc 件数を 1 行通知するだけにし、codify-insight は `disable-model-invocation: true` で人間の `/dev-crew:codify-insight` のみ、編集範囲を Codify Decisions 追記と frontmatter 遷移に限定。REVIEW（Codex + 4 reviewer、WARN）で、旧スキャン由来の件数誤り（部分一致・pipefail 下の SIGPIPE）を fixture で再現して修正。Test Scripts 119 のまま。#259-#261 起票) | fix |
 | 2026-10-05 | 20261005_1639: local-rules-separation (導入先フィードバック 2 件を修正。onboard が導入先独自の rules を mirror の上書きで消す問題 → `.claude/rules/local-<name>.md` に分離し onboard は触らない。codify-insight の反映先を plugin.json の name で本体/導入先に分岐。plan-discipline の baseline を Quick Commands 基準に一般化。REVIEW WARN 後、Socrates の反論を受けて plan の移行 3 段手順を削除（scope B、ユーザー選択）— 指摘の半分は手順自体が発生源だった。Codex 確認 1 回で TC-02 の順序 pin を追加し変異で検証。Test Scripts 118→119。#255-#257 起票) | fix |
 | 2026-09-13 | 20260913_0059: runner-admission-snapshot (テスト実行の逐次化を機械化 — docs/NEXT.md item 4。run-tests.sh を正規 runner にし admission 3 条件 + immutable snapshot 実行（manifest 三者照合 A==B==C）+ 起動時掃除を実装。承認前 Codex plan review 5 ラウンドで設計を 3 回縮小（hook 単独 → runner+ロック → admission+snapshot）。ロックは Cycle C、hook は Cycle B へ分離。REVIEW は Codex/Claude competitive で BLOCK、**両者が互いに見落とした欠陥を検出**（Codex: manifest/copy の fail-open・引数契約の穴 / Claude: exit code 契約の破壊・子孫除外が dead code）。mini-iteration で変異検出 10/12 → **12/12**、TC 49 → 57。単一テスト経路は manifest batch 化で 31.5 秒 → 4.89 秒（--no-snapshot は不採用）。本 cycle 中に規律違反が 2 件追加（sync-plan / PdM）で計 6 件。Test Scripts 116→117。#234-#237 起票) | feat |
 | 2026-09-10 | 20260910_1312: retro-insight-ledger (横断 retrospective 集計を script 化。6 repo の cycle doc から Retrospective 節の列挙項目を機械集計し 10 列 TSV 台帳へ — 以前報告した「130 retrospective / 失敗ペア 382 件」が再現不能だったことの修復。凍結文法 grammar v2（unit 7 形式・評価順・container 意味論・polarity 3 値）を実行前に確定。入力は immutable snapshot に固定し digest で同一性を検査、期待値は awk ではなく Python が独立導出。除外項目も SKIP 行として artifact に出す。実測 177 doc / 628 unit / unknown 456。REVIEW BLOCK(critical 7) → mini-iteration で TC 53→59、変異 11 件を検出可能に。実装 3 件修正後も生成物は byte 一致。Test Scripts 115→116。#225-#228 起票) | feat |
@@ -107,8 +108,8 @@ Last updated: 2026-10-05
 - [x] v2.7 Cycle A2: cycle-retrospective skill 本体 + orchestrate 統合 + pre-commit-gate enable + workflow/architecture/README/AGENTS/CLAUDE 同期 — A2b で完了 (2026-04-20)
 - [x] v2.7 Step 1: cycle-retrospective skill (advisory, 抽出のみ inline) — A2a で完了 (2026-04-20)
 - [x] **v2.7.0 リリース** — 2026-04-21 (Step 1 完成、PR #119/#120/#121/#122)
-- [ ] v2.7 Step 1b: codify-insight skill (次回 /orchestrate 開始時 decide gate)
-- [ ] v2.7 Step 1.5: captured 可視化
+- [x] v2.7 Step 1b: codify-insight skill (手動起動の decide gate（2026-10 に自動起動を廃止）)
+- [ ] v2.7 Step 1.5: captured 可視化 (一部完了: 未処理 Cycle doc 件数の通知。insight 件数ではない)
 - [ ] v2.7 Step 2: search-task → agile-next 化 + Goal doc 新設
 - [ ] v2.7 Step 3a: Cycle doc frontmatter 最小拡張
 - [ ] (運用評価ポイント — Step 3b 以降の必要性を再判定)

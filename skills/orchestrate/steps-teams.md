@@ -7,16 +7,13 @@
 
 ## Block 0: Prerequisite Check
 
-### 0. Codify gate (frontmatter-only scan)
+### 0. Codify notice (frontmatter-only scan)
 
 ```bash
-for f in docs/cycles/*.md; do
-  awk '/^---$/{c++;next} c==1{print}' "$f" | grep -q 'retro_status: captured' && echo "$f"
-done
+n=0; for f in docs/cycles/*.md; do awk '/^---$/{c++;next} c==1{print}' "$f" 2>/dev/null | grep -E '^retro_status:[[:space:]]*captured[[:space:]]*$' >/dev/null && n=$((n+1)); done; echo "$n"
 ```
 
-非空 → `Skill(dev-crew:codify-insight)` を起動。既定は自動 triage、`skill` 候補/低確信のみ 1 回確認。全 captured が resolved 遷移後、次へ。
-空 → no-op、次ステップへ。
+N が 1 以上なら「未処理の振り返りを持つ Cycle doc が N 件あります（retro_status: captured）。処理するときは /dev-crew:codify-insight を別に実行し、タスクとは別の commit にしてください。」と 1 行通知する。0 なら通知しない。件数にかかわらず次へ進む。
 
 planファイルを起点に開始地点を決定する:
 

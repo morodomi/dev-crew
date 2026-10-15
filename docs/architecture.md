@@ -161,8 +161,8 @@ Task()委譲で各フェーズのcontextは自動分離。PdMが直接Phase Summ
 
 ### 位置づけ
 
-`cycle-retrospective` → COMMIT → **次サイクル開始時に `codify-insight`** → 次サイクル実行、という順で動作する。
-codify-insight は orchestrate Block 0 から自動起動される。
+`cycle-retrospective` → COMMIT → 次サイクル開始時に orchestrate が未処理件数を通知 → 人間が任意のタイミングで **`/dev-crew:codify-insight` を手動起動**、という順で動作する。
+codify-insight は orchestrate から自動起動されない（2026-10 に廃止。自動起動がタスク外の変更を commit に混ぜたため）。
 
 ### フロー
 
@@ -172,18 +172,16 @@ codify-insight は orchestrate Block 0 から自動起動される。
   │
   ▼
 [次 /orchestrate 開始]
-  Block 0: Codify gate — frontmatter-only scan で captured cycles を検出
-  │  非空 → Skill(dev-crew:codify-insight) を起動
+  Block 0: Codify notice — frontmatter-only scan で captured の Cycle doc を数える
+  │  1 件以上 → 件数を 1 行通知するだけ（起動しない）。件数にかかわらず次へ進む
   │
   ▼
-codify-insight
+[人間が別に /dev-crew:codify-insight を実行。タスクとは別の commit]
   │  原則は自動 triage（rule / inline-update / defer / no-codify）
   │  skill 候補 / low-confidence のときだけ AskUserQuestion
   │  Cycle doc EOF に ## Codify Decisions を append (APPEND-ONLY)
   │  全 insight 判定完了 → retro_status: captured → resolved
-  │
-  ▼
-  [通常の orchestrate フローへ]
+  │  編集するのは対象 Cycle doc のみ。rules 等への反映は別サイクル
 ```
 
 ### 設計原則

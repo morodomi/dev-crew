@@ -41,7 +41,6 @@ Task(subagent_type: "dev-crew:architect", model: "sonnet", prompt: "plan ファ�
 ```
 
 Codex委譲はBlock 2から。
-codify-insight も同一で、既定は自動 triage。`skill` 候補/low-confidence のときだけ AskUserQuestion を 1 cycle につき 1 回使う。
 
 ## Block 2: Implementation
 
