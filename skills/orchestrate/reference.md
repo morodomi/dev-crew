@@ -2,22 +2,21 @@
 
 PdM (Product Manager) オーケストレータの詳細ガイド。
 
-## Block 0 Pre-Check: Codify Gate {#block-0-pre-check}
+## Block 0 Pre-Check: Codify Notice {#block-0-pre-check}
 
-orchestrate 起動時に最初に実行する codify-insight トリガーチェック。
+orchestrate 起動時に最初に実行する、未処理の振り返りの件数通知。通知だけで、何も起動せず、何も変更しない。
 
 ### 動作
 
-frontmatter-only scan で `retro_status: captured` の Cycle doc を検出:
+frontmatter-only scan で `retro_status: captured` の Cycle doc の件数を数える（常に exit 0、整数 1 行を出力）:
 
 ```bash
-for f in docs/cycles/*.md; do
-  awk '/^---$/{c++;next} c==1{print}' "$f" | grep -q 'retro_status: captured' && echo "$f"
-done
+n=0; for f in docs/cycles/*.md; do awk '/^---$/{c++;next} c==1{print}' "$f" 2>/dev/null | grep -E '^retro_status:[[:space:]]*captured[[:space:]]*$' >/dev/null && n=$((n+1)); done; echo "$n"
 ```
 
-- **非空 (captured cycles あり)**: `Skill(dev-crew:codify-insight)` を起動する。既定は自動 triage。`skill` 候補または low-confidence のときだけ AskUserQuestion を 1 cycle につき 1 回使い、全 captured cycles が resolved に遷移した後に次へ進む。
-- **空 (captured cycles なし)**: no-op。次のステップへ直行。
+- **N が 1 以上**: 次の 1 行を通知する。「未処理の振り返りを持つ Cycle doc が N 件あります（retro_status: captured）。処理するときは /dev-crew:codify-insight を別に実行し、タスクとは別の commit にしてください。」
+- **0**: 通知しない。
+- どちらの場合も、件数にかかわらず次へ進む。この件数は Cycle doc の数であり、insight の件数ではない。
 
 ### なぜ frontmatter-only scan か
 
@@ -25,7 +24,7 @@ whole-file grep (`grep -l 'retro_status: captured'`) は Cycle doc body 中の�
 
 ### codify-insight スキルとの関係
 
-`Skill(dev-crew:codify-insight)` が triage を担う。通常は自動で `codified` / `deferred` / `no-codify` を決め、`skill` 候補や低確信時のみ AskUserQuestion を使う。orchestrate は起動のみ担当し、判断ロジックは codify-insight に委譲する。
+orchestrate は起動しない。人間が /dev-crew:codify-insight を呼ぶ。理由: 2026-10 の実験で、自動起動がタスク外の変更を commit に混ぜ、rules まで書き換えた。
 
 詳細: [codify-insight/SKILL.md](../codify-insight/SKILL.md) / [codify-insight/reference.md](../codify-insight/reference.md)
 

@@ -64,13 +64,14 @@ DONE (cycle N 完了)
   ╎  ─── cycle N+1 起動 ───
   ╎
   ▼
-[次サイクル Block 0] codify-insight (Claude) ← orchestrate Block 0 自動起動
-  │  retro_status: captured の cycle doc を検出 (frontmatter-only scan)
-  │  原則は自動 triage（rule / inline-update / defer / no-codify）
-  │  skill 候補 / 低確信時のみ 1 回だけ確認
-  │  Cycle doc EOF に ## Codify Decisions を append
-  │  全 insight 判定 → retro_status: captured → resolved、次フェーズへ
-  │  abort (exit 1) → BLOCK、/orchestrate 再起動案内
+[次サイクル Block 0] Codify notice ← orchestrate が件数を通知するだけ
+  │  retro_status: captured の cycle doc を数える (frontmatter-only scan)
+  │  1 件以上なら 1 行通知。件数にかかわらず次フェーズへ
+  │
+  ╎  （任意・別 commit）人間が /dev-crew:codify-insight を手動起動
+  ╎  原則は自動 triage（rule / inline-update / defer / no-codify）
+  ╎  Cycle doc EOF に ## Codify Decisions を append、retro_status: captured → resolved
+  ╎  rules 等への反映は別サイクル
   │
   ▼
 sync-plan → RED → GREEN → ... → COMMIT → DONE (cycle N+1 本体フロー、以下同じ)

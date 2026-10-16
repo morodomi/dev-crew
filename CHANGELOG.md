@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **codify-insight を orchestrate から自動起動しないようにした。** Block 0 は未処理の振り返りを持つ Cycle doc の件数を通知するだけで、処理は人間が `/dev-crew:codify-insight` を別に実行する。自動起動がタスク外の変更を commit に混ぜ、rules まで書き換えたため。codify-insight は対象 Cycle doc 以外（rules 等）を編集しない契約にし、`disable-model-invocation: true` でモデルからの起動も塞いだ
+
 ### Fixed
 
 - **onboard が導入先独自の rules を上書きして消す問題を修正。** `rules/*.md` を `.claude/rules/` へ identical mirror するため、導入先が mirror ファイルに足した条項は次の onboard で消えた。導入先独自の条項は `.claude/rules/local-<name>.md` に置き、onboard は `local-*.md` を触らない

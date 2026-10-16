@@ -38,15 +38,15 @@ fi
 
 # TC-02: SKILL.md line count <= 100
 echo ""
-echo "TC-02: SKILL.md line count <= 100"
+echo "TC-02: SKILL.md line count < 100"
 if [ ! -f "$SKILL_MD" ]; then
   fail "TC-02: skills/codify-insight/SKILL.md does not exist"
 else
   line_count=$(wc -l < "$SKILL_MD" | tr -d ' ')
-  if [ "$line_count" -le 100 ]; then
-    pass "TC-02: SKILL.md has $line_count lines (<= 100)"
+  if [ "$line_count" -lt 100 ]; then
+    pass "TC-02: SKILL.md has $line_count lines (< 100)"
   else
-    fail "TC-02: SKILL.md has $line_count lines (> 100, hard limit exceeded)"
+    fail "TC-02: SKILL.md has $line_count lines (>= 100, hard limit exceeded)"
   fi
 fi
 
@@ -295,66 +295,190 @@ else
   fi
 fi
 
-# TC-15: skills/orchestrate/SKILL.md Block 0 contains codify gate + frontmatter-only awk pattern
-echo ""
-echo "TC-15: orchestrate/SKILL.md Block 0 contains codify gate + frontmatter-only awk pattern"
-if [ ! -f "$ORCHESTRATE_SKILL_MD" ]; then
-  fail "TC-15: skills/orchestrate/SKILL.md does not exist"
-else
-  has_codify_gate=$(grep -iE "codify|codify-insight" "$ORCHESTRATE_SKILL_MD" || true)
-  has_awk_pattern=$(grep -qF "awk '/^---\$/{c++;next} c==1{print}'" "$ORCHESTRATE_SKILL_MD" && echo "yes" || echo "no")
-  if [ -n "$has_codify_gate" ] && [ "$has_awk_pattern" = "yes" ]; then
-    pass "TC-15: orchestrate/SKILL.md Block 0 contains codify gate and frontmatter-only awk pattern"
+# --- Block 0 "0. Codify notice" helpers ---
+# 見出し区間を先行抽出してから判定する（whole-file grep は別 section の decoy で偽 PASS する）。
+NOTICE_TEXT='未処理の振り返りを持つ Cycle doc が N 件あります（retro_status: captured）。処理するときは /dev-crew:codify-insight を別に実行し、タスクとは別の commit にしてください。'
+NOTICE_PROCEED='件数にかかわらず次へ進む'
+AWK_FM='awk '"'"'/^---$/{c++;next} c==1{print}'"'"
+
+# SKILL.md: 太字行 "**0. Codify notice**" から次の太字行 / 見出し行の手前まで
+extract_notice_skill() {
+  awk '
+    index($0, "**0. Codify notice**") == 1 {s=1; next}
+    s && (/^\*\*/ || /^#/) {exit}
+    s
+  ' "$1"
+}
+
+# steps-*.md: "### 0. Codify notice" から次の H2/H3 の手前まで
+extract_notice_steps() {
+  awk '
+    index($0, "### 0. Codify notice") == 1 {s=1; next}
+    s && /^##/ {exit}
+    s
+  ' "$1"
+}
+
+# 区間テキスト (stdin) から ```bash フェンスの中身だけを取り出す
+extract_bash_fence() {
+  awk '/^```bash/{f=1; next} /^```/{f=0} f'
+}
+
+# check_notice_section TC FILE KIND(skill|steps) -> sets NOTICE_SECTION, NOTICE_SNIPPET; returns 0 on PASS
+check_notice_section() {
+  local tc="$1" file="$2" kind="$3" sec
+  NOTICE_SECTION=""
+  NOTICE_SNIPPET=""
+  if [ ! -f "$file" ]; then
+    fail "$tc: $file does not exist"
+    return 1
+  fi
+  if [ "$kind" = "skill" ]; then
+    sec=$(extract_notice_skill "$file")
   else
-    if [ -z "$has_codify_gate" ]; then
-      fail "TC-15: orchestrate/SKILL.md does NOT mention codify gate"
-    else
-      fail "TC-15: orchestrate/SKILL.md does NOT contain frontmatter-only awk pattern"
+    sec=$(extract_notice_steps "$file")
+  fi
+  NOTICE_SECTION="$sec"
+  if [ -z "$sec" ]; then
+    fail "$tc: '0. Codify notice' section not found in $(basename "$file")"
+    return 1
+  fi
+  NOTICE_SNIPPET=$(printf '%s\n' "$sec" | extract_bash_fence)
+  if printf '%s\n' "$sec" | grep -qF 'Skill(dev-crew:codify-insight)'; then
+    fail "$tc: notice section still invokes Skill(dev-crew:codify-insight)"
+    return 1
+  fi
+  if printf '%s\n' "$sec" | grep -qF 'resolved 遷移後'; then
+    fail "$tc: notice section still waits for 'resolved 遷移後'"
+    return 1
+  fi
+  if printf '%s\n' "$sec" | grep -qF 'exit 1 (abort) → BLOCK'; then
+    fail "$tc: notice section still has 'exit 1 (abort) → BLOCK'"
+    return 1
+  fi
+  if ! printf '%s\n' "$sec" | grep -qF "$NOTICE_TEXT"; then
+    fail "$tc: notice section missing fixed notice text"
+    return 1
+  fi
+  if ! printf '%s\n' "$sec" | grep -qF "$NOTICE_PROCEED"; then
+    fail "$tc: notice section missing '$NOTICE_PROCEED'"
+    return 1
+  fi
+  if [ -z "$NOTICE_SNIPPET" ]; then
+    fail "$tc: notice section has no fenced bash snippet"
+    return 1
+  fi
+  if ! printf '%s\n' "$NOTICE_SNIPPET" | grep -qF "$AWK_FM"; then
+    fail "$tc: notice snippet missing frontmatter-only awk pattern"
+    return 1
+  fi
+  return 0
+}
+
+# TC-15: orchestrate/SKILL.md Block 0 "0. Codify notice" は通知のみ（起動しない）
+# Given: orchestrate/SKILL.md の Block 0 節
+# When:  "**0. Codify notice**" 区間を読む
+# Then:  Skill 起動・待機条件が無く、固定通知文 + 「件数にかかわらず次へ進む」+ frontmatter-only awk がある
+echo ""
+echo "TC-15: orchestrate/SKILL.md Block 0 '0. Codify notice' is notify-only"
+if check_notice_section "TC-15" "$ORCHESTRATE_SKILL_MD" skill; then
+  pass "TC-15: SKILL.md Block 0 notice has fixed text, proceed clause, awk; no Skill invocation / wait"
+fi
+SKILL_NOTICE_SNIPPET="$NOTICE_SNIPPET"
+
+# TC-15b: SKILL.md の通知スニペットを fixture で実行し、件数と exit 0 を確認する
+# Given: SKILL.md から取り出した通知スニペットと mktemp fixture (docs/cycles/)
+# When:  captured 0 / 1 / 3 件、本文だけに引用した doc を含む 1 件の各 fixture で実行
+# Then:  標準出力は整数 1 行で 0 / 1 / 3 / 1、すべて exit 0
+echo ""
+echo "TC-15b: notice snippet from orchestrate/SKILL.md counts captured docs (frontmatter only) and exits 0"
+if [ -z "$SKILL_NOTICE_SNIPPET" ]; then
+  fail "TC-15b: no notice snippet extracted from orchestrate/SKILL.md"
+else
+  TC15B_PASS=true
+  TC15B_TMP=$(mktemp -d)
+  trap 'rm -rf "$TC15B_TMP"' EXIT
+  mk_doc() { # path status [body-quote]
+    {
+      printf -- '---\nfeature: x\nretro_status: %s\n---\n\n# doc\n' "$2"
+      if [ -n "${3:-}" ]; then printf 'quote: retro_status: captured\n'; fi
+    } > "$1"
+  }
+  run_case() { # label expected
+    local label="$1" expected="$2" d="$3" out rc
+    out=$(cd "$d" && bash -o pipefail -c "$SKILL_NOTICE_SNIPPET" 2>/dev/null)
+    rc=$?
+    if [ "$rc" -ne 0 ]; then
+      fail "TC-15b: [$label] exit code $rc (expected 0)"; TC15B_PASS=false
+    elif [ "$out" != "$expected" ]; then
+      fail "TC-15b: [$label] output '$out' (expected '$expected')"; TC15B_PASS=false
     fi
+  }
+  d0="$TC15B_TMP/c0"; mkdir -p "$d0/docs/cycles"
+  mk_doc "$d0/docs/cycles/a.md" none
+  mk_doc "$d0/docs/cycles/b.md" resolved
+  run_case "0 captured" 0 "$d0"
+  d1="$TC15B_TMP/c1"; mkdir -p "$d1/docs/cycles"
+  mk_doc "$d1/docs/cycles/a.md" captured
+  mk_doc "$d1/docs/cycles/b.md" resolved
+  run_case "1 captured" 1 "$d1"
+  d3="$TC15B_TMP/c3"; mkdir -p "$d3/docs/cycles"
+  mk_doc "$d3/docs/cycles/a.md" captured
+  mk_doc "$d3/docs/cycles/b.md" captured
+  mk_doc "$d3/docs/cycles/c.md" captured
+  mk_doc "$d3/docs/cycles/d.md" none
+  run_case "3 captured" 3 "$d3"
+  dq="$TC15B_TMP/cq"; mkdir -p "$dq/docs/cycles"
+  mk_doc "$dq/docs/cycles/a.md" captured
+  mk_doc "$dq/docs/cycles/b.md" none quote
+  run_case "1 captured + body-only quote" 1 "$dq"
+  # frontmatter 内のコメント行 / 他フィールド内の引用は数えない
+  dc="$TC15B_TMP/cc"; mkdir -p "$dc/docs/cycles"
+  printf -- '---\nfeature: x\nretro_status: resolved\n# retro_status: captured\nnote: "was retro_status: captured"\n---\n\n# doc\n' > "$dc/docs/cycles/a.md"
+  run_case "frontmatter comment / quoted field only" 0 "$dc"
+  # 約 1MB の frontmatter: grep の早期終了で awk が SIGPIPE になっても数え落とさない
+  dbig="$TC15B_TMP/cbig"; mkdir -p "$dbig/docs/cycles"
+  {
+    printf -- '---\nretro_status: captured\n'
+    head -c 1048576 /dev/zero | tr '\0' 'x' | fold -w 100
+    printf -- '\n---\n\n# doc\n'
+  } > "$dbig/docs/cycles/a.md"
+  run_case "1 captured with ~1MB frontmatter (pipefail)" 1 "$dbig"
+  if [ "$TC15B_PASS" = "true" ]; then
+    pass "TC-15b: snippet prints 0/1/3/1/0/1 and exits 0 for all fixtures"
   fi
 fi
 
-# TC-16: steps-subagent.md Block 0 contains codify gate + awk pattern (positive)
-#        AND does NOT contain bare grep -l 'retro_status: captured' (negative)
-echo ""
-echo "TC-16: steps-subagent.md Block 0 codify gate (positive) + no bare grep pattern (negative)"
-if [ ! -f "$STEPS_SUBAGENT_MD" ]; then
-  fail "TC-16: skills/orchestrate/steps-subagent.md does not exist"
-else
-  has_codify=$(grep -iE "codify|codify-insight" "$STEPS_SUBAGENT_MD" || true)
-  has_awk=$(grep -qF "awk '/^---\$/{c++;next} c==1{print}'" "$STEPS_SUBAGENT_MD" && echo "yes" || echo "no")
-  has_bare_grep=$(grep -qE "grep -l 'retro_status: captured'|grep -rl 'retro_status: captured'" "$STEPS_SUBAGENT_MD" && echo "yes" || echo "no")
-  if [ -n "$has_codify" ] && [ "$has_awk" = "yes" ] && [ "$has_bare_grep" = "no" ]; then
-    pass "TC-16: steps-subagent.md has codify gate + awk pattern and no bare grep"
-  elif [ -z "$has_codify" ]; then
-    fail "TC-16: steps-subagent.md does NOT contain codify gate"
-  elif [ "$has_awk" = "no" ]; then
-    fail "TC-16: steps-subagent.md does NOT contain frontmatter-only awk pattern"
-  else
-    fail "TC-16: steps-subagent.md contains bare grep 'retro_status: captured' (self-trigger risk)"
+# check_steps_notice TC FILE: TC-15 の (a)〜(d) + bare grep 無し + スニペットが SKILL.md と同一
+check_steps_notice() {
+  local tc="$1" file="$2" name
+  name=$(basename "$file")
+  if ! check_notice_section "$tc" "$file" steps; then
+    return
   fi
-fi
+  if grep -qE "grep -l 'retro_status: captured'|grep -rl 'retro_status: captured'" "$file"; then
+    fail "$tc: $name contains bare grep 'retro_status: captured' (self-trigger risk)"
+  elif [ -z "$SKILL_NOTICE_SNIPPET" ]; then
+    fail "$tc: no reference snippet in orchestrate/SKILL.md to compare with"
+  elif [ "$NOTICE_SNIPPET" != "$SKILL_NOTICE_SNIPPET" ]; then
+    fail "$tc: $name notice snippet differs from orchestrate/SKILL.md snippet"
+  else
+    pass "$tc: $name notice is notify-only, no bare grep, snippet identical to SKILL.md"
+  fi
+}
 
-# TC-17: steps-teams.md Block 0 contains codify gate + awk pattern (positive)
-#        AND does NOT contain bare grep -l 'retro_status: captured' (negative)
+# TC-16: steps-subagent.md Block 0 "0. Codify notice"
+# Given: steps-subagent.md / When: "### 0. Codify notice" 区間を読む
+# Then:  TC-15 の (a)〜(d) + bare grep 無し + スニペットが SKILL.md と同一
 echo ""
-echo "TC-17: steps-teams.md Block 0 codify gate (positive) + no bare grep pattern (negative)"
-if [ ! -f "$STEPS_TEAMS_MD" ]; then
-  fail "TC-17: skills/orchestrate/steps-teams.md does not exist"
-else
-  has_codify=$(grep -iE "codify|codify-insight" "$STEPS_TEAMS_MD" || true)
-  has_awk=$(grep -qF "awk '/^---\$/{c++;next} c==1{print}'" "$STEPS_TEAMS_MD" && echo "yes" || echo "no")
-  has_bare_grep=$(grep -qE "grep -l 'retro_status: captured'|grep -rl 'retro_status: captured'" "$STEPS_TEAMS_MD" && echo "yes" || echo "no")
-  if [ -n "$has_codify" ] && [ "$has_awk" = "yes" ] && [ "$has_bare_grep" = "no" ]; then
-    pass "TC-17: steps-teams.md has codify gate + awk pattern and no bare grep"
-  elif [ -z "$has_codify" ]; then
-    fail "TC-17: steps-teams.md does NOT contain codify gate"
-  elif [ "$has_awk" = "no" ]; then
-    fail "TC-17: steps-teams.md does NOT contain frontmatter-only awk pattern"
-  else
-    fail "TC-17: steps-teams.md contains bare grep 'retro_status: captured' (self-trigger risk)"
-  fi
-fi
+echo "TC-16: steps-subagent.md Block 0 '0. Codify notice' (notify-only, snippet == SKILL.md)"
+check_steps_notice "TC-16" "$STEPS_SUBAGENT_MD"
+
+# TC-17: steps-teams.md Block 0 "0. Codify notice"
+# Given: steps-teams.md / When: "### 0. Codify notice" 区間を読む / Then: TC-16 と同じ
+echo ""
+echo "TC-17: steps-teams.md Block 0 '0. Codify notice' (notify-only, snippet == SKILL.md)"
+check_steps_notice "TC-17" "$STEPS_TEAMS_MD"
 
 # TC-18: README.md, CLAUDE.md, AGENTS.md, docs/STATUS.md all contain grep-matchable "codify-insight"
 echo ""
@@ -430,6 +554,149 @@ else
     pass "TC-23: SKILL.md documents zero-question path"
   else
     fail "TC-23: SKILL.md missing zero-question (質問 0 件 / 質問スキップ) documentation"
+  fi
+fi
+
+STEPS_CODEX_MD="$BASE_DIR/skills/orchestrate/steps-codex.md"
+
+# TC-24: steps-codex.md に codify-insight を起動・自動 triage する記述が無い
+# Given: steps-codex.md / When: codify-insight に触れる行を読む
+# Then:  「起動」「自動 triage」「triage」を含む行が無い
+echo ""
+echo "TC-24: steps-codex.md does not describe launching / auto-triaging codify-insight"
+if [ ! -f "$STEPS_CODEX_MD" ]; then
+  fail "TC-24: skills/orchestrate/steps-codex.md does not exist"
+else
+  tc24_hits=$(grep -F "codify-insight" "$STEPS_CODEX_MD" | grep -E "triage|起動" || true)
+  if [ -z "$tc24_hits" ]; then
+    pass "TC-24: steps-codex.md has no codify-insight launch / auto-triage description"
+  else
+    fail "TC-24: steps-codex.md still describes codify-insight launch/triage: '$tc24_hits'"
+  fi
+fi
+
+# H2 見出し (prefix 一致, fixed-string) 区間の本文を出力
+sec_h2() {
+  awk -v h="$2" '
+    index($0, "## " h) == 1 {s=1; next}
+    s && /^## /{exit}
+    s
+  ' "$1"
+}
+
+# TC-25: codify-insight/SKILL.md は手動起動のみ + Restrictions 契約
+# Given: codify-insight/SKILL.md
+# When:  frontmatter / description / 全体 / "## Restrictions" 区間を読む
+# Then:  (a) disable-model-invocation: true (b) description に Block 0・次サイクル開始時が無い
+#        (c) SKILL.md 全体に Block 0 が無い (d) Restrictions 区間に 3 文が固定文字列で全部ある
+echo ""
+echo "TC-25: codify-insight/SKILL.md is manual-only + has Restrictions contract"
+if [ ! -f "$SKILL_MD" ]; then
+  fail "TC-25: skills/codify-insight/SKILL.md does not exist"
+else
+  TC25_PASS=true
+  tc25_fm=$(awk '/^---$/{c++;next} c==1{print}' "$SKILL_MD")
+  if ! printf '%s\n' "$tc25_fm" | grep -qx 'disable-model-invocation: true'; then
+    fail "TC-25: frontmatter missing 'disable-model-invocation: true'"; TC25_PASS=false
+  fi
+  tc25_tools=$(printf '%s\n' "$tc25_fm" | grep '^allowed-tools:' || true)
+  if [ -z "$tc25_tools" ]; then
+    fail "TC-25: frontmatter missing allowed-tools"; TC25_PASS=false
+  else
+    for t in Bash Write; do
+      if printf '%s\n' "$tc25_tools" | grep -qwF "$t"; then
+        fail "TC-25: allowed-tools must not contain '$t'"; TC25_PASS=false
+      fi
+    done
+  fi
+  tc25_desc=$(printf '%s\n' "$tc25_fm" | grep '^description:' || true)
+  for w in "Block 0" "次サイクル開始時"; do
+    if printf '%s\n' "$tc25_desc" | grep -qF "$w"; then
+      fail "TC-25: description still contains '$w'"; TC25_PASS=false
+    fi
+  done
+  if grep -qF "Block 0" "$SKILL_MD"; then
+    fail "TC-25: SKILL.md still mentions 'Block 0' (stale orchestrate linkage)"; TC25_PASS=false
+  fi
+  tc25_sec=$(sec_h2 "$SKILL_MD" "Restrictions")
+  if [ -z "$tc25_sec" ]; then
+    fail "TC-25: '## Restrictions' section not found"; TC25_PASS=false
+  else
+    while IFS= read -r sentence; do
+      if ! printf '%s\n' "$tc25_sec" | grep -qF -- "$sentence"; then
+        fail "TC-25: Restrictions missing sentence: '$sentence'"; TC25_PASS=false
+      fi
+    done <<'EOF'
+編集してよいのは、対象 Cycle doc の `## Codify Decisions` への追記と、frontmatter の `retro_status` と `updated` の更新だけ。
+rules、skills、agents、STATUS.md を含む、それ以外のファイルは編集しない。codified の反映は別サイクルで行う。
+codify の変更はタスクの変更と同じ commit に入れない。
+EOF
+  fi
+  if [ "$TC25_PASS" = "true" ]; then
+    pass "TC-25: manual-only frontmatter, clean description, no Block 0, Restrictions 3 sentences present"
+  fi
+fi
+
+# TC-26: reference.md の反映は別サイクル固定文言
+# Given: codify-insight/reference.md
+# When:  Rule Tier Contract 節と codified Marker MVP 意味論節をそれぞれ読む
+# Then:  両方に固定文言がある + MVP 節に「手動 edit」「別 skill で実施」が無い
+echo ""
+echo "TC-26: reference.md Rule Tier Contract + codified MVP sections carry the separate-cycle sentence"
+if [ ! -f "$REFERENCE_MD" ]; then
+  fail "TC-26: skills/codify-insight/reference.md does not exist"
+else
+  TC26_PASS=true
+  TC26_SENTENCE='follow-up は別サイクルで行い、codify-insight の実行中には反映しない。'
+  tc26_tier=$(sec_h2 "$REFERENCE_MD" "Rule Tier Contract")
+  tc26_mvp=$(sec_h2 "$REFERENCE_MD" '`codified` Marker MVP')
+  if [ -z "$tc26_tier" ]; then
+    fail "TC-26: '## Rule Tier Contract' section not found"; TC26_PASS=false
+  elif ! printf '%s\n' "$tc26_tier" | grep -qF "$TC26_SENTENCE"; then
+    fail "TC-26: Rule Tier Contract missing fixed sentence"; TC26_PASS=false
+  fi
+  if [ -z "$tc26_mvp" ]; then
+    fail "TC-26: '## \`codified\` Marker MVP' section not found"; TC26_PASS=false
+  else
+    if ! printf '%s\n' "$tc26_mvp" | grep -qF "$TC26_SENTENCE"; then
+      fail "TC-26: codified MVP section missing fixed sentence"; TC26_PASS=false
+    fi
+    for w in "手動 edit" "別 skill で実施"; do
+      if printf '%s\n' "$tc26_mvp" | grep -qF "$w"; then
+        fail "TC-26: codified MVP section still contains '$w'"; TC26_PASS=false
+      fi
+    done
+  fi
+  if [ "$TC26_PASS" = "true" ]; then
+    pass "TC-26: both sections carry the fixed sentence; MVP section has no 手動 edit / 別 skill で実施"
+  fi
+fi
+
+# TC-27: orchestrate/reference.md Block 0 節のスニペットと通知文が SKILL.md と同一
+# Given: orchestrate/reference.md の "## Block 0 Pre-Check" 節 / When: bash フェンスと本文を読む
+# Then:  スニペットが SKILL.md と同一、固定通知文・「件数にかかわらず次へ進む」がある、Skill 起動が無い
+echo ""
+echo "TC-27: orchestrate/reference.md Block 0 section (snippet == SKILL.md, notify-only)"
+ORCHESTRATE_REF_MD="$BASE_DIR/skills/orchestrate/reference.md"
+if [ ! -f "$ORCHESTRATE_REF_MD" ]; then
+  fail "TC-27: skills/orchestrate/reference.md does not exist"
+else
+  tc27_sec=$(sec_h2 "$ORCHESTRATE_REF_MD" "Block 0 Pre-Check")
+  tc27_snip=$(printf '%s\n' "$tc27_sec" | extract_bash_fence)
+  if [ -z "$tc27_sec" ]; then
+    fail "TC-27: '## Block 0 Pre-Check' section not found"
+  elif [ -z "$SKILL_NOTICE_SNIPPET" ]; then
+    fail "TC-27: no reference snippet in orchestrate/SKILL.md to compare with"
+  elif [ "$tc27_snip" != "$SKILL_NOTICE_SNIPPET" ]; then
+    fail "TC-27: reference.md Block 0 snippet differs from orchestrate/SKILL.md snippet"
+  elif ! printf '%s\n' "$tc27_sec" | grep -qF "$NOTICE_TEXT"; then
+    fail "TC-27: reference.md Block 0 section missing fixed notice text"
+  elif ! printf '%s\n' "$tc27_sec" | grep -qF "$NOTICE_PROCEED"; then
+    fail "TC-27: reference.md Block 0 section missing '$NOTICE_PROCEED'"
+  elif printf '%s\n' "$tc27_sec" | grep -qF 'Skill(dev-crew:codify-insight)'; then
+    fail "TC-27: reference.md Block 0 section invokes Skill(dev-crew:codify-insight)"
+  else
+    pass "TC-27: reference.md Block 0 section has identical snippet, fixed notice, proceed clause; no Skill invocation"
   fi
 fi
 

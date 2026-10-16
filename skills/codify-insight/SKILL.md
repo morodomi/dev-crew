@@ -1,6 +1,7 @@
 ---
 name: codify-insight
-description: "TDD サイクルの retrospective insights を自動 triage し、必要時のみ codify/defer/no-codify を確認する decide gate スキル。次サイクル開始時に /orchestrate Block 0 から自動起動。「codify」「codify-insight」「insight codify」「次サイクル開始時」で手動起動も可。"
+description: "TDD サイクルの retrospective insights を自動 triage し、必要時のみ codify/defer/no-codify を確認する decide gate スキル。モデルからは起動しない。/dev-crew:codify-insight を入力して起動する（orchestrate も起動しない）。"
+disable-model-invocation: true
 allowed-tools: Read, Edit, AskUserQuestion, Glob
 ---
 
@@ -14,7 +15,7 @@ Captured cycles scan (frontmatter-only):
 
 ```bash
 for f in docs/cycles/*.md; do
-  awk '/^---$/{c++;next} c==1{print}' "$f" | grep -q 'retro_status: captured' && echo "$f"
+  awk '/^---$/{c++;next} c==1{print}' "$f" | grep -E '^retro_status:[[:space:]]*captured[[:space:]]*$' >/dev/null && echo "$f"
 done
 ```
 
@@ -85,13 +86,14 @@ Cycle doc EOF に `## Codify Decisions` セクションを append (APPEND-ONLY):
 全 insight triage 完了時: `retro_status: captured` → `resolved` + `updated` を更新。
 partial 完了時: frontmatter 遷移なし（captured 維持）。
 
-### Exit Contract (orchestrate 連携)
+### Exit Contract
 
-cycle-retrospective precedent 準拠の block-or-complete 契約:
-- **全 captured cycles が resolved** → exit 0。orchestrate Block 0 は次ステップへ進行。
-- **User mid-gate abort** → exit 1 + stderr「codify-insight aborted by user. orchestrate should BLOCK and re-invoke /orchestrate」。orchestrate は BLOCK (cycle-retrospective abort と同じ pattern)。
-- **captured 残存 (skill 異常終了)** → orchestrate は次回 /orchestrate 起動時に再度 Block 0 codify gate でスキャン、再処理。
+手動起動。呼び出し元へ exit 0/1 を返す。全 captured が resolved → exit 0、user mid-gate abort → exit 1 + stderr。captured が残れば次回の手動起動で再処理（詳細: reference.md の Exit Contract）。
 
-## Reference
+## Restrictions
+
+編集してよいのは、対象 Cycle doc の `## Codify Decisions` への追記と、frontmatter の `retro_status` と `updated` の更新だけ。
+rules、skills、agents、STATUS.md を含む、それ以外のファイルは編集しない。codified の反映は別サイクルで行う。
+codify の変更はタスクの変更と同じ commit に入れない。
 
 詳細: [reference.md](reference.md)

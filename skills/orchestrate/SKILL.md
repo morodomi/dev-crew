@@ -38,9 +38,11 @@ orchestrate Progress:
 
 ### Block 0: Prerequisite Check
 
-**0. Codify gate** — frontmatter-only scan:
-`for f in docs/cycles/*.md; do awk '/^---$/{c++;next} c==1{print}' "$f" | grep -q 'retro_status: captured' && echo "$f"; done`
-非空 → `Skill(dev-crew:codify-insight)` 起動。既定は自動 triage、`skill` 候補/低確信のみ 1 回確認。exit 0 (全 resolved) → 次へ。exit 1 (abort) → BLOCK、/orchestrate 再起動を案内。空 → no-op。
+**0. Codify notice** — frontmatter-only scan（件数を出すだけ。codify-insight は起動しない）:
+```bash
+n=0; for f in docs/cycles/*.md; do awk '/^---$/{c++;next} c==1{print}' "$f" 2>/dev/null | grep -E '^retro_status:[[:space:]]*captured[[:space:]]*$' >/dev/null && n=$((n+1)); done; echo "$n"
+```
+N が 1 以上なら「未処理の振り返りを持つ Cycle doc が N 件あります（retro_status: captured）。処理するときは /dev-crew:codify-insight を別に実行し、タスクとは別の commit にしてください。」と 1 行通知する。0 なら通知しない。件数にかかわらず次へ進む。
 
 **最初に実行**: TaskCreate でタスクを登録。詳細: [reference.md](reference.md#task-list)
 
@@ -92,7 +94,5 @@ Skill(dev-crew:cycle-retrospective): 失敗-成功 insight 抽出、retro_status
 2. **完了報告**: サイクル完了をユーザーに報告
 
 ## Mode Selection
-
-詳細: [reference.md](reference.md) | [steps-codex.md](steps-codex.md) | [steps-teams.md](steps-teams.md) | [steps-subagent.md](steps-subagent.md)
 
 `codex_mode` は **RED/GREEN の委譲先のみ制御** する。Plan Review と Code Review は Codex 利用可能なら常時 competitive 実行 (`codex_mode` 値に依存しない)。

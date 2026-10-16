@@ -1125,12 +1125,26 @@ clause_check "TC-56" "$RULES_DIR/plan-discipline.md" "推奨" \
   "識別子の連番次値" "採番の根拠にしない" \
   "docs/cycles/20260716_1328_doc-drift-fix.md #2"
 
-# TC-57: rules/plan-discipline.md 推奨 — Block 0 codify scope 同梱 clause
+# TC-57 (置換): rules/plan-discipline.md に Block 0 codify scope 同梱 clause と出典行が無い
+# Given: Block 0 の codify 自動起動を廃止した（原因が無くなった）
+# When:  plan-discipline.md 全体を読む
+# Then:  条項本文と出典行（approval-reorder-cycle2 #2）がどちらも存在しない
 echo ""
-echo "TC-57: plan-discipline.md 推奨 Block 0 codify scope 同梱透明化 clause"
-clause_check "TC-57" "$RULES_DIR/plan-discipline.md" "推奨" \
-  "codify gate は前 cycle doc を変更" "scope 同梱として明示裁定" \
-  "docs/cycles/20260717_1605_approval-reorder-cycle2.md #2"
+echo "TC-57: plan-discipline.md has no Block 0 codify scope-bundling clause nor its 出典 line"
+TC57_FILE="$RULES_DIR/plan-discipline.md"
+if [ ! -f "$TC57_FILE" ]; then
+  fail "TC-57: $TC57_FILE does not exist"
+else
+  tc57_clause=$(grep -cF "codify gate は前 cycle doc を変更" "$TC57_FILE" || true)
+  tc57_src=$(grep -cF "docs/cycles/20260717_1605_approval-reorder-cycle2.md #2" "$TC57_FILE" || true)
+  if [ "$tc57_clause" -eq 0 ] && [ "$tc57_src" -eq 0 ]; then
+    pass "TC-57: clause and 出典 line are absent"
+  elif [ "$tc57_clause" -ne 0 ]; then
+    fail "TC-57: plan-discipline.md still has the Block 0 codify clause ($tc57_clause line(s))"
+  else
+    fail "TC-57: plan-discipline.md still has the approval-reorder-cycle2 #2 出典 line ($tc57_src line(s))"
+  fi
+fi
 
 # TC-58: rules/review-triage.md 推奨 — 判定割れ機構分解 clause
 echo ""
