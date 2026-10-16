@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [2.19.0] - 2026-10-16
+
 ### Changed
 
 - **codify-insight を orchestrate から自動起動しないようにした。** Block 0 は未処理の振り返りを持つ Cycle doc の件数を通知するだけで、処理は人間が `/dev-crew:codify-insight` を別に実行する。自動起動がタスク外の変更を commit に混ぜ、rules まで書き換えたため。codify-insight は対象 Cycle doc 以外（rules 等）を編集しない契約にし、`disable-model-invocation: true` でモデルからの起動も塞いだ
