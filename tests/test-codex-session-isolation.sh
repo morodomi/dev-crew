@@ -90,24 +90,24 @@ else
   pass "steps-codex.md does not have hard prohibition"
 fi
 
-# TC-08: steps-teams.md REVIEW section has session-id or fallback pattern
+# TC-08: steps-teams.md REVIEW section は codex_session_id で resume せず、新しいセッションでレビューする（実装者の自己レビュー防止）
 echo ""
-echo "TC-08: steps-teams.md REVIEW has session-id or fallback pattern"
-review_section=$(sed -n '/^### REVIEW/,/^## /p' "$BASE_DIR/skills/orchestrate/steps-teams.md" | sed '$d')
-if echo "$review_section" | grep -q 'codex_session_id\|resume <session-id>'; then
-  pass "steps-teams.md REVIEW has session-id pattern"
+echo "TC-08: steps-teams.md REVIEW uses a new session (no resume), pointing at the exception"
+review_section=$(sed -n '/^### REVIEW/,/^### Phase Summary/p' "$BASE_DIR/skills/orchestrate/steps-teams.md" | sed '$d')
+if echo "$review_section" | grep -q '`resume` しない' && ! echo "$review_section" | grep -q 'codex exec .*resume'; then
+  pass "steps-teams.md REVIEW states the new-session exception"
 else
-  fail "steps-teams.md REVIEW missing session-id pattern"
+  fail "steps-teams.md REVIEW missing the new-session exception"
 fi
 
-# TC-09: steps-subagent.md REVIEW section has session-id or fallback pattern
+# TC-09: steps-subagent.md REVIEW section も同じ（新しいセッション）
 echo ""
-echo "TC-09: steps-subagent.md REVIEW has session-id or fallback pattern"
-review_section_sub=$(sed -n '/^### REVIEW/,/^## /p' "$BASE_DIR/skills/orchestrate/steps-subagent.md" | sed '$d')
-if echo "$review_section_sub" | grep -q 'codex_session_id\|resume <session-id>'; then
-  pass "steps-subagent.md REVIEW has session-id pattern"
+echo "TC-09: steps-subagent.md REVIEW uses a new session (no resume), pointing at the exception"
+review_section_sub=$(sed -n '/^### REVIEW/,/^### Phase Summary/p' "$BASE_DIR/skills/orchestrate/steps-subagent.md" | sed '$d')
+if echo "$review_section_sub" | grep -q '`resume` しない' && ! echo "$review_section_sub" | grep -q 'codex exec .*resume'; then
+  pass "steps-subagent.md REVIEW states the new-session exception"
 else
-  fail "steps-subagent.md REVIEW missing session-id pattern"
+  fail "steps-subagent.md REVIEW missing the new-session exception"
 fi
 
 # TC-10: CLAUDE.md has session-id pattern

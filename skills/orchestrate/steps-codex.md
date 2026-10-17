@@ -1,6 +1,6 @@
 # TDD Orchestrate - Codex Delegation Mode
 
-`which codex` でCodex利用可能時の手順。RED/GREEN/REVIEWをCodexに委譲し、Claude Code (PdM) がGate検証で品質を担保する。
+`which codex` でCodex利用可能時の手順。RED/GREENをCodexに委譲し、REVIEWは新しいセッションの Codex で敵対的レビューを 1 回かける。Claude Code (PdM) がGate検証で品質を担保する。
 
 ## Pre-check
 
@@ -14,7 +14,7 @@ which codex
 ### 委譲モード確認
 
 Cycle doc frontmatter の `codex_mode` を読み取る。
-**codex_mode は RED/GREEN の委譲先のみ制御する**。Plan Review と Code Review は codex_mode に関わらず Codex が利用可能なら常時実行。
+**codex_mode は RED/GREEN の委譲先のみ制御する**。Plan Review と REVIEW のレビュー（敵対的レビュー）は codex_mode に関わらず Codex が利用可能なら実行。
 
 - `codex_mode: full` → RED/GREEN を Codex に委譲、Gate 1/2 をスキップ
 - `codex_mode: no` → RED/GREEN を Claude fallback（Task(red-worker)/Task(green-worker)）
@@ -25,7 +25,7 @@ Cycle doc frontmatter の `codex_mode` を読み取る。
 ## Session Management
 
 - plan review 時に Codex セッション作成 → session ID を Cycle doc frontmatter `codex_session_id` に記録
-- 全 Codex コマンド: `codex_session_id` があれば `resume <session-id>`、なければ `resume --last` にフォールバック
+- 全 Codex コマンド: `codex_session_id` があれば `resume <session-id>`、なければ `resume --last` にフォールバック。ただし REVIEW は resume しない唯一の例外（新しいセッションでレビューする。[REVIEW via Codex](#review-via-codex) 参照）
 - 同一ディレクトリでの並行 Codex 実行は非推奨だが、cycle-bound のため技術的には可能
 
 ## Block 0-1: Prerequisite & Sync-Plan
@@ -91,7 +91,7 @@ Subagent Chainモードと同様、Block境界でPhase Summaryを永続化する
 **Codex Session**: resume --last (session: <id>)
 ```
 
-GREEN/REVIEW完了後も同様に永続化。
+GREEN完了後も同様に永続化。REVIEW の記録は REVIEW 節の件数の行と `- Phase completed`。
 
 ### REFACTOR (checklist-driven)
 
@@ -107,38 +107,52 @@ PdM が直接 Bash で実行（参考エビデンス、委譲不要）。
 Cycle doc `## Verification` セクション不在 or real-path invocation なし → WARN ログを出力しつつ非ブロッキングスキップ (rules/integration-verification.md)。
 詳細: [reference.md](reference.md#product-verification)
 
-### REVIEW via Codex (competitive)
+### REVIEW via Codex
 
-Claude と Codex が独立にレビューし、PdM が findings を裁定する競争的レビュー。
+実装した文脈とは別の文脈で敵対的レビューを 1 回だけかけ、指摘を修正役が「直す / 人間に戻す / 記録のみ」に振り分ける。頼み方・振り分け・報告の型の単一出典は [adversarial-review.md](adversarial-review.md)。`review` skill は起動しない。
 
-1. **Codex レビュー実行**:
+REVIEW は resume しない唯一の例外である。codex_mode: full のとき `codex_session_id` は GREEN と同じセッションを指すので、resume すると実装者が自分をレビューすることになる。REVIEW のセッション ID は保存しない。
+
+#### 手順
+
+0. **対象の列挙**: `git diff HEAD --name-only` と `git ls-files --others --exclude-standard`（未追跡の新規ファイルを含める）。未追跡ファイルがあれば WARN を出し、レビュー対象に含める。ただし名前が `.env*`・`*.pem`・`*credentials*`・`*secret*` に当たる未追跡ファイルはレビュー対象から外し、WARN を出す（Codex は外部サービスなので秘密を送らない）。
+1. **敵対的レビューを 1 回**: 入力は Cycle doc のパスと対象ファイルの一覧だけ。diff は渡さない（レビュー側が `git diff HEAD` を自分で実行して読み、未追跡ファイルは中身を読む）。レビュー結果は、どちらの経路でも固定のパス `/tmp/dev-crew-review-<cycle_id>/review.md` に置く（`<cycle_id>` は Cycle doc の frontmatter `cycle`。bash 呼び出しをまたいで使うので、変数に持たず固定のパスをそのまま書く）。Codex がある（`which codex` 成功）ときは新しいセッションで実行する:
    ```bash
-   # codex_session_id があれば resume <session-id>、なければ resume --last
-   CHANGED_FILES=$(git diff HEAD --name-only | tr '\n' ', ')
-   codex exec --sandbox read-only -o /tmp/codex_review.md resume ${codex_session_id:-"--last"} "以下のファイルのみレビューせよ: ${CHANGED_FILES}. セキュリティ・正確性・パフォーマンスの観点で問題を指摘せよ。対象外ファイルには言及するな。findings は P1/P2/P3 ラベル付きで出力せよ（P1=critical/P2=important/P3=optional）。" < /dev/null
+   mkdir -p /tmp/dev-crew-review-<cycle_id>
    ```
-2. **Claude レビュー実行**: `Skill(dev-crew:review, args: "--code")` を並行実行
-3. **Findings Aggregation**: 両レビュー結果を PdM が集約
-
-Codex 失敗 → Claude レビューのみで続行（品質バー維持）。
-
-### Why Competitive Review Works
-
-Codex は「書かれたコードの論理的整合性」に強い（early return漏れ、API入力重複、スコープ境界）。
-Claude correctness は「書かれていないコードの検出」に強い（未実装パターン、セマンティクス区別）。
-片方だけでは品質バーを満たせない。両者を並走させること。
-
-### Findings Judgment
-
-PdM が Codex findings を知的誠実性をもって裁定する（CONSTITUTION.md 準拠）:
-
-| 判断 | 条件 |
-|------|------|
-| Accept | 指摘が妥当 → 即修正 |
-| Reject | 明確な理由を説明でき、Codex が納得できる |
-| AskUserQuestion | ビジネス判断が必要、または debate が発生 |
-| DISCOVERED | 今回のスコープ外 → 次回タスクへ |
-| ADR | アーキテクチャ上の重要決定 → 記録 |
+   ```bash
+   codex exec --sandbox read-only -o "/tmp/dev-crew-review-<cycle_id>/review.md" "<頼み方>" < /dev/null
+   ```
+   `<頼み方>` は adversarial-review.md の `## 頼み方` の依頼文に、Cycle doc のパスと対象ファイルの一覧を添えたもの。
+   Codex が無い、または失敗した（error / timeout / 出力が空）ときは、新しい文脈の `dev-crew:adversarial-reviewer` に同じ入力と依頼文を渡す。前後で `worktree-fingerprint.sh` の出力を比べる:
+   ```bash
+   mkdir -p /tmp/dev-crew-review-<cycle_id>
+   bash scripts/gates/worktree-fingerprint.sh --list > /tmp/dev-crew-review-<cycle_id>/before.list
+   before=$(bash scripts/gates/worktree-fingerprint.sh); before_rc=$?
+   ```
+   ```
+   Task(subagent_type: "dev-crew:adversarial-reviewer", model: "opus", prompt: "Cycle doc: [path]. 対象ファイル: [一覧]. adversarial-review.md の ## 頼み方 に従い、git diff HEAD を自分で実行して読み、実行して再現できた指摘だけを high にして報告せよ。作業ツリーを変えるな。")
+   ```
+   ```bash
+   after=$(bash scripts/gates/worktree-fingerprint.sh); after_rc=$?
+   ```
+   - PdM は adversarial-reviewer の返答を、Codex と同じパス `/tmp/dev-crew-review-<cycle_id>/review.md` のファイルに書き出す（返答を同じパスのファイルに書き出す。これで修正役への受け渡しが両経路で同じになる）
+   - 前後それぞれの終了コードと出力の形（64 桁の 16 進）を確かめる。取得失敗・空・形違いなら BLOCK（一致とみなさない）
+   - 前後が違えば作業ツリーが変わっている。レビューを無効にして BLOCK。BLOCK したら `--list` を取り直し、前後の --list の差を人間に見せる（何が変わったかを見るため）
+   - adversarial-reviewer も失敗したら BLOCK し、人間に報告する（レビューを省略しない）
+2. **修正**: 「直す」が 0 件なら修正役を起動せず、記録（3）へ進む。1 件以上あれば指摘を修正役に渡す。修正役は GREEN と同じ委譲先で、`codex_mode: full` かつ `codex_session_id` があれば Codex、無ければ green-worker。修正役には常にそのファイルを渡す（`/tmp/dev-crew-review-<cycle_id>/review.md`）。Codex 成功なら Codex の出力、代行なら PdM が書き出した返答で、どちらも同じパス。adversarial-review.md の `## 振り分け` と `## 報告の型` を渡し、「直す」だけを直させる。直す前に呼び出し元の検索と今の動きの固定を済ませ、既存のテストを弱めさせない。
+   ```bash
+   codex exec --sandbox workspace-write resume "$codex_session_id" "Cycle doc: [path]. レビュー結果: /tmp/dev-crew-review-<cycle_id>/review.md. adversarial-review.md の ## 振り分け と ## 報告の型 に従え。" < /dev/null
+   ```
+   REVIEW の後の修正役は `codex_session_id` で resume する。`--last` は直前のレビューのセッションを指すので使わない。`codex_session_id` が無ければ、修正は `Task(subagent_type: "dev-crew:green-worker", model: "sonnet", ...)` が行う（prompt に同じパスのレビュー結果を渡す）。
+   - **修正段階の完了条件**: 修正役が success を返し、修正後に全件を流して、REFACTOR 完了時の全件結果（Progress Log の REFACTOR 記録）より新たに落ちていないこと。満たさなければ 1 回だけやり直し、それでも満たさなければ BLOCK して人間に報告する
+   - 修正後に再レビューしない（レビューは回数でなく予算で止める。1 回かけたら終わり）
+3. **記録**: PdM が Cycle doc の Progress Log に `### {date "+%Y-%m-%d %H:%M" の実測値} - REVIEW` の見出し、件数の行、`- Phase completed` を書き、frontmatter の phase / updated を更新する。件数の行は次のどれか:
+   - `- Codex review: 直す N / 人間に戻す M / 記録のみ K`
+   - `- Codex review: 失敗（<理由>）。adversarial-reviewer で代行: 直す N / 人間に戻す M / 記録のみ K`
+   - `- Adversarial review: 直す N / 人間に戻す M / 記録のみ K`（Codex が無い環境）
+4. **COMMIT 前の判断点**: CLAUDE.md の判断点どおり、毎回 md を見せる。「人間に戻す」があれば、その md の先頭に「決めてほしいこと」として載せる。
+5. **セキュリティ**: security-reviewer は常時起動しない。敵対的レビューがセキュリティの問題を見つけたら、rules/security.md の「問題発見時」の手順がそのまま適用される。
 
 ### Open Questions Response
 
@@ -146,20 +160,6 @@ Codex plan review が Open Questions を出した場合:
 1. 各質問への回答を Cycle doc の Design Decisions セクションに記録
 2. 判断理由を1行添える
 3. 未回答の Open Questions は次回 review で再指摘される
-
-### Findings → Verdict Integration
-
-1. PdM が Codex findings を Findings Judgment テーブルに基づき裁定
-2. Accept した指摘は即修正（GREEN 再実行 or 直接修正）
-3. 裁定結果を Cycle doc Progress Log に永続化（finding 内容 + Accept/Reject/DISCOVERED）
-4. P1/P2/P3 ラベルを severity へ対応させる（P1→critical / P2→important / P3→optional。**ラベル無し findings は important 扱い**（保守側））。Accept された Codex findings は PdM が triage.json に追記し、`bash skills/review/severity-verdict.sh verdict <triage.json> [--invalid <name>]...` を再実行して verdict を統合する（統合経路を決定論化）。**再実行時も Step 4.4 で確定した `--invalid <name>` を全件引き継ぐこと** — 落とすと INVALID reviewer の fail-closed floor（security-reviewer/correctness-reviewer の NON-NEGOTIABLE BLOCK）が Codex 統合で消える
-
-### REVIEW 後の判断
-
-PdM が Claude + Codex 両方の結果を統合:
-- **合意**（両者 PASS/WARN、Accept 済み修正完了）→ auto-COMMIT
-- **debate**（Claude/Codex で判断が割れた）→ AskUserQuestion（承認ゲート(2)）
-- BLOCK → GREEN 再実行（Codex or fallback）
 
 ### DISCOVERED 判断
 
@@ -190,7 +190,7 @@ Skill(dev-crew:commit)
 | 状況 | アクション |
 |------|-----------|
 | Codex不在 (`which codex` 失敗) | AGENT_TEAMS=1 → steps-teams.md、それ以外 → steps-subagent.md |
-| Codex exec失敗 (error/timeout) | 該当フェーズを既存フロー（Task()/Skill()）で実行 |
+| Codex exec失敗 (error/timeout) | 該当フェーズを既存フロー（Task()/Skill()）で実行。REVIEW は `dev-crew:adversarial-reviewer` で代行し、それも失敗したら BLOCK |
 | Gate失敗 (retry超過) | 残フェーズ全てClaude Code代行 |
 
 fallback発生時 → Cycle doc Progress Logに "Codex fallback: <reason>" を記録。

@@ -6,6 +6,8 @@ paths:
 
 review findings をリスクスコアに応じてスケールし、3 カテゴリでトリアージする規律。
 
+code mode の REVIEW の指摘は skills/orchestrate/adversarial-review.md の振り分けに従う。この rule の scaling・3-category・verdict 集計は plan review と、明示的に呼んだ `review --code` に適用する。
+
 ## Risk-based Reviewer Scaling
 
 review のコストはリスクスコアに比例させる (cycle 20260421_2342 #3 + cycle 20260422_1146 #6):

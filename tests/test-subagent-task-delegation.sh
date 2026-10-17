@@ -103,14 +103,17 @@ fi
 echo ""
 echo "--- REVIEW Exception (Layer 2) ---"
 
-# TC-05: REVIEW section contains exception note for review
+# TC-05: REVIEW は Skill() を直接呼ばず、Task() で adversarial-reviewer / green-worker に委譲する
+# （旧: review 内部で subagent 化済みのため Skill() 直接呼び出しが正しい、という例外注記）
 echo ""
-echo "TC-05: REVIEW section contains exception note"
+echo "TC-05: REVIEW section delegates via Task() and has no review Skill() invocation"
 REVIEW_SECTION=$(extract_section "$TARGET_FILE" "REVIEW" "Phase Summary")
-if echo "$REVIEW_SECTION" | grep -qF '> NOTE: review 内部で subagent 化済みのため、Skill() 直接呼び出しが正しい。'; then
-  pass "REVIEW section has exception note"
+if echo "$REVIEW_SECTION" | grep -qF 'Task(subagent_type: "dev-crew:adversarial-reviewer"' && \
+   echo "$REVIEW_SECTION" | grep -qF 'Task(subagent_type: "dev-crew:green-worker"' && \
+   ! echo "$REVIEW_SECTION" | grep -qE 'Skill\(dev-crew:review'; then
+  pass "REVIEW section delegates via Task()"
 else
-  fail "REVIEW section missing exception note for review"
+  fail "REVIEW section does not delegate via Task() (or still calls Skill(dev-crew:review))"
 fi
 
 ########################################

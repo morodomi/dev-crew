@@ -67,11 +67,24 @@ fi
 echo ""
 echo "--- steps-codex.md ---"
 
-echo "TC-07: steps-codex.md REVIEW section contains 'competitive'"
-if grep -qi 'competitive' "$BASE_DIR/skills/orchestrate/steps-codex.md"; then
-  pass "steps-codex.md contains 'competitive'"
+# REVIEW 節（`### REVIEW` 始まりの見出しから、コードフェンス外の次の H1-H3 見出しまで）。節の外の言及で通らないよう、先に切り出す
+REVIEW_SEC=$(awk '
+  /^```/ { fence = !fence }
+  !fence && /^#+ / {
+    match($0, /^#+/)
+    if (on && RLENGTH <= 3) on = 0
+    if (index($0, "### REVIEW") == 1) { on = 1; next }
+  }
+  on { print }
+' "$BASE_DIR/skills/orchestrate/steps-codex.md")
+
+echo "TC-07: steps-codex.md REVIEW section runs Codex as the adversarial reviewer (read-only, new session)"
+if [ -n "$REVIEW_SEC" ] && \
+   grep -qF 'codex exec --sandbox read-only' <<< "$REVIEW_SEC" && \
+   grep -qF '敵対的レビュー' <<< "$REVIEW_SEC"; then
+  pass "steps-codex.md REVIEW runs Codex as the adversarial reviewer"
 else
-  fail "steps-codex.md missing 'competitive'"
+  fail "steps-codex.md REVIEW missing Codex adversarial review"
 fi
 
 echo "TC-08: steps-codex.md does NOT contain 'supplementary'"
@@ -88,20 +101,23 @@ else
   pass "steps-codex.md does not contain 'advisory'"
 fi
 
-echo "TC-10: steps-codex.md contains Findings Judgment (Accept/Reject)"
-if grep -q 'Accept' "$BASE_DIR/skills/orchestrate/steps-codex.md" && \
-   grep -q 'Reject' "$BASE_DIR/skills/orchestrate/steps-codex.md"; then
-  pass "steps-codex.md contains Accept/Reject"
+echo "TC-10: findings are triaged into 直す / 人間に戻す / 記録のみ (adversarial-review.md referenced from steps-codex.md)"
+if [ -n "$REVIEW_SEC" ] && grep -qF 'adversarial-review.md' <<< "$REVIEW_SEC" && \
+   grep -q '直す' "$BASE_DIR/skills/orchestrate/adversarial-review.md" && \
+   grep -q '人間に戻す' "$BASE_DIR/skills/orchestrate/adversarial-review.md" && \
+   grep -q '記録のみ' "$BASE_DIR/skills/orchestrate/adversarial-review.md"; then
+  pass "findings triage categories defined and referenced"
 else
-  fail "steps-codex.md missing Accept/Reject"
+  fail "steps-codex.md / adversarial-review.md missing findings triage"
 fi
 
-echo "TC-11: steps-codex.md contains DISCOVERED and ADR"
-if grep -q 'DISCOVERED' "$BASE_DIR/skills/orchestrate/steps-codex.md" && \
-   grep -q 'ADR' "$BASE_DIR/skills/orchestrate/steps-codex.md"; then
-  pass "steps-codex.md contains DISCOVERED and ADR"
+echo "TC-11: steps-codex.md REVIEW section has the 人間に戻す hand-off, and SKILL.md Block 2e still records DISCOVERED"
+# DISCOVERED は REVIEW 節でなく次の Block 2e の責務
+if [ -n "$REVIEW_SEC" ] && grep -qF '人間に戻す' <<< "$REVIEW_SEC" && \
+   grep -qF '#### Block 2e: DISCOVERED' "$BASE_DIR/skills/orchestrate/SKILL.md"; then
+  pass "steps-codex.md REVIEW has 人間に戻す, SKILL.md has Block 2e DISCOVERED"
 else
-  fail "steps-codex.md missing DISCOVERED or ADR"
+  fail "steps-codex.md REVIEW missing 人間に戻す, or SKILL.md missing Block 2e DISCOVERED"
 fi
 
 # --- review skill ---

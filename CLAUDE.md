@@ -11,7 +11,7 @@
 
 ## Codex Integration
 
-Codex が利用可能な場合、Plan Review と Code Review は常時 competitive に実行。RED/GREEN の委譲は codex_mode (full/no) で制御。REFACTOR は Claude が主担当（Codex fallback）。REVIEW は Claude + Codex competitive。詳細は [CONSTITUTION.md](CONSTITUTION.md) 参照。
+Codex が利用可能な場合、Plan Review は Claude + Codex の competitive で実行。RED/GREEN の委譲は codex_mode (full/no) で制御。REFACTOR は Claude が主担当（Codex fallback）。REVIEW は敵対的レビュー 1 回 + 指摘の振り分け（Codex 既定、Codex 不在・失敗時は `dev-crew:adversarial-reviewer`）。詳細は [CONSTITUTION.md](CONSTITUTION.md) 参照。
 
 ```bash
 # plan review は承認前（spec Step 8、plan mode 内、read-only sandbox）で実行。
@@ -19,14 +19,18 @@ Codex が利用可能な場合、Plan Review と Code Review は常時 competiti
 # codex_session_id へ転記する（orchestrate 自身は取得しない）
 codex exec --sandbox read-only "review plan <planファイルパス>" < /dev/null
 
-# RED/GREEN/REVIEW 委譲（codex_session_id があれば resume <session-id>、なければ resume --last）
+# RED/GREEN 委譲（codex_session_id があれば resume <session-id>、なければ resume --last）
 # フラグは resume より前に置く（後ろに置くと rc=2）。stdin がパイプのままだとハングするので < /dev/null
 codex exec --sandbox workspace-write resume <session-id> "red docs/cycles/xxx.md" < /dev/null
 codex exec --sandbox workspace-write resume <session-id> "green docs/cycles/xxx.md" < /dev/null
-codex exec --sandbox read-only resume <session-id> "review code docs/cycles/xxx.md" < /dev/null
+
+# REVIEW は新しいセッションで実行する（resume しない。実装の文脈を持ち込まない）
+# Codex 不在・失敗時は dev-crew:adversarial-reviewer に代行させる
+# プロンプトは skills/orchestrate/adversarial-review.md の「## 頼み方」の文を使う
+codex exec --sandbox read-only "review code docs/cycles/xxx.md" < /dev/null
 ```
 
-Codex 不在時は Claude fallback（既存スキルそのまま）。
+Codex 不在時は Claude fallback（既存スキルそのまま）。ただし REVIEW は例外で、`dev-crew:adversarial-reviewer` が代行し、それも失敗したら BLOCK する（レビューを省略しない）。
 
 ## Skills
 
@@ -61,7 +65,7 @@ terminal では図が読めず、長い報告は流れる。以下の 3 点で�
 | 規模が予想を超えたとき | 想定と実際の差分。続行 / 分割 / 縮小を選んでもらう |
 | REVIEW 完了後・COMMIT 前 | 結局どこが変わったか。テスト結果だけを報告しない |
 
-レビュー指摘への対応は AI 側で完結させる（実装の細部を裁定として投げない）。ただし**指摘に応えると規模が膨らむ場合は「規模が予想を超えたとき」に該当する**。
+実装の細部は AI 側で完結させる。既存の動きを変えるかどうかだけを、COMMIT 前の md で人間に戻す。ただし**指摘に応えると規模が膨らむ場合は「規模が予想を超えたとき」に該当する**。
 
 ## Usage Patterns
 

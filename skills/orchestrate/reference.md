@@ -96,7 +96,7 @@ Skill(dev-crew:cycle-retrospective)
 | RED | PdM → N red-worker | 並列テスト作成 |
 | GREEN | PdM → N green-worker | 並列実装 |
 | REFACTOR | PdM → refactor (checklist-driven) | Skill(refactor) |
-| REVIEW | PdM → risk-based reviewer | 討論/並列 review(code) |
+| REVIEW | PdM → Codex（新しいセッション）/ adversarial-reviewer → 修正役 | 敵対的レビュー 1 回 + 振り分け（[adversarial-review.md](adversarial-review.md)） |
 | COMMIT | PdM (Lead) 直接実行 | - |
 
 ## Delegation Decision Criteria
@@ -115,7 +115,9 @@ PdM は前 Phase の metrics を評価し、次 Phase の実行方法を決定�
 
 ## 判断基準
 
-### verdict ベース判定 (Agent Teams 有効時)
+### verdict ベース判定 (Agent Teams 有効時、plan review)
+
+code mode の REVIEW は severity の verdict で判定しない。敵対的レビュー 1 回 + 指摘の振り分けの流れに従う（[adversarial-review.md](adversarial-review.md) と steps-*.md の REVIEW 節）。以下は plan review（pre-review:plan）の判定。
 
 | Severity | 判定 | PdM アクション | ユーザーに聞く |
 |----------|------|---------------|---------------|
@@ -136,6 +138,8 @@ BLOCK も同様に Socrates Protocol を経由し、自動再試行ではなく�
 
 Cycle doc frontmatter の `codex_session_id` で Codex セッションを cycle にバインドする。session id の取得契約（3段 fallback: stdout `session id:` 行 → rollout jsonl 最新ファイル名 → 両失敗時 `extraction_failed: true`）は承認前の spec Step 8（[skills/spec/reference.md](../spec/reference.md#step-8-pre-approval-plan-review)）へ移管済み。orchestrate は sync-plan が転記済みの `codex_session_id` を読み取るだけで、自ら取得は行わない。
 
+REVIEW は resume しない唯一の例外。code mode の REVIEW は `codex_session_id` を使わず、新しいセッションで `codex exec --sandbox read-only` を実行する（codex_mode: full のとき `codex_session_id` は GREEN と同じセッションを指し、resume すると実装者が自分をレビューすることになるため）。REVIEW のセッション ID は保存しない。REVIEW の後の修正役は `codex_session_id` で resume し、`resume --last` は使わない（直前のレビューのセッションを指すため）。
+
 ### codex_session_id の状態別動作
 
 | 状態 | 動作 | 備考 |
@@ -146,7 +150,7 @@ Cycle doc frontmatter の `codex_session_id` で Codex セッションを cycle 
 
 ### 転記タイミング
 
-sync-plan が Cycle doc 生成時に、plan の `## Plan Review Record`（spec Step 8 で記録済み）から `codex_session_id` を frontmatter へ転記する。orchestrate 自身が Codex セッションを新規作成することはない（承認前に完了済み）。
+sync-plan が Cycle doc 生成時に、plan の `## Plan Review Record`（spec Step 8 で記録済み）から `codex_session_id` を frontmatter へ転記する。orchestrate 自身が Codex の cycle セッションを新規作成することはない（承認前に完了済み）。唯一の例外は REVIEW で、レビューごとに新しいセッションを使い捨てる（保存しない）。
 
 ### フォールバック
 
@@ -158,12 +162,12 @@ Codex に RED/GREEN を委譲する際のゲート検証。
 
 ### 委譲モード (codex_mode)
 
-`codex_mode` は RED/GREEN の委譲先のみ制御する。Plan Review と Code Review は codex_mode に関わらず Codex 利用可能なら常時実行。
+`codex_mode` は RED/GREEN の委譲先のみ制御する。Plan Review と REVIEW のレビュー（敵対的レビュー）は codex_mode に関わらず Codex 利用可能なら実行。
 
-| codex_mode | RED/GREEN | Gate 1/2 | Test Plan整合性 | Plan/Code Review |
+| codex_mode | RED/GREEN | Gate 1/2 | Test Plan整合性 | Plan Review / REVIEW |
 |------------|-----------|----------|-----------------|------------------|
-| `full` | Codex (codex exec) | スキップ | 常時実行 | 常時実行 (Codex利用可能時) |
-| `no` | Claude (Task(worker)) | N/A | N/A | 常時実行 (Codex利用可能時) |
+| `full` | Codex (codex exec) | スキップ | 常時実行 | 実行 (Codex利用可能時) |
+| `no` | Claude (Task(worker)) | N/A | N/A | 実行 (Codex利用可能時) |
 
 `codex_mode` は Post-Approve Action で AskUserQuestion により決定され、Cycle doc frontmatter に記録される。compact 後も復元可能。
 
@@ -193,7 +197,7 @@ Codex に RED/GREEN を委譲する際のゲート検証。
 | 場面 | 再試行上限 | 超過時のアクション |
 |------|-----------|-------------------|
 | SYNC-PLAN (Design Review BLOCK) | max 1回再試行 | ユーザーに報告、architect 再実行を依頼 |
-| review(code) BLOCK | max 1回再試行 | ユーザーに報告、GREEN 修正を依頼 |
+| REVIEW の修正段階（完了条件を満たさない） | 1 回だけやり直し | BLOCK してユーザーに報告（再レビューはしない） |
 
 ### テスト失敗時の再試行
 
@@ -364,7 +368,7 @@ Auto-Learn は best-effort であり、サイクルの成否に影響しない�
 
 ## Socrates Protocol
 
-Agent Teams 有効時、pre-review:plan (Design Review Gate) / review(code) の verdict が WARN または BLOCK の場合に発動する。
+Agent Teams 有効時、pre-review:plan (Design Review Gate) の verdict が WARN または BLOCK の場合に発動する。code mode の REVIEW では発動しない（流れは [adversarial-review.md](adversarial-review.md) と steps-*.md の REVIEW 節）。
 Socrates は on-demand advisor であり、reviewer とは異なる役割を持つ。
 PASS サイクル (~80%) では spawn されず、コストゼロ。
 

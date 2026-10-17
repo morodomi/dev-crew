@@ -22,7 +22,7 @@ orchestrate Progress:
 - [ ] Block 2b: GREEN — Task(green-worker) で実装、全テストPASS確認
 - [ ] Block 2c: REFACTOR — Skill(refactor) で品質改善
 - [ ] Block 2c.5: VERIFY — Product Verification (advisory, skip if absent)
-- [ ] Block 2d: REVIEW — Skill(review --code) でコードレビュー → 自律判断
+- [ ] Block 2d: REVIEW — 敵対的レビュー 1 回 + 指摘の振り分け（review skill は起動しない）
 - [ ] Block 2e: DISCOVERED — スコープ外項目をissue起票
 - [ ] Block 2f: RETROSPECTIVE — Skill(dev-crew:cycle-retrospective) で失敗-成功 insight 抽出
 - [ ] Block 3: COMMIT → 完了
@@ -79,8 +79,8 @@ Skill(dev-crew:refactor): Verification Gate通過（テスト全PASS + 静的解
 `## Verification` セクションのコマンドを実行。advisory evidence（非ブロッキング）。real-path invocation なしの場合 WARN ログ (rules/integration-verification.md)。セクション不在 → WARN スキップ。詳細: [reference.md](reference.md#product-verification)
 
 #### Block 2d: REVIEW
-Skill(dev-crew:review, args: "--code"): competitive review（Codex利用可能時）
-**判定**: PASS/WARN → Block 2e へ、BLOCK → GREEN再実行（max 1回）
+敵対的レビューを 1 回（Codex は新しいセッション、無い・失敗時は `dev-crew:adversarial-reviewer`）→ 修正役が「直す / 人間に戻す / 記録のみ」に振り分けて直す → 件数を Cycle doc に記録。再レビューしない。
+**判定**: 完了 → Block 2e へ。取得失敗・作業ツリーの変化・代行の失敗・修正の未達 → BLOCK。詳細: [adversarial-review.md](adversarial-review.md) / steps-*.md の REVIEW 節
 
 #### Block 2e: DISCOVERED
 スコープ外項目をCycle docに記録し、GitHub issueに起票（起票→ `issue #N` 参照、reject→ 理由記載）。
@@ -95,4 +95,4 @@ Skill(dev-crew:cycle-retrospective): 失敗-成功 insight 抽出、retro_status
 
 ## Mode Selection
 
-`codex_mode` は **RED/GREEN の委譲先のみ制御** する。Plan Review と Code Review は Codex 利用可能なら常時 competitive 実行 (`codex_mode` 値に依存しない)。
+`codex_mode` は **RED/GREEN の委譲先のみ制御** する。Plan Review は Codex 利用可能なら常時 competitive 実行、REVIEW は Codex 利用可能なら新しいセッションで敵対的レビューを実行 (いずれも `codex_mode` 値に依存しない)。

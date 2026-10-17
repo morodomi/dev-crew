@@ -12,14 +12,14 @@ A single Claude Code plugin that provides an autonomous AI development team:
 - **Engineer**: TDD-driven implementation (RED/GREEN/REFACTOR)
 - **Designer**: UI/UX design support (Japanese/Western pattern comparison)
 - **Security Auditor**: OWASP-based vulnerability scanning
-- **Reviewers**: Parallel code review (correctness, performance, security, architecture, etc.)
+- **Reviewers**: Reviewer panel (correctness, performance, security, architecture, etc.) used by plan review and by an explicit `/dev-crew:review --code`; the orchestrate REVIEW phase uses one adversarial reviewer instead
 - **Meta Learner**: Session pattern extraction and skill evolution
 
 ## Philosophy
 
 > Human laziness as a design principle.
 
-AI generates 90% correct code. The remaining 10% is caught by tests, multi-perspective reviews, and static analysis. Humans only provide goals and approve/reject at key gates. See [CONSTITUTION.md](CONSTITUTION.md).
+AI generates 90% correct code. The remaining 10% is caught by tests, multi-perspective plan review (and one adversarial code review in orchestrate), and static analysis. Humans only provide goals and approve/reject at key gates. See [CONSTITUTION.md](CONSTITUTION.md).
 
 ### Claude + Codex Integration
 
@@ -30,7 +30,7 @@ Claude and Codex have different personalities. dev-crew uses that as a feature:
 | Claude | Planner/Orchestrator | Agreeable, lenient reviews |
 | Codex | Implementer/Reviewer | Blunt, thorough reviews |
 
-When Codex is available, Plan Review and Code Review always run competitively (Claude + Codex). RED/GREEN delegation is user's choice (`full`: Codex, `no`: Claude). When Codex is unavailable, Claude handles everything (fallback).
+When Codex is available, Plan Review runs competitively (Claude + Codex). Code review is one adversarial pass (Codex by default, the `adversarial-reviewer` agent when Codex is absent or fails), followed by triage of its findings. RED/GREEN delegation is user's choice (`full`: Codex, `no`: Claude). When Codex is unavailable, Claude handles everything (fallback).
 
 ## Installation
 
@@ -78,7 +78,7 @@ You: approve the plan (exits plan mode)
        Verification) → Choose Codex delegation for RED/GREEN (full/no)
      → orchestrate continues: RED → GREEN → REFACTOR → REVIEW → cycle-retrospective → COMMIT
      → Each phase delegated to specialist agents (Codex or Claude workers)
-     → Competitive review (Claude + Codex) at REVIEW phase
+     → One adversarial review at REVIEW phase (Codex, or adversarial-reviewer as fallback), findings triaged
      → Findings summary shown after commit
 ```
 

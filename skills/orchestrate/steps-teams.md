@@ -60,7 +60,7 @@ Teammate(operation: "spawnTeam", team_name: "dev-cycle")
 
 ### socrates (on-demand advisor)
 
-socrates は WARN/BLOCK 時のみ on-demand で起動する。PASS サイクル (~80%) では spawn しない。
+socrates は plan 側（pre-review plan）の WARN/BLOCK 時のみ on-demand で起動する。code mode の REVIEW では起動しない。PASS サイクル (~80%) では spawn しない。
 詳細: [../../agents/socrates.md](../../agents/socrates.md)
 
 ## Phase 2: Block 1 - Sync-Plan (with Design Review)
@@ -210,65 +210,63 @@ PdM が直接 Bash で実行（参考エビデンス、委譲不要）。
 Cycle doc `## Verification` セクション不在 or real-path invocation なし → WARN ログを出力しつつ非ブロッキングスキップ (rules/integration-verification.md)。
 詳細: [reference.md](reference.md#product-verification)
 
-### REVIEW (review code)
+### REVIEW
 
-#### Claude レビュー
+実装した文脈とは別の文脈で敵対的レビューを 1 回だけかけ、指摘を修正役が「直す / 人間に戻す / 記録のみ」に振り分ける。頼み方・振り分け・報告の型の単一出典は [adversarial-review.md](adversarial-review.md)。`review` skill は起動しない。
 
-```
-Skill(dev-crew:review, args: "--code")
-→ review(code) が Risk Classification + Brief + Specialist Panel を実行
-→ security-reviewer + correctness-reviewer は常時起動 (NON-NEGOTIABLE)
-```
+#### 手順
 
-#### Codex competitive review（Codex 利用可能時）
-
-`which codex` で Codex が利用可能なら、Claude レビューに加えて Codex レビューを実行する。
-codex_mode に関わらず常時実行（codex_mode は RED/GREEN 委譲のみ制御）。
-
-```bash
-# codex_session_id があれば resume <session-id>、なければ resume --last にフォールバック
-codex exec --sandbox read-only -o /tmp/codex_review.md resume ${codex_session_id:-"--last"} \
-  "Review uncommitted changes. セキュリティ・正確性・パフォーマンスの観点で問題を指摘せよ。" < /dev/null
-```
-
-`codex_session_id` は Cycle doc frontmatter から読み取る。Codex 失敗 → Claude レビューのみで続行。findings 裁定は steps-codex.md の Findings Judgment テーブルに準拠。
+0. **対象の列挙**: `git diff HEAD --name-only` と `git ls-files --others --exclude-standard`（未追跡の新規ファイルを含める）。未追跡ファイルがあれば WARN を出し、レビュー対象に含める。ただし名前が `.env*`・`*.pem`・`*credentials*`・`*secret*` に当たる未追跡ファイルはレビュー対象から外し、WARN を出す（Codex は外部サービスなので秘密を送らない）。
+1. **敵対的レビューを 1 回**: REVIEW 中は他の worker に作業ツリーを書かせない（前後の fingerprint 比較が崩れる。red-worker・green-worker の teammate は REVIEW に入る前に完了・shutdown させる）。入力は Cycle doc のパスと対象ファイルの一覧だけ。diff は渡さない（レビュー側が `git diff HEAD` を自分で実行して読み、未追跡ファイルは中身を読む）。レビュー結果は、どちらの経路でも固定のパス `/tmp/dev-crew-review-<cycle_id>/review.md` に置く（`<cycle_id>` は Cycle doc の frontmatter `cycle`。bash 呼び出しをまたいで使うので、変数に持たず固定のパスをそのまま書く）。`which codex` が成功する（codex_mode に関わらない）ときは新しいセッションで Codex を実行する。`resume` しない（steps-codex.md の REVIEW は resume しない唯一の例外）:
+   ```bash
+   mkdir -p /tmp/dev-crew-review-<cycle_id>
+   ```
+   ```bash
+   codex exec --sandbox read-only -o "/tmp/dev-crew-review-<cycle_id>/review.md" "<頼み方>" < /dev/null
+   ```
+   `<頼み方>` は adversarial-review.md の `## 頼み方` の依頼文に、Cycle doc のパスと対象ファイルの一覧を添えたもの。
+   Codex が無い、または失敗した（error / timeout / 出力が空）ときは、新しい文脈の `dev-crew:adversarial-reviewer` に同じ入力と依頼文を渡す。前後で `worktree-fingerprint.sh` の出力を比べる:
+   ```bash
+   mkdir -p /tmp/dev-crew-review-<cycle_id>
+   bash scripts/gates/worktree-fingerprint.sh --list > /tmp/dev-crew-review-<cycle_id>/before.list
+   before=$(bash scripts/gates/worktree-fingerprint.sh); before_rc=$?
+   ```
+   ```
+   Task(subagent_type: "dev-crew:adversarial-reviewer", team_name: "dev-cycle", name: "adversarial-reviewer", model: "opus", prompt: "Cycle doc: [path]. 対象ファイル: [一覧]. adversarial-review.md の ## 頼み方 に従い、git diff HEAD を自分で実行して読み、実行して再現できた指摘だけを high にして報告せよ。作業ツリーを変えるな。")
+   → レビュー → 結果報告 → shutdown
+   ```
+   ```bash
+   after=$(bash scripts/gates/worktree-fingerprint.sh); after_rc=$?
+   ```
+   - PdM は adversarial-reviewer の返答を、Codex と同じパス `/tmp/dev-crew-review-<cycle_id>/review.md` のファイルに書き出す（返答を同じパスのファイルに書き出す。これで修正役への受け渡しが両経路で同じになる）
+   - 前後それぞれの終了コードと出力の形（64 桁の 16 進）を確かめる。取得失敗・空・形違いなら BLOCK（一致とみなさない）
+   - 前後が違えば作業ツリーが変わっている。レビューを無効にして BLOCK。BLOCK したら `--list` を取り直し、前後の --list の差を人間に見せる（何が変わったかを見るため）
+   - adversarial-reviewer も失敗したら BLOCK し、人間に報告する（レビューを省略しない）
+2. **修正**: 「直す」が 0 件なら修正役を起動せず、記録（3）へ進む。1 件以上あれば、修正役には常にそのファイルを渡す（`/tmp/dev-crew-review-<cycle_id>/review.md`）。Codex 成功なら Codex の出力、代行なら PdM が書き出した返答で、どちらも同じパス。green-worker teammate（`Task(subagent_type: "dev-crew:green-worker", team_name: "dev-cycle", name: "green-worker-fix", model: "sonnet", prompt: "Cycle doc: [path]. レビュー結果: /tmp/dev-crew-review-<cycle_id>/review.md. adversarial-review.md の ## 振り分け と ## 報告の型 に従え。")`）に渡し、「直す」だけを直させる。直す前に呼び出し元の検索と今の動きの固定を済ませ、既存のテストを弱めさせない。
+   - **修正段階の完了条件**: 修正役が success を返し、修正後に全件を流して、REFACTOR 完了時の全件結果（Progress Log の REFACTOR 記録）より新たに落ちていないこと。満たさなければ 1 回だけやり直し、それでも満たさなければ BLOCK して人間に報告する
+   - 修正後に再レビューしない（レビューは回数でなく予算で止める。1 回かけたら終わり）
+3. **記録**: PdM が Cycle doc の Progress Log に `### {date "+%Y-%m-%d %H:%M" の実測値} - REVIEW` の見出し、件数の行、`- Phase completed` を書き、frontmatter の phase / updated を更新する。件数の行は次のどれか:
+   - `- Codex review: 直す N / 人間に戻す M / 記録のみ K`
+   - `- Codex review: 失敗（<理由>）。adversarial-reviewer で代行: 直す N / 人間に戻す M / 記録のみ K`
+   - `- Adversarial review: 直す N / 人間に戻す M / 記録のみ K`（Codex が無い環境）
+4. **COMMIT 前の判断点**: CLAUDE.md の判断点どおり、毎回 md を見せる。「人間に戻す」があれば、その md の先頭に「決めてほしいこと」として載せる。
+5. **セキュリティ**: security-reviewer は常時起動しない。敵対的レビューがセキュリティの問題を見つけたら、rules/security.md の「問題発見時」の手順がそのまま適用される。
 
 ### Phase Summary 永続化 (REVIEW→COMMIT)
 
-review(code) 完了後、PdM が Cycle doc に Phase Summary を追記:
+REVIEW 完了後、PdM が Cycle doc に Phase Summary を追記:
 
 ```markdown
 ### Phase: REVIEW - Completed at HH:MM
-**Artifacts**: review results (mode: code)
-**Decisions**: verdict=[PASS/WARN/BLOCK], severities=[critical:N important:N]
+**Artifacts**: adversarial review results (/tmp/dev-crew-review-<cycle_id>/review.md: Codex output or the adversarial-reviewer reply written by PdM)
+**Decisions**: 直す=N, 人間に戻す=M, 記録のみ=K
 **Next Phase Input**: all tests passing, ready to commit
-**Subagent**: agent_id={review_agent_id}, tokens={total_tokens}
+**Subagent**: agent_id={fixer_agent_id}, tokens={total_tokens}
 ```
-
-### 自律判断
-
-verdict ベース判定:
-
-- PASS → DISCOVERED 判断へ自動進行
-- WARN / BLOCK → Socrates Protocol 発動:
-
-#### Socrates Protocol (review code)
-
-1. PdM → Task() で socrates を on-demand 起動（Phase名, severity 内訳, reviewer サマリ, 提案, Progress Log）
-   ```
-   Task(subagent_type: "dev-crew:socrates", model: "opus", prompt: "Phase: review:code, Severities: [critical:N important:N], Summary: [...], Proposal: [...], Progress Log: [Cycle doc の Progress Log 全文]")
-   ```
-2. socrates → 反論を返却（Objections + Alternative 形式）
-3. PdM → 人間にメリデメを構造化してテキスト出力（自由入力を求める）
-4. 人間 → 自由入力で判断（proceed / fix / abort / 番号選択）
-
-- proceed → DISCOVERED 判断へ進行
-- fix → green-worker を再起動して修正（max 1回再試行）
-- abort → サイクル中断
 
 ### DISCOVERED 判断
 
-REVIEW が PASS/WARN の場合、Cycle doc の DISCOVERED セクションを確認:
+REVIEW 完了後、Cycle doc の DISCOVERED セクションを確認:
 
 1. DISCOVERED が空 → スキップして Block 2f へ
 2. 起票済み（`→ #` 付き）の項目 → スキップ

@@ -1,11 +1,12 @@
 # dev-crew Status
 
-Last updated: 2026-10-15
+Last updated: 2026-10-17
 
 ## Completed (Recent)
 
 | Date | Cycle | Type |
 |------|-------|------|
+| 2026-10-17 | 20261016_1645: adversarial-review-triage (フロー再設計 手順 1。code mode の REVIEW を、実装と別の文脈の敵対的レビュー 1 回（Codex は新しいセッション、無ければ新 agent adversarial-reviewer）+ 修正役による指摘の振り分け（直す / 人間に戻す / 記録のみ、直す前に呼び出し元の検索と今の動きの固定）に置き換え。多視点パネルは plan review と明示的な `review --code` に限定。Bash を持つレビュー役の前後で作業ツリーの実体を比べる worktree-fingerprint.sh を追加。CONSTITUTION 原則 2・5 を改訂し ADR を追加。REVIEW（Codex + 4 reviewer、WARN）で fingerprint の抜け道（git の clean filter などで変更を隠せる）を実測して修正。Test Scripts 120。#265-#270 起票) | feat |
 | 2026-10-15 | 20261015_1750: codify-auto-run-stop (フロー再設計 手順 0。比較実験で現行フローが 9 回中 9 回タスク外の変更を commit に混ぜた原因 — orchestrate Block 0 の codify-insight 自動起動と、実行中の AI による rules 追記 — を止める。Block 0 は captured の Cycle doc 件数を 1 行通知するだけにし、codify-insight は `disable-model-invocation: true` で人間の `/dev-crew:codify-insight` のみ、編集範囲を Codify Decisions 追記と frontmatter 遷移に限定。REVIEW（Codex + 4 reviewer、WARN）で、旧スキャン由来の件数誤り（部分一致・pipefail 下の SIGPIPE）を fixture で再現して修正。Test Scripts 119 のまま。#259-#261 起票) | fix |
 | 2026-10-05 | 20261005_1639: local-rules-separation (導入先フィードバック 2 件を修正。onboard が導入先独自の rules を mirror の上書きで消す問題 → `.claude/rules/local-<name>.md` に分離し onboard は触らない。codify-insight の反映先を plugin.json の name で本体/導入先に分岐。plan-discipline の baseline を Quick Commands 基準に一般化。REVIEW WARN 後、Socrates の反論を受けて plan の移行 3 段手順を削除（scope B、ユーザー選択）— 指摘の半分は手順自体が発生源だった。Codex 確認 1 回で TC-02 の順序 pin を追加し変異で検証。Test Scripts 118→119。#255-#257 起票) | fix |
 | 2026-09-13 | 20260913_0059: runner-admission-snapshot (テスト実行の逐次化を機械化 — docs/NEXT.md item 4。run-tests.sh を正規 runner にし admission 3 条件 + immutable snapshot 実行（manifest 三者照合 A==B==C）+ 起動時掃除を実装。承認前 Codex plan review 5 ラウンドで設計を 3 回縮小（hook 単独 → runner+ロック → admission+snapshot）。ロックは Cycle C、hook は Cycle B へ分離。REVIEW は Codex/Claude competitive で BLOCK、**両者が互いに見落とした欠陥を検出**（Codex: manifest/copy の fail-open・引数契約の穴 / Claude: exit code 契約の破壊・子孫除外が dead code）。mini-iteration で変異検出 10/12 → **12/12**、TC 49 → 57。単一テスト経路は manifest batch 化で 31.5 秒 → 4.89 秒（--no-snapshot は不採用）。本 cycle 中に規律違反が 2 件追加（sync-plan / PdM）で計 6 件。Test Scripts 116→117。#234-#237 起票) | feat |

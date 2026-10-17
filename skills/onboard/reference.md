@@ -456,7 +456,7 @@ reviewer が走るモデルは `.claude/dev-crew.json` の `review_policy` で�
 
 - **self**（既定）: orchestrator（自身）が現在動いているモデルと同じ tier で reviewer を走らせる。「reviewer が executor より弱い」逆立ちを避けたい場合の既定選択
 - **upper**（明示モデル指定、例 `sonnet`/`opus`/`fable`）: reviewer 専用に固定モデルを指定する
-- **peer**（Codex 等の別ベンダー）: `review_policy` とは直交。Codex は利用可能なら常時 competitive review として並行実行される
+- **peer**（Codex 等の別ベンダー）: `review_policy` とは直交。code mode の REVIEW は敵対的レビュー 1 回で、Codex が利用可能なら Codex を既定のレビュー役にし、不在・失敗時は adversarial-reviewer が代行する（review_policy は plan review のパネルに効く）
 - **HIGH tier のみ上位モデルへエスカレーション**したい場合は `escalate_high_to` を設定する（例 `"opus"`）。`null` なら escalation なし
 
 詳細: `rules/review-triage.md`（risk tier × model tier 合成）/ `skills/review/reference.md`（review_policy 解決規則）。

@@ -91,19 +91,26 @@ fi
 # TC-08: 実装を委譲する RED/GREEN は書き込みが要り、REVIEW は読むだけでよい。
 # 用途に合わない sandbox を渡すと、レビューがファイルを書き換えられる。
 echo ""
-echo "TC-08: RED/GREEN use --sandbox workspace-write, REVIEW uses --sandbox read-only"
+echo "TC-08: RED/GREEN use --sandbox workspace-write with resume, REVIEW uses --sandbox read-only without resume"
 # フラグを resume の後ろに置くと rc=2 になるため、sandbox は resume より前にあることも見る。
 # 期待する呼び出しが消えた場合に素通りしないよう、ファイルごとに件数も確認する。
 tc08_bad=""
 check_calls() {
-  local f="$1" out="$2" sandbox="$3" min="$4" calls n bad
-  calls=$(printf '%s\n' "$joined" | grep 'codex exec' | grep "$out.md" || true)
+  local f="$1" out="$2" sandbox="$3" min="$4" resume="${5:-yes}" calls n bad
+  # -o の出力先で呼び出しを特定する（修正役のコマンドがレビュー結果のパスをプロンプトに含んでも拾わない）
+  calls=$(printf '%s\n' "$joined" | grep 'codex exec' | grep -E -- "-o [^ ]*$out\.md" || true)
   n=$(printf '%s' "$calls" | grep -c 'codex exec' || true)
   if [ "$n" -lt "$min" ]; then
     tc08_bad="$tc08_bad $f:$out(count=$n)"
     return
   fi
-  bad=$(printf '%s\n' "$calls" | grep -vE -- "codex exec --sandbox $sandbox .*resume " || true)
+  if [ "$resume" = "no" ]; then
+    # REVIEW は resume しない唯一の例外（実装と同じセッションでレビューすると自己レビューになる）
+    bad=$(printf '%s\n' "$calls" | grep -E 'resume' || true)
+    [ -z "$bad" ] && bad=$(printf '%s\n' "$calls" | grep -vE -- "codex exec --sandbox $sandbox " || true)
+  else
+    bad=$(printf '%s\n' "$calls" | grep -vE -- "codex exec --sandbox $sandbox .*resume " || true)
+  fi
   [ -n "$bad" ] && tc08_bad="$tc08_bad $f:$out(form)"
   return 0
 }
@@ -113,7 +120,8 @@ for f in steps-codex.md steps-subagent.md steps-teams.md; do
     check_calls "$f" codex_red workspace-write 1
     check_calls "$f" codex_green workspace-write 1
   fi
-  check_calls "$f" codex_review read-only 1
+  # レビュー結果の出力先は /tmp/dev-crew-review-<cycle_id>/review.md（両経路で修正役に渡す固定パス）
+  check_calls "$f" review read-only 1 no
 done
 if [ -n "$tc08_bad" ]; then
   fail "TC-08: wrong or missing codex exec in:$tc08_bad"

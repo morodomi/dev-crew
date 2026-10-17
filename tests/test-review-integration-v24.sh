@@ -65,6 +65,8 @@ echo "TC-04: All reviewer agents have valid model"
 tc04_result=true
 for agent_file in "$BASE_DIR"/agents/*-reviewer.md; do
   [ -f "$agent_file" ] || continue
+  # adversarial-reviewer は review skill の panel ではなく REVIEW の単独レビュー役（opus）。panel の model 方針の対象外
+  [ "$(basename "$agent_file")" = "adversarial-reviewer.md" ] && continue
   model=$(get_frontmatter "$agent_file" "model")
   if [[ ! "$model" =~ ^(sonnet|haiku)$ ]]; then
     tc04_result=false
