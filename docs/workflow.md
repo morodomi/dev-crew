@@ -39,10 +39,10 @@ REFACTOR (Claude)                          [fallback: Codex]
   │  N+1、変数宣言、const、重複コード
   │
   ▼
-REVIEW (Claude + Codex)                    [fallback: Claude のみ]
-  │  競争的レビュー → findings → Claude判断
-  │  合意 → auto-COMMIT
-  │  debate → AskUserQuestion             ← 承認ゲート(2)
+REVIEW (Codex)                             [fallback: adversarial-reviewer]
+  │  敵対的レビュー 1 回 → 指摘を「直す / 人間に戻す / 記録のみ」に振り分け
+  │  COMMIT 前に毎回 md を見せて OK/NG  ← 承認ゲート(2)
+  │  （人間に戻すが 0 件なら、決めてほしいことは空）
   │
   ▼
 cycle-retrospective (Claude)
@@ -82,7 +82,7 @@ sync-plan → RED → GREEN → ... → COMMIT → DONE (cycle N+1 本体フロ�
 人間の主要な承認ゲートは2箇所:
 
 1. **spec完了時**: レビュー済み plan の承認。plan review（Claude 設計レビュー + Codex利用可能時は competitive review）は承認前に完了しており、人間は findings 反映済みの最終版に対して「これで作っていい？」と判断する
-2. **REVIEW後（debate時のみ）**: Claude/Codexのレビューで意見が割れた場合の最終判断。軽微な修正（エラー修正、try catch等）は両者ACCEPTで自動進行。
+2. **REVIEW後（既存の動きが変わるときのみ）**: 振り分けで「人間に戻す」になった指摘（既存の動きを変えるかどうか）の判断。それ以外の実装の細部は AI 側で完結し、自動進行する。
 
 ※ spec中の曖昧性検出では AskUserQuestion による追加確認が入る。これは承認ではなく、誤実装を防ぐための仕様確定プロセス。
 
@@ -97,7 +97,7 @@ LLMの手順スキップを機械的に防止するゲートは2箇所:
 
 ## Findings判断
 
-Codexのレビュー結果をClaudeが知的誠実性をもって判断する:
+次の表は plan review の結果を、Claudeが知的誠実性をもって判断する基準。code mode の REVIEW は、この表ではなく `skills/orchestrate/adversarial-review.md` の 3 区分（直す / 人間に戻す / 記録のみ）に従う。
 
 | 判断 | 条件 |
 |------|------|

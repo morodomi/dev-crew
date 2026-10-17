@@ -78,15 +78,24 @@ fi
 # stdin がパイプのままだと codex exec はハングする。
 echo ""
 echo "TC-05: codex exec commands in steps-codex.md use --sandbox before resume and < /dev/null"
-cmd_lines=$(grep 'codex exec' "$STEPS_CODEX" | grep -v '^ *#' || true)
+# REVIEW のレビュー用コマンド（-o の出力先が review.md）は resume しない唯一の例外。それ以外は resume を要求する。
+all_cmd_lines=$(grep 'codex exec' "$STEPS_CODEX" | grep -v '^ *#' || true)
+review_cmd_lines=$(printf '%s\n' "$all_cmd_lines" | grep -E -- '-o "[^"]*/review\.md"' || true)
+cmd_lines=$(printf '%s\n' "$all_cmd_lines" | grep -vE -- '-o "[^"]*/review\.md"' || true)
 if [ -z "$cmd_lines" ]; then
   fail "TC-05: no codex exec command found in steps-codex.md"
 else
   bad_lines=$(printf '%s\n' "$cmd_lines" | grep -vE 'codex exec --sandbox [a-z-]+ .*resume .*< /dev/null' || true)
-  if [ -z "$bad_lines" ]; then
-    pass "all codex exec commands use --sandbox before resume and < /dev/null"
+  # REVIEW のレビュー用コマンドは --sandbox read-only で resume せず、stdin を /dev/null から読む
+  review_bad=$(printf '%s\n' "$review_cmd_lines" | grep -vE 'codex exec --sandbox read-only ' || true)
+  review_resume=$(printf '%s\n' "$review_cmd_lines" | grep -E 'resume' || true)
+  review_stdin=$(printf '%s\n' "$review_cmd_lines" | grep -vE '< /dev/null[[:space:]]*$' || true)
+  if [ -z "$review_cmd_lines" ]; then
+    fail "TC-05: no REVIEW codex exec command (-o .../review.md) found in steps-codex.md"
+  elif [ -z "$bad_lines" ] && [ -z "$review_bad" ] && [ -z "$review_resume" ] && [ -z "$review_stdin" ]; then
+    pass "codex exec commands use --sandbox before resume and < /dev/null (REVIEW: read-only, no resume)"
   else
-    fail "codex exec command with wrong form: $bad_lines"
+    fail "codex exec command with wrong form: $bad_lines $review_bad $review_resume $review_stdin"
   fi
 fi
 

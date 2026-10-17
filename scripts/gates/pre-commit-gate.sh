@@ -4,8 +4,8 @@
 # Purpose:
 #   LLMはレビューなしでCOMMITに直行することがある。
 #   このスクリプトはCycle docの状態を機械的に検証し、
-#   REVIEW（+ Codex competitive review）が完了していなければ
-#   COMMITフェーズへの遷移をBLOCKする。
+#   REVIEW（敵対的レビュー 1 回 + 指摘の振り分け。skills/orchestrate/adversarial-review.md）が
+#   完了していなければ COMMITフェーズへの遷移をBLOCKする。
 #   CONSTITUTION.md 原則6「決定論的プロセス保証」の実装。
 #
 # Usage: pre-commit-gate.sh [project_root]
@@ -13,7 +13,10 @@
 #
 # Checks:
 #   1. REVIEW Phase completed in Progress Log
-#   2. Codex code review recorded (only when `which codex` succeeds)
+#   2. Codex review count line recorded (only when `which codex` succeeds).
+#      `- Codex review: 直す N / 人間に戻す M / 記録のみ K`、または代行の形
+#      `- Codex review: 失敗（<理由>）。adversarial-reviewer で代行: ...`。Codex が無い環境は
+#      `- Adversarial review: ...` で足りる（この検査自体が走らない）
 #   3. Retrospective status (retro_status: captured/resolved required;
 #      none/empty/invalid/absent all BLOCK — absent is a bypass risk since
 #      cycle-retrospective idempotency also treats absent as skip)
@@ -76,14 +79,14 @@ fi
 
 # 1. Check REVIEW record in Progress Log (anchored to phase header)
 if ! awk '/^### .* - REVIEW/,/Phase completed/' "$ACTIVE_CYCLE" | grep -qi 'Phase completed'; then
-  echo "BLOCK: REVIEW not completed in Progress Log. Run review before commit."
+  echo "BLOCK: REVIEW not completed in Progress Log. Run the REVIEW phase (adversarial review, see skills/orchestrate/adversarial-review.md) before commit."
   exit 1
 fi
 
 # 2. Codex code review check (only when codex is available)
 if which codex > /dev/null 2>&1; then
   if ! grep -qiE 'Codex.*review|codex.*Review' "$ACTIVE_CYCLE" 2>/dev/null; then
-    echo "BLOCK: Codex code review not recorded. Run competitive review before commit."
+    echo "BLOCK: Codex review result not recorded. Record the REVIEW count line ('- Codex review: 直す N / 人間に戻す M / 記録のみ K', or the adversarial-reviewer substitute form) in the REVIEW entry before commit."
     exit 1
   fi
 fi

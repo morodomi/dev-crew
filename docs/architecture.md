@@ -49,7 +49,8 @@ User
 │  └─────────────┘  └───────────┘                │
 │       │                                       │
 │  ┌───────────────┐                             │
-│  │ review(code)  │ (Claude + Codex competitive)│
+│  │ 敵対的レビュー1回 + 指摘の振り分け       │
+│  │ (Codex / 代行: adversarial-reviewer)     │
 │  └───────────────┘                             │
 │       │                                       │
 │  ■ pre-commit-gate.sh (決定論的ゲート)         │
@@ -198,6 +199,8 @@ codify-insight は orchestrate から自動起動されない（2026-10 に廃�
 
 ### Review Verdict
 
+code mode の REVIEW は、敵対的レビュー 1 回（Codex 既定、不在・失敗時は adversarial-reviewer）の指摘を「直す / 人間に戻す / 記録のみ」に振り分ける。severity による verdict と Socrates Protocol は使わない（`skills/orchestrate/adversarial-review.md`、`docs/decisions/adr-adversarial-review.md`）。以下は plan mode（`review --plan`）の判定。
+
 各 reviewer は issue ごとに `severity: critical|important|optional` を返す。`skills/review/severity-verdict.sh` が accept-apply/accept-defer の findings（reject 除外）を集計して verdict を決定論的に判定する:
 
 | Severity | Verdict | Action |
@@ -208,7 +211,7 @@ codify-insight は orchestrate から自動起動されない（2026-10 に廃�
 
 ### Socrates Protocol
 
-WARN/BLOCK時にSocrates(Devil's Advocate)が反論を提示:
+plan review の WARN/BLOCK時にSocrates(Devil's Advocate)が反論を提示:
 1. PdMの提案に対して3+の反論を生成
 2. 代替案を提示
 3. 人間が最終判断: proceed / fix / abort

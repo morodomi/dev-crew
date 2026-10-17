@@ -367,11 +367,11 @@ g1_agents=(
   ssrf-attacker ssti-attacker wordpress-attacker xss-attacker xxe-attacker
   false-positive-filter
 )
-g23_names=(attack-scenario sca-attacker recon-agent dynamic-verifier)
-g23_expected=("Read" "Read, Grep, Glob, Bash" "Bash, Read, Grep, Glob" "Bash, Read")
+g23_names=(attack-scenario sca-attacker recon-agent dynamic-verifier adversarial-reviewer)
+g23_expected=("Read" "Read, Grep, Glob, Bash" "Bash, Read, Grep, Glob" "Bash, Read" "Read, Grep, Glob, Bash")
 deferred_agents=(designer architect sync-plan red-worker green-worker refactorer dast-crawler)
 
-# TC-36: [Given] non-reference agents 40 files / [When] frontmatter has bare-or-valued 'allowed-tools:' key / [Then] 0 hits (renamed to 'tools:')
+# TC-36: [Given] non-reference agents 41 files / [When] frontmatter has bare-or-valued 'allowed-tools:' key / [Then] 0 hits (renamed to 'tools:')
 # Presence判定は has_frontmatter_key（^key: 行存在）で行う。get_frontmatter の "key: "（要空白）依存だと
 # 裸キー（値なし 'allowed-tools:' 単独行）を不在扱いにして false-pass する（REVIEW BLOCK 実証）。
 echo ""
@@ -410,9 +410,9 @@ if [ "$g1_mismatch" -eq 0 ]; then
   pass "TC-37: All G1 29 agents have 'tools: Read, Grep, Glob'"
 fi
 
-# TC-38: [Given] G2/G3 4 agents / [When] get_frontmatter tools / [Then] exact match per-file value
+# TC-38: [Given] G2/G3 5 agents / [When] get_frontmatter tools / [Then] exact match per-file value
 echo ""
-echo "TC-38: G2/G3 4 agents 'tools:' exact match"
+echo "TC-38: G2/G3 5 agents 'tools:' exact match"
 g23_mismatch=0
 idx=0
 while [ "$idx" -lt "${#g23_names[@]}" ]; do
@@ -433,7 +433,7 @@ while [ "$idx" -lt "${#g23_names[@]}" ]; do
   idx=$((idx + 1))
 done
 if [ "$g23_mismatch" -eq 0 ]; then
-  pass "TC-38: All G2/G3 4 agents have exact-match 'tools:' values"
+  pass "TC-38: All G2/G3 5 agents have exact-match 'tools:' values"
 fi
 
 # TC-39: [Given] deferred 7 agents (full inheritance) / [When] tools:/allowed-tools: presence (bare-key 対応) / [Then] neither key present
@@ -457,7 +457,7 @@ if [ "$deferred_violation" -eq 0 ]; then
 fi
 
 # TC-40: [Given] all 'tools:' values / [When] token-split (comma, trimmed) / [Then] every token in {Read, Grep, Glob, Bash}
-# Protective contract: 33 agent の実データ（GREEN 済みの tools: 値）を検証する。RED 期（addendum 前）は
+# Protective contract: 34 agent の実データ（GREEN 済みの tools: 値）を検証する。RED 期（addendum 前）は
 # 群ロースターに tools: がまだ実装されておらず空集合の vacuous PASS だったが、現在は非空集合を検証する。
 echo ""
 echo "TC-40: All 'tools:' values contain only canonical tokens {Read, Grep, Glob, Bash}"
@@ -483,7 +483,7 @@ if [ "$canonical_violation" -eq 0 ]; then
   pass "TC-40: All 'tools:' values contain only canonical tokens"
 fi
 
-# TC-41: [Given] declared name set (G1 29 + G2/G3 4 + deferred 7 = 40) / [When] diff'd against actual agents/*.md
+# TC-41: [Given] declared name set (G1 29 + G2/G3 5 + deferred 7 = 41) / [When] diff'd against actual agents/*.md
 #         basenames (all files; agents/ holds agents only, TC-27) / [Then] no diff
 # Protective contract: count-only comparison (previous impl) misses duplicate+missing pairs that cancel out to
 # the same total. Name-set diff catches both failure modes.
@@ -493,7 +493,7 @@ tc41_declared=$(printf '%s\n' "${g1_agents[@]}" "${g23_names[@]}" "${deferred_ag
 tc41_actual=$(ls "$BASE_DIR"/agents/*.md 2>/dev/null | xargs -n1 basename | sed 's/\.md$//' | sort)
 tc41_diff=$(diff <(printf '%s\n' "$tc41_declared") <(printf '%s\n' "$tc41_actual") || true)
 if [ -z "$tc41_diff" ]; then
-  pass "TC-41: Declared roster (40) exactly matches actual non-reference agent file names"
+  pass "TC-41: Declared roster (41) exactly matches actual non-reference agent file names"
 else
   fail "TC-41: Declared roster vs actual agent files diff:
 $tc41_diff"
@@ -620,7 +620,7 @@ fi
 # TC-46: [Given] memory 保持 15 agent (PROBE D step 4 再々承認: memory + tools 併用は書込不可でも既存 memory の
 #         起動時読取は可能と実測されたため、'memory 削除' を撤回し 'memory 維持 + disallowedTools' へ再定義) /
 #         [When] frontmatter の memory:/disallowedTools: を検証 / [Then] memory: が 'project' に完全一致し、
-#         disallowedTools: が 'Write, Edit' に完全一致。加えて不変条件: tools: を持つ 33 agent (G1+G2/G3) の
+#         disallowedTools: が 'Write, Edit' に完全一致。加えて不変条件: tools: を持つ 34 agent (G1+G2/G3) の
 #         うち memory: を持つものは必ず disallowedTools: を持つ（memory 併用時の Write 越権対策、PROBE D 実測）
 echo ""
 echo "TC-46: memory 保持 15 agent は 'memory: project' + 'disallowedTools: Write, Edit'（+ 不変条件）"
@@ -649,7 +649,7 @@ for name in "${memory_agents[@]}"; do
     tc46_violation=$((tc46_violation + 1))
   fi
 done
-# Invariant: any tools:-scoped agent (G1+G2/G3, 33 total) that has 'memory:' must also have 'disallowedTools:'.
+# Invariant: any tools:-scoped agent (G1+G2/G3, 34 total) that has 'memory:' must also have 'disallowedTools:'.
 for name in "${g1_agents[@]}" "${g23_names[@]}"; do
   agent_file="$BASE_DIR/agents/${name}.md"
   [ -f "$agent_file" ] || continue
@@ -659,7 +659,7 @@ for name in "${g1_agents[@]}" "${g23_names[@]}"; do
   fi
 done
 if [ "$tc46_violation" -eq 0 ]; then
-  pass "TC-46: All 15 memory-retaining agents have 'memory: project' + 'disallowedTools: Write, Edit'; invariant holds across all 33 tools:-scoped agents"
+  pass "TC-46: All 15 memory-retaining agents have 'memory: project' + 'disallowedTools: Write, Edit'; invariant holds across all 34 tools:-scoped agents"
 fi
 
 # Summary

@@ -85,7 +85,7 @@ architect の結果 JSON の `pre_review.verdict` で分岐:
 
 Phase Summary の metrics を評価し、delegation decision を行う。
 Subagent Chain モードでは **全フェーズを Task() で委譲する**（lightweight threshold 以下でも同様）。
-PdM は Skill() を直接呼び出してはならない（REFACTOR・review・COMMIT を除く）。
+PdM は Skill() を直接呼び出してはならない（REFACTOR・COMMIT と、plan 用の review --plan（`Skill(dev-crew:review, args: "--plan")`）を除く。code の REVIEW は Skill() ではなく adversarial review）。
 Fallback は Task() spawn エラー時のみ適用される（後述）。
 
 ### Phase Summary 永続化 (sync-plan→RED)
@@ -108,7 +108,7 @@ PdM が Cycle doc に Phase Summary を追記:
 > Pre-Flight Check:
 > - [ ] SYNC-PLAN: Task() で委譲しているか？
 > - [ ] RED/GREEN: Task() で worker に委譲しているか？
-> - [ ] Skill() 直接呼び出しは REFACTOR・review・COMMIT のみか？
+> - [ ] Skill() 直接呼び出しは REFACTOR・COMMIT と、plan 用の review --plan のみか？
 
 ### Pre-RED Gate (deterministic)
 
@@ -168,36 +168,44 @@ Cycle doc `## Verification` セクション不在 or real-path invocation なし
 
 ### REVIEW
 
-> NOTE: review 内部で subagent 化済みのため、Skill() 直接呼び出しが正しい。
+実装した文脈とは別の文脈で敵対的レビューを 1 回だけかけ、指摘を修正役が「直す / 人間に戻す / 記録のみ」に振り分ける。頼み方・振り分け・報告の型の単一出典は [adversarial-review.md](adversarial-review.md)。`review` skill は起動しない。
 
-#### Claude レビュー
+#### 手順
 
-```
-Skill(dev-crew:review, args: "--code")
-→ review(code) が Risk Classification + Brief + Specialist Panel を実行
-→ security-reviewer + correctness-reviewer は常時起動 (NON-NEGOTIABLE)
-```
-
-#### Codex competitive review（Codex 利用可能時）
-
-`which codex` で Codex が利用可能なら、Claude レビューに加えて Codex レビューを実行する。
-codex_mode に関わらず常時実行（codex_mode は RED/GREEN 委譲のみ制御）。
-
-```bash
-# codex_session_id があれば resume <session-id>、なければ resume --last にフォールバック
-CHANGED_FILES=$(git diff HEAD --name-only | tr '\n' ', ')
-codex exec --sandbox read-only -o /tmp/codex_review.md resume ${codex_session_id:-"--last"} \
-  "以下のファイルのみレビューせよ: ${CHANGED_FILES}. セキュリティ・正確性・パフォーマンスの観点で問題を指摘せよ。対象外ファイルには言及するな。" < /dev/null
-```
-
-`codex_session_id` は Cycle doc frontmatter から読み取る。Codex 失敗 → Claude レビューのみで続行（品質バー維持）。
-findings の裁定は steps-codex.md の Findings Judgment テーブルに準拠。
-
-#### PdM 判定
-
-PdM が Claude + Codex（利用可能時）の結果を統合して verdict を判定:
-- PASS/WARN → DISCOVERED 判断へ
-- BLOCK → GREEN の Task() を再起動して修正（max 1回）
+0. **対象の列挙**: `git diff HEAD --name-only` と `git ls-files --others --exclude-standard`（未追跡の新規ファイルを含める）。未追跡ファイルがあれば WARN を出し、レビュー対象に含める。ただし名前が `.env*`・`*.pem`・`*credentials*`・`*secret*` に当たる未追跡ファイルはレビュー対象から外し、WARN を出す（Codex は外部サービスなので秘密を送らない）。
+1. **敵対的レビューを 1 回**: 入力は Cycle doc のパスと対象ファイルの一覧だけ。diff は渡さない（レビュー側が `git diff HEAD` を自分で実行して読み、未追跡ファイルは中身を読む）。レビュー結果は、どちらの経路でも固定のパス `/tmp/dev-crew-review-<cycle_id>/review.md` に置く（`<cycle_id>` は Cycle doc の frontmatter `cycle`。bash 呼び出しをまたいで使うので、変数に持たず固定のパスをそのまま書く）。`which codex` が成功する（codex_mode に関わらない）ときは新しいセッションで Codex を実行する。`resume` しない（steps-codex.md の REVIEW は resume しない唯一の例外）:
+   ```bash
+   mkdir -p /tmp/dev-crew-review-<cycle_id>
+   ```
+   ```bash
+   codex exec --sandbox read-only -o "/tmp/dev-crew-review-<cycle_id>/review.md" "<頼み方>" < /dev/null
+   ```
+   `<頼み方>` は adversarial-review.md の `## 頼み方` の依頼文に、Cycle doc のパスと対象ファイルの一覧を添えたもの。
+   Codex が無い、または失敗した（error / timeout / 出力が空）ときは、新しい文脈の `dev-crew:adversarial-reviewer` に同じ入力と依頼文を渡す。前後で `worktree-fingerprint.sh` の出力を比べる:
+   ```bash
+   mkdir -p /tmp/dev-crew-review-<cycle_id>
+   bash scripts/gates/worktree-fingerprint.sh --list > /tmp/dev-crew-review-<cycle_id>/before.list
+   before=$(bash scripts/gates/worktree-fingerprint.sh); before_rc=$?
+   ```
+   ```
+   Task(subagent_type: "dev-crew:adversarial-reviewer", model: "opus", prompt: "Cycle doc: [path]. 対象ファイル: [一覧]. adversarial-review.md の ## 頼み方 に従い、git diff HEAD を自分で実行して読み、実行して再現できた指摘だけを high にして報告せよ。作業ツリーを変えるな。")
+   ```
+   ```bash
+   after=$(bash scripts/gates/worktree-fingerprint.sh); after_rc=$?
+   ```
+   - PdM は adversarial-reviewer の返答を、Codex と同じパス `/tmp/dev-crew-review-<cycle_id>/review.md` のファイルに書き出す（返答を同じパスのファイルに書き出す。これで修正役への受け渡しが両経路で同じになる）
+   - 前後それぞれの終了コードと出力の形（64 桁の 16 進）を確かめる。取得失敗・空・形違いなら BLOCK（一致とみなさない）
+   - 前後が違えば作業ツリーが変わっている。レビューを無効にして BLOCK。BLOCK したら `--list` を取り直し、前後の --list の差を人間に見せる（何が変わったかを見るため）
+   - adversarial-reviewer も失敗したら BLOCK し、人間に報告する（レビューを省略しない）
+2. **修正**: 「直す」が 0 件なら修正役を起動せず、記録（3）へ進む。1 件以上あれば、修正役には常にそのファイルを渡す（`/tmp/dev-crew-review-<cycle_id>/review.md`）。Codex 成功なら Codex の出力、代行なら PdM が書き出した返答で、どちらも同じパス。`Task(subagent_type: "dev-crew:green-worker", model: "sonnet", prompt: "Cycle doc: [path]. レビュー結果: /tmp/dev-crew-review-<cycle_id>/review.md. adversarial-review.md の ## 振り分け と ## 報告の型 に従え。")` に渡し、「直す」だけを直させ、直す前に呼び出し元の検索と今の動きの固定を済ませ、既存のテストを弱めさせない。
+   - **修正段階の完了条件**: 修正役が success を返し、修正後に全件を流して、REFACTOR 完了時の全件結果（Progress Log の REFACTOR 記録）より新たに落ちていないこと。満たさなければ 1 回だけやり直し、それでも満たさなければ BLOCK して人間に報告する
+   - 修正後に再レビューしない（レビューは回数でなく予算で止める。1 回かけたら終わり）
+3. **記録**: PdM が Cycle doc の Progress Log に `### {date "+%Y-%m-%d %H:%M" の実測値} - REVIEW` の見出し、件数の行、`- Phase completed` を書き、frontmatter の phase / updated を更新する。件数の行は次のどれか:
+   - `- Codex review: 直す N / 人間に戻す M / 記録のみ K`
+   - `- Codex review: 失敗（<理由>）。adversarial-reviewer で代行: 直す N / 人間に戻す M / 記録のみ K`
+   - `- Adversarial review: 直す N / 人間に戻す M / 記録のみ K`（Codex が無い環境）
+4. **COMMIT 前の判断点**: CLAUDE.md の判断点どおり、毎回 md を見せる。「人間に戻す」があれば、その md の先頭に「決めてほしいこと」として載せる。
+5. **セキュリティ**: security-reviewer は常時起動しない。敵対的レビューがセキュリティの問題を見つけたら、rules/security.md の「問題発見時」の手順がそのまま適用される。
 
 ### Phase Summary 永続化 (Block2→Block3)
 
@@ -205,15 +213,15 @@ Block 2 完了後、PdM が Cycle doc に Phase Summary を追記:
 
 ```markdown
 ### Phase: REVIEW - Completed at HH:MM
-**Artifacts**: review results (mode: code)
-**Decisions**: verdict=[PASS/WARN/BLOCK], severities=[critical:N important:N]
+**Artifacts**: adversarial review results (/tmp/dev-crew-review-<cycle_id>/review.md: Codex output or the adversarial-reviewer reply written by PdM)
+**Decisions**: 直す=N, 人間に戻す=M, 記録のみ=K
 **Next Phase Input**: all tests passing, ready to commit
-**Subagent**: agent_id={review_agent_id}, tokens={total_tokens}
+**Subagent**: agent_id={fixer_agent_id}, tokens={total_tokens}
 ```
 
 ### DISCOVERED 判断
 
-REVIEW が PASS/WARN の場合、Cycle doc の DISCOVERED セクションを確認し、
+REVIEW 完了後、Cycle doc の DISCOVERED セクションを確認し、
 スコープ外の未起票項目を GitHub issue に起票する。
 詳細は review の [reference.md](../review/reference.md#discovered-issue-起票) を参照。
 
@@ -251,13 +259,15 @@ Skill(dev-crew:learn)
 
 ## 判断基準
 
-Subagent Chain モードでも PdM の判断基準は同一:
+plan review（`review --plan`）の verdict は severity で判定する:
 
 | Severity | 判定 | アクション |
 |----------|------|-----------|
 | いずれもなし | PASS | 次 Block へ自動進行 |
 | important ≥ 1 (critical 0) | WARN | 警告ログ、次 Block へ自動進行 |
 | critical ≥ 1 | BLOCK | 1回目: 自動再試行、2回目: ユーザーに報告 |
+
+code mode の REVIEW は severity の集計で判定しない。REVIEW 節の流れに従い、BLOCK になるのは次の場合だけ: fingerprint の取得失敗・空・形違い、作業ツリーの変化、adversarial-reviewer の失敗、修正段階の完了条件を 2 回満たせなかったとき。「人間に戻す」は BLOCK ではなく COMMIT 前の md で人間に渡す。
 
 ## Fallback
 
@@ -272,7 +282,7 @@ Task() の起動に失敗した場合（subagent spawn エラー、タイムア�
 | RED | `Skill(dev-crew:red)` |
 | GREEN | `Skill(dev-crew:green)` |
 | REFACTOR | `Skill(dev-crew:refactor)` |
-| REVIEW | `Skill(dev-crew:review)` |
+| REVIEW | `Task(dev-crew:adversarial-reviewer)`。失敗したら BLOCK（Skill() への代行はしない） |
 
 3. Cycle doc の Progress Log に fallback を記録
 4. Phase Summary の Subagent 行を `**Subagent**: fallback (Skill direct)` とする
