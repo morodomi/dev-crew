@@ -1,6 +1,6 @@
 # dev-crew Status
 
-Last updated: 2026-10-17
+Last updated: 2026-10-19
 
 ## Completed (Recent)
 
@@ -91,7 +91,7 @@ Last updated: 2026-10-17
 
 ## In Progress
 
-(none)
+(none)。次は手順 1 の手直し（v2.20.1）。順番と理由は [NEXT.md](NEXT.md) の「現在地」を参照。
 
 ## TODO
 
