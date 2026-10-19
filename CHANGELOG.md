@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [2.20.0] - 2026-10-18
+
 ### Changed
 
 - **コードレビュー（REVIEW）を、敵対的レビュー 1 回 + 指摘の振り分けにした。** Codex を既定のレビュー役にし、不在・失敗時は新しい agent `adversarial-reviewer`（Bash で不具合を再現。作業ツリーの不変は `scripts/gates/worktree-fingerprint.sh` の前後比較で確かめる）が代行する。reviewer パネル、code 側の Socrates Protocol、REVIEW の resume は既定の経路から外した（ファイルは plan review のために残す）。指摘は「直す / 人間に戻す / 記録のみ」に振り分け、既存の動きを変えるものだけを COMMIT 前に人間へ戻す。CONSTITUTION の原則 2「別の視点で壊しにいくレビュー」・原則 5「レビューは回数ではなく予算で止める」に改め、判断は `docs/decisions/adr-adversarial-review.md` に記録した
