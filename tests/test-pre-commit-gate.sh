@@ -81,7 +81,7 @@ retro_status: captured
 
 ### 2026-03-15 - REVIEW
 - Code review passed
-- Codex review: Accept 2, Reject 0
+- Codex review: 直す 2 / 人間に戻す 0 / 記録のみ 0
 - Phase completed
 CYCLE
 
@@ -141,7 +141,7 @@ retro_status: captured
 
 ### REVIEW (2026-01-01)
 - Code review passed
-- Codex review: Accept 2, Reject 0
+- Codex review: 直す 2 / 人間に戻す 0 / 記録のみ 0
 - Phase completed
 CYCLE
 
@@ -179,7 +179,7 @@ retro_status: captured
 
 ### 2026-01-01 00:00 - REVIEW
 - Code review passed
-- Codex review: Accept 2, Reject 0
+- Codex review: 直す 2 / 人間に戻す 0 / 記録のみ 0
 - Phase completed
 CYCLE
 
@@ -229,7 +229,7 @@ updated: 2026-01-02 10:00
 
 ### 2026-01-01 00:00 - REVIEW
 - Code review passed
-- Codex review: Accept 2, Reject 0
+- Codex review: 直す 2 / 人間に戻す 0 / 記録のみ 0
 - Phase completed
 CYCLE
 
@@ -297,7 +297,7 @@ updated: 2026-01-02 10:00
 
 ### 2026-01-01 00:00 - REVIEW
 - Code review passed
-- Codex review: Accept 2, Reject 0
+- Codex review: 直す 2 / 人間に戻す 0 / 記録のみ 0
 - Phase completed
 CYCLE
 
@@ -406,7 +406,7 @@ updated: 2026-01-01 10:00
 
 ### 2026-01-01 00:00 - REVIEW
 - Code review passed
-- Codex review: Accept 2, Reject 0
+- Codex review: 直す 2 / 人間に戻す 0 / 記録のみ 0
 - Phase completed
 CYCLE
 
@@ -439,7 +439,7 @@ updated: 2026-01-01 10:00
 
 ### 2026-01-01 00:00 - REVIEW
 - Code review passed
-- Codex review: Accept 2, Reject 0
+- Codex review: 直す 2 / 人間に戻す 0 / 記録のみ 0
 - Phase completed
 CYCLE
 

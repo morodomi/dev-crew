@@ -20,14 +20,16 @@ allowed-tools: Read, Write, Edit, Bash
 Cycle doc の Progress Log を確認し、以下が全て満たされなければ BLOCK:
 
 1. **REVIEW完了**: Progress Log に `### ... - REVIEW` セクションがあり、`Phase completed` 記録がある
-2. **Codex review記録** (`which codex` 成功時のみ): Progress Log に `Codex` + `review` の記録がある
+2. **Codex review記録** (`which codex` 成功時のみ): 最後の REVIEW 節に件数の行 `- Codex review: 直す N / 人間に戻す M / 記録のみ K`（または Codex 失敗時の代行の形）がある
 3. **retro_status check**: retro_status: captured / resolved で PASS。none で BLOCK (cycle-retrospective 実行)、field 不在も BLOCK（frontmatter に `retro_status: none` を足して cycle-retrospective を実行）
 
 ```bash
-# 1. REVIEW チェック（phaseヘッダーにアンカー）
-awk '/^### .* - REVIEW/,/Phase completed/' "$CYCLE_DOC" | grep -qi 'Phase completed'
+# 最後の `### ... - REVIEW` 見出しから次の `### ` 見出しの手前まで
+SEC=$(awk '/^```/{fence=!fence} !fence&&/^### /{on=($0 ~ /^### .* - REVIEW/); if(on)buf=""} on{buf=buf $0 "\n"} END{printf "%s",buf}' "$CYCLE_DOC")
+# 1. REVIEW チェック
+grep -qi 'Phase completed' <<<"$SEC"
 # 2. Codex review チェック（codex利用可能時のみ）
-which codex && grep -qiE 'Codex.*review|codex.*Review' "$CYCLE_DOC"
+which codex && grep -qE '^- Codex review: (失敗（[^）]*）。adversarial-reviewer で代行: )?直す [0-9]+ / 人間に戻す [0-9]+ / 記録のみ [0-9]+' <<<"$SEC"
 ```
 
 いずれか失敗 → BLOCK（不足ステップを案内）
@@ -73,9 +75,10 @@ git add <files> && git commit -m "..."
 
 ```
 ## Review Findings サマリー
-- 指摘数: N件 (Accept: X, Reject: Y, DISCOVERED: Z)
-- 主な修正: [Accept した指摘の要約]
-- DISCOVERED: [スコープ外として起票した項目]
+- 指摘数: N件 (直す N / 人間に戻す M / 記録のみ K)
+- 主な修正: [直すにした指摘の要約]
+- DISCOVERED: [記録のみにして起票した項目]
+- 人間に戻した問い: [人間に戻した指摘の問い]
 ```
 
 ユーザーが「何を指摘されて、どう修正したか」を commit 後に確認できる情報提供。

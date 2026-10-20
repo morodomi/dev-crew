@@ -12,6 +12,7 @@
 # Exit 0 = PASS, Exit 1 = BLOCK
 #
 # Checks:
+#   1・2 は「最後の `### ... - REVIEW` 見出しから次の `### ` 見出しの手前まで」の節だけを見る
 #   1. REVIEW Phase completed in Progress Log
 #   2. Codex review count line recorded (only when `which codex` succeeds).
 #      `- Codex review: 直す N / 人間に戻す M / 記録のみ K`、または代行の形
@@ -77,15 +78,27 @@ else
   exit 1
 fi
 
+# REVIEW が複数回走った cycle では最後の REVIEW 節だけが現在の判定対象。
+# 節の範囲は「最後の `### ... - REVIEW` 見出しから次の `### ` 見出しの手前まで」。
+# Plan Review Record や後続の COMMIT 節にある似た行で検査が通らないようにする。
+# コードブロック内の `### ` 行は見出しではないので、節の開始にも終端にも使わない。
+REVIEW_SECTION=$(awk '
+  /^```/ { fence = !fence }
+  !fence && /^### / { on = ($0 ~ /^### .* - REVIEW/); if (on) buf = "" }
+  on { buf = buf $0 "\n" }
+  END { printf "%s", buf }
+' "$ACTIVE_CYCLE")
+
 # 1. Check REVIEW record in Progress Log (anchored to phase header)
-if ! awk '/^### .* - REVIEW/,/Phase completed/' "$ACTIVE_CYCLE" | grep -qi 'Phase completed'; then
+if ! grep -qi 'Phase completed' <<<"$REVIEW_SECTION"; then
   echo "BLOCK: REVIEW not completed in Progress Log. Run the REVIEW phase (adversarial review, see skills/orchestrate/adversarial-review.md) before commit."
   exit 1
 fi
 
 # 2. Codex code review check (only when codex is available)
+COUNT_RE='^- Codex review: (失敗（[^）]*）。adversarial-reviewer で代行: )?直す [0-9]+ / 人間に戻す [0-9]+ / 記録のみ [0-9]+'
 if which codex > /dev/null 2>&1; then
-  if ! grep -qiE 'Codex.*review|codex.*Review' "$ACTIVE_CYCLE" 2>/dev/null; then
+  if ! grep -qE "$COUNT_RE" <<<"$REVIEW_SECTION"; then
     echo "BLOCK: Codex review result not recorded. Record the REVIEW count line ('- Codex review: 直す N / 人間に戻す M / 記録のみ K', or the adversarial-reviewer substitute form) in the REVIEW entry before commit."
     exit 1
   fi
