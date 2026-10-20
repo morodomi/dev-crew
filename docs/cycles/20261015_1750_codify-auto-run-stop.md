@@ -5,12 +5,12 @@ phase: DONE
 complexity: standard
 test_count: 8
 risk_level: low
-retro_status: captured
+retro_status: resolved
 codex_session_id: "01a13eb7-5fb3-7690-921b-8cdb8838c59b"
 reviewed_plan_hash: 044b7731f8ca2a17d9d31bf66f4bc2eb0816f34de8b5b26e6c73608e08d94692
 plan_file: /Users/morodomi/.claude/plans/dazzling-bubbling-feather.md
 created: 2026-10-15 18:04
-updated: 2026-10-15 23:48
+updated: 2026-10-20 16:39
 ---
 
 # codify-insight の自動実行を止める（フロー再設計 手順 0）
@@ -306,3 +306,18 @@ Format for each phase entry (**strict, required by pre-commit-gate.sh**):
 
 - **設問**: 今回の手戻りは、過去のどの cycle doc を最初に読んでいれば防げたか
 - **回答**: docs/cycles/20260709_1125_risk-classifier-doc-diff-fix.md
+
+## Codify Decisions
+
+### Insight 1
+- **Decision**: no-codify
+- **Reason**: duplicate of `20261005_1639 #3`（同じ codify 実行で codified、tests/**）。禁止・義務の文を固定文全体で pin する点は、そちらの「主張にしか現れない連続句で pin する」に含まれる。反映時は両方を出典に挙げる
+- **Decided**: 2026-10-20 16:39
+
+### Insight 2
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: file-scoped
+- **Paths**: scripts/**, skills/**
+- **Reason**: pipefail と `| grep -q` の教訓は rules/test-patterns.md:51 にあるが paths が tests/** のため、gate や skill の bash を書くときに読み込まれない。`20261020_0955 #3` も同じ形（テスト側の教訓が実装側で当たらない）で再発 2 回目。既存スキャンを転用するときに流用元の潜在欠陥（コメント行・引用・pipefail 下の巨大入力）を引き継ぐ前提で fixture を足す、を実装側の rule にする
+- **Decided**: 2026-10-20 16:39

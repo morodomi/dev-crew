@@ -5,12 +5,12 @@ phase: DONE
 complexity: complex
 test_count: 22
 risk_level: medium
-retro_status: captured
+retro_status: resolved
 codex_session_id: "01a14397-ea72-70b0-82c6-dd54d83a7c79"  # plan review のセッション。REVIEW では使わない（新規セッション）
 plan_file: /Users/morodomi/.claude/plans/dazzling-bubbling-feather.md
 codex_mode: no
 created: 2026-10-16 16:45
-updated: 2026-10-17 11:32
+updated: 2026-10-20 16:39
 ---
 
 # 手順 1: コードレビューを「敵対的レビュー 1 回 + 指摘の振り分け」にする
@@ -448,3 +448,35 @@ Evidence: (orchestrate が自動記入)
 
 - **設問**: 今回の手戻りは、過去のどの cycle doc を最初に読んでいれば防げたか
 - **回答**: docs/cycles/20261015_1750_codify-auto-run-stop.md
+
+## Codify Decisions
+
+### Insight 1
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: file-scoped
+- **Paths**: scripts/gates/**
+- **Reason**: 初出。改ざんの検出は、相手が書き換えられる git の設定（filter・textconv・exclude・hooks）を通した見え方の上に作らず、実体のバイト列と設定そのものを入力にする。gate を書くときに当てる
+- **Decided**: 2026-10-20 16:39
+
+### Insight 2
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: cycle-scoped
+- **Reason**: ExitPlanMode の前に Plan Review Record を spec reference.md のテンプレートと 1 行ずつ突き合わせる。`20261020_0955` の spec でも Record の置き場所（Recall より上）を後から直しており、同じ箇所の取り違えが 2 回目
+- **Decided**: 2026-10-20 16:39
+
+### Insight 3
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: cycle-scoped
+- **Reason**: 初出。止める基準に、数える対象と数える時点を名指しする。`20261020_0955` の plan はこの insight を Recall で読んで当てており、効くことは確認済み
+- **Decided**: 2026-10-20 16:39
+
+### Insight 4
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: file-scoped
+- **Paths**: tests/**
+- **Reason**: 初出。変化を検出するテストは同じ fixture の操作の前後で比べる。テストを書く時点で当てられる
+- **Decided**: 2026-10-20 16:39

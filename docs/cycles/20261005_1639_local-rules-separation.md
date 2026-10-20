@@ -5,12 +5,12 @@ phase: DONE
 complexity: standard
 test_count: 10
 risk_level: low
-retro_status: captured
+retro_status: resolved
 codex_mode: no
 codex_session_id: "01a10ae3-695a-7610-8eb7-1e2550aa37c0"
 plan_file: /Users/morodomi/.claude/plans/compressed-doodling-cake.md
 created: 2026-10-05 16:39
-updated: 2026-10-05 17:25
+updated: 2026-10-20 16:39
 ---
 
 # 導入先へ配る rules の 2 不具合を直す（rules の上書き消失 / baseline 手順の本体専用化）
@@ -325,3 +325,27 @@ Format for each phase entry (**strict, required by pre-commit-gate.sh**):
 
 - **設問**: 今回の手戻りは、過去のどの cycle doc を最初に読んでいれば防げたか
 - **回答**: docs/cycles/20260916_1634_shrink-runner-remove-nesting.md
+
+## Codify Decisions
+
+### Insight 1
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: cycle-scoped
+- **Reason**: extends `20260916_1634 #4`（codified, rules の出典に現れない）— 削除方向の問いを REVIEW だけでなく plan review にも入れる、という適用先の追加。新しい手順を足す plan で「実害の場面で欠けていたものは何か」「既存の手順で足りないか」を問う
+- **Decided**: 2026-10-20 16:39
+
+### Insight 2
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: cycle-scoped
+- **Reason**: 初出。承認を挟む保護手順を plan に書くとき、各承認ステップの拒否・一部承認の経路を列挙する。plan 作成時にすぐ当てられる
+- **Decided**: 2026-10-20 16:39
+
+### Insight 3
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: file-scoped
+- **Paths**: tests/**
+- **Reason**: extends `20260910_1312 #3` / `20260913_0059 #1` / `20260916_1634 #3`（いずれも codified, rules の出典に現れない）— 変異の種類（順序の逆転、値の差し替え、削除して痕跡だけ残す）と、主張にしか現れない連続句で pin することを足す。`20261015_1750 #1` と同じ教訓で、この回で再発 2 回目
+- **Decided**: 2026-10-20 16:39
