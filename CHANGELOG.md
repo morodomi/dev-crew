@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [2.20.1] - 2026-10-20
+
 ### Fixed
 
 - **pre-commit gate が、別の節にある似た行で通っていた問題を修正。** 検査 1・2 は「最後の `### ... - REVIEW` 見出しから次の `### ` 見出しの手前まで」の節だけを見る。検査 2 は `- Codex review: 直す N / 人間に戻す M / 記録のみ K`（または Codex 失敗時の代行の形）まで確かめる。commit skill の Pre-COMMIT Gate も同じ式に揃えた
