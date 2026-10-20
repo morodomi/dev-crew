@@ -175,7 +175,7 @@ Cycle doc `## Verification` セクション不在 or real-path invocation なし
 0. **対象の列挙**: `git diff HEAD --name-only` と `git ls-files --others --exclude-standard`（未追跡の新規ファイルを含める）。未追跡ファイルがあれば WARN を出し、レビュー対象に含める。ただし名前が `.env*`・`*.pem`・`*credentials*`・`*secret*` に当たる未追跡ファイルはレビュー対象から外し、WARN を出す（Codex は外部サービスなので秘密を送らない）。
 1. **敵対的レビューを 1 回**: 入力は Cycle doc のパスと対象ファイルの一覧だけ。diff は渡さない（レビュー側が `git diff HEAD` を自分で実行して読み、未追跡ファイルは中身を読む）。レビュー結果は、どちらの経路でも固定のパス `/tmp/dev-crew-review-<cycle_id>/review.md` に置く（`<cycle_id>` は Cycle doc の frontmatter `cycle`。bash 呼び出しをまたいで使うので、変数に持たず固定のパスをそのまま書く）。`which codex` が成功する（codex_mode に関わらない）ときは新しいセッションで Codex を実行する。`resume` しない（steps-codex.md の REVIEW は resume しない唯一の例外）:
    ```bash
-   mkdir -p /tmp/dev-crew-review-<cycle_id>
+   mkdir -p /tmp/dev-crew-review-<cycle_id>/scratch
    ```
    ```bash
    codex exec --sandbox read-only -o "/tmp/dev-crew-review-<cycle_id>/review.md" "<頼み方>" < /dev/null
@@ -198,13 +198,24 @@ Cycle doc `## Verification` セクション不在 or real-path invocation なし
    - 前後が違えば作業ツリーが変わっている。レビューを無効にして BLOCK。BLOCK したら `--list` を取り直し、前後の --list の差を人間に見せる（何が変わったかを見るため）
    - adversarial-reviewer も失敗したら BLOCK し、人間に報告する（レビューを省略しない）
 2. **修正**: 「直す」が 0 件なら修正役を起動せず、記録（3）へ進む。1 件以上あれば、修正役には常にそのファイルを渡す（`/tmp/dev-crew-review-<cycle_id>/review.md`）。Codex 成功なら Codex の出力、代行なら PdM が書き出した返答で、どちらも同じパス。`Task(subagent_type: "dev-crew:green-worker", model: "sonnet", prompt: "Cycle doc: [path]. レビュー結果: /tmp/dev-crew-review-<cycle_id>/review.md. adversarial-review.md の ## 振り分け と ## 報告の型 に従え。")` に渡し、「直す」だけを直させ、直す前に呼び出し元の検索と今の動きの固定を済ませ、既存のテストを弱めさせない。
+   - **未追跡ファイルの前後比較**: 修正役を起動する直前に、次のコマンドで未追跡ファイルの一覧を取って控える
+     ```bash
+     git ls-files --others --exclude-standard
+     ```
+   - 修正役が終わった後に、もう一度同じコマンドで一覧を取る
+     ```bash
+     git ls-files --others --exclude-standard
+     ```
+     増えたファイルのうち、修正役が報告で足したと書いたもの以外を、COMMIT 前の md の「片付け」に載せる（消すかどうかは人間が決める）
    - **修正段階の完了条件**: 修正役が success を返し、修正後に全件を流して、REFACTOR 完了時の全件結果（Progress Log の REFACTOR 記録）より新たに落ちていないこと。満たさなければ 1 回だけやり直し、それでも満たさなければ BLOCK して人間に報告する
    - 修正後に再レビューしない（レビューは回数でなく予算で止める。1 回かけたら終わり）
 3. **記録**: PdM が Cycle doc の Progress Log に `### {date "+%Y-%m-%d %H:%M" の実測値} - REVIEW` の見出し、件数の行、`- Phase completed` を書き、frontmatter の phase / updated を更新する。件数の行は次のどれか:
    - `- Codex review: 直す N / 人間に戻す M / 記録のみ K`
    - `- Codex review: 失敗（<理由>）。adversarial-reviewer で代行: 直す N / 人間に戻す M / 記録のみ K`
    - `- Adversarial review: 直す N / 人間に戻す M / 記録のみ K`（Codex が無い環境）
-4. **COMMIT 前の判断点**: CLAUDE.md の判断点どおり、毎回 md を見せる。「人間に戻す」があれば、その md の先頭に「決めてほしいこと」として載せる。
+
+   修正役が足したテストは、Cycle doc の Test List の DONE に `- [x] TC-R<n>: <テストファイル>::<テスト名>（REVIEW で追加）` の形で追記する（append-only）。
+4. **COMMIT 前の判断点**: CLAUDE.md の判断点どおり、毎回 md を見せる。「人間に戻す」があれば、その md の先頭に「決めてほしいこと」として載せる。手順 2 で見つけた修正役の未追跡ファイルがあれば、「片付け」として載せる。
 5. **セキュリティ**: security-reviewer は常時起動しない。敵対的レビューがセキュリティの問題を見つけたら、rules/security.md の「問題発見時」の手順がそのまま適用される。
 
 ### Phase Summary 永続化 (Block2→Block3)

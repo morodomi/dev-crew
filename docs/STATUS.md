@@ -1,11 +1,12 @@
 # dev-crew Status
 
-Last updated: 2026-10-19
+Last updated: 2026-10-20
 
 ## Completed (Recent)
 
 | Date | Cycle | Type |
 |------|-------|------|
+| 2026-10-20 | 20261020_0955: review-gaps (手順 1 の手直し。pre-commit-gate の照合を最後の REVIEW 節に限り、件数の行の形まで確かめる。REVIEW 節に完了記録が無くても後ろの節で通る穴、コードブロック内の見出しで節が切れる後退〔敵対的レビューで検出〕も修正 #265。commit のまとめを直す / 人間に戻す / 記録のみ に #266。元からある欠陥は直さない #272。後片付けと Test List 追記の担当、レビュー役の scratch ディレクトリ #273。#271 の機械的対策は次の cycle に分割。新しい REVIEW の流れで回した最初の cycle。Test Scripts 121) | fix |
 | 2026-10-17 | 20261016_1645: adversarial-review-triage (フロー再設計 手順 1。code mode の REVIEW を、実装と別の文脈の敵対的レビュー 1 回（Codex は新しいセッション、無ければ新 agent adversarial-reviewer）+ 修正役による指摘の振り分け（直す / 人間に戻す / 記録のみ、直す前に呼び出し元の検索と今の動きの固定）に置き換え。多視点パネルは plan review と明示的な `review --code` に限定。Bash を持つレビュー役の前後で作業ツリーの実体を比べる worktree-fingerprint.sh を追加。CONSTITUTION 原則 2・5 を改訂し ADR を追加。REVIEW（Codex + 4 reviewer、WARN）で fingerprint の抜け道（git の clean filter などで変更を隠せる）を実測して修正。Test Scripts 120。#265-#270 起票) | feat |
 | 2026-10-15 | 20261015_1750: codify-auto-run-stop (フロー再設計 手順 0。比較実験で現行フローが 9 回中 9 回タスク外の変更を commit に混ぜた原因 — orchestrate Block 0 の codify-insight 自動起動と、実行中の AI による rules 追記 — を止める。Block 0 は captured の Cycle doc 件数を 1 行通知するだけにし、codify-insight は `disable-model-invocation: true` で人間の `/dev-crew:codify-insight` のみ、編集範囲を Codify Decisions 追記と frontmatter 遷移に限定。REVIEW（Codex + 4 reviewer、WARN）で、旧スキャン由来の件数誤り（部分一致・pipefail 下の SIGPIPE）を fixture で再現して修正。Test Scripts 119 のまま。#259-#261 起票) | fix |
 | 2026-10-05 | 20261005_1639: local-rules-separation (導入先フィードバック 2 件を修正。onboard が導入先独自の rules を mirror の上書きで消す問題 → `.claude/rules/local-<name>.md` に分離し onboard は触らない。codify-insight の反映先を plugin.json の name で本体/導入先に分岐。plan-discipline の baseline を Quick Commands 基準に一般化。REVIEW WARN 後、Socrates の反論を受けて plan の移行 3 段手順を削除（scope B、ユーザー選択）— 指摘の半分は手順自体が発生源だった。Codex 確認 1 回で TC-02 の順序 pin を追加し変異で検証。Test Scripts 118→119。#255-#257 起票) | fix |
@@ -91,7 +92,7 @@ Last updated: 2026-10-19
 
 ## In Progress
 
-(none)。次は手順 1 の手直し（v2.20.1）。順番と理由は [NEXT.md](NEXT.md) の「現在地」を参照。
+(none)。手順 1 の手直しは 20261020_0955 で完了（v2.20.1 予定）。次は #271 の機械的対策（2.21.0 予定）と事業側での計測。順番と理由は [NEXT.md](NEXT.md) の「現在地」を参照。
 
 ## TODO
 

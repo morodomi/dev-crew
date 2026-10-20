@@ -54,7 +54,7 @@ make_gate_fixture() {
     if [ "$include_review" = "yes" ]; then
       echo "### 2026-01-01 00:00 - REVIEW"
       echo ""
-      echo "Codex review completed. No issues found."
+      echo "- Codex review: 直す 0 / 人間に戻す 0 / 記録のみ 0"
       echo ""
       echo "Phase completed"
       echo ""
