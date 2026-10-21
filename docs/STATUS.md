@@ -1,6 +1,6 @@
 # dev-crew Status
 
-Last updated: 2026-10-20
+Last updated: 2026-10-21
 
 ## Completed (Recent)
 
@@ -92,7 +92,7 @@ Last updated: 2026-10-20
 
 ## In Progress
 
-(none)。手順 1 の手直しは 20261020_0955 で完了（v2.20.1 予定）。次は #271 の機械的対策（2.21.0 予定）と事業側での計測。順番と理由は [NEXT.md](NEXT.md) の「現在地」を参照。
+(none)。手順 1 の手直しは 20261020_0955 で完了し、v2.20.1 でリリース済み。captured だった 4 cycle の insight は 2026-10-20 に codify-insight で判定済み（PR #281。rules への反映は未着手、#223）。次は #271 の機械的対策（2.21.0 予定）と事業側での計測。順番と理由は [NEXT.md](NEXT.md) の「現在地」を参照。
 
 ## TODO
 
