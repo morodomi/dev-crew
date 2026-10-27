@@ -17,6 +17,7 @@
 ### Insight 2
 - **Decision**: deferred
 - **Reason**: 別 cycle で実装予定 (required for deferred)
+- **Upstream issue**: <issue URL> (別リポジトリへの deferred の場合だけ)
 - **Decided**: YYYY-MM-DD HH:MM
 ```
 
@@ -99,6 +100,7 @@ default: **2 回**。同じ insight key phrase が過去 N cycles で threshold 
 - pre-triage ですべての insight が recurrence 判定済み
 - 残りの autonomous triage が全て high-confidence (skill candidate なし、codified vs deferred 境界曖昧なし)
 - user が interactive codify を要求していない
+- 別リポジトリへの deferred が無い
 
 この場合 `## Codify Decisions` を書き出して summary のみ print。
 
@@ -126,6 +128,17 @@ duplicate-negative の機械適用を防ぎ、reason-aware 判定を標準化す
 - 「一般性未確認」 → 2 回目再発で一般性は実証済 → invalidate
 - 「localized pattern」 → 他 context で再発 → invalidate
 - 「運用習慣で十分」 → 運用違反が再発 → invalidate
+
+## 別リポジトリへの deferred
+
+対象は、Decision が `deferred` で、直し先がこのリポジトリの外にあるもの。典型例は、導入先で実行していて、直し先が dev-crew 本体の agents / skills / scripts / rules のとき。判定は Rule Tier Contract と同じく、`.claude-plugin/plugin.json` の `name` が `dev-crew` かどうかを使う。
+
+issue の URL は AskUserQuestion で聞く。既存の 1 cycle につき 1 回の batch に含め、別の質問を増やさない。
+
+- URL が答えられたら `- **Upstream issue**: <issue URL>` と書く
+- 答えが無い、または起票しないと言われたら `- **Upstream issue**: 未起票` と書く
+
+codify-insight は Bash を持たないので、自分では起票しない。URL を記録するだけ。編集範囲（Codify Decisions への追記）は変わらない。
 
 ## TDD Timing Heuristics
 

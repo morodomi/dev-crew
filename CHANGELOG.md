@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- **SYNC-PLAN の完了記録を書く 2 つの役が、pre-red-gate の読む形を保証していなかった問題を修正。** sync-plan エージェントは Step 4 で SYNC-PLAN の完了エントリ（`### <ts> - SYNC-PLAN` + `- Phase completed`）を書いてから結果を返す。PdM の Phase Summary のテンプレート（steps-subagent / steps-teams）には `- Phase completed` を足した。KICKOFF と Plan Review の転記はどちらも単独では gate の条件を満たさず、散文の rule では再発したため、両経路を実際に pre-red-gate に通す契約テストで固定した
+- **codify-insight が、別リポジトリへの deferred で issue URL を聞いて記録するようにした。** 直し先がこのリポジトリの外にある deferred では、AskUserQuestion（既存の 1 cycle 1 回の batch）で URL を聞き、Codify Decisions に `Upstream issue` として書く（起票しない場合は `未起票`）。codify-insight は Bash を持たず自分では起票できないため、起票されないまま途切れていた
+
 ## [2.20.1] - 2026-10-20
 
 ### Fixed

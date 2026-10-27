@@ -700,6 +700,108 @@ else
   fi
 fi
 
+# TC-28: 別リポジトリへの deferred の issue URL を Codify Decisions に記録する契約
+# codify-insight は Bash を持たず自分では起票できないため、URL (または未起票) を記録する。
+# 区間の切り出しは awk index() の固定文字列前方一致。区間の外の同じ語では通らない。
+#
+# GREEN が写すべき句 (連続した句。reference.md の "## 別リポジトリへの deferred" 節に書く):
+#   (a) 「Decision が `deferred`」と
+#       「`.claude-plugin/plugin.json` の `name` が `dev-crew`」
+#   (b) 1 行に条件と記録値を並べた 2 つの句:
+#       「URL が答えられたら `- **Upstream issue**: <issue URL>`」
+#       「答えが無い、または起票しないと言われたら `- **Upstream issue**: 未起票`」
+#   (c) 「1 cycle につき 1 回の batch」に含める
+#   (d) "## Annotation Format" 区間の fenced block に `**Upstream issue**` の行
+#   (e) SKILL.md "### AskUserQuestion Fallback" 区間に「別リポジトリへの deferred の issue URL」の項があり、
+#       同区間の「質問 0 件」の文に「別リポジトリへの deferred が無い」を含む。
+#       reference.md "### Question 0 件の条件" 区間にも「別リポジトリへの deferred が無い」
+#
+# tc28_sec FILE HEADING: 見出し (例 "## Annotation Format") の固定文字列前方一致で区間を切り出す。
+# fenced block の中の "## ..." 行 (Annotation Format の例に "## Codify Decisions" がある) では区間を閉じない。
+tc28_sec() {
+  awk -v h="$2" '
+    /^```/ { fence = !fence; if (s) print; next }
+    !fence && index($0, h) == 1 { s = 1; next }
+    !fence && s && /^##/ { exit }
+    s
+  ' "$1"
+}
+
+# 1 行の中で cond が val より前に並んでいる行が 1 つでもあれば rc=0
+line_has_cond_then_val() {
+  awk -v c="$2" -v v="$3" '
+    { ci = index($0, c); vi = index($0, v); if (ci > 0 && vi > ci) found = 1 }
+    END { exit found ? 0 : 1 }
+  ' <<< "$1"
+}
+
+echo ""
+echo "TC-28: 別リポジトリへの deferred の Upstream issue 契約"
+TC28_SEC=""
+if [ -f "$REFERENCE_MD" ]; then
+  TC28_SEC=$(tc28_sec "$REFERENCE_MD" "## 別リポジトリへの deferred")
+fi
+
+# (a) 対象の判定
+if [ -z "$TC28_SEC" ]; then
+  fail "TC-28(a): setup error: reference.md に '## 別リポジトリへの deferred' 区間が無い"
+elif grep -qF -- 'Decision が `deferred`' <<< "$TC28_SEC" && \
+     grep -qF -- '`.claude-plugin/plugin.json` の `name` が `dev-crew`' <<< "$TC28_SEC"; then
+  pass "TC-28(a): 対象の判定 (deferred + plugin.json の name) が区間内にある"
+else
+  fail "TC-28(a): 区間内に 'Decision が \`deferred\`' と '\`.claude-plugin/plugin.json\` の \`name\` が \`dev-crew\`' の句が無い"
+fi
+
+# (b) URL と未起票の使い分け (条件と記録値を同じ行で検査する)
+if [ -z "$TC28_SEC" ]; then
+  fail "TC-28(b): setup error: reference.md に '## 別リポジトリへの deferred' 区間が無い"
+elif line_has_cond_then_val "$TC28_SEC" 'URL が答えられたら' '- **Upstream issue**: <issue URL>' && \
+     line_has_cond_then_val "$TC28_SEC" '答えが無い、または起票しない' '- **Upstream issue**: 未起票'; then
+  pass "TC-28(b): URL と未起票が条件つきで 1 行ずつ並んでいる"
+else
+  fail "TC-28(b): 'URL が答えられたら ... <issue URL>' または '答えが無い、または起票しない ... 未起票' の行が無い"
+fi
+
+# (c) batch の制約
+if [ -z "$TC28_SEC" ]; then
+  fail "TC-28(c): setup error: reference.md に '## 別リポジトリへの deferred' 区間が無い"
+elif grep -qF -- '1 cycle につき 1 回の batch' <<< "$TC28_SEC"; then
+  pass "TC-28(c): 既存の 1 cycle 1 回の batch に含める句がある"
+else
+  fail "TC-28(c): 区間内に '1 cycle につき 1 回の batch' の句が無い"
+fi
+
+# (d) Annotation Format の fenced block
+TC28_ANN=""
+if [ -f "$REFERENCE_MD" ]; then
+  TC28_ANN=$(tc28_sec "$REFERENCE_MD" "## Annotation Format" | awk '/^```/{f=!f; next} f')
+fi
+if [ -z "$TC28_ANN" ]; then
+  fail "TC-28(d): setup error: reference.md '## Annotation Format' 区間に fenced block が無い"
+elif grep -qF -- '**Upstream issue**' <<< "$TC28_ANN"; then
+  pass "TC-28(d): Annotation Format の fenced block に Upstream issue の行がある"
+else
+  fail "TC-28(d): Annotation Format の fenced block に '**Upstream issue**' の行が無い"
+fi
+
+# (e) 質問の条件
+TC28_FB=""
+TC28_Q0=""
+[ -f "$SKILL_MD" ] && TC28_FB=$(tc28_sec "$SKILL_MD" "### AskUserQuestion Fallback")
+[ -f "$REFERENCE_MD" ] && TC28_Q0=$(tc28_sec "$REFERENCE_MD" "### Question 0 件の条件")
+if [ -z "$TC28_FB" ] || [ -z "$TC28_Q0" ]; then
+  fail "TC-28(e): setup error: SKILL.md '### AskUserQuestion Fallback' または reference.md '### Question 0 件の条件' 区間が無い"
+elif ! grep -qF -- '別リポジトリへの deferred の issue URL' <<< "$TC28_FB"; then
+  fail "TC-28(e): Fallback 区間に '別リポジトリへの deferred の issue URL' の項が無い"
+elif ! line_has_cond_then_val "$TC28_FB" '質問 0 件' '別リポジトリへの deferred が無い' && \
+     ! line_has_cond_then_val "$TC28_FB" '別リポジトリへの deferred が無い' '質問 0 件'; then
+  fail "TC-28(e): SKILL.md の質問 0 件の条件の文に '別リポジトリへの deferred が無い' が無い"
+elif ! grep -qF -- '別リポジトリへの deferred が無い' <<< "$TC28_Q0"; then
+  fail "TC-28(e): reference.md の Question 0 件の条件に '別リポジトリへの deferred が無い' が無い"
+else
+  pass "TC-28(e): Fallback の項と、質問 0 件の条件 (SKILL.md / reference.md) に否定まで含む句がある"
+fi
+
 # Summary
 echo ""
 echo "=== Summary ==="

@@ -58,10 +58,10 @@ pre-triage で処理されなかった insight は 1 cycle 分まとめて自動
 
 以下の場合のみ AskUserQuestion (1 cycle max 1 回の batch、per-insight 不可):
 - `skill` 候補で destination 妥当性の確認が必要
-- autonomous triage で `codified` vs `deferred` の境界が低確信
-- ユーザーが対話的 codify を明示要求
+- autonomous triage で `codified` vs `deferred` の境界が低確信、またはユーザーが対話的 codify を明示要求
+- 別リポジトリへの deferred の issue URL（[reference.md](reference.md#別リポジトリへの-deferred)）
 
-全件 recurrence or high-confidence triage なら質問 0 件で summary のみ print。
+全件 recurrence or high-confidence triage かつ別リポジトリへの deferred が無い場合は質問 0 件で summary のみ print。
 
 ### Output
 
