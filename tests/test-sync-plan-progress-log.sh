@@ -5,6 +5,7 @@
 # TC-03: sync-plan.md Frontmatter Initialization phase default = KICKOFF (not RED)
 # TC-04: cycle.md template Progress Log example uses KICKOFF (not INIT)
 # TC-05: cycle.md template Progress Log format spec has strong required/strict wording
+# TC-06: sync-plan.md 対象 PHASE_NAME の行に SYNC-PLAN が含まれる
 
 set -uo pipefail
 
@@ -83,6 +84,25 @@ else
     pass "TC-05: cycle.md Progress Log format spec contains strong wording (strict/required/pre-commit-gate)"
   else
     fail "TC-05: cycle.md Progress Log format spec lacks strong wording (strict/required/pre-commit-gate not found)"
+  fi
+fi
+
+# TC-06: sync-plan.md の対象 PHASE_NAME に SYNC-PLAN が含まれる
+# Given: agents/sync-plan.md の `**対象 PHASE_NAME**:` の行
+# When:  その行だけを読み、`KICKOFF / SYNC-PLAN /` の連続した句を探す
+# Then:  句がある (Step 4 の code block の `SYNC-PLAN` では通らない)
+echo ""
+echo "TC-06: sync-plan.md 対象 PHASE_NAME の行に SYNC-PLAN が含まれる"
+if [ ! -f "$SYNC_PLAN" ]; then
+  fail "TC-06: agents/sync-plan.md does not exist"
+else
+  phase_name_line="$(grep -F '**対象 PHASE_NAME**:' "$SYNC_PLAN" || true)"
+  if [ -z "$phase_name_line" ]; then
+    fail "TC-06: setup error: '**対象 PHASE_NAME**:' の行が sync-plan.md に無い"
+  elif grep -qF -- 'KICKOFF / SYNC-PLAN /' <<< "$phase_name_line"; then
+    pass "TC-06: 対象 PHASE_NAME に 'KICKOFF / SYNC-PLAN /' がある"
+  else
+    fail "TC-06: 対象 PHASE_NAME の行に 'KICKOFF / SYNC-PLAN /' が無い: '$phase_name_line'"
   fi
 fi
 

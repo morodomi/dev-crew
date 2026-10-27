@@ -113,7 +113,15 @@ planファイルの `## Plan Review Record`（spec Step 8 で記録済み）をC
 
 ### Step 4: Complete
 
-Output: Cycle doc生成完了。結果JSONを返却。
+Step 3.5 の転記の後、Progress Log に SYNC-PLAN の完了エントリを書いてから、結果JSONを返却する。
+
+```
+### <ts> - SYNC-PLAN
+- Cycle doc generated from plan (Test List N items, Plan Review Record transferred)
+- Phase completed
+```
+
+`<ts>` は Step 2 の `$NOW` と同じ形（`YYYY-MM-DD HH:MM`）。**理由**: pre-red-gate は 1 つの `### ` エントリ内に sync-plan の語と `Phase completed` を求め、KICKOFF と Plan Review の転記はどちらも単独では満たさない。
 
 > Note: Codex Plan Review は承認前（plan mode 内、spec Step 8）に実行済み。
 > sync-plan は plan の `## Plan Review Record` を Cycle doc へ転記する（Step 3.5）。
@@ -182,7 +190,7 @@ Cycle doc 生成時、Progress Log セクションの各 phase entry は以下�
 
 **理由**: `scripts/gates/pre-commit-gate.sh` が `awk '/^### .* - REVIEW/,/Phase completed/'` で REVIEW entry を検出する。header 形式が乖離すると gate が BLOCK する。
 
-**対象 PHASE_NAME**: KICKOFF / RED / GREEN / REFACTOR / REVIEW / COMMIT / DONE。
+**対象 PHASE_NAME**: KICKOFF / SYNC-PLAN / RED / GREEN / REFACTOR / REVIEW / COMMIT / DONE。
 
 ## Principles
 

@@ -99,6 +99,7 @@ PdM が Cycle doc に Phase Summary を追記:
 **Pre-Review**: verdict=[PASS/WARN/BLOCK], issues=[summary]
 **Next Phase Input**: Test List items TC-01 ~ TC-NN
 **Subagent**: agent_id={architect_agent_id}, tokens={total_tokens}
+- Phase completed
 ```
 
 ## Block 2: Implementation

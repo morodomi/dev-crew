@@ -1042,6 +1042,118 @@ else
   fail "TC-R15(q): expected BLOCK naming the missing Record heading, got rc=$rc_r15q output: $output_r15q"
 fi
 
+########################################
+# TC-R16: SYNC-PLAN 完了記録の経路 (書く役の定義が gate の読む形を出すか)
+# gate は 1 つの "###" エントリに「SYNC-PLAN (または sync-plan)」と「Phase completed」の
+# 両方を求める。KICKOFF と Plan Review (pre-approval) の転記はどちらも単独では満たさない。
+# 書く役の定義 (agents/sync-plan.md と orchestrate の Phase Summary テンプレート) の
+# code block を取り出し、(a) の Cycle doc に足して gate に通す。
+#   (a) 対照: 足さない -> rc=1 "sync-plan not completed"
+#   (b) agents/sync-plan.md ### Step 4 区間の "### <ts> - SYNC-PLAN" block (<ts> は時刻に置換)
+#   (c) steps-subagent.md ### Phase Summary 永続化 (sync-plan→RED) 区間の block (プレースホルダのまま)
+#   (d) steps-teams.md 同上
+########################################
+
+# extract_section_fence FILE HEADING_PREFIX [FIRST_LINE_PREFIX]
+# 見出し区間 (固定文字列の前方一致、fence の外の次の "#" 見出しまで) を先に切り出し、
+# その中の fenced block のうち 1 行目が FIRST_LINE_PREFIX で始まるものの中身を出力する。
+# 見つからなければ何も出力しない (呼び出し側が setup error で FAIL する)。
+extract_section_fence() {
+  awk -v h="$2" -v p="${3:-}" '
+    /^```/ {
+      if (fence) { fence = 0; if (s && matched) { printf "%s", blk; exit } }
+      else { fence = 1; blk = ""; n = 0; matched = 0 }
+      next
+    }
+    fence {
+      if (s) { n++; if (n == 1) matched = (p == "" || index($0, p) == 1); if (matched) blk = blk $0 "\n" }
+      next
+    }
+    index($0, h) == 1 { s = 1; next }
+    s && /^##/ { exit }
+  ' "$1"
+}
+
+# build_r16_doc DIR -> DIR/plan.md と DIR/docs/cycles/20260101_0000_r16.md を作る。
+# KICKOFF はテンプレート (skills/spec/templates/cycle.md) どおり。Plan Review (pre-approval) は strict 契約を満たす。
+build_r16_doc() {
+  local dir="$1" plan_path hash
+  mkdir -p "$dir/docs/cycles"
+  plan_path="$dir/plan.md"
+  hash=$(make_fixture_plan "$plan_path")
+  {
+    printf -- '---\nphase: RED\nplan_file: %s\nupdated: 2026-01-01 00:20\n---\n' "$plan_path"
+    printf -- '# Fixture cycle R16\n\n## Progress Log\n\n'
+    printf -- '### 2026-01-01 00:00 - KICKOFF\n- Cycle doc created\n- Scope definition ready\n\n'
+    printf -- '### 2026-01-01 00:05 - Plan Review (pre-approval)\n'
+    printf -- '- codex_session_id: session-r16\n'
+    printf -- '- review_attempts:\n  - {started: 2026-01-01 00:01, completed: 2026-01-01 00:03, verdict: WARN}\n'
+    printf -- '- unresolved_blocks: なし\n'
+    printf -- '- reviewed_plan_hash: %s\n' "$hash"
+    printf -- '- verdict: WARN\n- Phase completed\n'
+  } > "$dir/docs/cycles/20260101_0000_r16.md"
+}
+
+# run_r16 DIR -> output_r16 / rc_r16 を設定する
+run_r16() {
+  output_r16=$(DEV_CREW_PLAN_DIR="$1" bash "$SCRIPT" "$1/docs/cycles/20260101_0000_r16.md" 2>&1) && rc_r16=$? || rc_r16=$?
+}
+
+# TC-R16(a): Given KICKOFF + Plan Review だけの Cycle doc, When gate 実行, Then rc=1 "sync-plan not completed"
+echo ""
+echo "TC-R16(a): control (KICKOFF + Plan Review only) -> BLOCK sync-plan not completed"
+FIXTURE_R16A="$TMPDIR/tcr16a"
+build_r16_doc "$FIXTURE_R16A"
+run_r16 "$FIXTURE_R16A"
+if [ "$rc_r16" -eq 1 ] && grep -qF -- "sync-plan not completed" <<< "$output_r16"; then
+  pass "TC-R16(a): KICKOFF + Plan Review alone BLOCKs with 'sync-plan not completed'"
+else
+  fail "TC-R16(a): expected rc=1 'sync-plan not completed', got rc=$rc_r16 output: $output_r16"
+fi
+
+# TC-R16(b): Given agents/sync-plan.md ### Step 4 区間の "### <ts> - SYNC-PLAN" block (<ts> を時刻に置換),
+# When (a) の Cycle doc に足して gate 実行, Then rc=0
+echo ""
+echo "TC-R16(b): sync-plan.md Step 4 block appended -> PASS"
+FIXTURE_R16B="$TMPDIR/tcr16b"
+build_r16_doc "$FIXTURE_R16B"
+BLOCK_R16B=$(extract_section_fence "$BASE_DIR/agents/sync-plan.md" "### Step 4" "### <ts> - SYNC-PLAN")
+if [ -z "$BLOCK_R16B" ]; then
+  fail "TC-R16(b): setup error: agents/sync-plan.md の '### Step 4' 区間に '### <ts> - SYNC-PLAN' で始まる fenced block が無い"
+else
+  { printf -- '\n'; printf '%s\n' "$BLOCK_R16B" | sed 's/<ts>/2026-01-01 00:10/'; } >> "$FIXTURE_R16B/docs/cycles/20260101_0000_r16.md"
+  run_r16 "$FIXTURE_R16B"
+  if [ "$rc_r16" -eq 0 ]; then
+    pass "TC-R16(b): sync-plan.md Step 4 block satisfies the gate"
+  else
+    fail "TC-R16(b): expected rc=0, got rc=$rc_r16 output: $output_r16"
+  fi
+fi
+
+# TC-R16(c)/(d): Given steps-subagent.md / steps-teams.md の
+# "### Phase Summary 永続化 (sync-plan→RED)" 区間の block (プレースホルダのまま),
+# When (a) の Cycle doc に足して gate 実行, Then rc=0
+for r16_kind in c:steps-subagent d:steps-teams; do
+  r16_id="${r16_kind%%:*}"
+  r16_name="${r16_kind#*:}"
+  echo ""
+  echo "TC-R16($r16_id): $r16_name.md Phase Summary (sync-plan→RED) block appended -> PASS"
+  r16_dir="$TMPDIR/tcr16$r16_id"
+  build_r16_doc "$r16_dir"
+  r16_block=$(extract_section_fence "$BASE_DIR/skills/orchestrate/$r16_name.md" "### Phase Summary 永続化 (sync-plan→RED)" "### Phase: SYNC-PLAN")
+  if [ -z "$r16_block" ]; then
+    fail "TC-R16($r16_id): setup error: $r16_name.md の '### Phase Summary 永続化 (sync-plan→RED)' 区間に '### Phase: SYNC-PLAN' で始まる fenced block が無い"
+  else
+    { printf -- '\n'; printf '%s\n' "$r16_block"; } >> "$r16_dir/docs/cycles/20260101_0000_r16.md"
+    run_r16 "$r16_dir"
+    if [ "$rc_r16" -eq 0 ]; then
+      pass "TC-R16($r16_id): $r16_name.md Phase Summary template satisfies the gate"
+    else
+      fail "TC-R16($r16_id): expected rc=0, got rc=$rc_r16 output: $output_r16"
+    fi
+  fi
+done
+
 # Summary
 echo ""
 echo "=== Summary ==="
