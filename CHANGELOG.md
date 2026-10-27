@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [2.21.0] - 2026-10-27
+
 ### Fixed
 
 - **SYNC-PLAN の完了記録を書く 2 つの役が、pre-red-gate の読む形を保証していなかった問題を修正。** sync-plan エージェントは Step 4 で SYNC-PLAN の完了エントリ（`### <ts> - SYNC-PLAN` + `- Phase completed`）を書いてから結果を返す。PdM の Phase Summary のテンプレート（steps-subagent / steps-teams）には `- Phase completed` を足した。KICKOFF と Plan Review の転記はどちらも単独では gate の条件を満たさず、散文の rule では再発したため、両経路を実際に pre-red-gate に通す契約テストで固定した
