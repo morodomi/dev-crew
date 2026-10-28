@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [2.22.0] - 2026-10-28
+
 ### Changed
 
 - **REVIEW で、修正役を起動する前に PdM が指摘の場所を diff と照らすようにした。** `scripts/gates/finding-in-diff.sh <ファイル> <行>` が diff の中（0）・外（1）・判定不能（2）を返し、外の指摘は修正役に「直す」として渡さず「直さない指摘」として prompt に書く。元からある欠陥を直すために、修正役がほかの機能の動きを変えた計測例（`docs/research/review-fixer-impact-2026-10.md`）があったため
