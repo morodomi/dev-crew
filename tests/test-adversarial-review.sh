@@ -37,6 +37,18 @@
 #   F22 steps-teams.md REVIEW 節: `他の worker に作業ツリーを書かせない`
 #   F23 steps-subagent.md: `Skill() を直接呼び出してはならない（` の行と `Skill() 直接呼び出しは` の行に `review --plan`
 #   F24 pre-commit-gate.sh: `competitive` と `Run review before commit` を含まない。Codex 記録なしの BLOCK は件数の行の形、REVIEW 未完了の BLOCK は adversarial-review.md を示す
+#   [修正役を起動する前の場所の照合（TC-27〜TC-32）。GREEN が書く固定文言]
+#   F25 REVIEW 節（3 ファイル）の同じ 1 行に、この順で: `bash scripts/gates/finding-in-diff.sh` ... `「直す」が 0 件なら修正役を起動せず`（TC-27）
+#   F26 REVIEW 節（3 ファイル）の 1 行に、この順で（TC-28）:
+#       `終了コード 1 の指摘は` ... `修正役に「直す」として渡さない` ... `受け入れ条件に関わるなら「人間に戻す」` ... `関わらないなら「記録のみ」`
+#       別の 1 行（F26 と同じ行でもよい）に、この順で: `終了コード 0・2 と、場所が書かれていない指摘は` ... `修正役の振り分けに任せる`
+#       同じ行に両方の条件がある場合は、`修正役に「直す」として渡さない` が `終了コード 0・2 と、場所が書かれていない指摘は` より前
+#   F27 adversarial-review.md `## 頼み方` の fenced block（依頼文）: `ファイル:行`（TC-29）
+#   F28 adversarial-review.md `## 振り分け`: 同じ行に `直さない指摘` と `振り分けも報告もしない`（TC-30）
+#   F29 修正役の起動文字列（TC-31）: steps-codex.md REVIEW 節の `codex exec ... resume` の行（継続行は連結）と、
+#       3 ファイル REVIEW 節の `Task(subagent_type: "dev-crew:green-worker"` を含む各行に `直さない指摘: [ファイル:行`
+#   F30 REVIEW 節（3 ファイル、TC-32）: `修正役へ渡す指摘が 1 件以上残れば、修正役を起動する` / `PdM が照合で振り分けた分と、修正役の報告の分を足した`
+#       / `振り分けも報告もしない` / `P3 の指摘を PdM が「記録のみ」として数える`
 # Cycle doc に書かれている固定文（TC 本文の引用）はそのまま使う。
 
 set -uo pipefail
@@ -954,6 +966,166 @@ if [ -z "$detail" ]; then
   pass "TC-26: gate messages updated"
 else
   fail "TC-26:$detail"
+fi
+
+# line_ordered BODY P1 P2 ...: BODY のどれかの 1 行に、全 P が P1 < P2 < ... の順で含まれるか（rc 0/1）
+line_ordered() {
+  local body="$1"
+  shift
+  printf '%s\n' "$body" | awk -v n="$#" -v p1="${1:-}" -v p2="${2:-}" -v p3="${3:-}" -v p4="${4:-}" '
+    BEGIN { p[1] = p1; p[2] = p2; p[3] = p3; p[4] = p4 }
+    {
+      last = 0; ok = 1
+      for (i = 1; i <= n; i++) {
+        pos = index($0, p[i])
+        if (pos == 0 || pos <= last) { ok = 0; break }
+        last = pos
+      }
+      if (ok) { found = 1; exit }
+    }
+    END { exit(found ? 0 : 1) }
+  '
+}
+
+# line_inverted BODY A B: BODY のどれかの 1 行で A と B の両方があり、A が B より後ろなら rc 0（入れ替わりの検出）
+line_inverted() {
+  printf '%s\n' "$1" | awk -v a="$2" -v b="$3" '
+    { pa = index($0, a); pb = index($0, b); if (pa > 0 && pb > 0 && pa > pb) { found = 1; exit } }
+    END { exit(found ? 0 : 1) }
+  '
+}
+
+# TC-27: 照合は修正役の起動より先（同じ行の中）
+echo ""
+echo "TC-27: REVIEW step 2 puts finding-in-diff.sh before 「直す」が 0 件なら修正役を起動せず on the same line"
+missing=""
+for f in $STEPS_FILES; do
+  body=$(review_sec "$f")
+  if [ -z "$body" ]; then missing="$missing [$(basename "$f"): REVIEW 節なし]"; continue; fi
+  line_ordered "$body" "bash scripts/gates/finding-in-diff.sh" "「直す」が 0 件なら修正役を起動せず" \
+    || missing="$missing [$(basename "$f"): finding-in-diff.sh が「直す」が 0 件…より前の同じ行にない]"
+done
+if [ -z "$missing" ]; then
+  pass "TC-27: gate call precedes fixer launch in all 3 files"
+else
+  fail "TC-27:$missing"
+fi
+
+# TC-28: 終了コードごとの扱い（条件と扱いの組）
+echo ""
+echo "TC-28: exit code 1 -> not passed to the fixer (人間に戻す / 記録のみ); exit 0, 2, no location -> left to the fixer's triage"
+C1="終了コード 1 の指摘は"
+T1="修正役に「直す」として渡さない"
+T1a="受け入れ条件に関わるなら「人間に戻す」"
+T1b="関わらないなら「記録のみ」"
+C02="終了コード 0・2 と、場所が書かれていない指摘は"
+T02="修正役の振り分けに任せる"
+missing=""
+for f in $STEPS_FILES; do
+  body=$(review_sec "$f")
+  if [ -z "$body" ]; then missing="$missing [$(basename "$f"): REVIEW 節なし]"; continue; fi
+  line_ordered "$body" "$C1" "$T1" "$T1a" "$T1b" \
+    || missing="$missing [$(basename "$f"): 終了コード 1 の条件と扱いの組がない]"
+  line_ordered "$body" "$C02" "$T02" \
+    || missing="$missing [$(basename "$f"): 終了コード 0・2・場所なしの条件と扱いの組がない]"
+  if line_inverted "$body" "$T1" "$C02"; then
+    missing="$missing [$(basename "$f"): 「渡さない」が 0・2 の条件より後ろ（入れ替わり）]"
+  fi
+done
+if [ -z "$missing" ]; then
+  pass "TC-28: exit code handling pairs present in all 3 files"
+else
+  fail "TC-28:$missing"
+fi
+
+# TC-29: 依頼文に場所
+echo ""
+echo "TC-29: adversarial-review.md ## 頼み方 request text (fenced block) asks for ファイル:行"
+ask_body=$(sec "$AR" "## 頼み方" 2)
+ask_fence=$(printf '%s\n' "$ask_body" | awk '/^```/ { f = !f; next } f { print }')
+if [ -n "$ask_fence" ] && [ "$(count_in "$ask_fence" "ファイル:行")" -ge 1 ]; then
+  pass "TC-29: request text asks for ファイル:行"
+else
+  fail "TC-29: ## 頼み方 fenced block lacks ファイル:行"
+fi
+
+# TC-30: 直さない指摘は振り分けも報告もしない
+echo ""
+echo "TC-30: adversarial-review.md ## 振り分け says 直さない指摘 is neither fixed, triaged nor reported"
+tri_body=$(sec "$AR" "## 振り分け" 2)
+tri_hit=$(printf '%s\n' "$tri_body" | awk 'index($0, "直さない指摘") && index($0, "振り分けも報告もしない") { c++ } END { print c + 0 }')
+if [ "$tri_hit" -ge 1 ]; then
+  pass "TC-30: 直さない指摘 handling stated"
+else
+  fail "TC-30: no line in ## 振り分け has both 直さない指摘 and 振り分けも報告もしない"
+fi
+
+# TC-31: 修正役の起動文字列に 直さない指摘: [ファイル:行
+echo ""
+echo "TC-31: fixer launch strings (codex exec resume, Task green-worker) carry 直さない指摘: [ファイル:行"
+NOFIX="直さない指摘: [ファイル:行"
+missing=""
+body=$(review_sec "$STEPS_CODEX")
+resume_cmds=$(codex_cmds "$body" | grep -F " resume " || true)
+if [ -z "$resume_cmds" ]; then
+  missing="$missing [steps-codex.md: REVIEW 節に codex exec ... resume の行がない]"
+else
+  while IFS= read -r l; do
+    # resume より後ろで、NOFIX の直前までの引用符が奇数個 = 引用された prompt 文字列の中
+    rest="${l#* resume }"
+    if [ "$rest" = "$l" ] || [ "${rest#*"$NOFIX"}" = "$rest" ]; then
+      missing="$missing [steps-codex.md: codex exec resume の後に $NOFIX がない]"
+      continue
+    fi
+    before="${rest%%"$NOFIX"*}"
+    quotes="${before//[^\"]/}"
+    tail_after="${rest#*"$NOFIX"}"
+    if [ $(( ${#quotes} % 2 )) -ne 1 ] || [ "${tail_after#*\"}" = "$tail_after" ]; then
+      missing="$missing [steps-codex.md: $NOFIX が codex exec resume の引用された prompt 文字列の中にない]"
+    fi
+  done <<< "$resume_cmds"
+fi
+for f in $STEPS_FILES; do
+  body=$(review_sec "$f")
+  task_lines=$(printf '%s\n' "$body" | grep -F 'Task(subagent_type: "dev-crew:green-worker"' || true)
+  if [ -z "$task_lines" ]; then
+    missing="$missing [$(basename "$f"): REVIEW 節に Task green-worker の行がない]"
+    continue
+  fi
+  while IFS= read -r l; do
+    # Task( より後ろの prompt: "…" の中（閉じ引用符まで）だけを見る。行の前のほうの説明文は対象にしない
+    rest="${l#*'Task(subagent_type: "dev-crew:green-worker"'}"
+    after="${rest#*'prompt: "'}"
+    if [ "$after" = "$rest" ]; then
+      missing="$missing [$(basename "$f"): Task green-worker に prompt: \" がない]"
+      continue
+    fi
+    if [ "${after#*\"}" = "$after" ]; then
+      missing="$missing [$(basename "$f"): Task green-worker の prompt の閉じ引用符がない]"
+      continue
+    fi
+    task_prompt="${after%%\"*}"
+    [ "$(count_in "$task_prompt" "$NOFIX")" -ge 1 ] || missing="$missing [$(basename "$f"): Task green-worker の prompt 文字列に $NOFIX がない]"
+  done <<< "$task_lines"
+done
+if [ -z "$missing" ]; then
+  pass "TC-31: launch strings carry 直さない指摘"
+else
+  fail "TC-31:$missing"
+fi
+
+# TC-32: 起動の条件と件数
+echo ""
+echo "TC-32: REVIEW sections state the launch condition, the summed counts, no re-triage, and P3 counting"
+missing=$(check_steps_review_has \
+  "修正役へ渡す指摘が 1 件以上残れば、修正役を起動する" \
+  "PdM が照合で振り分けた分と、修正役の報告の分を足した" \
+  "振り分けも報告もしない" \
+  "P3 の指摘を PdM が「記録のみ」として数える")
+if [ -z "$missing" ]; then
+  pass "TC-32: launch condition and count rules in all 3 files"
+else
+  fail "TC-32: missing:$missing"
 fi
 
 # TC-14 (回帰契約): SKILL.md が 100 行未満（修正前でも PASS）

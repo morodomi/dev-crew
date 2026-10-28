@@ -1,11 +1,12 @@
 # dev-crew Status
 
-Last updated: 2026-10-27
+Last updated: 2026-10-28
 
 ## Completed (Recent)
 
 | Date | Cycle | Type |
 |------|-------|------|
+| 2026-10-28 | 20261028_1047: review-fixer-location-check (#271。REVIEW の修正役を起動する前に、PdM が P1・P2 の指摘の場所を新しい `scripts/gates/finding-in-diff.sh` で diff と照らす。diff の外（元からある欠陥）の指摘は修正役に渡さず、受け入れ条件に関わるなら人間に戻す、関わらないなら記録のみ。判定できない・場所なしは今までどおり修正役に任せる。スクリプトは git の設定・環境変数・clean filter・バイナリ扱いで判定がずれる場合は 2。変異 19/19 検出。REVIEW（Codex、直す 3）で環境変数とバイナリ扱いを修正。Test Scripts 122) | feat |
 | 2026-10-27 | 20261027_1750: sync-plan-completion-marker (#285。SYNC-PLAN の完了記録を書く 2 つの役が pre-red-gate の形を保証していなかった問題を修正。sync-plan エージェントは Step 4 で `### <ts> - SYNC-PLAN` + `- Phase completed` を書き、PdM の Phase Summary のテンプレートにも `- Phase completed` を足した。両経路の文面を doc から取り出して gate に通す契約テスト TC-R16 で固定（変異 12/12 検出）。codify-insight は別リポジトリへの deferred で issue URL を聞いて記録する。REVIEW（Codex、直す 1）で新しいテストの pipefail 下の `| grep -q` を here-string に。Test Scripts 121。#286 起票) | fix |
 | 2026-10-20 | 20261020_0955: review-gaps (手順 1 の手直し。pre-commit-gate の照合を最後の REVIEW 節に限り、件数の行の形まで確かめる。REVIEW 節に完了記録が無くても後ろの節で通る穴、コードブロック内の見出しで節が切れる後退〔敵対的レビューで検出〕も修正 #265。commit のまとめを直す / 人間に戻す / 記録のみ に #266。元からある欠陥は直さない #272。後片付けと Test List 追記の担当、レビュー役の scratch ディレクトリ #273。#271 の機械的対策は次の cycle に分割。新しい REVIEW の流れで回した最初の cycle。Test Scripts 121) | fix |
 | 2026-10-17 | 20261016_1645: adversarial-review-triage (フロー再設計 手順 1。code mode の REVIEW を、実装と別の文脈の敵対的レビュー 1 回（Codex は新しいセッション、無ければ新 agent adversarial-reviewer）+ 修正役による指摘の振り分け（直す / 人間に戻す / 記録のみ、直す前に呼び出し元の検索と今の動きの固定）に置き換え。多視点パネルは plan review と明示的な `review --code` に限定。Bash を持つレビュー役の前後で作業ツリーの実体を比べる worktree-fingerprint.sh を追加。CONSTITUTION 原則 2・5 を改訂し ADR を追加。REVIEW（Codex + 4 reviewer、WARN）で fingerprint の抜け道（git の clean filter などで変更を隠せる）を実測して修正。Test Scripts 120。#265-#270 起票) | feat |
@@ -93,7 +94,7 @@ Last updated: 2026-10-27
 
 ## In Progress
 
-(none)。手順 1 の手直しは 20261020_0955 で完了し、v2.20.1 でリリース済み。captured だった 4 cycle の insight は 2026-10-20 に codify-insight で判定済み（PR #281。rules への反映は未着手、#223）。SYNC-PLAN の完了記録の欠落（#285、20261027_1750）は v2.21.0 でリリース済み。次は #271（修正役を起動する前に、PdM が指摘の場所と diff を照らす）と事業側での計測。順番と理由は [NEXT.md](NEXT.md) の「現在地」を参照。
+(none)。手順 1 の手直しは 20261020_0955 で完了し、v2.20.1 でリリース済み。captured だった 4 cycle の insight は 2026-10-20 に codify-insight で判定済み（PR #281。rules への反映は未着手、#223）。SYNC-PLAN の完了記録の欠落（#285、20261027_1750）は v2.21.0 でリリース済み。#271（修正役を起動する前に、PdM が指摘の場所と diff を照らす）は 20261028_1047 で完了（未リリース）。次は事業側での計測。順番と理由は [NEXT.md](NEXT.md) の「現在地」を参照。
 
 ## TODO
 
