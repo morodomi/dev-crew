@@ -1,11 +1,12 @@
 # dev-crew Status
 
-Last updated: 2026-10-28
+Last updated: 2026-11-04
 
 ## Completed (Recent)
 
 | Date | Cycle | Type |
 |------|-------|------|
+| 2026-11-04 | 20261104_1025: pre-approve-gate (#291。承認前に Plan Review Record の hash と plan_presented を確かめる `scripts/gates/pre-approve-gate.sh` を追加し、spec Step 8 の末尾（ExitPlanMode の前）で流す。導入先には scripts/gates が無いので spec の Base directory からの相対で呼ぶ。hash の計算は `scripts/gates/plan-hash.sh` に集め、pre-red-gate と共有。hash 不一致の回復はレビューした版に戻すこと。変異 6/6 検出。REVIEW（Codex は使用量の上限で失敗、adversarial-reviewer が代行、直す 2）で hash 行が 2 本のときの判定の食い違いと CDPATH 環境での退行を修正。Test Scripts 123。#292 起票) | feat |
 | 2026-10-28 | 20261028_1047: review-fixer-location-check (#271。REVIEW の修正役を起動する前に、PdM が P1・P2 の指摘の場所を新しい `scripts/gates/finding-in-diff.sh` で diff と照らす。diff の外（元からある欠陥）の指摘は修正役に渡さず、受け入れ条件に関わるなら人間に戻す、関わらないなら記録のみ。判定できない・場所なしは今までどおり修正役に任せる。スクリプトは git の設定・環境変数・clean filter・バイナリ扱いで判定がずれる場合は 2。変異 19/19 検出。REVIEW（Codex、直す 3）で環境変数とバイナリ扱いを修正。Test Scripts 122) | feat |
 | 2026-10-27 | 20261027_1750: sync-plan-completion-marker (#285。SYNC-PLAN の完了記録を書く 2 つの役が pre-red-gate の形を保証していなかった問題を修正。sync-plan エージェントは Step 4 で `### <ts> - SYNC-PLAN` + `- Phase completed` を書き、PdM の Phase Summary のテンプレートにも `- Phase completed` を足した。両経路の文面を doc から取り出して gate に通す契約テスト TC-R16 で固定（変異 12/12 検出）。codify-insight は別リポジトリへの deferred で issue URL を聞いて記録する。REVIEW（Codex、直す 1）で新しいテストの pipefail 下の `| grep -q` を here-string に。Test Scripts 121。#286 起票) | fix |
 | 2026-10-20 | 20261020_0955: review-gaps (手順 1 の手直し。pre-commit-gate の照合を最後の REVIEW 節に限り、件数の行の形まで確かめる。REVIEW 節に完了記録が無くても後ろの節で通る穴、コードブロック内の見出しで節が切れる後退〔敵対的レビューで検出〕も修正 #265。commit のまとめを直す / 人間に戻す / 記録のみ に #266。元からある欠陥は直さない #272。後片付けと Test List 追記の担当、レビュー役の scratch ディレクトリ #273。#271 の機械的対策は次の cycle に分割。新しい REVIEW の流れで回した最初の cycle。Test Scripts 121) | fix |

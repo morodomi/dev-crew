@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- **承認前に Plan Review Record の hash と plan_presented を確かめる gate (`scripts/gates/pre-approve-gate.sh`) を追加。** 承認後の pre-red-gate で止まっても plan を直せないため、spec Step 8 の末尾（ExitPlanMode の前）で同じ hash 照合と `plan_presented` の記入を検査する。hash の計算は `scripts/gates/plan-hash.sh` の 1 か所にし、pre-approve-gate と pre-red-gate が共有する
+
 ## [2.22.0] - 2026-10-28
 
 ### Changed
