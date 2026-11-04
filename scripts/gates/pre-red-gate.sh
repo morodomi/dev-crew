@@ -278,7 +278,11 @@ if [ -n "$pre_approval_heading_line" ]; then
   # (line-equality, not substring split — a prior substring-split implementation
   # truncated mid-body on an incidental quoted occurrence of the same heading
   # text). Decisive re-computation from plan_file, not trust in the recorded value.
-  computed_hash=$(awk '$0=="## Plan Review Record"{exit}{print}' "$plan_file" | shasum -a 256 | awk '{print $1}')
+  # The computation lives in plan-hash.sh, shared with pre-approve-gate.sh.
+  if ! computed_hash=$(bash "$(CDPATH= cd "$(dirname "$0")" && pwd)/plan-hash.sh" "$plan_file" 2>&1); then
+    echo "BLOCK: could not compute reviewed_plan_hash from plan_file=$plan_file ($computed_hash)."
+    exit 1
+  fi
   if [ "$computed_hash" != "$hash_token" ]; then
     echo "BLOCK: reviewed_plan_hash mismatch (recorded=$hash_token, computed=$computed_hash from plan_file=$plan_file)."
     exit 1

@@ -14,6 +14,7 @@ Codex plan review は**承認前**（plan mode 内、ExitPlanMode 前）に実�
 4. `## Plan Review Record` を plan に記録する（フィールド様式は下記）
 5. 未解消 BLOCK は Record の `unresolved_blocks` に列挙し、承認提示文で人間の明示 override を要求する。人間が override した場合は verdict を `BLOCK-overridden` とし、Record の `override` フィールドに承認内容を引用する
 6. Codex 不在時（`which codex` 失敗）: Step 8 の Codex 呼び出しは skip するが、**Record 自体の記録は必須**（詳細は下記「Codex 不在時」参照）
+7. `plan_presented` を記入した後、ExitPlanMode の前に `bash "<spec の Base directory>/../../scripts/gates/pre-approve-gate.sh" <plan path>` を実行する（導入先には scripts/gates が無いので、spec skill の起動時に表示される Base directory からの相対で呼ぶ）。BLOCK なら直してから承認に進む。hash 不一致は最終レビューの後に plan が変わったことを意味する。再レビューは 1 回までなので、回復はレビューした版に戻すこと。どうしても残す変更は、承認提示文に「レビュー後の変更」として差分を示し、人間が承認した場合だけ `plan-hash.sh` の出力で記録し直し、その旨を Record の findings 要約に書く。黙って hash だけを記録し直さない
 
 ### codex_session_id 取得契約（3段 fallback）
 
@@ -42,6 +43,8 @@ plan ファイル中、**行全体が `## Plan Review Record` に一致する最
 ```bash
 awk '$0=="## Plan Review Record"{exit}{print}' plan.md | shasum -a 256
 ```
+
+計算は `scripts/gates/plan-hash.sh` が唯一の実装で、pre-approve-gate と pre-red-gate が共有する。
 
 sync-plan（一次照合）と pre-red-gate.sh（決定論的最終防衛、frontmatter `plan_file:` から再算出）で二重照合する。過去に部分文字列 split による誤 hash が発生した実例あり — 必ず「行全体一致」で判定すること。
 
