@@ -59,12 +59,11 @@ Codex plan review は承認前（spec Step 8）に完了済みの前提で進行
 1. **sync-plan**: plan の Plan Review Record を Cycle doc へ転記し、Cycle doc を生成
 2. **architect**: 転記後検証（Post-Transfer Verification）を実施。転記欠落=BLOCK / scope 実質変更=AskUserQuestion で再承認 / 観察のみ=DISCOVERED
 3. **Codex不在時: Socrates adversarial review** — `which codex` 失敗時、Socrates を計画への adversarial reviewer として起動。詳細: [reference.md](reference.md#socrates-plan-review)
-4. **codex_mode / 委譲モード**: RED/GREEN の委譲先はユーザー選択を優先。詳細: [reference.md](reference.md#tdd-gate)
-5. **自律判断**: PASS/WARN → Block 2a へ、BLOCK → sync-plan再実行
+4. **自律判断**: PASS/WARN → Block 2a へ、BLOCK → sync-plan再実行
 
 ### Block 2: Implementation
 
-**MUST**: 次のフェーズに進む前に、現フェーズの完了条件を確認せよ。詳細手順はモードに応じて参照: [steps-subagent.md](steps-subagent.md) / [steps-teams.md](steps-teams.md) / [steps-codex.md](steps-codex.md)
+**MUST**: 次のフェーズに進む前に、現フェーズの完了条件を確認せよ。詳細手順はモードに応じて参照（AGENT_TEAMS=1 → [steps-teams.md](steps-teams.md)、それ以外 → [steps-subagent.md](steps-subagent.md)）
 
 #### Block 2a: RED
 Task(red-worker, sonnet): Cycle doc + TC → テスト作成・失敗確認
@@ -92,7 +91,3 @@ Skill(dev-crew:cycle-retrospective): 失敗-成功 insight 抽出、retro_status
 
 1. **COMMIT**: pre-commit-gate（`bash "<orchestrate の Base directory>/../../scripts/gates/pre-commit-gate.sh" <cycle doc>`、cycle doc 明示指定）PASS → `Skill(dev-crew:commit)` へ委譲（commit skill Step 3 が Cycle doc を phase: DONE へ遷移させてから git add & commit）
 2. **完了報告**: サイクル完了をユーザーに報告
-
-## Mode Selection
-
-`codex_mode` は **RED/GREEN の委譲先のみ制御** する。Plan Review は Codex 利用可能なら常時 competitive 実行、REVIEW は Codex 利用可能なら新しいセッションで敵対的レビューを実行 (いずれも `codex_mode` 値に依存しない)。

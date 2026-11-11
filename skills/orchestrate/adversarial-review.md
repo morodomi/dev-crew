@@ -1,6 +1,6 @@
 # Adversarial Review - code mode REVIEW の頼み方・振り分け・報告の型
 
-orchestrate Block 2d（REVIEW）の単一の出典。レビューは 1 回だけ。Codex と `dev-crew:adversarial-reviewer` には `## 頼み方` を同じ文で渡し、修正役（GREEN と同じ委譲先）には `## 振り分け` と `## 報告の型` を渡す。流れ全体は [steps-codex.md](steps-codex.md) / [steps-subagent.md](steps-subagent.md) / [steps-teams.md](steps-teams.md) の REVIEW 節に従う。
+orchestrate Block 2d（REVIEW）の単一の出典。レビューは 1 回だけ。Codex と `dev-crew:adversarial-reviewer` には `## 頼み方` を同じ文で渡し、修正役（GREEN と同じ委譲先）には `## 振り分け` と `## 報告の型` を渡す。流れ全体は [steps-subagent.md](steps-subagent.md) / [steps-teams.md](steps-teams.md) の REVIEW 節に従う。
 
 ## 頼み方
 

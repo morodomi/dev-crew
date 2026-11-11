@@ -254,15 +254,14 @@ else
 fi
 
 # TC-09: all orchestrate mode documents explicitly reference agent-prompts
-# Given: Codex, subagent, and teams modes construct agent prompts
+# Given: subagent and teams modes construct agent prompts
 # When:  each mode document is searched for agent-prompts
-# Then:  all three documents contain the reference
+# Then:  both documents contain the reference
 echo ""
 echo "TC-09: All orchestrate mode documents reference agent-prompts"
 TC09_PASS=true
 TC09_MISSING=""
 for relpath in \
-  "skills/orchestrate/steps-codex.md" \
   "skills/orchestrate/steps-subagent.md" \
   "skills/orchestrate/steps-teams.md"; do
   if ! grep -qF "agent-prompts" "$BASE_DIR/$relpath"; then
@@ -271,7 +270,7 @@ for relpath in \
   fi
 done
 if [ "$TC09_PASS" = "true" ]; then
-  pass "TC-09: All three orchestrate mode documents reference agent-prompts"
+  pass "TC-09: Both orchestrate mode documents reference agent-prompts"
 else
   fail "TC-09: Missing agent-prompts reference:$TC09_MISSING"
 fi
@@ -321,9 +320,9 @@ else
 fi
 
 # TC-11: every production phase entry path explicitly reads the Cycle doc
-# Given: nine agent, skill, and orchestrate production entry documents
+# Given: eight agent, skill, and orchestrate production entry documents
 # When:  each file is searched for a Cycle doc Read instruction
-# Then:  all nine files contain an explicit Read, read, or confirmation instruction
+# Then:  all eight files contain an explicit Read, read, or confirmation instruction
 echo ""
 echo "TC-11: All production phase entry paths explicitly Read the Cycle doc"
 TC11_PASS=true
@@ -335,7 +334,6 @@ for relpath in \
   "skills/review/SKILL.md" \
   "skills/commit/SKILL.md" \
   "skills/cycle-retrospective/SKILL.md" \
-  "skills/orchestrate/steps-codex.md" \
   "skills/orchestrate/steps-subagent.md" \
   "skills/orchestrate/steps-teams.md"; do
   read_count=$(grep -Ei 'Cycle doc.*(Read|読む|読み|確認)' "$BASE_DIR/$relpath" | wc -l | tr -d ' ')
@@ -345,7 +343,7 @@ for relpath in \
   fi
 done
 if [ "$TC11_PASS" = "true" ]; then
-  pass "TC-11: All nine production phase entry paths explicitly Read the Cycle doc"
+  pass "TC-11: All eight production phase entry paths explicitly Read the Cycle doc"
 else
   fail "TC-11: Missing Cycle doc Read instruction:$TC11_MISSING"
 fi

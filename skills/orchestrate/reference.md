@@ -136,59 +136,25 @@ BLOCK も同様に Socrates Protocol を経由し、自動再試行ではなく�
 
 ## Session Management
 
-Cycle doc frontmatter の `codex_session_id` で Codex セッションを cycle にバインドする。session id の取得契約（3段 fallback: stdout `session id:` 行 → rollout jsonl 最新ファイル名 → 両失敗時 `extraction_failed: true`）は承認前の spec Step 8（[skills/spec/reference.md](../spec/reference.md#step-8-pre-approval-plan-review)）へ移管済み。orchestrate は sync-plan が転記済みの `codex_session_id` を読み取るだけで、自ら取得は行わない。
-
-REVIEW は resume しない唯一の例外。code mode の REVIEW は `codex_session_id` を使わず、新しいセッションで `codex exec --sandbox read-only` を実行する（codex_mode: full のとき `codex_session_id` は GREEN と同じセッションを指し、resume すると実装者が自分をレビューすることになるため）。REVIEW のセッション ID は保存しない。REVIEW の後の修正役は `codex_session_id` で resume し、`resume --last` は使わない（直前のレビューのセッションを指すため）。
-
-### codex_session_id の状態別動作
-
-| 状態 | 動作 | 備考 |
-|------|------|------|
-| 空文字 `""`（extraction_failed: true 転記時含む） | `resume --last` にフォールバック | degraded 経路（spec Step 8 の3段fallback両方失敗時） |
-| session ID あり | `resume <session-id>` で明示的にバインド | sync-plan が plan の Plan Review Record から転記済み |
-| stale session (resume 失敗) | 新規セッション作成で retry → 新 ID を frontmatter に更新 | 自動回復 |
-
-### 転記タイミング
-
-sync-plan が Cycle doc 生成時に、plan の `## Plan Review Record`（spec Step 8 で記録済み）から `codex_session_id` を frontmatter へ転記する。orchestrate 自身が Codex の cycle セッションを新規作成することはない（承認前に完了済み）。唯一の例外は REVIEW で、レビューごとに新しいセッションを使い捨てる（保存しない）。
-
-### フォールバック
-
-`codex_session_id` が空 or stale の場合、`resume --last` (cwd フィルタ) にフォールバックする。従来のセッション管理と後方互換。
+`codex_session_id`（Cycle doc frontmatter）は承認前の plan review（spec Step 8）のセッションで、再レビューの resume に使う。session id の取得契約は spec Step 8（[skills/spec/reference.md](../spec/reference.md#step-8-pre-approval-plan-review)）にあり、sync-plan が Cycle doc へ転記する。orchestrate は Codex を resume しない。REVIEW は毎回新しいセッションで実行し、resume しない。REVIEW のセッション ID は保存しない。
 
 ## TDD Gate
 
-Codex に RED/GREEN を委譲する際のゲート検証。
-
-### 委譲モード (codex_mode)
-
-`codex_mode` は RED/GREEN の委譲先のみ制御する。Plan Review と REVIEW のレビュー（敵対的レビュー）は codex_mode に関わらず Codex 利用可能なら実行。
-
-| codex_mode | RED/GREEN | Gate 1/2 | Test Plan整合性 | Plan Review / REVIEW |
-|------------|-----------|----------|-----------------|------------------|
-| `full` | Codex (codex exec) | スキップ | 常時実行 | 実行 (Codex利用可能時) |
-| `no` | Claude (Task(worker)) | N/A | N/A | 実行 (Codex利用可能時) |
-
-`codex_mode` は Post-Approve Action で AskUserQuestion により決定され、Cycle doc frontmatter に記録される。compact 後も復元可能。
-
 ### Gate 1 (RED → GREEN)
 
-- `codex_mode: full` 時はスキップ
-- それ以外: PdMがプロジェクトのテストコマンドを実行
+- PdMがプロジェクトのテストコマンドを実行
 - 新規テストがFAILし、テストコマンドが非ゼロexit codeを返すこと
 - テストファイルがCycle doc Test Listのアイテムと対応すること
 - 既存テスト（変更対象外）のPASS/FAILは問わない
 
 ### Gate 2 (GREEN → REFACTOR)
 
-- `codex_mode: full` 時はスキップ
-- それ以外: PdMがテストコマンドを実行
+- PdMがテストコマンドを実行
 - 全テストがPASS（ゼロexit code）であること（新規テスト含む）
 
 ### Test Plan凍結
 
 - Cycle doc Test ListはSPEC/PLANで凍結
-- CodexはTest Planの変更不可（Gate検証で逸脱検出）
 
 ## 再試行ロジック
 
@@ -456,7 +422,6 @@ reviewer とは異なり、severity は付けず代替案を提示します。
 |---|------|------|------|
 | G-01 | sync-plan/plan-reviewスキップ | Post-Approve Action違反 | Block 0でProgress Log確認 |
 | G-02 | WARN/BLOCKで自動再試行ループ | 自動進行ロジック | Socrates Protocol経由で人間判断 |
-| G-03 | Codex session ID stale | セッション期限切れ | 新規セッション作成でretry |
 | G-05 | PdMが直接実装コード記述 | 委譲ルール違反 | 「やらないこと」テーブル参照 |
 
 ## Product Verification {#product-verification}

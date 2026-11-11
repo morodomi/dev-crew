@@ -77,10 +77,12 @@ echo "TC-03: Codex Integration literal template exists"
 # 導入先にコピーされる呼び出し形なので、廃止済みフラグとハングの原因を持ち込まない
 if echo "$REF_CONTENT" | grep -q -- '--full-auto'; then
   fail "TC-03: reference.md still contains --full-auto (removed in codex-cli 0.159)"
-elif echo "$REF_CONTENT" | grep -F 'codex exec --sandbox workspace-write' | grep -qF '< /dev/null'; then
-  pass "TC-03: Codex Integration template has 'codex exec --sandbox workspace-write ... < /dev/null'"
+elif echo "$REF_CONTENT" | grep -qF 'workspace-write'; then
+  fail "TC-03: reference.md still contains workspace-write (Codex is read-only; RED/GREEN delegation removed)"
+elif echo "$REF_CONTENT" | grep -F 'codex exec --sandbox read-only' | grep -qF '< /dev/null'; then
+  pass "TC-03: Codex Integration template has 'codex exec --sandbox read-only ... < /dev/null' and no workspace-write"
 else
-  fail "TC-03: Codex Integration template missing 'codex exec --sandbox workspace-write ... < /dev/null'"
+  fail "TC-03: Codex Integration template missing 'codex exec --sandbox read-only ... < /dev/null'"
 fi
 
 # TC-04: Given reference.md Codex Integration template,
@@ -163,13 +165,19 @@ else
     fail "TC-C2-2c: --full-auto still present in Codex セッション作成 bullet"
     c2_ok=0
   fi
-  general_count=$(grep -cF 'codex exec --sandbox workspace-write' "$REFERENCE_FILE" || true)
-  [ -z "$general_count" ] && general_count=0
-  if [ "$general_count" -lt 1 ]; then
-    fail "TC-C2-2d: general 'codex exec --sandbox workspace-write' invocation (Codex Integration bullet, non-review-plan usage) missing from reference.md"
+  ww_count=$(grep -cF 'workspace-write' "$REFERENCE_FILE" || true)
+  [ -z "$ww_count" ] && ww_count=0
+  if [ "$ww_count" -ge 1 ]; then
+    fail "TC-C2-2d: reference.md still contains workspace-write ($ww_count lines); Codex invocations must be read-only"
     c2_ok=0
   fi
-  [ "$c2_ok" -eq 1 ] && pass "TC-C2-2: Codex セッション作成 bullet read-only both sides + --full-auto absent + general retained"
+  ro_devnull=$(grep -F 'codex exec --sandbox read-only' "$REFERENCE_FILE" | grep -cF '< /dev/null' || true)
+  [ -z "$ro_devnull" ] && ro_devnull=0
+  if [ "$ro_devnull" -lt 1 ]; then
+    fail "TC-C2-2d: no 'codex exec --sandbox read-only ... < /dev/null' invocation in reference.md"
+    c2_ok=0
+  fi
+  [ "$c2_ok" -eq 1 ] && pass "TC-C2-2: Codex セッション作成 bullet read-only both sides + --full-auto absent + workspace-write absent"
 fi
 
 # Summary

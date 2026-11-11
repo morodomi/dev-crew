@@ -6,6 +6,7 @@ Last updated: 2026-11-11
 
 | Date | Cycle | Type |
 |------|-------|------|
+| 2026-11-11 | 20261111_1730: codex-mode-removal (#297。導入先の Cycle doc 128 件で codex_mode の `full` が 0 件だったので、既定値を足さずに経路ごと消した。skills/orchestrate/steps-codex.md を削除し、Codex がある環境も steps-subagent.md / steps-teams.md を通る。RED/GREEN と REVIEW の修正役はいつも Claude の worker、Codex はレビュー（承認前の plan review と REVIEW）だけで、onboard の配る Codex コマンドも read-only。CONSTITUTION 原則 3・4 を改め ADR を追加。`tests/test-codex-mode-removed.sh` で「実行手順の codex exec はすべて read-only」などを固定し、変異 10/10 検出。REVIEW（Codex は利用上限で失敗、adversarial-reviewer が代行、直す 2）でテストの抜け道と原則 4 の読み違いを修正。Test Scripts 122) | refactor |
 | 2026-11-11 | 20261111_1105: skill-script-base-paths (#292 を広げて修正。事業側の Cycle doc 112 件を読んだ計測で、導入先で `scripts/recall-candidates.sh` が見つからない実害 2 件と、引用符付きの plan_file で pre-red-gate が BLOCK した 1 件を確認。skill の手順にあるスクリプト呼び出し 25 か所（orchestrate 3 モード・COMMIT の pre-commit-gate・spec・red・learn・review）を `bash "<skill の Base directory>/../../scripts/..."` に揃え、`tests/test-skill-script-paths.sh` で全箇所の形・解決先・本体の外の repo での動作を固定。pre-red-gate は両端が同じ引用符のときだけ外し、信頼境界の検査は外した後の値にかける。変異 6/6 検出。REVIEW（Codex は利用上限で失敗、adversarial-reviewer が代行、直す 0）。Test Scripts 124。#295 起票) | fix |
 | 2026-11-04 | 20261104_1025: pre-approve-gate (#291。承認前に Plan Review Record の hash と plan_presented を確かめる `scripts/gates/pre-approve-gate.sh` を追加し、spec Step 8 の末尾（ExitPlanMode の前）で流す。導入先には scripts/gates が無いので spec の Base directory からの相対で呼ぶ。hash の計算は `scripts/gates/plan-hash.sh` に集め、pre-red-gate と共有。hash 不一致の回復はレビューした版に戻すこと。変異 6/6 検出。REVIEW（Codex は使用量の上限で失敗、adversarial-reviewer が代行、直す 2）で hash 行が 2 本のときの判定の食い違いと CDPATH 環境での退行を修正。Test Scripts 123。#292 起票) | feat |
 | 2026-10-28 | 20261028_1047: review-fixer-location-check (#271。REVIEW の修正役を起動する前に、PdM が P1・P2 の指摘の場所を新しい `scripts/gates/finding-in-diff.sh` で diff と照らす。diff の外（元からある欠陥）の指摘は修正役に渡さず、受け入れ条件に関わるなら人間に戻す、関わらないなら記録のみ。判定できない・場所なしは今までどおり修正役に任せる。スクリプトは git の設定・環境変数・clean filter・バイナリ扱いで判定がずれる場合は 2。変異 19/19 検出。REVIEW（Codex、直す 3）で環境変数とバイナリ扱いを修正。Test Scripts 122) | feat |
@@ -96,7 +97,7 @@ Last updated: 2026-11-11
 
 ## In Progress
 
-(none)。手順 1 の手直しは 20261020_0955 で完了し、v2.20.1 でリリース済み。captured だった 4 cycle の insight は 2026-10-20 に codify-insight で判定済み（PR #281。rules への反映は未着手、#223）。SYNC-PLAN の完了記録の欠落（#285、20261027_1750）は v2.21.0 でリリース済み。#271（修正役を起動する前に、PdM が指摘の場所と diff を照らす）は 20261028_1047 で完了し、v2.22.0 でリリース済み。#291（承認前に Plan Review Record の hash と plan_presented を確かめる gate）は 20261104_1025 で完了し、v2.23.0 でリリース済み。2026-11-11 に事業側の Cycle doc 112 件で計測し、#292（skill のスクリプト呼び出しを Base directory からの相対に）を 20261111_1105 で完了（未リリース）。順番と理由は [NEXT.md](NEXT.md) の「現在地」を参照。
+(none)。手順 1 の手直しは 20261020_0955 で完了し、v2.20.1 でリリース済み。captured だった 4 cycle の insight は 2026-10-20 に codify-insight で判定済み（PR #281。rules への反映は未着手、#223）。SYNC-PLAN の完了記録の欠落（#285、20261027_1750）は v2.21.0 でリリース済み。#271（修正役を起動する前に、PdM が指摘の場所と diff を照らす）は 20261028_1047 で完了し、v2.22.0 でリリース済み。#291（承認前に Plan Review Record の hash と plan_presented を確かめる gate）は 20261104_1025 で完了し、v2.23.0 でリリース済み。2026-11-11 に事業側の Cycle doc 112 件で計測し、#292（skill のスクリプト呼び出しを Base directory からの相対に）を 20261111_1105 で完了、#297（codex_mode の full の経路を消す）を 20261111_1730 で完了（どちらも未リリース）。順番と理由は [NEXT.md](NEXT.md) の「現在地」を参照。
 
 ## TODO
 

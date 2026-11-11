@@ -357,7 +357,7 @@ fi
 # =============================================================================
 # TC-12: [Given] skills/ + rules mirror 両方の *.md / [When] `severity-verdict.sh verdict`
 #         への言及行を全走査 / [Then] 全行が `--invalid` 引き継ぎを併記している
-#         （Codex post-hoc review P1-2: steps-codex.md の Codex findings 統合再実行が
+#         （Codex post-hoc review P1-2: Codex findings 統合の再実行が
 #         `--invalid` を落とすと、INVALID reviewer の fail-closed floor
 #         （security/correctness は NON-NEGOTIABLE BLOCK）が再実行で消える。
 #         行単位 invariant として pin し、将来の再実行記述の追加にも適用する）

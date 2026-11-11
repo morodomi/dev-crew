@@ -28,7 +28,7 @@ COMMIT_SKILL="$BASE_DIR/skills/commit/SKILL.md"
 AR="$BASE_DIR/skills/orchestrate/adversarial-review.md"
 AGENT="$BASE_DIR/agents/adversarial-reviewer.md"
 ORCH_DIR="$BASE_DIR/skills/orchestrate"
-STEPS_FILES="$ORCH_DIR/steps-codex.md $ORCH_DIR/steps-subagent.md $ORCH_DIR/steps-teams.md"
+STEPS_FILES="$ORCH_DIR/steps-subagent.md $ORCH_DIR/steps-teams.md"
 BASH_BIN="$(command -v bash)"
 
 # 件数の行の形（gate と commit skill が共有する正規表現。Design の文字列そのまま）
@@ -337,7 +337,7 @@ fi
 # 'git ls-files --others --exclude-standard' は対象の列挙（手順 0）で既に 1 行ある。
 # 修正役の前後で 2 回取る指示を見るため、REVIEW 節で 2 行以上を要求する（単体語 pin を避ける）。
 echo ""
-echo "TC-12: steps-codex/subagent/teams の REVIEW 節に前後比較・片付け・TC-R 追記・scratch の mkdir -p"
+echo "TC-12: steps-subagent/teams の REVIEW 節に前後比較・片付け・TC-R 追記・scratch の mkdir -p"
 missing=""
 for f in $STEPS_FILES; do
   b=$(basename "$f")
@@ -350,7 +350,7 @@ for f in $STEPS_FILES; do
   done
 done
 if [ -z "$missing" ]; then
-  pass "TC-12: all 3 steps files carry cleanup / TC-R / scratch instructions"
+  pass "TC-12: both steps files carry cleanup / TC-R / scratch instructions"
 else
   fail "TC-12:$missing"
 fi

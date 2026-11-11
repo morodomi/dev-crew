@@ -196,10 +196,10 @@ else
 fi
 rm -rf "$TCR6_TMPDIR"
 
-# TC-R10: steps-subagent.md / steps-teams.md / steps-codex.md — Block 1 が
+# TC-R10: steps-subagent.md / steps-teams.md — Block 1 が
 #         「sync-plan 転記 → architect 検証」順（Task() 呼び出しの行番号比較）
 echo ""
-echo "TC-R10: steps-subagent/teams/codex.md — sync-plan Task() precedes architect Task() (all 3 docs)"
+echo "TC-R10: steps-subagent/teams.md — sync-plan Task() precedes architect Task() (both docs)"
 check_sync_then_architect() {
   local file="$1"
   local sync_line arch_line
@@ -214,14 +214,14 @@ check_sync_then_architect() {
 }
 r10_ok=true
 r10_msgs=""
-for f in "$BASE/skills/orchestrate/steps-subagent.md" "$BASE/skills/orchestrate/steps-teams.md" "$BASE/skills/orchestrate/steps-codex.md"; do
+for f in "$BASE/skills/orchestrate/steps-subagent.md" "$BASE/skills/orchestrate/steps-teams.md"; do
   if ! check_sync_then_architect "$f"; then
     r10_ok=false
     r10_msgs="$r10_msgs $(basename "$f")"
   fi
 done
 if $r10_ok; then
-  pass "TC-R10: all 3 orchestrate step docs have sync-plan Task() before architect Task()"
+  pass "TC-R10: both orchestrate step docs have sync-plan Task() before architect Task()"
 else
   fail "TC-R10: violations in:$r10_msgs"
 fi

@@ -1,6 +1,6 @@
 #!/bin/bash
 # test-codex-delegation-interface.sh - Codex delegation interface + competitive review validation
-# Phase 11.2 + 11.3: 18 TCs
+# Phase 11.2 + 11.3 (TC-02 / TC-05 removed together with the RED/GREEN Codex delegation)
 
 set -euo pipefail
 
@@ -17,107 +17,106 @@ echo "=== Codex Delegation Interface Tests ==="
 echo ""
 echo "--- red/reference.md ---"
 
-echo "TC-01: red/reference.md contains Codex heading"
-if grep -q '## Codex' "$BASE_DIR/skills/red/reference.md"; then
-  pass "red/reference.md contains Codex heading"
+echo "TC-01: red/reference.md has no Codex Delegation section (removed)"
+if grep -q '^## Codex' "$BASE_DIR/skills/red/reference.md"; then
+  fail "red/reference.md still has a Codex Delegation section"
 else
-  fail "red/reference.md missing Codex heading"
+  pass "red/reference.md has no Codex Delegation section"
 fi
 
-echo "TC-02: red/reference.md contains fallback mention"
-if grep -qi 'fallback' "$BASE_DIR/skills/red/reference.md"; then
-  pass "red/reference.md contains fallback mention"
+# 消えたファイル名はリテラルで書かない（test-codex-mode-removed.sh TC-03 が tests/ 内の言及を 0 件にするため、断片を連結する）
+GONE_STEPS="steps-""codex"
+echo "TC-03: red/reference.md does not link to the removed Codex steps file"
+if grep -q "$GONE_STEPS" "$BASE_DIR/skills/red/reference.md"; then
+  fail "red/reference.md still links to the removed Codex steps file"
 else
-  fail "red/reference.md missing fallback mention"
-fi
-
-echo "TC-03: red/reference.md contains steps-codex.md reference"
-if grep -q 'steps-codex' "$BASE_DIR/skills/red/reference.md"; then
-  pass "red/reference.md references steps-codex.md"
-else
-  fail "red/reference.md missing steps-codex.md reference"
+  pass "red/reference.md does not link to the removed Codex steps file"
 fi
 
 # --- green/reference.md ---
 echo ""
 echo "--- green/reference.md ---"
 
-echo "TC-04: green/reference.md contains Codex heading"
-if grep -q '## Codex' "$BASE_DIR/skills/green/reference.md"; then
-  pass "green/reference.md contains Codex heading"
+echo "TC-04: green/reference.md has no Codex Delegation section (removed)"
+if grep -q '^## Codex' "$BASE_DIR/skills/green/reference.md"; then
+  fail "green/reference.md still has a Codex Delegation section"
 else
-  fail "green/reference.md missing Codex heading"
+  pass "green/reference.md has no Codex Delegation section"
 fi
 
-echo "TC-05: green/reference.md contains fallback mention"
-if grep -qi 'fallback' "$BASE_DIR/skills/green/reference.md"; then
-  pass "green/reference.md contains fallback mention"
+echo "TC-06: green/reference.md does not link to the removed Codex steps file"
+if grep -q "$GONE_STEPS" "$BASE_DIR/skills/green/reference.md"; then
+  fail "green/reference.md still links to the removed Codex steps file"
 else
-  fail "green/reference.md missing fallback mention"
+  pass "green/reference.md does not link to the removed Codex steps file"
 fi
 
-echo "TC-06: green/reference.md contains steps-codex.md reference"
-if grep -q 'steps-codex' "$BASE_DIR/skills/green/reference.md"; then
-  pass "green/reference.md references steps-codex.md"
-else
-  fail "green/reference.md missing steps-codex.md reference"
-fi
-
-# --- steps-codex.md ---
+# --- steps-subagent.md / steps-teams.md ---
 echo ""
-echo "--- steps-codex.md ---"
+echo "--- steps-subagent.md / steps-teams.md ---"
+
+STEPS_SUB="$BASE_DIR/skills/orchestrate/steps-subagent.md"
+STEPS_TEAMS="$BASE_DIR/skills/orchestrate/steps-teams.md"
 
 # REVIEW 節（`### REVIEW` 始まりの見出しから、コードフェンス外の次の H1-H3 見出しまで）。節の外の言及で通らないよう、先に切り出す
-REVIEW_SEC=$(awk '
-  /^```/ { fence = !fence }
-  !fence && /^#+ / {
-    match($0, /^#+/)
-    if (on && RLENGTH <= 3) on = 0
-    if (index($0, "### REVIEW") == 1) { on = 1; next }
-  }
-  on { print }
-' "$BASE_DIR/skills/orchestrate/steps-codex.md")
+review_sec() {
+  awk '
+    /^```/ { fence = !fence }
+    !fence && /^#+ / {
+      match($0, /^#+/)
+      if (on && RLENGTH <= 3) on = 0
+      if (index($0, "### REVIEW") == 1) { on = 1; next }
+    }
+    on { print }
+  ' "$1"
+}
+REVIEW_SEC_SUB=$(review_sec "$STEPS_SUB")
+REVIEW_SEC_TEAMS=$(review_sec "$STEPS_TEAMS")
 
-echo "TC-07: steps-codex.md REVIEW section runs Codex as the adversarial reviewer (read-only, new session)"
-if [ -n "$REVIEW_SEC" ] && \
-   grep -qF 'codex exec --sandbox read-only' <<< "$REVIEW_SEC" && \
-   grep -qF '敵対的レビュー' <<< "$REVIEW_SEC"; then
-  pass "steps-codex.md REVIEW runs Codex as the adversarial reviewer"
+echo "TC-07: steps-subagent.md / steps-teams.md REVIEW sections run Codex as the adversarial reviewer (read-only, new session)"
+if [ -n "$REVIEW_SEC_SUB" ] && [ -n "$REVIEW_SEC_TEAMS" ] && \
+   grep -qF 'codex exec --sandbox read-only' <<< "$REVIEW_SEC_SUB" && \
+   grep -qF '敵対的レビュー' <<< "$REVIEW_SEC_SUB" && \
+   grep -qF 'codex exec --sandbox read-only' <<< "$REVIEW_SEC_TEAMS" && \
+   grep -qF '敵対的レビュー' <<< "$REVIEW_SEC_TEAMS"; then
+  pass "steps-subagent.md / steps-teams.md REVIEW run Codex as the adversarial reviewer"
 else
-  fail "steps-codex.md REVIEW missing Codex adversarial review"
+  fail "steps-subagent.md / steps-teams.md REVIEW missing Codex adversarial review"
 fi
 
-echo "TC-08: steps-codex.md does NOT contain 'supplementary'"
-if grep -qi 'supplementary' "$BASE_DIR/skills/orchestrate/steps-codex.md"; then
-  fail "steps-codex.md still contains 'supplementary'"
+echo "TC-08: steps-subagent.md / steps-teams.md do NOT contain 'supplementary'"
+if grep -qi 'supplementary' "$STEPS_SUB" "$STEPS_TEAMS"; then
+  fail "steps-subagent.md or steps-teams.md still contains 'supplementary'"
 else
-  pass "steps-codex.md does not contain 'supplementary'"
+  pass "steps-subagent.md / steps-teams.md do not contain 'supplementary'"
 fi
 
-echo "TC-09: steps-codex.md does NOT contain 'advisory'"
-if grep -qi 'advisory' "$BASE_DIR/skills/orchestrate/steps-codex.md"; then
-  fail "steps-codex.md still contains 'advisory'"
+echo "TC-09: steps-teams.md does NOT contain 'advisory'"
+if grep -qi 'advisory' "$STEPS_TEAMS"; then
+  fail "steps-teams.md still contains 'advisory'"
 else
-  pass "steps-codex.md does not contain 'advisory'"
+  pass "steps-teams.md does not contain 'advisory'"
 fi
 
-echo "TC-10: findings are triaged into 直す / 人間に戻す / 記録のみ (adversarial-review.md referenced from steps-codex.md)"
-if [ -n "$REVIEW_SEC" ] && grep -qF 'adversarial-review.md' <<< "$REVIEW_SEC" && \
+echo "TC-10: findings are triaged into 直す / 人間に戻す / 記録のみ (adversarial-review.md referenced from both REVIEW sections)"
+if [ -n "$REVIEW_SEC_SUB" ] && grep -qF 'adversarial-review.md' <<< "$REVIEW_SEC_SUB" && \
+   [ -n "$REVIEW_SEC_TEAMS" ] && grep -qF 'adversarial-review.md' <<< "$REVIEW_SEC_TEAMS" && \
    grep -q '直す' "$BASE_DIR/skills/orchestrate/adversarial-review.md" && \
    grep -q '人間に戻す' "$BASE_DIR/skills/orchestrate/adversarial-review.md" && \
    grep -q '記録のみ' "$BASE_DIR/skills/orchestrate/adversarial-review.md"; then
   pass "findings triage categories defined and referenced"
 else
-  fail "steps-codex.md / adversarial-review.md missing findings triage"
+  fail "steps-subagent.md / steps-teams.md / adversarial-review.md missing findings triage"
 fi
 
-echo "TC-11: steps-codex.md REVIEW section has the 人間に戻す hand-off, and SKILL.md Block 2e still records DISCOVERED"
+echo "TC-11: REVIEW sections have the 人間に戻す hand-off, and SKILL.md Block 2e still records DISCOVERED"
 # DISCOVERED は REVIEW 節でなく次の Block 2e の責務
-if [ -n "$REVIEW_SEC" ] && grep -qF '人間に戻す' <<< "$REVIEW_SEC" && \
+if [ -n "$REVIEW_SEC_SUB" ] && grep -qF '人間に戻す' <<< "$REVIEW_SEC_SUB" && \
+   [ -n "$REVIEW_SEC_TEAMS" ] && grep -qF '人間に戻す' <<< "$REVIEW_SEC_TEAMS" && \
    grep -qF '#### Block 2e: DISCOVERED' "$BASE_DIR/skills/orchestrate/SKILL.md"; then
-  pass "steps-codex.md REVIEW has 人間に戻す, SKILL.md has Block 2e DISCOVERED"
+  pass "REVIEW sections have 人間に戻す, SKILL.md has Block 2e DISCOVERED"
 else
-  fail "steps-codex.md REVIEW missing 人間に戻す, or SKILL.md missing Block 2e DISCOVERED"
+  fail "REVIEW sections missing 人間に戻す, or SKILL.md missing Block 2e DISCOVERED"
 fi
 
 # --- review skill ---
@@ -132,7 +131,7 @@ else
 fi
 
 echo "TC-13: review/steps-subagent.md contains Codex cross-reference"
-if grep -qi 'codex\|steps-codex' "$BASE_DIR/skills/review/steps-subagent.md"; then
+if grep -qi 'codex' "$BASE_DIR/skills/review/steps-subagent.md"; then
   pass "review/steps-subagent.md contains Codex cross-reference"
 else
   fail "review/steps-subagent.md missing Codex cross-reference"

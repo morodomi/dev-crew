@@ -10,9 +10,9 @@
 | plan review | review --plan | Codex | Claude | competitive |
 | Cycle doc生成 | sync-plan | Claude | - | agent |
 | **pre-red-gate.sh** | **(決定論的)** | **script** | **-** | Cycle doc存在・sync-plan完了・Plan Review記録を検証 |
-| テスト作成 | red | Codex | Claude | codex_mode依存 |
+| テスト作成 | red | Claude | - | |
 | テスト静的解析 | exspec | (tool) | skip | 未インストール時skip |
-| 実装 | green | Codex | Claude | codex_mode依存 |
+| 実装 | green | Claude | - | |
 | 品質改善 | refactor | Claude | Codex | |
 | レビュー | review | Claude+Codex | Claude | competitive |
 | **pre-commit-gate.sh** | **(決定論的)** | **script** | **-** | REVIEW完了・Codex review記録・retrospective状態を検証 |

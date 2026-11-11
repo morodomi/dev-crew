@@ -111,8 +111,8 @@ fi
 # TC-10: orchestrate docs describe WARN log in VERIFY section (section-specific, not whole-file)
 # Codex code review 指摘: whole-file grep では unrelated WARN 文言で偽 PASS。VERIFY block 内に限定して検査。
 echo ""
-echo "TC-10: orchestrate docs describe WARN log in VERIFY block specifically (all 4 docs)"
-FILES="skills/orchestrate/SKILL.md skills/orchestrate/steps-subagent.md skills/orchestrate/steps-teams.md skills/orchestrate/steps-codex.md"
+echo "TC-10: orchestrate docs describe WARN log in VERIFY block specifically (all 3 docs)"
+FILES="skills/orchestrate/SKILL.md skills/orchestrate/steps-subagent.md skills/orchestrate/steps-teams.md"
 has_warn=0
 for f in $FILES; do
   # Extract VERIFY block: from heading matching "VERIFY" to next "###"/"####" heading
@@ -121,10 +121,10 @@ for f in $FILES; do
     has_warn=$((has_warn + 1))
   fi
 done
-if [ "$has_warn" -ge 4 ]; then
-  pass "WARN contract present in VERIFY section of all 4 orchestrate docs"
+if [ "$has_warn" -ge 3 ]; then
+  pass "WARN contract present in VERIFY section of all 3 orchestrate docs"
 else
-  fail "WARN contract missing in VERIFY section of $((4 - has_warn)) of 4 orchestrate docs (found $has_warn, requires section-specific match)"
+  fail "WARN contract missing in VERIFY section of $((3 - has_warn)) of 3 orchestrate docs (found $has_warn, requires section-specific match)"
 fi
 
 # Summary

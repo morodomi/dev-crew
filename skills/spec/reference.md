@@ -20,7 +20,7 @@ Codex plan review は**承認前**（plan mode 内、ExitPlanMode 前）に実�
 
 1. stdout header の `session id:` 行から uuid を regex 抽出
 2. (1) 失敗時: `~/.codex/sessions/<Y/M/D>/rollout-*-<uuid>.jsonl` の最新ファイル名から抽出（実行時刻突合で他セッション混入を排除）
-3. (1)(2) 両方失敗時: `codex_session_id: ""` + `extraction_failed: true` を Record に記録し、degraded 経路（RED 以降は `resume --last`）へフォールバックする
+3. (1)(2) 両方失敗時: `codex_session_id: ""` + `extraction_failed: true` を Record に記録し、degraded 経路（Step 8 の再レビューは `resume --last`）へフォールバックする
 
 ### Plan Review Record 様式（canonical フィールド）
 
@@ -564,7 +564,6 @@ planファイルに記録するTDDコンテキストのテンプレート:
 approve後は `/orchestrate` を起動する。orchestrate が全フェーズを管理する:
 - sync-plan → Cycle doc 生成（Step 8 の記録を転記）
 - architect: 設計レビュー（Design Review Gate）+ Post-Transfer Verification（転記検証）
-- Codex 利用可能なら RED/GREEN 委譲確認 (full/no) → `codex_mode` に記録
 
 Edit/Write は直接行わず、必ず /orchestrate に委譲する（プロンプトベースの規律。hook による強制ではない）。
 ```

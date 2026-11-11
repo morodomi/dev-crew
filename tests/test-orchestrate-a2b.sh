@@ -16,7 +16,6 @@ ORCHESTRATE_SKILL="$BASE_DIR/skills/orchestrate/SKILL.md"
 ORCHESTRATE_REF="$BASE_DIR/skills/orchestrate/reference.md"
 STEPS_SUBAGENT="$BASE_DIR/skills/orchestrate/steps-subagent.md"
 STEPS_TEAMS="$BASE_DIR/skills/orchestrate/steps-teams.md"
-STEPS_CODEX="$BASE_DIR/skills/orchestrate/steps-codex.md"
 COMMIT_SKILL="$BASE_DIR/skills/commit/SKILL.md"
 WORKFLOW_MD="$BASE_DIR/docs/workflow.md"
 ARCH_MD="$BASE_DIR/docs/architecture.md"
@@ -110,15 +109,14 @@ else
 fi
 
 # ----------------------------------------------------------------
-# TC-05: steps-subagent.md / steps-teams.md / steps-codex.md に cycle-retrospective 言及
+# TC-05: steps-subagent.md / steps-teams.md に cycle-retrospective 言及
 # ----------------------------------------------------------------
 echo ""
-echo "TC-05: steps-subagent/teams/codex.md each mention cycle-retrospective"
+echo "TC-05: steps-subagent/teams.md each mention cycle-retrospective"
 TC05_PASS=true
 for label_file in \
   "steps-subagent.md:$STEPS_SUBAGENT" \
-  "steps-teams.md:$STEPS_TEAMS" \
-  "steps-codex.md:$STEPS_CODEX"
+  "steps-teams.md:$STEPS_TEAMS"
 do
   label="${label_file%%:*}"
   fpath="${label_file#*:}"
@@ -133,7 +131,7 @@ do
   fi
 done
 if [ "$TC05_PASS" = "true" ]; then
-  pass "TC-05: All 3 steps-*.md files mention cycle-retrospective"
+  pass "TC-05: Both steps-*.md files mention cycle-retrospective"
 fi
 
 # ----------------------------------------------------------------
@@ -233,16 +231,15 @@ else
 fi
 
 # ----------------------------------------------------------------
-# TC-14: steps-subagent.md / steps-teams.md / steps-codex.md に
+# TC-14: steps-subagent.md / steps-teams.md に
 #         cycle-retrospective abort → BLOCK 分岐が記述される
 # ----------------------------------------------------------------
 echo ""
-echo "TC-14: steps-*.md 3 files each describe abort -> BLOCK handling"
+echo "TC-14: steps-*.md 2 files each describe abort -> BLOCK handling"
 TC14_PASS=true
 for label_file in \
   "steps-subagent.md:$STEPS_SUBAGENT" \
-  "steps-teams.md:$STEPS_TEAMS" \
-  "steps-codex.md:$STEPS_CODEX"
+  "steps-teams.md:$STEPS_TEAMS"
 do
   label="${label_file%%:*}"
   fpath="${label_file#*:}"
@@ -265,17 +262,17 @@ do
   fi
 done
 if [ "$TC14_PASS" = "true" ]; then
-  pass "TC-14: All 3 steps-*.md files describe abort -> BLOCK handling"
+  pass "TC-14: Both steps-*.md files describe abort -> BLOCK handling"
 fi
 
 # ----------------------------------------------------------------
-# TC-14b: steps-subagent.md / steps-teams.md / steps-codex.md で
+# TC-14b: steps-subagent.md / steps-teams.md で
 #         DISCOVERED 判断 が Block 2f より前に位置する (order check、Codex P1 対応)
 # ----------------------------------------------------------------
 echo ""
 echo "TC-14b: steps-*.md DISCOVERED comes BEFORE Block 2f (physical order)"
 TC14B_PASS=true
-for pair in "subagent:skills/orchestrate/steps-subagent.md" "teams:skills/orchestrate/steps-teams.md" "codex:skills/orchestrate/steps-codex.md"; do
+for pair in "subagent:skills/orchestrate/steps-subagent.md" "teams:skills/orchestrate/steps-teams.md"; do
   label="${pair%%:*}"
   file="$BASE_DIR/${pair##*:}"
   [ -f "$file" ] || { fail "TC-14b: $label file missing"; TC14B_PASS=false; continue; }
@@ -290,7 +287,7 @@ for pair in "subagent:skills/orchestrate/steps-subagent.md" "teams:skills/orches
   fi
 done
 if [ "$TC14B_PASS" = "true" ]; then
-  pass "TC-14b: All 3 steps-*.md files have DISCOVERED before Block 2f"
+  pass "TC-14b: Both steps-*.md files have DISCOVERED before Block 2f"
 fi
 
 # ----------------------------------------------------------------

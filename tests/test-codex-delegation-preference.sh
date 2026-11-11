@@ -1,18 +1,12 @@
 #!/bin/bash
 # test-codex-delegation-preference.sh - Verify Codex delegation preference feature (#53)
-# TC-01: steps-codex.md Pre-check has delegation mode confirmation (AskUserQuestion or Cycle doc)
-# TC-02: steps-codex.md Pre-check has "full" and "no" options
-# TC-03: steps-codex.md Gate 1 has "full" skip condition
-# TC-04: steps-codex.md Gate 2 has "full" skip condition
-# TC-05: steps-codex.md Test Plan consistency check is always executed
-# TC-06: reference.md TDD Gate has delegation mode explanation
+# TC-06: reference.md TDD Gate has NO codex_mode / delegation mode explanation (removed)
 # TC-07: spec reference.md Post-Approve Action has NO plan-review mention (moved to
 #        pre-approval Step 8)
-# TC-08: spec reference.md Post-Approve Action has Codex delegation confirmation step
+# TC-08: spec reference.md Post-Approve Action has NO Codex delegation confirmation step (removed)
 # TC-09: docs/workflow.md flow diagram has plan-review before sync-plan
 # TC-10: docs/workflow.md has Claude plan-review before 承認ゲート(1)
-# TC-11: Existing test-orchestrate-codex.sh passes (regression)
-# TC-12: SKILL.md Mode Selection has user choice priority rule
+# TC-12: orchestrate SKILL.md has NO codex_mode / delegation mode (removed)
 # TC-13: spec reference.ja.md Post-Approve Action matches reference.md order
 
 set -euo pipefail
@@ -26,64 +20,16 @@ fail() { FAIL=$((FAIL + 1)); printf "  \033[31mFAIL\033[0m %s\n" "$1"; }
 
 echo "=== Codex Delegation Preference Tests ==="
 
-# TC-01: steps-codex.md Pre-check has delegation mode confirmation
+# TC-06: reference.md TDD Gate has NO codex_mode / delegation mode explanation
 echo ""
-echo "TC-01: steps-codex.md Pre-check has delegation mode confirmation"
-if grep -qi 'codex_mode\|codex_delegation\|委譲モード\|delegation mode\|AskUserQuestion' "$BASE_DIR/skills/orchestrate/steps-codex.md"; then
-  pass "steps-codex.md has delegation mode confirmation"
-else
-  fail "steps-codex.md missing delegation mode confirmation"
-fi
-
-# TC-02: steps-codex.md Pre-check has "full" and "no" options
-echo ""
-echo "TC-02: steps-codex.md has full and no options"
-has_full=$(grep -ci 'full' "$BASE_DIR/skills/orchestrate/steps-codex.md" || true)
-has_no=$(grep -ciE '\bno\b' "$BASE_DIR/skills/orchestrate/steps-codex.md" || true)
-if [ "$has_full" -gt 0 ] && [ "$has_no" -gt 0 ]; then
-  pass "steps-codex.md has both full and no options"
-else
-  fail "steps-codex.md missing full ($has_full) or no ($has_no) options"
-fi
-
-# TC-03: steps-codex.md Gate 1 has "full" skip condition
-echo ""
-echo "TC-03: steps-codex.md Gate 1 has full skip condition"
-# Extract Gate 1 section and check for full/skip reference
-gate1_section=$(sed -n '/Gate 1/,/Gate 2\|^##/p' "$BASE_DIR/skills/orchestrate/steps-codex.md")
-if echo "$gate1_section" | grep -qi 'full\|スキップ\|skip'; then
-  pass "Gate 1 has full mode skip condition"
-else
-  fail "Gate 1 missing full mode skip condition"
-fi
-
-# TC-04: steps-codex.md Gate 2 has "full" skip condition
-echo ""
-echo "TC-04: steps-codex.md Gate 2 has full skip condition"
-gate2_section=$(sed -n '/Gate 2/,/^##/p' "$BASE_DIR/skills/orchestrate/steps-codex.md")
-if echo "$gate2_section" | grep -qi 'full\|スキップ\|skip'; then
-  pass "Gate 2 has full mode skip condition"
-else
-  fail "Gate 2 missing full mode skip condition"
-fi
-
-# TC-05: steps-codex.md Test Plan consistency check is always executed
-echo ""
-echo "TC-05: steps-codex.md Test Plan consistency check is always executed"
-if grep -qi '常時\|無条件\|always\|regardless\|全モード' "$BASE_DIR/skills/orchestrate/steps-codex.md"; then
-  pass "Test Plan consistency check is always executed"
-else
-  fail "Test Plan consistency check missing always/unconditional marker"
-fi
-
-# TC-06: reference.md TDD Gate has delegation mode explanation
-echo ""
-echo "TC-06: reference.md TDD Gate has delegation mode explanation"
+echo "TC-06: reference.md TDD Gate has no codex_mode / delegation mode"
 tdd_gate_section=$(sed -n '/## TDD Gate/,/^## /p' "$BASE_DIR/skills/orchestrate/reference.md")
-if echo "$tdd_gate_section" | grep -qi 'full\|codex_mode\|委譲モード\|delegation'; then
-  pass "reference.md TDD Gate has delegation mode explanation"
+if [ -z "$tdd_gate_section" ]; then
+  fail "reference.md TDD Gate section not found"
+elif echo "$tdd_gate_section" | grep -qE 'codex_mode|委譲モード|`full`'; then
+  fail "reference.md TDD Gate still has codex_mode / delegation mode"
 else
-  fail "reference.md TDD Gate missing delegation mode explanation"
+  pass "reference.md TDD Gate has no codex_mode / delegation mode"
 fi
 
 # TC-07: spec reference.md Post-Approve Action has NO plan-review mention
@@ -97,13 +43,13 @@ else
   pass "Post-Approve Action has no plan-review mention"
 fi
 
-# TC-08: spec reference.md Post-Approve Action has Codex delegation confirmation
+# TC-08: spec reference.md Post-Approve Action has NO Codex delegation confirmation
 echo ""
-echo "TC-08: spec reference.md has Codex delegation confirmation"
+echo "TC-08: spec reference.md has no Codex delegation confirmation"
 if echo "$post_approve" | grep -qi 'codex.*委譲\|delegation.*confirm\|委譲.*確認\|codex_mode\|full.*no'; then
-  pass "Post-Approve Action has Codex delegation confirmation"
+  fail "Post-Approve Action still has Codex delegation confirmation"
 else
-  fail "Post-Approve Action missing Codex delegation confirmation"
+  pass "Post-Approve Action has no Codex delegation confirmation"
 fi
 
 # TC-09: workflow.md flow diagram has plan-review before sync-plan (flipped: new order)
@@ -129,22 +75,13 @@ else
   fail "Claude plan-review ($claude_review_line) does NOT precede 承認ゲート(1) ($gate_line_10)"
 fi
 
-# TC-11: Existing test-orchestrate-codex.sh passes (regression)
+# TC-12: SKILL.md has NO codex_mode / delegation mode
 echo ""
-echo "TC-11: test-orchestrate-codex.sh regression"
-if bash "$BASE_DIR/tests/test-orchestrate-codex.sh" > /dev/null 2>&1; then
-  pass "test-orchestrate-codex.sh passes"
+echo "TC-12: SKILL.md has no codex_mode / delegation mode"
+if grep -qi 'codex_mode\|委譲モード' "$BASE_DIR/skills/orchestrate/SKILL.md"; then
+  fail "SKILL.md still has codex_mode / delegation mode"
 else
-  fail "test-orchestrate-codex.sh failed (regression)"
-fi
-
-# TC-12: SKILL.md Mode Selection has user choice priority rule
-echo ""
-echo "TC-12: SKILL.md has user choice priority rule"
-if grep -qi 'codex_mode\|ユーザー選択\|user.*choice\|user.*preference\|委譲モード' "$BASE_DIR/skills/orchestrate/SKILL.md"; then
-  pass "SKILL.md has user choice priority rule"
-else
-  fail "SKILL.md missing user choice priority rule"
+  pass "SKILL.md has no codex_mode / delegation mode"
 fi
 
 # TC-13: spec reference.ja.md Post-Approve Action matches reference.md order

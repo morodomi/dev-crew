@@ -11,7 +11,7 @@
 
 ## Codex Integration
 
-Codex が利用可能な場合、Plan Review は Claude + Codex の competitive で実行。RED/GREEN の委譲は codex_mode (full/no) で制御。REFACTOR は Claude が主担当（Codex fallback）。REVIEW は敵対的レビュー 1 回 + 指摘の振り分け（Codex 既定、Codex 不在・失敗時は `dev-crew:adversarial-reviewer`）。詳細は [CONSTITUTION.md](CONSTITUTION.md) 参照。
+Codex が利用可能な場合、Plan Review は Claude + Codex の competitive で実行。REFACTOR は Claude が主担当（Codex fallback）。REVIEW は敵対的レビュー 1 回 + 指摘の振り分け（Codex 既定、Codex 不在・失敗時は `dev-crew:adversarial-reviewer`）。詳細は [CONSTITUTION.md](CONSTITUTION.md) 参照。
 
 ```bash
 # plan review は承認前（spec Step 8、plan mode 内、read-only sandbox）で実行。
@@ -19,11 +19,7 @@ Codex が利用可能な場合、Plan Review は Claude + Codex の competitive 
 # codex_session_id へ転記する（orchestrate 自身は取得しない）
 codex exec --sandbox read-only "review plan <planファイルパス>" < /dev/null
 
-# RED/GREEN 委譲（codex_session_id があれば resume <session-id>、なければ resume --last）
-# フラグは resume より前に置く（後ろに置くと rc=2）。stdin がパイプのままだとハングするので < /dev/null
-codex exec --sandbox workspace-write resume <session-id> "red docs/cycles/xxx.md" < /dev/null
-codex exec --sandbox workspace-write resume <session-id> "green docs/cycles/xxx.md" < /dev/null
-
+# stdin がパイプのままだとハングするので < /dev/null を付ける
 # REVIEW は新しいセッションで実行する（resume しない。実装の文脈を持ち込まない）
 # Codex 不在・失敗時は dev-crew:adversarial-reviewer に代行させる
 # プロンプトは skills/orchestrate/adversarial-review.md の「## 頼み方」の文を使う

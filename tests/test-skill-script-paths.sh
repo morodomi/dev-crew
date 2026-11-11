@@ -34,9 +34,6 @@ SITES="
 skills/orchestrate/steps-subagent.md|orchestrate|/../../scripts/gates/pre-red-gate.sh
 skills/orchestrate/steps-subagent.md|orchestrate|/../../scripts/gates/worktree-fingerprint.sh
 skills/orchestrate/steps-subagent.md|orchestrate|/../../scripts/gates/finding-in-diff.sh
-skills/orchestrate/steps-codex.md|orchestrate|/../../scripts/gates/pre-red-gate.sh
-skills/orchestrate/steps-codex.md|orchestrate|/../../scripts/gates/worktree-fingerprint.sh
-skills/orchestrate/steps-codex.md|orchestrate|/../../scripts/gates/finding-in-diff.sh
 skills/orchestrate/steps-teams.md|orchestrate|/../../scripts/gates/pre-red-gate.sh
 skills/orchestrate/steps-teams.md|orchestrate|/../../scripts/gates/worktree-fingerprint.sh
 skills/orchestrate/steps-teams.md|orchestrate|/../../scripts/gates/finding-in-diff.sh
@@ -183,7 +180,7 @@ fi
 # TC-05: orchestrate の steps 3 ファイルで同じ呼び出しを持つ
 # ---------------------------------------------------------------------------
 echo ""
-echo "TC-05: orchestrate steps-subagent/codex/teams carry identical gate call strings"
+echo "TC-05: orchestrate steps-subagent/teams carry identical gate call strings"
 tc05_bad=""
 for name in pre-red-gate.sh worktree-fingerprint.sh finding-in-diff.sh; do
   ref=$(calls_of skills/orchestrate/steps-subagent.md "$name" | sort -u)
@@ -191,13 +188,13 @@ for name in pre-red-gate.sh worktree-fingerprint.sh finding-in-diff.sh; do
     tc05_bad="$tc05_bad [steps-subagent.md: $name の呼び出しなし]"
     continue
   fi
-  for f in steps-codex.md steps-teams.md; do
+  for f in steps-teams.md; do
     cur=$(calls_of "skills/orchestrate/$f" "$name" | sort -u)
     [ "$cur" = "$ref" ] || tc05_bad="$tc05_bad [$f: $name の呼び出しが steps-subagent.md と揃っていない]"
   done
 done
 if [ -z "$tc05_bad" ]; then
-  pass "TC-05: call strings match across the 3 orchestrate step files"
+  pass "TC-05: call strings match across the 2 orchestrate step files"
 else
   fail "TC-05:$tc05_bad"
 fi

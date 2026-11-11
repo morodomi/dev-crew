@@ -20,8 +20,8 @@ AIは確率的に90%正しい出力をするが、コードもワークフロー
 
 1. **AI-first**: 設計・実装・テスト・レビュー・コミットの全工程をAIが実行。人間はゴールを伝え、判断ポイントでOK/NGを出すだけ
 2. **別の視点で壊しにいくレビュー**: 実装したAIとは別のAIか別の文脈が、壊れる・悪用できる入力を探し、実行して確かめる
-3. **性格差の活用**: Claude=計画・調整型（PdM/Orchestrator）、Codex=辛口ベテラン型（Implementer+Reviewer）。性格差を武器にした品質担保
-4. **Fallback**: 単一モデルでもフローが回る設計。Codex利用可能時に優先委譲、不在時はClaude fallback
+3. **性格差の活用**: Claude=計画・調整型（PdM/Orchestrator）、Codex=辛口ベテラン型（Reviewer）。性格差を武器にした品質担保
+4. **Fallback**: 単一モデルでもフローが回る設計。Codex はレビューに使う。Codex が無いとき、承認前の plan review は skip して記録し（codex_unavailable）、code の REVIEW は adversarial-reviewer が代行する。Codex が失敗したときの code の REVIEW も adversarial-reviewer が代行する
 5. **速度とのトレードオフ**: 完璧を求めて速度を犠牲にしない。レビューは回数ではなく予算で止める
 6. **決定論的プロセス保証**: プロセス強制は決定論的コード（ゲートスクリプト）、品質検出はLLM（レビューエージェント）。LLMに「手順を守れ」と指示するのではなく、ゲートが exit 1 でBLOCKする
 

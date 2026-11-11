@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+### Removed
+
+- **codex_mode (full/no) と `skills/orchestrate/steps-codex.md` を削除した。** RED/GREEN を Codex に委譲する経路は、導入先 128 件の記録で full が 0 件だった。RED/GREEN と REVIEW の修正役は常に Claude の worker が担当する
+- **Codex の用途をレビュー（承認前の plan review と code の REVIEW）だけにした。** どの `codex exec` も read-only で動く。onboard が導入先へ配る Codex コマンドも read-only にした
+
+### Changed
+
+- **CONSTITUTION §4 の原則 3・4 を改めた。** Codex は Reviewer だけ。Codex が無いとき、承認前の plan review は skip して `codex_unavailable` と記録し、code の REVIEW は adversarial-reviewer が代行する。経緯は `docs/decisions/adr-codex-review-only.md`
+
 ### Fixed
 
 - **導入先で skill が呼ぶ本体スクリプトが見つからない問題を直した (#292)。** orchestrate・spec・red・learn・review の文書にあった `bash scripts/...` の相対呼び出しを、`bash "<skill の Base directory>/../../scripts/..."` の形にした。導入先の repo には `scripts/` が無いため、recall-candidates など本体のスクリプトが解決できなかった

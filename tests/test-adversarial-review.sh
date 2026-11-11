@@ -4,7 +4,7 @@
 #
 # Cycle doc (docs/cycles/20261016_1645_adversarial-review-triage.md) の Test List / Design に無い、
 # このテストが独自に照合する固定文言（GREEN が書く必要がある）:
-#   [REVIEW 節 = steps-codex/subagent/teams.md の `### REVIEW` 見出し区間（fence 認識、次の H1-H3 まで）]
+#   [REVIEW 節 = subagent/teams.md の `### REVIEW` 見出し区間（fence 認識、次の H1-H3 まで）]
 #   F1  REVIEW 節（3 ファイル）: 「Codex 不在・失敗時の代行が失敗したら BLOCK」の文
 #       `adversarial-reviewer も失敗したら BLOCK`
 #   F2  REVIEW 節（3 ファイル）: fingerprint の取得失敗の文  `取得失敗・空・形違いなら BLOCK`
@@ -15,8 +15,8 @@
 #   F4  REVIEW 節（3 ファイル）: レビューへの入力 `Cycle doc のパス`
 #   F5  REVIEW 節（3 ファイル）: 修正段階の完了条件
 #       `修正役が success を返し` / `新たに落ちていない` / `1 回だけやり直し` / `それでも満たさなければ BLOCK`
-#   F6  steps-codex.md と orchestrate/reference.md: `REVIEW は resume しない唯一の例外`
-#   F7  steps-codex.md REVIEW 節: 修正役の codex コマンド（resume と codex_session_id を含み、--last を含まない）が 1 行以上
+#   F6  steps-subagent/teams.md の REVIEW 節と orchestrate/reference.md の Session Management: `新しいセッション` と `resume しない`
+#   F7  REVIEW 節の codex コマンドは resume も --last も含まない
 #   F8  SKILL.md の `#### Block 2d` 区間と REVIEW 節（3 ファイル）: `adversarial-review.md` への参照
 #   F9  steps-teams.md: `Socrates Protocol (review code)` 見出しを持たない（`Socrates Protocol (pre-review plan)` は残す）
 #   F10 CONSTITUTION.md 原則 2 の行: `別の視点で壊しにいくレビュー`、原則 5 の行: `回数ではなく予算で止める`
@@ -45,8 +45,8 @@
 #       同じ行に両方の条件がある場合は、`修正役に「直す」として渡さない` が `終了コード 0・2 と、場所が書かれていない指摘は` より前
 #   F27 adversarial-review.md `## 頼み方` の fenced block（依頼文）: `ファイル:行`（TC-29）
 #   F28 adversarial-review.md `## 振り分け`: 同じ行に `直さない指摘` と `振り分けも報告もしない`（TC-30）
-#   F29 修正役の起動文字列（TC-31）: steps-codex.md REVIEW 節の `codex exec ... resume` の行（継続行は連結）と、
-#       3 ファイル REVIEW 節の `Task(subagent_type: "dev-crew:green-worker"` を含む各行に `直さない指摘: [ファイル:行`
+#   F29 修正役の起動文字列（TC-31）:
+#       2 ファイル REVIEW 節の `Task(subagent_type: "dev-crew:green-worker"` を含む各行に `直さない指摘: [ファイル:行`
 #   F30 REVIEW 節（3 ファイル、TC-32）: `修正役へ渡す指摘が 1 件以上残れば、修正役を起動する` / `PdM が照合で振り分けた分と、修正役の報告の分を足した`
 #       / `振り分けも報告もしない` / `P3 の指摘を PdM が「記録のみ」として数える`
 # Cycle doc に書かれている固定文（TC 本文の引用）はそのまま使う。
@@ -64,13 +64,12 @@ AGENT="$BASE_DIR/agents/adversarial-reviewer.md"
 AR="$BASE_DIR/skills/orchestrate/adversarial-review.md"
 ORCH_DIR="$BASE_DIR/skills/orchestrate"
 SKILL_MD="$ORCH_DIR/SKILL.md"
-STEPS_CODEX="$ORCH_DIR/steps-codex.md"
 STEPS_SUB="$ORCH_DIR/steps-subagent.md"
 STEPS_TEAMS="$ORCH_DIR/steps-teams.md"
 ORCH_REF="$ORCH_DIR/reference.md"
 FP="$BASE_DIR/scripts/gates/worktree-fingerprint.sh"
 GATE="$BASE_DIR/scripts/gates/pre-commit-gate.sh"
-STEPS_FILES="$STEPS_CODEX $STEPS_SUB $STEPS_TEAMS"
+STEPS_FILES="$STEPS_SUB $STEPS_TEAMS"
 
 # sec FILE PREFIX LEVEL: PREFIX で始まる見出し（fence 外）から、LEVEL 以下の次の見出しまでを出す。
 # fence 内の `# comment` 行を見出しと誤認しない。PREFIX は固定文字列として前方一致。
@@ -263,7 +262,7 @@ echo ""
 echo "TC-07: REVIEW sections name dev-crew:adversarial-reviewer, worktree-fingerprint.sh, and BLOCK when the substitute fails"
 missing=$(check_steps_review_has "dev-crew:adversarial-reviewer" "worktree-fingerprint.sh" "adversarial-reviewer も失敗したら BLOCK")
 if [ -z "$missing" ]; then
-  pass "TC-07: all 3 REVIEW sections carry the fallback contract"
+  pass "TC-07: both REVIEW sections carry the fallback contract"
 else
   fail "TC-07: missing:$missing"
 fi
@@ -298,7 +297,7 @@ EOF
   [ "$checked" -ge 1 ] || bad="$bad [$(basename "$f"): 検査した行が 0 行]"
 done
 if [ -z "$bad" ]; then
-  pass "TC-07b: Codex review command shape is correct in all 3 files"
+  pass "TC-07b: Codex review command shape is correct in both files"
 else
   fail "TC-07b:$bad"
 fi
@@ -308,7 +307,7 @@ echo ""
 echo "TC-08: REVIEW sections state 再レビューしない"
 missing=$(check_steps_review_has "再レビューしない")
 if [ -z "$missing" ]; then
-  pass "TC-08: all 3 REVIEW sections stop after one review"
+  pass "TC-08: both REVIEW sections stop after one review"
 else
   fail "TC-08: missing:$missing"
 fi
@@ -662,32 +661,30 @@ echo ""
 echo "TC-09d: REVIEW sections give the Cycle doc path as input and state the fix-stage completion condition"
 missing=$(check_steps_review_has "Cycle doc のパス" "修正役が success を返し" "新たに落ちていない" "1 回だけやり直し" "それでも満たさなければ BLOCK")
 if [ -z "$missing" ]; then
-  pass "TC-09d: input and completion condition present in all 3 files"
+  pass "TC-09d: input and completion condition present in both files"
 else
   fail "TC-09d: missing:$missing"
 fi
 
-# TC-09e: REVIEW のセッション例外
+# TC-09e: REVIEW は新しいセッションで実行し、resume しない
 echo ""
-echo "TC-09e: REVIEW is the stated exception to resume, and the post-REVIEW fixer command has no resume --last"
-exc="REVIEW は resume しない唯一の例外"
-exc_missing=""
-[ "$(count_in "$(cat "$STEPS_CODEX" 2>/dev/null)" "$exc")" -ge 1 ] || exc_missing="$exc_missing [steps-codex.md]"
-[ "$(count_in "$(cat "$ORCH_REF" 2>/dev/null)" "$exc")" -ge 1 ] || exc_missing="$exc_missing [reference.md]"
-body=$(review_sec "$STEPS_CODEX")
-cmds=$(codex_cmds "$body")
-last_lines=$(printf '%s\n' "$cmds" | grep -F -e '--last' || true)
-fixer=$(printf '%s\n' "$cmds" | grep -F 'resume' | grep -F 'codex_session_id' || true)
-fixer_rw=$(printf '%s\n' "$fixer" | grep -E '^[ 	]*codex exec --sandbox workspace-write .*resume ' || true)
-cmd_detail=""
-[ -z "$last_lines" ] || cmd_detail="$cmd_detail [REVIEW 節の codex コマンドに --last がある]"
-[ -n "$fixer" ] || cmd_detail="$cmd_detail [REVIEW 節に codex_session_id で resume する修正役コマンドがない]"
-# 修正役はファイルを書くので read-only では動かない。sandbox は resume より前に置く（後ろだと rc=2）
-[ -n "$fixer_rw" ] || cmd_detail="$cmd_detail [修正役のコマンドが codex exec --sandbox workspace-write ... resume の形でない]"
-if [ -z "$exc_missing" ] && [ -z "$cmd_detail" ]; then
-  pass "TC-09e: exception stated, fixer resumes by codex_session_id"
+echo "TC-09e: REVIEW sections run in a new session and do not resume; no REVIEW codex command uses --last or resume"
+sess_missing=""
+for f in "$STEPS_SUB" "$STEPS_TEAMS"; do
+  body=$(review_sec "$f")
+  [ "$(count_in "$body" "新しいセッション")" -ge 1 ] || sess_missing="$sess_missing [$(basename "$f"): 新しいセッション]"
+  [ "$(count_in "$body" "resume しない")" -ge 1 ] || sess_missing="$sess_missing [$(basename "$f"): resume しない]"
+  cmds=$(codex_cmds "$body")
+  bad=$(printf '%s\n' "$cmds" | grep -E -e '--last| resume ' || true)
+  [ -z "$bad" ] || sess_missing="$sess_missing [$(basename "$f"): REVIEW 節の codex コマンドに resume / --last がある]"
+done
+ref_sess=$(sec "$ORCH_REF" "## Session Management" 2)
+[ "$(count_in "$ref_sess" "新しいセッション")" -ge 1 ] || sess_missing="$sess_missing [reference.md Session Management: 新しいセッション]"
+[ "$(count_in "$ref_sess" "resume しない")" -ge 1 ] || sess_missing="$sess_missing [reference.md Session Management: resume しない]"
+if [ -z "$sess_missing" ]; then
+  pass "TC-09e: REVIEW uses a new session and does not resume (subagent / teams / reference.md)"
 else
-  fail "TC-09e: exception missing:${exc_missing:- none}; commands:${cmd_detail:- ok}"
+  fail "TC-09e: missing:$sess_missing"
 fi
 
 # TC-10: steps-teams の Socrates
@@ -823,15 +820,11 @@ bad_var=$(check_steps_review_lacks 'mktemp')
 fixer_detail=""
 for f in $STEPS_FILES; do
   body=$(review_sec "$f")
-  if [ "$f" = "$STEPS_CODEX" ]; then
-    fixer_line=$(codex_cmds "$body" | grep -F 'resume' | grep -F 'codex_session_id' || true)
-  else
-    fixer_line=$(printf '%s\n' "$body" | grep -F 'dev-crew:green-worker' || true)
-  fi
+  fixer_line=$(printf '%s\n' "$body" | grep -F 'dev-crew:green-worker' || true)
   [ "$(count_in "$fixer_line" "$RV_PATH")" -ge 1 ] || fixer_detail="$fixer_detail [$(basename "$f"): 修正役の起動に結果ファイルのパスがない]"
 done
 if [ -z "$missing" ] && [ -z "$bad_var" ] && [ -z "$fixer_detail" ]; then
-  pass "TC-17: fixed review-result path, no mktemp variable, fixer receives the file in all 3 files"
+  pass "TC-17: fixed review-result path, no mktemp variable, fixer receives the file in both files"
 else
   fail "TC-17: missing:${missing:- none}; mktemp:${bad_var:- none}; fixer:${fixer_detail:- ok}"
 fi
@@ -841,7 +834,7 @@ echo ""
 echo "TC-18: REVIEW sections skip the fixer when 直す is 0 and compare against the REFACTOR-time full result"
 missing=$(check_steps_review_has "「直す」が 0 件なら修正役を起動せず" "REFACTOR 完了時の全件結果")
 if [ -z "$missing" ]; then
-  pass "TC-18: 0-case and baseline stated in all 3 files"
+  pass "TC-18: 0-case and baseline stated in both files"
 else
   fail "TC-18: missing:$missing"
 fi
@@ -897,7 +890,7 @@ echo ""
 echo "TC-22: REVIEW step 0 excludes untracked secret-like files (.env*, *.pem, *credentials*, *secret*) with a WARN"
 missing=$(check_steps_review_has ".env*" "*.pem" "*credentials*" "*secret*" "レビュー対象から外し")
 if [ -z "$missing" ]; then
-  pass "TC-22: secret-like untracked files are excluded in all 3 files"
+  pass "TC-22: secret-like untracked files are excluded in both files"
 else
   fail "TC-22: missing:$missing"
 fi
@@ -907,7 +900,7 @@ echo ""
 echo "TC-23: REVIEW sections show the before/after --list diff to the human when the fingerprints differ"
 missing=$(check_steps_review_has "前後の --list の差を人間に見せる")
 if [ -z "$missing" ]; then
-  pass "TC-23: --list diff on mismatch stated in all 3 files"
+  pass "TC-23: --list diff on mismatch stated in both files"
 else
   fail "TC-23: missing:$missing"
 fi
@@ -1006,7 +999,7 @@ for f in $STEPS_FILES; do
     || missing="$missing [$(basename "$f"): finding-in-diff.sh が「直す」が 0 件…より前の同じ行にない]"
 done
 if [ -z "$missing" ]; then
-  pass "TC-27: gate call precedes fixer launch in all 3 files"
+  pass "TC-27: gate call precedes fixer launch in both files"
 else
   fail "TC-27:$missing"
 fi
@@ -1033,7 +1026,7 @@ for f in $STEPS_FILES; do
   fi
 done
 if [ -z "$missing" ]; then
-  pass "TC-28: exit code handling pairs present in all 3 files"
+  pass "TC-28: exit code handling pairs present in both files"
 else
   fail "TC-28:$missing"
 fi
@@ -1062,29 +1055,9 @@ fi
 
 # TC-31: 修正役の起動文字列に 直さない指摘: [ファイル:行
 echo ""
-echo "TC-31: fixer launch strings (codex exec resume, Task green-worker) carry 直さない指摘: [ファイル:行"
+echo "TC-31: fixer launch strings (Task green-worker) carry 直さない指摘: [ファイル:行"
 NOFIX="直さない指摘: [ファイル:行"
 missing=""
-body=$(review_sec "$STEPS_CODEX")
-resume_cmds=$(codex_cmds "$body" | grep -F " resume " || true)
-if [ -z "$resume_cmds" ]; then
-  missing="$missing [steps-codex.md: REVIEW 節に codex exec ... resume の行がない]"
-else
-  while IFS= read -r l; do
-    # resume より後ろで、NOFIX の直前までの引用符が奇数個 = 引用された prompt 文字列の中
-    rest="${l#* resume }"
-    if [ "$rest" = "$l" ] || [ "${rest#*"$NOFIX"}" = "$rest" ]; then
-      missing="$missing [steps-codex.md: codex exec resume の後に $NOFIX がない]"
-      continue
-    fi
-    before="${rest%%"$NOFIX"*}"
-    quotes="${before//[^\"]/}"
-    tail_after="${rest#*"$NOFIX"}"
-    if [ $(( ${#quotes} % 2 )) -ne 1 ] || [ "${tail_after#*\"}" = "$tail_after" ]; then
-      missing="$missing [steps-codex.md: $NOFIX が codex exec resume の引用された prompt 文字列の中にない]"
-    fi
-  done <<< "$resume_cmds"
-fi
 for f in $STEPS_FILES; do
   body=$(review_sec "$f")
   task_lines=$(printf '%s\n' "$body" | grep -F 'Task(subagent_type: "dev-crew:green-worker"' || true)
@@ -1123,7 +1096,7 @@ missing=$(check_steps_review_has \
   "振り分けも報告もしない" \
   "P3 の指摘を PdM が「記録のみ」として数える")
 if [ -z "$missing" ]; then
-  pass "TC-32: launch condition and count rules in all 3 files"
+  pass "TC-32: launch condition and count rules in both files"
 else
   fail "TC-32: missing:$missing"
 fi

@@ -557,24 +557,6 @@ else
   fi
 fi
 
-STEPS_CODEX_MD="$BASE_DIR/skills/orchestrate/steps-codex.md"
-
-# TC-24: steps-codex.md に codify-insight を起動・自動 triage する記述が無い
-# Given: steps-codex.md / When: codify-insight に触れる行を読む
-# Then:  「起動」「自動 triage」「triage」を含む行が無い
-echo ""
-echo "TC-24: steps-codex.md does not describe launching / auto-triaging codify-insight"
-if [ ! -f "$STEPS_CODEX_MD" ]; then
-  fail "TC-24: skills/orchestrate/steps-codex.md does not exist"
-else
-  tc24_hits=$(grep -F "codify-insight" "$STEPS_CODEX_MD" | grep -E "triage|起動" || true)
-  if [ -z "$tc24_hits" ]; then
-    pass "TC-24: steps-codex.md has no codify-insight launch / auto-triage description"
-  else
-    fail "TC-24: steps-codex.md still describes codify-insight launch/triage: '$tc24_hits'"
-  fi
-fi
-
 # H2 見出し (prefix 一致, fixed-string) 区間の本文を出力
 sec_h2() {
   awk -v h="$2" '
