@@ -1154,6 +1154,104 @@ for r16_kind in c:steps-subagent d:steps-teams; do
   fi
 done
 
+########################################
+# TC-R17: frontmatter plan_file の引用符
+# (a)=Cycle doc の TC-Q1, (b)=TC-Q2, (c)=TC-Q3, (d)=TC-Q4, (e)=TC-Q5
+# 値の両端が同じ引用符のときだけ外し、その後に信頼境界 (v) をかける。
+########################################
+
+# mk_r17 <name> <plan_value_prefix> <plan_value_suffix> [plan_dir_mode]
+#   fixture: $TMPDIR/<name>/{plan.md,docs/cycles/...}. plan_file は
+#   <prefix><path-of-plan.md><suffix> として frontmatter に書く。
+#   plan_dir_mode=outside なら plan.md を信頼ディレクトリの外 (untrusted/) に置く。
+#   R17_DOC / R17_TRUSTED をセットする。
+mk_r17() {
+  local name="$1" pre="$2" suf="$3" mode="${4:-inside}" dir plan hash
+  dir="$TMPDIR/$name"
+  mkdir -p "$dir/docs/cycles" "$dir/trusted" "$dir/untrusted"
+  if [ "$mode" = "outside" ]; then
+    plan="$dir/untrusted/plan.md"
+  else
+    plan="$dir/trusted/plan.md"
+  fi
+  hash=$(make_fixture_plan "$plan")
+  R17_TRUSTED="$dir/trusted"
+  R17_DOC="$dir/docs/cycles/20260101_0000_$name.md"
+  cat > "$R17_DOC" <<CYCLE
+---
+phase: RED
+plan_file: ${pre}${plan}${suf}
+updated: 2026-01-01 00:10
+---
+# Fixture cycle $name
+
+## Progress Log
+
+### 2026-01-01 00:00 - SYNC-PLAN
+- Cycle doc generated
+- Phase completed
+
+### 2026-01-01 00:05 - Plan Review (pre-approval)
+- codex_session_id: session-$name
+- review_attempts:
+  - {started: 2026-01-01 00:01, completed: 2026-01-01 00:03, verdict: WARN}
+- unresolved_blocks: なし
+- reviewed_plan_hash: $hash
+- verdict: WARN
+- Phase completed
+CYCLE
+}
+
+echo ""
+echo "TC-R17(a): plan_file wrapped in double quotes -> PASS"
+mk_r17 tcr17a '"' '"'
+output_r17=$(DEV_CREW_PLAN_DIR="$R17_TRUSTED" bash "$SCRIPT" "$R17_DOC" 2>&1) && rc_r17=$? || rc_r17=$?
+if [ "$rc_r17" -eq 0 ]; then
+  pass "TC-R17(a): double-quoted plan_file PASSes"
+else
+  fail "TC-R17(a): expected PASS (rc=0), got rc=$rc_r17 output: $output_r17"
+fi
+
+echo ""
+echo "TC-R17(b): plan_file wrapped in single quotes -> PASS"
+mk_r17 tcr17b "'" "'"
+output_r17=$(DEV_CREW_PLAN_DIR="$R17_TRUSTED" bash "$SCRIPT" "$R17_DOC" 2>&1) && rc_r17=$? || rc_r17=$?
+if [ "$rc_r17" -eq 0 ]; then
+  pass "TC-R17(b): single-quoted plan_file PASSes"
+else
+  fail "TC-R17(b): expected PASS (rc=0), got rc=$rc_r17 output: $output_r17"
+fi
+
+echo ""
+echo "TC-R17(c): plan_file with only an opening quote (existing trusted plan) -> BLOCK"
+mk_r17 tcr17c '"' ''
+output_r17=$(DEV_CREW_PLAN_DIR="$R17_TRUSTED" bash "$SCRIPT" "$R17_DOC" 2>&1) && rc_r17=$? || rc_r17=$?
+if [ "$rc_r17" -eq 1 ] && echo "$output_r17" | grep -qiE "missing or unreadable"; then
+  pass "TC-R17(c): one-sided quote is not stripped and BLOCKs"
+else
+  fail "TC-R17(c): expected BLOCK 'missing or unreadable', got rc=$rc_r17 output: $output_r17"
+fi
+
+echo ""
+echo "TC-R17(d): quoted plan_file outside the trusted plan directory -> trust-boundary BLOCK"
+mk_r17 tcr17d '"' '"' outside
+output_r17=$(DEV_CREW_PLAN_DIR="$R17_TRUSTED" bash "$SCRIPT" "$R17_DOC" 2>&1) && rc_r17=$? || rc_r17=$?
+if [ "$rc_r17" -eq 1 ] && echo "$output_r17" | grep -qiE "trusted plan directory" && ! echo "$output_r17" | grep -qiE "missing or unreadable"; then
+  pass "TC-R17(d): quoted path outside trusted dir BLOCKs on the trust boundary"
+else
+  fail "TC-R17(d): expected trust-boundary BLOCK, got rc=$rc_r17 output: $output_r17"
+fi
+
+echo ""
+echo "TC-R17(e): unquoted plan_file (existing PASS fixture shape) -> PASS"
+mk_r17 tcr17e '' ''
+output_r17=$(DEV_CREW_PLAN_DIR="$R17_TRUSTED" bash "$SCRIPT" "$R17_DOC" 2>&1) && rc_r17=$? || rc_r17=$?
+if [ "$rc_r17" -eq 0 ]; then
+  pass "TC-R17(e): unquoted plan_file still PASSes"
+else
+  fail "TC-R17(e): expected PASS (rc=0), got rc=$rc_r17 output: $output_r17"
+fi
+
 # Summary
 echo ""
 echo "=== Summary ==="

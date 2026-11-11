@@ -17,8 +17,10 @@ mode 決定後、ユーザーに明示出力する:
 
 決定論的にリスクレベルを判定（LLM不使用）:
 
+（導入先には skills/ が本体の形で無いので、skill の起動時に表示される Base directory からの相対で呼ぶ。Base directory が表示されない経路で文書を直接読んだ場合は、この文書がある skill のディレクトリと読む）
+
 ```bash
-bash skills/review/risk-classifier.sh
+bash "<review の Base directory>/risk-classifier.sh"
 # Output: "LOW|MEDIUM|HIGH score:NN"
 ```
 
@@ -119,7 +121,7 @@ PdM は各 reviewer の JSON を `$(mktemp -d)/<reviewer>.json` に保存する�
 
 ## Step 4.4: Output Validation
 
-`bash skills/review/severity-verdict.sh validate <dir>` を実行し、Step 4 で保存した各 reviewer JSON を検証する。
+`bash "<review の Base directory>/severity-verdict.sh" validate <dir>` を実行し、Step 4 で保存した各 reviewer JSON を検証する。
 
 - 検証実行前に、起動した reviewer 数と保存した JSON 件数の一致を確認する（起動失敗・保存漏れの検出）
 - 全 reviewer が OK（exit 0）なら Step 4.5 へ進む
@@ -155,7 +157,7 @@ Specialist Panel (Step 4) と Socrates (Step 4.5) 完了後、全 reviewer の f
 
 1. **重複排除**: 同一 file:line への複数 reviewer 指摘は最も詳細な 1 件に集約。集約元 reviewer 名を併記
 2. **3-category 分類** (`rules/review-triage.md` を SSOT として参照。定義は同 rule の Findings 3-Category Triage 節を verbatim 適用)
-3. **集計入力**: PdM が triage 結果（severity+category）を triage.json に書き、`bash skills/review/severity-verdict.sh verdict <triage.json> [--invalid <name>]...` を実行する。その verdict 行（`BLOCK|WARN|PASS critical:N important:N optional:N invalid:M`）を Progress Log に記録する。下記 Verdict Aggregation サブセクションの判定基準は **この verdict 行** を根拠とする
+3. **集計入力**: PdM が triage 結果（severity+category）を triage.json に書き、`bash "<review の Base directory>/severity-verdict.sh" verdict <triage.json> [--invalid <name>]...` を実行する。その verdict 行（`BLOCK|WARN|PASS critical:N important:N optional:N invalid:M`）を Progress Log に記録する。下記 Verdict Aggregation サブセクションの判定基準は **この verdict 行** を根拠とする
    - 出力が `INVALID-TRIAGE: <理由>` の場合: triage.json を修正して再実行する（黙殺 PASS の禁止）
    - 出力が `DEGRADED: jq not found` の場合: PdM が Severity 基準表（reference.md 参照）を手動適用し、同一フォーマットの verdict 行を Progress Log に記録する
 

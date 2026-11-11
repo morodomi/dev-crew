@@ -33,7 +33,9 @@
 #                 resolve to an absolute path under the trusted plan directory
 #                 (${DEV_CREW_PLAN_DIR:-$HOME/.claude/plans}), checked BEFORE the
 #                 file is opened/hashed — otherwise a crafted plan_file value turns
-#                 this gate into a read/hash oracle for an arbitrary file
+#                 this gate into a read/hash oracle for an arbitrary file.
+#                 A value wrapped in the same quote on both ends ("..." or '...')
+#                 is unquoted first; the check then applies to the unquoted value
 #          (vi)   plan_file contains a whole-line "## Plan Review Record" heading
 #                 (prevents a heading-less plan from hashing as "whole file" and
 #                 coincidentally matching a recorded hash)
@@ -243,6 +245,12 @@ if [ -n "$pre_approval_heading_line" ]; then
   # DEV_CREW_PLAN_DIR: test-fixture override only; production always uses
   # $HOME/.claude/plans (real plan mode files never live elsewhere).
   plan_file=$(awk '/^---$/{c++;next} c==1{print}' "$ACTIVE_CYCLE" | grep '^plan_file:' | head -1 | sed 's/^plan_file: *//' || true)
+  # sync-plan が値を引用符付きで書く実例があるので、両端が同じ引用符のときだけ外す。
+  # 片側だけの引用符は外さず、下の存在確認で BLOCK のままにする。境界検査 (v) は外した後の値にかける
+  case "$plan_file" in
+    \"*\") [ "${#plan_file}" -ge 2 ] && { plan_file=${plan_file#\"}; plan_file=${plan_file%\"}; } ;;
+    \'*\') [ "${#plan_file}" -ge 2 ] && { plan_file=${plan_file#\'}; plan_file=${plan_file%\'}; } ;;
+  esac
   if [ -z "$plan_file" ] || [ ! -f "$plan_file" ]; then
     echo "BLOCK: frontmatter plan_file is missing or unreadable; cannot verify reviewed_plan_hash."
     exit 1

@@ -45,7 +45,7 @@ mkdir -p ${CLAUDE_PLUGIN_DATA}/instincts/
 `scripts/tfidf-summary.sh` で observations (log.jsonl) からセッション横断の TF-IDF スコアを算出し、tfidf_summary として observer に渡す。
 
 ```bash
-TFIDF_JSON="$(bash scripts/tfidf-summary.sh)"
+TFIDF_JSON="$(bash "<learn の Base directory>/../../scripts/tfidf-summary.sh")"
 ```
 
 空配列 `[]` が返った場合 (ブートストラップ期間 or データなし)、observer に tfidf_summary を渡さない。

@@ -335,8 +335,10 @@ exspec（テスト静的解析ツール）でテストコードの品質問題�
 
 ### ゲートスクリプト
 
+（導入先には scripts/ が無いので、skill の起動時に表示される Base directory からの相対で呼ぶ。Base directory が表示されない経路で文書を直接読んだ場合は、この文書がある skill のディレクトリと読む）
+
 ```bash
-bash scripts/gates/exspec-check.sh <test_path> <lang>
+bash "<red の Base directory>/../../scripts/gates/exspec-check.sh" <test_path> <lang>
 ```
 
 - Exit 0 = PASS or SKIP（exspec未インストール or 非対応言語）

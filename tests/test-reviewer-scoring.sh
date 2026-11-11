@@ -364,13 +364,18 @@ fi
 # =============================================================================
 echo ""
 echo "TC-12: every 'severity-verdict.sh verdict' mention in skills/ and rules mirrors carries --invalid forwarding"
-verdict_lines=$(cd "$BASE_DIR" && grep -rn 'severity-verdict\.sh verdict' skills/ rules/ .claude/rules/ --include='*.md' 2>/dev/null || true)
+verdict_lines=$(cd "$BASE_DIR" && grep -rn 'severity-verdict\.sh"\{0,1\} verdict' skills/ rules/ .claude/rules/ --include='*.md' 2>/dev/null || true)
+# 実呼び出し（`bash "<` で始まる引用符付きの形）が少なくとも 1 本は検索に一致すること。
+# 説明文の一致だけで PASS しない。
+real_call_lines=$(cd "$BASE_DIR" && grep -n 'severity-verdict\.sh"\{0,1\} verdict' skills/review/steps-subagent.md 2>/dev/null | grep -F 'bash "<' || true)
 missing_invalid=""
 if [ -n "$verdict_lines" ]; then
   missing_invalid=$(printf '%s\n' "$verdict_lines" | grep -vF -- '--invalid' || true)
 fi
 if [ -z "$verdict_lines" ]; then
   fail "TC-12: no 'severity-verdict.sh verdict' mention found under skills//rules/ (vacuous — invariant target missing)"
+elif [ -z "$real_call_lines" ]; then
+  fail "TC-12: no real invocation line (bash \"<...severity-verdict.sh\" verdict) in skills/review/steps-subagent.md matched; a prose-only match must not PASS"
 elif [ -z "$missing_invalid" ]; then
   pass "TC-12: all verdict invocation mentions carry --invalid forwarding"
 else
