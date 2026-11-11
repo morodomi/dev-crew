@@ -48,8 +48,10 @@ Codex委譲はBlock 2から。
 
 ### Pre-RED Gate (deterministic)
 
+（導入先には scripts/ が無いので、skill の起動時に表示される Base directory からの相対で呼ぶ。Base directory が表示されない経路で文書を直接読んだ場合は、この文書がある skill のディレクトリと読む）
+
 ```bash
-bash scripts/gates/pre-red-gate.sh "$CYCLE_DOC"
+bash "<orchestrate の Base directory>/../../scripts/gates/pre-red-gate.sh" "$CYCLE_DOC"
 ```
 
 exit 0 → RED へ。exit 1 → BLOCK（gate の出力メッセージで不足ステップを案内。sync-plan 未完了 / Plan Review (pre-approval) の strict 契約違反等）。
@@ -127,20 +129,20 @@ REVIEW は resume しない唯一の例外である。codex_mode: full のとき
    Codex が無い、または失敗した（error / timeout / 出力が空）ときは、新しい文脈の `dev-crew:adversarial-reviewer` に同じ入力と依頼文を渡す。前後で `worktree-fingerprint.sh` の出力を比べる:
    ```bash
    mkdir -p /tmp/dev-crew-review-<cycle_id>
-   bash scripts/gates/worktree-fingerprint.sh --list > /tmp/dev-crew-review-<cycle_id>/before.list
-   before=$(bash scripts/gates/worktree-fingerprint.sh); before_rc=$?
+   bash "<orchestrate の Base directory>/../../scripts/gates/worktree-fingerprint.sh" --list > /tmp/dev-crew-review-<cycle_id>/before.list
+   before=$(bash "<orchestrate の Base directory>/../../scripts/gates/worktree-fingerprint.sh"); before_rc=$?
    ```
    ```
    Task(subagent_type: "dev-crew:adversarial-reviewer", model: "opus", prompt: "Cycle doc: [path]. 対象ファイル: [一覧]. adversarial-review.md の ## 頼み方 に従い、git diff HEAD を自分で実行して読み、実行して再現できた指摘だけを high にして報告せよ。作業ツリーを変えるな。")
    ```
    ```bash
-   after=$(bash scripts/gates/worktree-fingerprint.sh); after_rc=$?
+   after=$(bash "<orchestrate の Base directory>/../../scripts/gates/worktree-fingerprint.sh"); after_rc=$?
    ```
    - PdM は adversarial-reviewer の返答を、Codex と同じパス `/tmp/dev-crew-review-<cycle_id>/review.md` のファイルに書き出す（返答を同じパスのファイルに書き出す。これで修正役への受け渡しが両経路で同じになる）
    - 前後それぞれの終了コードと出力の形（64 桁の 16 進）を確かめる。取得失敗・空・形違いなら BLOCK（一致とみなさない）
    - 前後が違えば作業ツリーが変わっている。レビューを無効にして BLOCK。BLOCK したら `--list` を取り直し、前後の --list の差を人間に見せる（何が変わったかを見るため）
    - adversarial-reviewer も失敗したら BLOCK し、人間に報告する（レビューを省略しない）
-2. **修正**: 修正役を起動する前に、PdM が P1・P2 の指摘ごとに、レビュー結果にある場所（ファイル:行）で `bash scripts/gates/finding-in-diff.sh <ファイル> <行>` を実行する（終了コード 0 = diff の中、1 = diff の外、2 = 判定できない）。終了コード 1 の指摘は、元からある欠陥として修正役に「直す」として渡さない。受け入れ条件に関わるなら「人間に戻す」、関わらないなら「記録のみ」にして DISCOVERED に回す。終了コード 0・2 と、場所が書かれていない指摘は、今までどおり修正役の振り分けに任せる。修正役の起動 prompt（Codex への起動文字列と Task の prompt の両方）には、終了コード 1 の指摘を「直さない指摘: [ファイル:行 と、指摘の 1 行目]」として書く（番号ではなく場所と原文で指す）。「直さない指摘」は PdM が振り分け済みなので、修正役は振り分けも報告もしない。件数の行（直す / 人間に戻す / 記録のみ）は、PdM が照合で振り分けた分と、修正役の報告の分を足したものにする。修正役を起動しないときは、P3 の指摘を PdM が「記録のみ」として数える。「直す」が 0 件なら修正役を起動せず、記録（3）へ進む。照合の後に、P1・P2 のうち終了コード 1 でないものとして修正役へ渡す指摘が 1 件以上残れば、修正役を起動する。修正役は GREEN と同じ委譲先で、`codex_mode: full` かつ `codex_session_id` があれば Codex、無ければ green-worker。修正役には常にそのファイルを渡す（`/tmp/dev-crew-review-<cycle_id>/review.md`）。Codex 成功なら Codex の出力、代行なら PdM が書き出した返答で、どちらも同じパス。adversarial-review.md の `## 振り分け` と `## 報告の型` を渡し、「直す」だけを直させる。直す前に呼び出し元の検索と今の動きの固定を済ませ、既存のテストを弱めさせない。
+2. **修正**: 修正役を起動する前に、PdM が P1・P2 の指摘ごとに、レビュー結果にある場所（ファイル:行）で `bash "<orchestrate の Base directory>/../../scripts/gates/finding-in-diff.sh" <ファイル> <行>` を実行する（終了コード 0 = diff の中、1 = diff の外、2 = 判定できない）。終了コード 1 の指摘は、元からある欠陥として修正役に「直す」として渡さない。受け入れ条件に関わるなら「人間に戻す」、関わらないなら「記録のみ」にして DISCOVERED に回す。終了コード 0・2 と、場所が書かれていない指摘は、今までどおり修正役の振り分けに任せる。修正役の起動 prompt（Codex への起動文字列と Task の prompt の両方）には、終了コード 1 の指摘を「直さない指摘: [ファイル:行 と、指摘の 1 行目]」として書く（番号ではなく場所と原文で指す）。「直さない指摘」は PdM が振り分け済みなので、修正役は振り分けも報告もしない。件数の行（直す / 人間に戻す / 記録のみ）は、PdM が照合で振り分けた分と、修正役の報告の分を足したものにする。修正役を起動しないときは、P3 の指摘を PdM が「記録のみ」として数える。「直す」が 0 件なら修正役を起動せず、記録（3）へ進む。照合の後に、P1・P2 のうち終了コード 1 でないものとして修正役へ渡す指摘が 1 件以上残れば、修正役を起動する。修正役は GREEN と同じ委譲先で、`codex_mode: full` かつ `codex_session_id` があれば Codex、無ければ green-worker。修正役には常にそのファイルを渡す（`/tmp/dev-crew-review-<cycle_id>/review.md`）。Codex 成功なら Codex の出力、代行なら PdM が書き出した返答で、どちらも同じパス。adversarial-review.md の `## 振り分け` と `## 報告の型` を渡し、「直す」だけを直させる。直す前に呼び出し元の検索と今の動きの固定を済ませ、既存のテストを弱めさせない。
    ```bash
    codex exec --sandbox workspace-write resume "$codex_session_id" "Cycle doc: [path]. レビュー結果: /tmp/dev-crew-review-<cycle_id>/review.md. adversarial-review.md の ## 振り分け と ## 報告の型 に従え。直さない指摘: [ファイル:行 と、指摘の 1 行目]（無ければ「なし」）。" < /dev/null
    ```

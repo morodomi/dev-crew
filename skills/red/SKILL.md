@@ -65,7 +65,7 @@ Cycle doc の Test List を Given/When/Then + 具体テストデータに展開�
 
 ### exspec check (optional)
 
-`command -v exspec` で存在確認。インストール済みかつ対応言語なら `scripts/gates/exspec-check.sh` を実行。
+`command -v exspec` で存在確認。インストール済みかつ対応言語なら `bash "<red の Base directory>/../../scripts/gates/exspec-check.sh" <test_path> <lang>` を実行。
 BLOCK検出時はRED失敗（修正→再実行）。未インストール or 非対応言語はスキップ。
 詳細: [reference.md](reference.md#exspec)
 

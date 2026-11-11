@@ -84,7 +84,7 @@ planファイルにTDDコンテキストを記録。テンプレート: [referen
 
 specの記録後、plan mode内で続行（specスキル範囲外）: 探索（最低5ファイル）→ 設計 → Test List（Given/When/Then）→ QAチェック（カバレッジ・粒度・セキュリティ・独立性）
 
-**Step 7.2: Forced Recall** — 設計で Files to Change が確定した直後（Step 8 の前）に `bash scripts/recall-candidates.sh . <変更予定ファイル...>` を実行し、上位候補を助言者形式で plan の `## Recall` に記録（0 件時は「関連する過去サイクルなし」）。詳細: [reference.md](reference.md#forced-recall)
+**Step 7.2: Forced Recall** — 設計で Files to Change が確定した直後（Step 8 の前）に `bash "<spec の Base directory>/../../scripts/recall-candidates.sh" . <変更予定ファイル...>` を実行し、上位候補を助言者形式で plan の `## Recall` に記録（0 件時は「関連する過去サイクルなし」）。詳細: [reference.md](reference.md#forced-recall)
 
 → review --plan → Step 8（承認前 Codex plan review）→ approve（ExitPlanMode）→ 自動orchestrate（sync-plan→RED→GREEN→...）
 

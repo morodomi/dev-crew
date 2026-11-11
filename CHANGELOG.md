@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- **導入先で skill が呼ぶ本体スクリプトが見つからない問題を直した (#292)。** orchestrate・spec・red・learn・review の文書にあった `bash scripts/...` の相対呼び出しを、`bash "<skill の Base directory>/../../scripts/..."` の形にした。導入先の repo には `scripts/` が無いため、recall-candidates など本体のスクリプトが解決できなかった
+- **frontmatter の `plan_file` が引用符付きだと pre-red-gate が BLOCK する問題を直した。** 両端が同じ引用符（`"…"` または `'…'`）のときだけ外してから検査する。片側だけの引用符は外さず、信頼境界の検査は外した後の値にかける
+
 ## [2.23.0] - 2026-11-05
 
 ### Added

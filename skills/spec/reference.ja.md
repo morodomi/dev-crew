@@ -520,7 +520,7 @@ Step 7.2 で実行する強制想起。Files to Change に挙げた変更予定�
 ### 実行
 
 ```bash
-bash scripts/recall-candidates.sh . <変更予定ファイル...>
+bash "<spec の Base directory>/../../scripts/recall-candidates.sh" . <変更予定ファイル...>
 ```
 
 データソースは既存のもののみ: `git log --name-only`（共変更）+ Cycle-Doc トレーラー（確定リンク優先）。ハブファイル（多数の cycle doc に共変更リンクするファイル）は寄与を IDF 相当で減衰させる — 減衰は**入力ファイル間の相対重み**として働くため、通常の入力（Files to Change の複数ファイル）では葉ファイル由来の候補がハブ由来より優先され、直近サイクルへの縮退を防ぐ。単一のハブファイルのみを入力した場合は全候補が同点となり新しい順の提示になる（仕様上の許容挙動。miss が計測されたら拡張判断の対象）。出力は `score<TAB>docs/cycles/<path>` の上位候補（既定 5 件、score 降順・新しい順 tie-break）。0 件なら stdout 空 + exit 0。

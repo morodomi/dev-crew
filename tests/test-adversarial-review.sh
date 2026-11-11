@@ -1002,7 +1002,7 @@ missing=""
 for f in $STEPS_FILES; do
   body=$(review_sec "$f")
   if [ -z "$body" ]; then missing="$missing [$(basename "$f"): REVIEW 節なし]"; continue; fi
-  line_ordered "$body" "bash scripts/gates/finding-in-diff.sh" "「直す」が 0 件なら修正役を起動せず" \
+  line_ordered "$body" 'bash "<orchestrate の Base directory>/../../scripts/gates/finding-in-diff.sh"' "「直す」が 0 件なら修正役を起動せず" \
     || missing="$missing [$(basename "$f"): finding-in-diff.sh が「直す」が 0 件…より前の同じ行にない]"
 done
 if [ -z "$missing" ]; then
