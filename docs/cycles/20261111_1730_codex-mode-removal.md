@@ -5,12 +5,12 @@ phase: DONE
 complexity: complex
 test_count: 16
 risk_level: medium
-retro_status: captured
+retro_status: resolved
 codex_mode: no
 codex_session_id: "01a1c9aa-78d6-7a53-a656-dd016260c5c0"
 plan_file: /Users/morodomi/.claude/plans/sparkling-dreaming-bengio.md
 created: 2026-11-11 17:29
-updated: 2026-11-11 23:09
+updated: 2026-11-12 10:51
 ---
 
 # codex_mode の full（RED/GREEN の Codex 委譲）の経路を消す（#297）
@@ -376,3 +376,25 @@ Format for each phase entry (**strict, required by pre-commit-gate.sh**):
 
 - **設問**: 今回の手戻りは、過去のどの cycle doc を最初に読んでいれば防げたか
 - **回答**: docs/cycles/20261111_1105_skill-script-base-paths.md
+
+## Codify Decisions
+
+### Insight 1
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: cycle-scoped
+- **Reason**: 20261111_1105 #1 と同じ教訓の再発（2 回目）。そちらの決定と 1 本の rule にまとめる（名前ではなく実際の形で探す）
+- **Decided**: 2026-11-12 10:51
+
+### Insight 2
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: file-scoped
+- **Paths**: tests/**
+- **Reason**: rules/test-patterns.md に足す。危険な権限を渡さないことを pin するテストは、安全な指定の存在だけを確かめても成り立たない。危険な綴り（長いフラグ・短いフラグ・設定の上書き・bypass）を列挙して否定し、空白と引用符の揺れを正規化してから判定する。変異も綴りごとに入れる
+- **Decided**: 2026-11-12 10:51
+
+### Insight 3
+- **Decision**: no-codify
+- **Reason**: 文案の書き方についての 1 回きりの観察。TC-08a で今回の文面は固定済み。扱いの違う 2 つの fallback を 1 つの原則に書く場面は他に記録が無い
+- **Decided**: 2026-11-12 10:51
