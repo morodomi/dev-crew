@@ -18,6 +18,17 @@ n=0; for f in docs/cycles/*.md; do awk '/^---$/{c++;next} c==1{print}' "$f" 2>/d
 - **0**: 通知しない。
 - どちらの場合も、件数にかかわらず次へ進む。この件数は Cycle doc の数であり、insight の件数ではない。
 
+### 未着地の件数
+
+codified で Destination が rule の insight のうち、rules（`rules/` と `.claude/rules/`）に出典 `(<cycle_id> #N)` が無く、`docs/codify-withdrawn.md` にも無いものの件数。`<orchestrate の Base directory>` は skill の Base directory（本体では skills/orchestrate、導入先ではプラグインの同ディレクトリ）。cwd の repo を数える（常に exit 0、整数 1 行）:
+
+```bash
+bash "<orchestrate の Base directory>/../../scripts/codify-landing.sh" . --count
+```
+
+- **N が 1 以上**: 「rules に反映されていない codified の insight が N 件あります（上の bash から `--count` を外すと一覧）。反映は別の cycle で行ってください。」と 1 行通知する。
+- **未着地が 0 件**: 通知しない。件数にかかわらず次へ進む。
+
 ### なぜ frontmatter-only scan か
 
 whole-file grep (`grep -l 'retro_status: captured'`) は Cycle doc body 中の引用テキスト（本 plan/cycle doc にも `retro_status: captured` を本文で引用する箇所がある）に self-trigger する。frontmatter のみを `awk` で抽出することで false positive を防ぐ。

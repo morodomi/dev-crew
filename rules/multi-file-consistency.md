@@ -20,6 +20,9 @@ paths:
 - multi-mode skill（SKILL.md + steps-*.md）への動作変更は、変更点を全モード doc に対する契約テストで pin する（TC-14a/b/c 型が template）。rule 文書による注意喚起は 2 度破られた — 契約テスト化が唯一の恒久防御 (cycle 20260706_1020 #2)
 - A→B の順序反転では、B の定義に残る「B が A を呼ぶ」旧記述を grep で洗い、negative assert（旧呼び出しの不在）で pin する。positive assert（新記述の存在）だけでは旧記述と共存し二重実行する。順序変更は「新記述の追加」でなく「旧記述の除去 + 新記述」の対で完了する (docs/cycles/20260717_1126_approval-reorder.md #3)
 
+- 手順 doc へ step を挿入するときは、見出しの隣接でなく「その step の前提が直前までに成立しているか」を doc を頭から実行するトレースで検証する。前提条件は step 自身の文中に書き、位置に依存させない (20260723_1328 #2)
+- negative sweep（0 件契約）を持つ repo では、sweep 対象の doc（docs/STATUS.md 等）へ最終追記した後に該当 sweep test を回してから commit する。テスト後に書いた 1 行はテスト済みではない (20260903_1130 #5)
+
 ## 具体例
 
 ```bash

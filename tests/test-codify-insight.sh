@@ -324,11 +324,26 @@ extract_bash_fence() {
   awk '/^```bash/{f=1; next} /^```/{f=0} f'
 }
 
+# 区間テキスト (stdin) から、中身に pat を含む ```bash ブロックだけを取り出す。
+# 通知の節には captured を数えるブロックと、未着地を数えるブロックが並ぶ。
+# 連結すると TC-15b が両方を 1 つのスニペットとして実行して整数 1 行の契約が壊れるので、
+# ブロックごとに選ぶ。
+extract_fence_with() {
+  awk -v pat="$1" '
+    /^```bash/ {f=1; buf=""; next}
+    f && /^```/ {f=0; if (index(buf, pat)) printf "%s", buf; next}
+    f {buf = buf $0 "\n"}
+  '
+}
+extract_captured_fence() { extract_fence_with 'retro_status'; }
+extract_landing_fence() { extract_fence_with 'codify-landing.sh'; }
+
 # check_notice_section TC FILE KIND(skill|steps) -> sets NOTICE_SECTION, NOTICE_SNIPPET; returns 0 on PASS
 check_notice_section() {
   local tc="$1" file="$2" kind="$3" sec
   NOTICE_SECTION=""
   NOTICE_SNIPPET=""
+  NOTICE_LANDING_SNIPPET=""
   if [ ! -f "$file" ]; then
     fail "$tc: $file does not exist"
     return 1
@@ -343,7 +358,8 @@ check_notice_section() {
     fail "$tc: '0. Codify notice' section not found in $(basename "$file")"
     return 1
   fi
-  NOTICE_SNIPPET=$(printf '%s\n' "$sec" | extract_bash_fence)
+  NOTICE_SNIPPET=$(printf '%s\n' "$sec" | extract_captured_fence)
+  NOTICE_LANDING_SNIPPET=$(printf '%s\n' "$sec" | extract_landing_fence)
   if printf '%s\n' "$sec" | grep -qF 'Skill(dev-crew:codify-insight)'; then
     fail "$tc: notice section still invokes Skill(dev-crew:codify-insight)"
     return 1
@@ -385,6 +401,32 @@ if check_notice_section "TC-15" "$ORCHESTRATE_SKILL_MD" skill; then
   pass "TC-15: SKILL.md Block 0 notice has fixed text, proceed clause, awk; no Skill invocation / wait"
 fi
 SKILL_NOTICE_SNIPPET="$NOTICE_SNIPPET"
+SKILL_LANDING_SNIPPET="$NOTICE_LANDING_SNIPPET"
+
+# check_landing_snippet TC LABEL SNIPPET: 未着地を数えるブロックが SKILL.md のものと同一であること
+# （captured のブロックの一致検査は別に残っている。ここは未着地のブロックの検査）
+check_landing_snippet() {
+  local tc="$1" label="$2" snip="$3"
+  if [ -z "$SKILL_LANDING_SNIPPET" ]; then
+    fail "$tc: no codify-landing block in orchestrate/SKILL.md Block 0 to compare with"
+  elif [ -z "$snip" ]; then
+    fail "$tc: $label Block 0 has no codify-landing block"
+  elif [ "$snip" != "$SKILL_LANDING_SNIPPET" ]; then
+    fail "$tc: $label codify-landing block differs from orchestrate/SKILL.md"
+  else
+    pass "$tc: $label codify-landing block identical to SKILL.md"
+  fi
+}
+
+echo ""
+echo "TC-15c: orchestrate/SKILL.md Block 0 has a separate codify-landing block (not mixed into the captured block)"
+if [ -z "$SKILL_LANDING_SNIPPET" ]; then
+  fail "TC-15c: no codify-landing block in orchestrate/SKILL.md Block 0"
+elif grep -qF -- 'codify-landing.sh' <<< "$SKILL_NOTICE_SNIPPET"; then
+  fail "TC-15c: captured block also calls codify-landing.sh (blocks must be separate)"
+else
+  pass "TC-15c: SKILL.md has a codify-landing block separate from the captured block"
+fi
 
 # TC-15b: SKILL.md の通知スニペットを fixture で実行し、件数と exit 0 を確認する
 # Given: SKILL.md から取り出した通知スニペットと mktemp fixture (docs/cycles/)
@@ -473,12 +515,14 @@ check_steps_notice() {
 echo ""
 echo "TC-16: steps-subagent.md Block 0 '0. Codify notice' (notify-only, snippet == SKILL.md)"
 check_steps_notice "TC-16" "$STEPS_SUBAGENT_MD"
+check_landing_snippet "TC-16c" "steps-subagent.md" "$(extract_notice_steps "$STEPS_SUBAGENT_MD" | extract_landing_fence)"
 
 # TC-17: steps-teams.md Block 0 "0. Codify notice"
 # Given: steps-teams.md / When: "### 0. Codify notice" 区間を読む / Then: TC-16 と同じ
 echo ""
 echo "TC-17: steps-teams.md Block 0 '0. Codify notice' (notify-only, snippet == SKILL.md)"
 check_steps_notice "TC-17" "$STEPS_TEAMS_MD"
+check_landing_snippet "TC-17c" "steps-teams.md" "$(extract_notice_steps "$STEPS_TEAMS_MD" | extract_landing_fence)"
 
 # TC-18: README.md, CLAUDE.md, AGENTS.md, docs/STATUS.md all contain grep-matchable "codify-insight"
 echo ""
@@ -664,7 +708,8 @@ if [ ! -f "$ORCHESTRATE_REF_MD" ]; then
   fail "TC-27: skills/orchestrate/reference.md does not exist"
 else
   tc27_sec=$(sec_h2 "$ORCHESTRATE_REF_MD" "Block 0 Pre-Check")
-  tc27_snip=$(printf '%s\n' "$tc27_sec" | extract_bash_fence)
+  tc27_snip=$(printf '%s\n' "$tc27_sec" | extract_captured_fence)
+  tc27_landing=$(printf '%s\n' "$tc27_sec" | extract_landing_fence)
   if [ -z "$tc27_sec" ]; then
     fail "TC-27: '## Block 0 Pre-Check' section not found"
   elif [ -z "$SKILL_NOTICE_SNIPPET" ]; then
@@ -681,6 +726,11 @@ else
     pass "TC-27: reference.md Block 0 section has identical snippet, fixed notice, proceed clause; no Skill invocation"
   fi
 fi
+
+# TC-27c: reference.md の Block 0 節の未着地ブロックが SKILL.md と同一
+echo ""
+echo "TC-27c: orchestrate/reference.md Block 0 section codify-landing block == SKILL.md"
+check_landing_snippet "TC-27c" "reference.md" "$(sec_h2 "$ORCHESTRATE_REF_MD" "Block 0 Pre-Check" | extract_landing_fence)"
 
 # TC-28: 別リポジトリへの deferred の issue URL を Codify Decisions に記録する契約
 # codify-insight は Bash を持たず自分では起票できないため、URL (または未起票) を記録する。

@@ -71,6 +71,9 @@ reviewer JSON 出力の検証と再試行は以下の決定論的手順に従う
 - 全 findings を 3-category に分類してから適用順を決める
 - reject した findings は「なぜ reject か」を 1 行で review log に記録する
 - competitive review で reviewer 間の判定割れが起きたら、多数決や権威でなく「機構レベルの分解 + 実測 oracle」で決着させる。bash の rc 伝播（pipefail / set -e / SIGPIPE / command substitution）は reviewer ごとに mental model が違うため、実際に踏ませる fixture を作って観測する (docs/cycles/20260709_1125_risk-classifier-doc-diff-fix.md #2)
+- verdict・gate 判定・test 結果は宣言せず、対応する script（`severity-verdict.sh` 等）を実行した出力を貼って記録する。「適用済みだから WARN」と推定で降格すると、記録自体が嘘になる (20260907_1324 #1)
+- BLOCK から硬化したら再レビュー（round 2）を省略しない。critical の修正が新しい欠陥を生むのは標準的に起きる（`ls | wc -l` の abort は修正だけを見た correctness が捕まえた） (20260907_1324 #3)
+- レビュー依頼の問いに削除方向を含める（「さらに削れる箇所があれば指摘せよ」）。含めないと指摘は追加方向にしか出ない。新しい手順を足す plan では plan review にも入れ、「実害の場面で実際に欠けていたものは何か」「既存の手順で足りないか」を問う。同じ「問いの向き」の教訓のためまとめた (20260916_1634 #4、20261005_1639 #1)
 - tier テーブル置換（分類テーブル/リストへの項目置換投入）は、置換先の行/tier にその項目が実在するかを構造と突合してから書く。「A を B に置換」は A と B が同じ文脈（同じ tier/行/scope）に属する時のみ意味を持ち、異なる tier の項目を持ち込むと省略対象不在・二重定義等の構造矛盾を生む (docs/cycles/20260709_1313_reviewer-model-policy-v1.md #2)
 
 ## 出典

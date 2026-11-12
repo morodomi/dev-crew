@@ -19,6 +19,10 @@ n=0; for f in docs/cycles/*.md; do awk '/^---$/{c++;next} c==1{print}' "$f" 2>/d
 ```
 
 N が 1 以上なら「未処理の振り返りを持つ Cycle doc が N 件あります（retro_status: captured）。処理するときは /dev-crew:codify-insight を別に実行し、タスクとは別の commit にしてください。」と 1 行通知する。0 なら通知しない。件数にかかわらず次へ進む。
+```bash
+bash "<orchestrate の Base directory>/../../scripts/codify-landing.sh" . --count
+```
+N が 1 以上なら「rules に反映されていない codified の insight が N 件あります（上の bash から `--count` を外すと一覧）。反映は別の cycle で行ってください。」と 1 行通知する。未着地が 0 件なら通知しない。
 
 planファイルを起点に開始地点を決定する:
 
