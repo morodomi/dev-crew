@@ -5,12 +5,12 @@ phase: DONE
 complexity: standard
 test_count: 23
 risk_level: low
-retro_status: captured
+retro_status: resolved
 codex_mode: no
 codex_session_id: "01a18025-9343-7061-af1a-6bf0b8267181"
 plan_file: /Users/morodomi/.claude/plans/271-velvet-rossum.md
 created: 2026-10-28 10:47
-updated: 2026-10-28 12:54
+updated: 2026-11-12 10:51
 ---
 
 # #271: 修正役を起動する前に、PdM が指摘の場所と diff を照らす
@@ -323,3 +323,29 @@ Evidence: (orchestrate が自動記入)
 
 - **設問**: 今回の手戻りは、過去のどの cycle doc を最初に読んでいれば防げたか
 - **回答**: docs/cycles/20261016_1645_adversarial-review-triage.md（Recall で読み、Insight 1 を git の設定にだけ当てた。環境変数まで当てていれば Insight 3 の手戻りは防げた）
+
+## Codify Decisions
+
+### Insight 1
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: file-scoped
+- **Paths**: tests/**
+- **Reason**: rules/test-patterns.md に足す。変異の「未検出」をテストの穴と決める前に、変異が実行される行に入ったかを確かめる。置き換え元は、コメントや説明文に同じ文字列が無いことを grep で確かめた、コードにしか無い文脈で指定する
+- **Decided**: 2026-11-12 10:51
+
+### Insight 2
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: file-scoped
+- **Paths**: tests/**
+- **Reason**: rules/test-patterns.md に足す。「起動する文字列に句が入っている」契約は、行単位ではなく、起動の引用文字列を切り出して検査する
+- **Decided**: 2026-11-12 10:51
+
+### Insight 3
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: file-scoped
+- **Paths**: scripts/**
+- **Reason**: 再発 2 回（この cycle と 20261104_1025 #3、CDPATH）。gate のスクリプトは、git の config だけでなく、出力やパスの解決を変える環境変数（GIT_* の pathspec・diff 系、CDPATH）も入力として扱って外す。差分はあるのに行が取れないときは、判定できない側に倒す
+- **Decided**: 2026-11-12 10:51

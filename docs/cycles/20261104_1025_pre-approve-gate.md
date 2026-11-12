@@ -5,12 +5,12 @@ phase: DONE
 complexity: standard
 test_count: 14
 risk_level: low
-retro_status: captured
+retro_status: resolved
 codex_mode: no
 codex_session_id: "01a1a41c-7a3e-7803-b05e-04b90496f935"
 plan_file: /Users/morodomi/.claude/plans/cuddly-discovering-donut.md
 created: 2026-11-04 13:07
-updated: 2026-11-04 15:31
+updated: 2026-11-12 10:51
 ---
 
 # 承認前に Plan Review Record の hash と plan_presented を確かめる gate (#291)
@@ -266,3 +266,26 @@ Evidence: (orchestrate が自動記入)
 
 - **設問**: 今回の手戻りは、過去のどの cycle doc を最初に読んでいれば防げたか
 - **回答**: docs/cycles/20261028_1047_review-fixer-location-check.md
+
+## Codify Decisions
+
+### Insight 1
+- **Decision**: no-codify
+- **Reason**: #292（cycle 20261111_1105）で、skill からの相対パスの呼び出しを tests/test-skill-script-paths.sh が機械的に落とすようになった。rule の文面を足す必要はない
+- **Decided**: 2026-11-12 10:51
+
+### Insight 2
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: file-scoped
+- **Paths**: scripts/**
+- **Reason**: 「既存の gate X と同じ検査」を書くときは、行の選び方（最初か最後か）、文字の種類、空白の扱いまで X のコードから写す。同じ入力を両方の gate に流し、答えが一致することをテストにする
+- **Decided**: 2026-11-12 10:51
+
+### Insight 3
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: file-scoped
+- **Paths**: scripts/**
+- **Reason**: 20261028_1047 #3 と同じ教訓の再発（2 回目）。そちらの決定と 1 本の rule にまとめる（環境変数を gate の入力として扱って外す）
+- **Decided**: 2026-11-12 10:51

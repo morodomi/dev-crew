@@ -5,12 +5,12 @@ phase: DONE
 complexity: standard
 test_count: 6
 risk_level: low
-retro_status: captured
+retro_status: resolved
 codex_mode: no
 codex_session_id: "01a17c4c-0140-75e2-ba23-c95b865c934d"
 plan_file: /Users/morodomi/.claude/plans/271-velvet-rossum.md
 created: 2026-10-27 17:50
-updated: 2026-10-27 18:15
+updated: 2026-11-12 10:51
 ---
 
 # sync-plan-completion-marker (#285)
@@ -297,3 +297,18 @@ Format for each phase entry (**strict, required by pre-commit-gate.sh**):
 
 - **設問**: 今回の手戻りは、過去のどの cycle doc を最初に読んでいれば防げたか
 - **回答**: 該当なし
+
+## Codify Decisions
+
+### Insight 1
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: cycle-scoped
+- **Reason**: rules/agent-prompts.md に足す。gate が読む形は rule の散文ではなく書く役の定義（agent / テンプレート）に置き、定義の文面を gate に通すテストで固定する。2026-07-17 の「自動契約化」の文面だけでは、その後 3 回再発した
+- **Decided**: 2026-11-12 10:51
+
+### Insight 2
+- **Decision**: deferred
+- **Destination**: new-cycle
+- **Reason**: rules/test-patterns.md:13,51 に同じ禁止がすでにあり、prompt にも書いたが守られなかった。文面を足しても防げないので、`set -o pipefail` のあるテストの `| grep -q` を機械的に見つける検査（テストか PdM の RED 後の grep）を別の cycle で作る
+- **Decided**: 2026-11-12 10:51

@@ -5,12 +5,12 @@ phase: DONE
 complexity: standard
 test_count: 12
 risk_level: medium
-retro_status: captured
+retro_status: resolved
 codex_session_id: 01a1c84d-0970-7d81-bc50-6bf19afb8da4
 codex_mode: no
 plan_file: /Users/morodomi/.claude/plans/sparkling-dreaming-bengio.md
 created: 2026-11-11 11:05
-updated: 2026-11-11 11:33
+updated: 2026-11-12 10:51
 ---
 
 # skill が呼ぶ本体スクリプトを Base directory からの相対にする（#292 を広げる）+ 引用符付き plan_file
@@ -385,3 +385,27 @@ Format for each phase entry (**strict, required by pre-commit-gate.sh**):
 
 - **設問**: 今回の手戻りは、過去のどの cycle doc を最初に読んでいれば防げたか
 - **回答**: 該当なし
+
+## Codify Decisions
+
+### Insight 1
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: cycle-scoped
+- **Reason**: 再発 2 回（この cycle と 20261111_1730 #1）。rules/plan-discipline.md に足す。直す範囲や消す範囲を洗い出すときは、置き場所や設定の名前ではなく、欠陥や機能の実際の形（呼び出しの形、使う仕組み）で探し、名前を持たない consumer（配布用のテンプレートなど）を拾う
+- **Decided**: 2026-11-12 10:51
+
+### Insight 2
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: file-scoped
+- **Paths**: tests/**
+- **Reason**: rules/test-patterns.md に足す。呼び出しの文字列を変えるときは、テストの中の固定文字列だけでなく、旧い形に一致する正規表現も探す。「一致した行すべてが X を持つ」型の検査には、一致が 1 行以上あることの assert を添える
+- **Decided**: 2026-11-12 10:51
+
+### Insight 3
+- **Decision**: codified
+- **Destination**: rule
+- **Tier**: cycle-scoped
+- **Reason**: rules/agent-prompts.md に足す。Test List の遷移を委譲するときは「項目を DONE の見出しの下へ移し `[x]` にする。見出しと節の並びは変えない」まで書く
+- **Decided**: 2026-11-12 10:51
