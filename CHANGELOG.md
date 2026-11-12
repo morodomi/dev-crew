@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+### Added
+
+- **codified の insight が rules に着地したかを数える `scripts/codify-landing.sh` を追加した (#223)。** rules の出典 `(<cycle_id> #N)` を逆リンクとして読み、rules に出典の無い codified・rule の insight を列挙する。導入先（`.claude/rules/` だけの repo）でも動く。orchestrate の Block 0 は未着地が 1 件以上あれば 1 行で知らせる（進行は止めない）。取り下げは `docs/codify-withdrawn.md` に理由付きで書く
+- **gate・hook・skill の bash を書くときの rule `rules/shell-scripts.md` を追加した。** paths は `**/*.sh`・`scripts/**`・`skills/**`。今まで tests/** の rule にしか無く、実装側では読まれなかった教訓を置く
+
+### Changed
+
+- **反映待ちだった codified の insight 66 件を rules に着地させた。** 同じ教訓は 1 条にまとめて出典を並べ、65 件を書き、消えた仕組みに依存する 1 件を取り下げた。rules は 657 行から 735 行になった。codify-insight の reference に、反映するときの出典の書き方を足した
+
 ## [2.24.0] - 2026-11-12
 
 ### Removed

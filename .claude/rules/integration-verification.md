@@ -35,6 +35,8 @@ template / skill docs だけでなく、自 cycle の Verification 実行でも 
 - **dev-crew 内 (bash/doc project)**: gate/consumer/validator を real path で実行 — 例 `bash scripts/gates/pre-commit-gate.sh $cycle_doc`（$1 に cycle doc パスを渡すと当該 doc を直接検査。明示指定・推奨。project root を渡すと updated 最新の non-DONE を自動選択）or `bash scripts/validate-yaml-frontmatter.sh`。grep/diff のみは structural test として扱う
 - **共通 (全 project type)**: Verification に書く script 呼び出しは「usage を実測」（ヘッダコメント / --help / 実行）で確認してから記載する。引数契約を名前から推測しない (cycle 20260702_1200 #3)
 - **gate 強化 cycle**: 「gate ロジックの強化」と「全 caller が強化 gate を呼ぶ（全 caller pin）」を分離して両方 pin する。前者だけでは dead な防御になる。全モード契約テスト pin を『順序』だけでなく『gate 呼び出しの存在』にも適用する（real-path invocation の gate 版） (docs/cycles/20260717_1126_approval-reorder.md #2)
+- **削除 cycle**: 「X は誰からも呼ばれていないから削除する」と言う cycle は、代替物にも同じ問いを返す。Verification に「代替物の caller を実測で示す」項目を置く（削除した staleness hook の代替の契約テストも、どこからも呼ばれていなかった） (20260906_1120 #3)
+- **判定・検証系 script の導入 cycle**: Verification に「本 cycle の該当フェーズ自身で新機構を実走する」を含める。合成 fixture では出ない実データ形状（legacy キー混入、reviewer 出力の揺れ）を導入 cycle 内で踏める (20260903_1130 #4)
 
 ## Evidence 記録
 

@@ -52,6 +52,8 @@ skill が別 skill から invoke される場合、callee SKILL.md に exit code
 
 rule に insight を codify する際、**元の insight L## (Cycle doc 行番号) を引用として明示**する。generalize する場合は「なぜ generalize したか」を 1 行書く。LLM は insight を generalize する時、source より自分の "clean statement" を優先する bias があるため、原文引用の明示が一次防御となる。Codex competitive review は原典照合を担うが、引用の明示が無いと複数 source の merge bias を検出できない。
 
+新しい rule を codify する cycle は、書いた file 内の既存 content への self-apply（新 rule への適合修正）を必ず含める。他 file への広い sweep は defer してよいが、rule を書いた file 自身が rule 違反では矛盾する (20260423_1045 #3)。
+
 ## 出典
 
 - `docs/cycles/20260420_1752_v2.8-orchestrate-integration.md` Insight 1

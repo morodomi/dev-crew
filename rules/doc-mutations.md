@@ -50,6 +50,10 @@ frontmatter の状態遷移（phase / retro_status / updated）は frontmatter �
 - **正しい対応**: 行頭アンカー + count=1 の区間限定置換（re.MULTILINE の `^...$` 一致）、または awk 区間抽出で frontmatter のみを対象にする
 - 根拠: cycle doc は「状態」と「状態についての記録」が同居する文書。状態遷移操作は構造を認識して行う
 
+## heredoc でのバッククォート混入 (20260724_1450 #3)
+
+変数展開が必要な非 quoted heredoc にバッククォートや `$` を含む本文を同居させない（command substitution で文字列が欠落する）。見出し行だけ printf で書き、本文は quoted delimiter の heredoc か Edit tool で書く。
+
 ## Cycle 参照 format (cycle 20260422_1313 #5)
 
 rule 内の cycle 参照は **full filename prefix** (例: `20260422_1313`) または **cycle_id frontmatter 値** を使う。informal 略称 (eval-N、A2b、Cycle B) は会話では許容だが永続 artifact (rule/doc) では使わない。cross-reference は絶対識別子で行う。

@@ -45,6 +45,7 @@ destination `rule` は次の tier を必ず指定する。
 - `cycle-scoped` の `paths` は固定値 `docs/cycles/**` とし、個別指定は不要。
 - `always` は `paths` なし。追加時は交換条件が必須で、既存 always rule の scoped 化・統合・削減を同時提示し、常時層凍結契約テストの上限内に収める。
 - codify-insight は tier と paths を decision に記録するのみ。follow-up は別サイクルで行い、codify-insight の実行中には反映しない。反映先は follow-up 実装主体が、`.claude-plugin/plugin.json` の `name` が `dev-crew` か否かで分ける（`rules/` の有無では判定しない。導入先にも `rules/` ができ得るため）。本体は `rules/` 正本と `.claude/rules/` mirror に同時適用する。導入先（それ以外の全 repo）は `.claude/rules/local-<name>.md` に適用し、mirror には書かない（onboard reference の local- rules）。
+- 反映するときは、条項の行か `## 出典` に `(<cycle_id> #N)` と書く（cycle_id は `YYYYMMDD_HHMM`）。統合した条項は複数の `<cycle_id> #N` を並べる。取り下げるときは `docs/codify-withdrawn.md` に `- <cycle_id> #N — <理由>` と書く。理由は、消えた仕組みと、消えたことが分かる commit かパスにする。`scripts/codify-landing.sh <repo_root>` が、この出典と台帳から未着地の insight を数える（`--count` は件数だけ）。
 
 ### 正例
 
