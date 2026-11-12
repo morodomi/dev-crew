@@ -28,9 +28,9 @@ Claude and Codex have different personalities. dev-crew uses that as a feature:
 | AI | Role | Personality |
 |----|------|-------------|
 | Claude | Planner/Orchestrator | Agreeable, lenient reviews |
-| Codex | Implementer/Reviewer | Blunt, thorough reviews |
+| Codex | Reviewer | Blunt, thorough reviews |
 
-When Codex is available, Plan Review runs competitively (Claude + Codex). Code review is one adversarial pass (Codex by default, the `adversarial-reviewer` agent when Codex is absent or fails), followed by triage of its findings. RED/GREEN delegation is user's choice (`full`: Codex, `no`: Claude). When Codex is unavailable, Claude handles everything (fallback).
+When Codex is available, Plan Review runs competitively (Claude + Codex). Code review is one adversarial pass (Codex by default, the `adversarial-reviewer` agent when Codex is absent or fails), followed by triage of its findings. RED/GREEN are always done by Claude workers; Codex is used for review only (read-only). When Codex is unavailable, the plan review is skipped and recorded, and the adversarial-reviewer agent covers code review.
 
 ## Installation
 
@@ -53,7 +53,7 @@ When Codex is available, Plan Review runs competitively (Claude + Codex). Code r
 spec (design phase)
   plan mode → Ambiguity Detection → explore → design → Test List → QA
   → Claude plan-review → (Codex plan-review, if available; findings reflected, re-reviewed once)
-  → approve → sync-plan (Cycle doc, Plan Review Record transferred) → (Codex delegation: full/no)
+  → approve → sync-plan (Cycle doc, Plan Review Record transferred)
 
 RED → GREEN → REFACTOR → REVIEW → COMMIT (execution phase)
 ```
@@ -75,9 +75,9 @@ You: approve the plan (exits plan mode)
        and the delegation-mode question all happen internally, not as separate
        manual steps before orchestrate runs): sync-plan (Cycle doc, Plan Review
        Record transferred) → architect (Design Review Gate + Post-Transfer
-       Verification) → Choose Codex delegation for RED/GREEN (full/no)
+       Verification)
      → orchestrate continues: RED → GREEN → REFACTOR → REVIEW → cycle-retrospective → COMMIT
-     → Each phase delegated to specialist agents (Codex or Claude workers)
+     → Each phase delegated to specialist agents (Claude workers)
      → One adversarial review at REVIEW phase (Codex, or adversarial-reviewer as fallback), findings triaged
      → Findings summary shown after commit
 ```

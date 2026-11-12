@@ -270,7 +270,7 @@ Codex 利用可能時、orchestrate が Claude レビュー（本スキル）と
 | DISCOVERED | 今回のスコープ外 → 次回タスクへ |
 | ADR | アーキテクチャ上の重要決定 → 記録 |
 
-本スキルの責務は Claude-side レビューパイプライン。Codex 実行と findings 統合は orchestrate（[steps-codex.md](../orchestrate/steps-codex.md)）が制御する。
+本スキルの責務は Claude-side レビューパイプライン。Codex の実行は orchestrate の REVIEW 節（[steps-subagent.md](../orchestrate/steps-subagent.md)）が制御する（[adversarial-review.md](../orchestrate/adversarial-review.md) 参照）。
 
 ## コスト比較
 
@@ -287,5 +287,5 @@ Codex 利用可能時、orchestrate が Claude レビュー（本スキル）と
 | G-01 | mode判定誤り(planをcodeで実行) | 引数なしはcode(default) | --plan/--codeを明示指定 |
 | G-02 | REFACTOR記録未検出 | Progress Log表記揺れ | grep -qiEでcase insensitive |
 | G-03 | LOW riskで全agent起動 | Risk-based scaling不適用 | risk-classifier.sh判定に従う |
-| G-04 | Codex competitive review未試行 | CLAUDE.mdルール忘れ | steps-codex.mdのCompetitive Reviewセクション参照 |
+| G-04 | Codex レビュー未試行 | CLAUDE.mdルール忘れ | orchestrate の REVIEW 節と adversarial-review.md 参照 |
 | G-05 | DISCOVERED issue起票忘れ | Step 7スキップ | review完了前にDISCOVERED確認 |

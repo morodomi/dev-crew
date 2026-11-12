@@ -46,7 +46,7 @@ plan mode: Cycle doc 不在時は skip（DISCOVERED 追跡は承認後の Cycle 
 
 ## Codex Integration
 
-Codex 利用可能時、orchestrate が本スキルと Codex レビューを並行実行し、findings を統合する（competitive review）。単体 `/review` 実行時は Claude-side pipeline のみ動作する。詳細: [steps-codex.md](../orchestrate/steps-codex.md)
+orchestrate の REVIEW は本スキルを起動せず、敵対的レビューを 1 回実行する（Codex 利用可能時は Codex、無い・失敗時は adversarial-reviewer）。単体 `/review` 実行時は Claude-side pipeline のみ動作する。詳細: [adversarial-review.md](../orchestrate/adversarial-review.md) / [steps-subagent.md](../orchestrate/steps-subagent.md)
 
 ## Reference
 

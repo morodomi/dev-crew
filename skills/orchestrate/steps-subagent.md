@@ -3,8 +3,6 @@
 環境変数 `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` が無効時の手順。
 各フェーズを Task() で subagent に委譲し、コンテキスト分離を実現する。
 
-> **NOTE**: Codex利用可能時は [steps-codex.md](steps-codex.md) が優先される。
-
 注: 各 Phase は独立した subagent で実行される。重い作業は subagent 内で完結し、
 PdM には結果サマリーのみ返却されるため、コンテキストが自然に圧縮される。
 
@@ -176,7 +174,7 @@ Cycle doc `## Verification` セクション不在 or real-path invocation なし
 #### 手順
 
 0. **対象の列挙**: `git diff HEAD --name-only` と `git ls-files --others --exclude-standard`（未追跡の新規ファイルを含める）。未追跡ファイルがあれば WARN を出し、レビュー対象に含める。ただし名前が `.env*`・`*.pem`・`*credentials*`・`*secret*` に当たる未追跡ファイルはレビュー対象から外し、WARN を出す（Codex は外部サービスなので秘密を送らない）。
-1. **敵対的レビューを 1 回**: 入力は Cycle doc のパスと対象ファイルの一覧だけ。diff は渡さない（レビュー側が `git diff HEAD` を自分で実行して読み、未追跡ファイルは中身を読む）。レビュー結果は、どちらの経路でも固定のパス `/tmp/dev-crew-review-<cycle_id>/review.md` に置く（`<cycle_id>` は Cycle doc の frontmatter `cycle`。bash 呼び出しをまたいで使うので、変数に持たず固定のパスをそのまま書く）。`which codex` が成功する（codex_mode に関わらない）ときは新しいセッションで Codex を実行する。`resume` しない（steps-codex.md の REVIEW は resume しない唯一の例外）:
+1. **敵対的レビューを 1 回**: 入力は Cycle doc のパスと対象ファイルの一覧だけ。diff は渡さない（レビュー側が `git diff HEAD` を自分で実行して読み、未追跡ファイルは中身を読む）。レビュー結果は、どちらの経路でも固定のパス `/tmp/dev-crew-review-<cycle_id>/review.md` に置く（`<cycle_id>` は Cycle doc の frontmatter `cycle`。bash 呼び出しをまたいで使うので、変数に持たず固定のパスをそのまま書く）。`which codex` が成功するときは、前のセッションを resume しない。新しいセッションで Codex を実行する（`resume` しないのは、実装の文脈を持ち込まないため）:
    ```bash
    mkdir -p /tmp/dev-crew-review-<cycle_id>/scratch
    ```
@@ -200,7 +198,7 @@ Cycle doc `## Verification` セクション不在 or real-path invocation なし
    - 前後それぞれの終了コードと出力の形（64 桁の 16 進）を確かめる。取得失敗・空・形違いなら BLOCK（一致とみなさない）
    - 前後が違えば作業ツリーが変わっている。レビューを無効にして BLOCK。BLOCK したら `--list` を取り直し、前後の --list の差を人間に見せる（何が変わったかを見るため）
    - adversarial-reviewer も失敗したら BLOCK し、人間に報告する（レビューを省略しない）
-2. **修正**: 修正役を起動する前に、PdM が P1・P2 の指摘ごとに、レビュー結果にある場所（ファイル:行）で `bash "<orchestrate の Base directory>/../../scripts/gates/finding-in-diff.sh" <ファイル> <行>` を実行する（終了コード 0 = diff の中、1 = diff の外、2 = 判定できない）。終了コード 1 の指摘は、元からある欠陥として修正役に「直す」として渡さない。受け入れ条件に関わるなら「人間に戻す」、関わらないなら「記録のみ」にして DISCOVERED に回す。終了コード 0・2 と、場所が書かれていない指摘は、今までどおり修正役の振り分けに任せる。修正役の起動 prompt（Codex への起動文字列と Task の prompt の両方）には、終了コード 1 の指摘を「直さない指摘: [ファイル:行 と、指摘の 1 行目]」として書く（番号ではなく場所と原文で指す）。「直さない指摘」は PdM が振り分け済みなので、修正役は振り分けも報告もしない。件数の行（直す / 人間に戻す / 記録のみ）は、PdM が照合で振り分けた分と、修正役の報告の分を足したものにする。修正役を起動しないときは、P3 の指摘を PdM が「記録のみ」として数える。「直す」が 0 件なら修正役を起動せず、記録（3）へ進む。照合の後に、P1・P2 のうち終了コード 1 でないものとして修正役へ渡す指摘が 1 件以上残れば、修正役を起動する。起動するときは、修正役には常にそのファイルを渡す（`/tmp/dev-crew-review-<cycle_id>/review.md`）。Codex 成功なら Codex の出力、代行なら PdM が書き出した返答で、どちらも同じパス。`Task(subagent_type: "dev-crew:green-worker", model: "sonnet", prompt: "Cycle doc: [path]. レビュー結果: /tmp/dev-crew-review-<cycle_id>/review.md. adversarial-review.md の ## 振り分け と ## 報告の型 に従え。直さない指摘: [ファイル:行 と、指摘の 1 行目]（無ければ「なし」）。")` に渡し、「直す」だけを直させ、直す前に呼び出し元の検索と今の動きの固定を済ませ、既存のテストを弱めさせない。
+2. **修正**: 修正役を起動する前に、PdM が P1・P2 の指摘ごとに、レビュー結果にある場所（ファイル:行）で `bash "<orchestrate の Base directory>/../../scripts/gates/finding-in-diff.sh" <ファイル> <行>` を実行する（終了コード 0 = diff の中、1 = diff の外、2 = 判定できない）。終了コード 1 の指摘は、元からある欠陥として修正役に「直す」として渡さない。受け入れ条件に関わるなら「人間に戻す」、関わらないなら「記録のみ」にして DISCOVERED に回す。終了コード 0・2 と、場所が書かれていない指摘は、今までどおり修正役の振り分けに任せる。修正役の起動 prompt（Task の prompt）には、終了コード 1 の指摘を「直さない指摘: [ファイル:行 と、指摘の 1 行目]」として書く（番号ではなく場所と原文で指す）。「直さない指摘」は PdM が振り分け済みなので、修正役は振り分けも報告もしない。件数の行（直す / 人間に戻す / 記録のみ）は、PdM が照合で振り分けた分と、修正役の報告の分を足したものにする。修正役を起動しないときは、P3 の指摘を PdM が「記録のみ」として数える。「直す」が 0 件なら修正役を起動せず、記録（3）へ進む。照合の後に、P1・P2 のうち終了コード 1 でないものとして修正役へ渡す指摘が 1 件以上残れば、修正役を起動する。起動するときは、修正役には常にそのファイルを渡す（`/tmp/dev-crew-review-<cycle_id>/review.md`）。Codex 成功なら Codex の出力、代行なら PdM が書き出した返答で、どちらも同じパス。`Task(subagent_type: "dev-crew:green-worker", model: "sonnet", prompt: "Cycle doc: [path]. レビュー結果: /tmp/dev-crew-review-<cycle_id>/review.md. adversarial-review.md の ## 振り分け と ## 報告の型 に従え。直さない指摘: [ファイル:行 と、指摘の 1 行目]（無ければ「なし」）。")` に渡し、「直す」だけを直させ、直す前に呼び出し元の検索と今の動きの固定を済ませ、既存のテストを弱めさせない。
    - **未追跡ファイルの前後比較**: 修正役を起動する直前に、次のコマンドで未追跡ファイルの一覧を取って控える
      ```bash
      git ls-files --others --exclude-standard

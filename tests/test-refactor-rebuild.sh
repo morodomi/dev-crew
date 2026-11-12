@@ -81,15 +81,6 @@ else
   pass "steps-teams.md does not contain Skill(\"simplify\")"
 fi
 
-# TC-07: steps-codex.md does NOT contain /simplify
-echo ""
-echo "TC-07: steps-codex.md does NOT contain /simplify"
-if grep -q '/simplify' "$BASE_DIR/skills/orchestrate/steps-codex.md"; then
-  fail "steps-codex.md still contains /simplify"
-else
-  pass "steps-codex.md does not contain /simplify"
-fi
-
 ########################################
 # Peripheral docs
 ########################################

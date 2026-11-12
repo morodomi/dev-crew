@@ -2,7 +2,7 @@
 
 常に Subagent モードで実行する（環境変数に関わらず）。
 
-> **NOTE**: Codex 利用可能時、orchestrate が本スキルと並行して Codex レビューを実行し、findings を統合する。Codex 側の手順は [steps-codex.md](../orchestrate/steps-codex.md) を参照。
+> **NOTE**: orchestrate の REVIEW は本スキルを起動せず、敵対的レビューを 1 回実行する。Codex 側の手順は [steps-subagent.md](../orchestrate/steps-subagent.md) の REVIEW 節と [adversarial-review.md](../orchestrate/adversarial-review.md) を参照。
 
 ## Step 0: Mode Notification
 

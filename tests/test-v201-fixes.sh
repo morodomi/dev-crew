@@ -2,7 +2,6 @@
 # test-v201-fixes.sh - v2.0.1 pre-release fixes
 # P0: sync-plan Codex Debate removal + Codex Plan Review integration
 # P1: Findings summary after commit
-# P2: Codex review always runs; codex_mode controls RED/GREEN only
 #
 # TC-01: sync-plan.md does NOT have Debate Workflow section
 # TC-02: sync-plan.md does NOT have Human Clarification section
@@ -10,9 +9,7 @@
 #        pre-approval spec Step 8)
 # TC-04: steps-subagent.md REVIEW section has Codex competitive review
 # TC-05: commit SKILL.md has findings summary step after commit
-# TC-06: steps-codex.md states codex_mode controls RED/GREEN only
-# TC-07: SKILL.md Mode Selection describes codex_mode as RED/GREEN scope
-# TC-08: reference.md TDD Gate codex_mode description says RED/GREEN only
+# (TC-06/07/08 removed: codex_mode is gone; absence is pinned by test-codex-delegation-preference.sh TC-06/TC-12)
 # TC-09: spec reference.ja.md Post-Approve Action has NO Codex plan review, matching
 #        reference.md
 # TC-10: Existing tests pass (regression)
@@ -76,35 +73,6 @@ else
   fail "commit SKILL.md missing findings summary"
 fi
 
-# TC-06: steps-codex.md states codex_mode controls RED/GREEN only
-echo ""
-echo "TC-06: steps-codex.md codex_mode scope is RED/GREEN"
-if grep -qi 'RED/GREEN\|RED.*GREEN.*のみ\|RED.*GREEN.*only' "$BASE_DIR/skills/orchestrate/steps-codex.md"; then
-  pass "steps-codex.md states codex_mode scope is RED/GREEN"
-else
-  fail "steps-codex.md missing RED/GREEN scope description"
-fi
-
-# TC-07: SKILL.md Mode Selection describes codex_mode as RED/GREEN scope
-echo ""
-echo "TC-07: SKILL.md codex_mode controls RED/GREEN only"
-mode_section=$(sed -n '/## Mode Selection/,/^## /p' "$BASE_DIR/skills/orchestrate/SKILL.md")
-if echo "$mode_section" | grep -qi 'RED/GREEN\|RED.*GREEN'; then
-  pass "SKILL.md Mode Selection describes codex_mode as RED/GREEN"
-else
-  fail "SKILL.md Mode Selection missing RED/GREEN scope"
-fi
-
-# TC-08: reference.md TDD Gate codex_mode says RED/GREEN only
-echo ""
-echo "TC-08: reference.md TDD Gate codex_mode is RED/GREEN"
-tdd_gate=$(sed -n '/## TDD Gate/,/^## /p' "$BASE_DIR/skills/orchestrate/reference.md")
-if echo "$tdd_gate" | grep -qi 'RED/GREEN\|RED.*GREEN'; then
-  pass "reference.md TDD Gate says codex_mode is RED/GREEN"
-else
-  fail "reference.md TDD Gate missing RED/GREEN scope"
-fi
-
 # TC-09: spec reference.ja.md Post-Approve Action has NO Codex plan review, matching
 # reference.md
 echo ""
@@ -121,7 +89,7 @@ fi
 echo ""
 echo "TC-10: Regression tests"
 regression_pass=true
-for f in "$BASE_DIR"/tests/test-orchestrate-codex.sh "$BASE_DIR"/tests/test-codex-delegation-preference.sh; do
+for f in "$BASE_DIR"/tests/test-codex-delegation-preference.sh; do
   if [ -f "$f" ]; then
     if ! bash "$f" > /dev/null 2>&1; then
       fail "$(basename "$f") failed"

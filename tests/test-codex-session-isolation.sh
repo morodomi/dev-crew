@@ -2,17 +2,12 @@
 # test-codex-session-isolation.sh - Verify Codex session isolation with Cycle ID-based binding (#55)
 # TC-01: Cycle doc template has codex_session_id in frontmatter
 # TC-02: sync-plan.md Frontmatter Initialization has codex_session_id
-# TC-03: steps-codex.md Session Management mentions codex_session_id
-# TC-04: steps-codex.md Session Management mentions frontmatter
-# TC-05: steps-codex.md has `resume <session-id>` pattern
-# TC-06: steps-codex.md has fallback to resume --last
-# TC-07: steps-codex.md does NOT have "並行.*実行禁止" (hard prohibition removed)
+# TC-03: orchestrate/reference.md Session Management mentions codex_session_id
+# TC-04: orchestrate/reference.md Session Management states orchestrate does not resume (resume しない)
 # TC-08: steps-teams.md REVIEW section has session-id or fallback pattern
 # TC-09: steps-subagent.md REVIEW section has session-id or fallback pattern
-# TC-10: CLAUDE.md has session-id pattern
+# TC-10: CLAUDE.md records codex_session_id
 # TC-11: reference.md has Session Management section
-# TC-12: test-orchestrate-codex.sh passes (regression)
-# TC-13: test-codex-session-unify.sh passes (regression)
 
 set -euo pipefail
 
@@ -43,51 +38,23 @@ else
   fail "sync-plan.md missing codex_session_id"
 fi
 
-# TC-03: steps-codex.md Session Management mentions codex_session_id
+# TC-03: orchestrate/reference.md Session Management mentions codex_session_id
 echo ""
-echo "TC-03: steps-codex.md Session Management mentions codex_session_id"
-session_section=$(sed -n '/^## Session Management/,/^## /p' "$BASE_DIR/skills/orchestrate/steps-codex.md" | sed '$d')
+echo "TC-03: orchestrate/reference.md Session Management mentions codex_session_id"
+session_section=$(sed -n '/^## Session Management/,/^## /p' "$BASE_DIR/skills/orchestrate/reference.md" | sed '$d')
 if echo "$session_section" | grep -q 'codex_session_id'; then
   pass "Session Management mentions codex_session_id"
 else
   fail "Session Management does not mention codex_session_id"
 fi
 
-# TC-04: steps-codex.md Session Management mentions frontmatter
+# TC-04: orchestrate/reference.md Session Management states orchestrate does not resume
 echo ""
-echo "TC-04: steps-codex.md Session Management mentions frontmatter"
-if echo "$session_section" | grep -qi 'frontmatter'; then
-  pass "Session Management mentions frontmatter"
+echo "TC-04: orchestrate/reference.md Session Management states resume しない"
+if echo "$session_section" | grep -qF 'resume しない'; then
+  pass "Session Management states resume しない"
 else
-  fail "Session Management does not mention frontmatter"
-fi
-
-# TC-05: steps-codex.md has `resume <session-id>` pattern
-echo ""
-echo "TC-05: steps-codex.md has resume <session-id> pattern"
-if grep -q 'resume <session-id>' "$BASE_DIR/skills/orchestrate/steps-codex.md" || \
-   grep -q 'resume.*session.id' "$BASE_DIR/skills/orchestrate/steps-codex.md"; then
-  pass "steps-codex.md has resume <session-id> pattern"
-else
-  fail "steps-codex.md missing resume <session-id> pattern"
-fi
-
-# TC-06: steps-codex.md has fallback to resume --last
-echo ""
-echo "TC-06: steps-codex.md has fallback to resume --last"
-if grep -q 'resume --last' "$BASE_DIR/skills/orchestrate/steps-codex.md"; then
-  pass "steps-codex.md has fallback to resume --last"
-else
-  fail "steps-codex.md missing fallback to resume --last"
-fi
-
-# TC-07: steps-codex.md does NOT have "並行.*実行禁止" (hard prohibition removed)
-echo ""
-echo "TC-07: steps-codex.md does NOT have hard prohibition on parallel execution"
-if grep -q '並行.*実行禁止' "$BASE_DIR/skills/orchestrate/steps-codex.md"; then
-  fail "steps-codex.md still has hard prohibition on parallel execution"
-else
-  pass "steps-codex.md does not have hard prohibition"
+  fail "Session Management does not state resume しない"
 fi
 
 # TC-08: steps-teams.md REVIEW section は codex_session_id で resume せず、新しいセッションでレビューする（実装者の自己レビュー防止）
@@ -110,13 +77,13 @@ else
   fail "steps-subagent.md REVIEW missing the new-session exception"
 fi
 
-# TC-10: CLAUDE.md has session-id pattern
+# TC-10: CLAUDE.md records codex_session_id
 echo ""
-echo "TC-10: CLAUDE.md has session-id pattern"
-if grep -q 'resume <session-id>\|resume.*session.id\|codex_session_id' "$BASE_DIR/CLAUDE.md"; then
-  pass "CLAUDE.md has session-id pattern"
+echo "TC-10: CLAUDE.md records codex_session_id"
+if grep -q 'codex_session_id' "$BASE_DIR/CLAUDE.md"; then
+  pass "CLAUDE.md records codex_session_id"
 else
-  fail "CLAUDE.md missing session-id pattern"
+  fail "CLAUDE.md missing codex_session_id"
 fi
 
 # TC-11: reference.md has Session Management section
@@ -126,24 +93,6 @@ if grep -q '## Session Management' "$BASE_DIR/skills/orchestrate/reference.md"; 
   pass "reference.md has Session Management section"
 else
   fail "reference.md missing Session Management section"
-fi
-
-# TC-12: test-orchestrate-codex.sh passes (regression)
-echo ""
-echo "TC-12: regression - test-orchestrate-codex.sh"
-if bash "$BASE_DIR/tests/test-orchestrate-codex.sh" > /dev/null 2>&1; then
-  pass "test-orchestrate-codex.sh passes"
-else
-  fail "test-orchestrate-codex.sh failed (regression)"
-fi
-
-# TC-13: test-codex-session-unify.sh passes (regression)
-echo ""
-echo "TC-13: regression - test-codex-session-unify.sh"
-if bash "$BASE_DIR/tests/test-codex-session-unify.sh" > /dev/null 2>&1; then
-  pass "test-codex-session-unify.sh passes"
-else
-  fail "test-codex-session-unify.sh failed (regression)"
 fi
 
 # Summary

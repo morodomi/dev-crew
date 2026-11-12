@@ -500,8 +500,8 @@ Codex Integration リテラルテンプレート:
 ```markdown
 ## Codex Integration
 
-- `codex exec --sandbox workspace-write "<prompt>" < /dev/null`: 非対話実行
-- `codex exec --sandbox workspace-write resume --last "<prompt>" < /dev/null`: セッション継続（cwdフィルタ）
+- `codex exec --sandbox read-only "<prompt>" < /dev/null`: 非対話実行
+- `codex exec --sandbox read-only resume <session-id> "<prompt>" < /dev/null`: セッション継続
 - フラグは `resume` より前に置く（後ろに置くと rc=2）。`< /dev/null` を外すと stdin 待ちでハングする
 - `codex review` は使わない
 
@@ -511,7 +511,7 @@ Codex Integration リテラルテンプレート:
 #### Codex セットアップガイダンス
 
 - **sync-skills**: プロジェクトで dev-crew プラグインを使用している場合、Codex が dev-crew のスキル定義を参照できるよう、`sync-skills` でスキル情報を AGENTS.md に同期する。Codex は Claude Code プラグインを直接読めないため、この同期が必要。
-- **Codex セッション作成**: 初回は `codex exec --sandbox read-only "review plan <planファイルパス>" < /dev/null` で新規セッションを作成する。以降は `codex exec --sandbox read-only resume <session-id> "指示" < /dev/null` でセッションを継続し、Context Cache を活用する（この read-only 継続は承認前 plan review セッション限定。RED/GREEN 実装委譲は CLAUDE.md テンプレートの Codex Integration 非対話実行コマンドを使う。read-only ではない）。
+- **Codex セッション作成**: 初回は `codex exec --sandbox read-only "review plan <planファイルパス>" < /dev/null` で新規セッションを作成する。以降は `codex exec --sandbox read-only resume <session-id> "指示" < /dev/null` でセッションを継続し、Context Cache を活用する（この read-only 継続は承認前 plan review セッション限定。Codex はレビューにだけ使う）。
 
 ### Migration from Single-CLAUDE.md
 

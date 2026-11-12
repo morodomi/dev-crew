@@ -16,7 +16,6 @@ spec (Claude)
   │  → approve(レビュー済み plan の承認)               ← 承認ゲート(1)
   │  → sync-plan(Plan Review Record を Cycle doc へ転記)
   │  → architect(転記後検証: 転記欠落=BLOCK / scope実質変更=再承認 / 観察のみ=DISCOVERED)
-  │  → (Codex委譲確認: full/no)                      ← Codex利用可能時
   │  → compact
   │
   ▼
@@ -25,12 +24,12 @@ spec (Claude)
   │  exit 1 → BLOCK（不足ステップに戻す）
   │
   ▼
-RED (Codex: full時)                        [fallback: Claude]
+RED (Claude)
   │  テスト作成（正常系/異常系を忖度なしでカバー）
   │  → exspec（テスト静的解析）
   │
   ▼
-GREEN (Codex: full時)                      [fallback: Claude]
+GREEN (Claude)
   │  最小実装（テストを「通すだけ」の忖度をしない）
   │
   ▼
