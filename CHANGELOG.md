@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [2.24.0] - 2026-11-12
+
 ### Removed
 
 - **codex_mode (full/no) と `skills/orchestrate/steps-codex.md` を削除した。** RED/GREEN を Codex に委譲する経路は、導入先 128 件の記録で full が 0 件だった。RED/GREEN と REVIEW の修正役は常に Claude の worker が担当する
