@@ -68,6 +68,13 @@ updated: YYYY-MM-DD HH:MM
 
 （spec Step 7.2 の recall-candidates.sh 上位候補を助言者形式で転記。候補なしは「関連する過去サイクルなし」の 1 行）
 
+## 受け入れ条件
+
+（plan の `## 受け入れ条件` を原文のまま転記）
+
+- AC-1: [満たすべき条件]
+  - 確かめ方: テスト TC-01
+
 ## Test List
 
 ### TODO

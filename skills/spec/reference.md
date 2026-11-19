@@ -538,6 +538,11 @@ planファイルに記録するTDDコンテキストのテンプレート:
 ### Ambiguity Resolution (if any)
 - [category]: [resolution]
 
+## 受け入れ条件
+
+- AC-1: [condition to satisfy]
+  - 確かめ方: テスト TC-01
+
 ## Recall
 
 （Step 7.2 の `scripts/recall-candidates.sh` 上位候補を助言者形式で記録。候補が無ければ「関連する過去サイクルなし」の 1 行）
@@ -571,6 +576,23 @@ Edit/Write は直接行わず、必ず /orchestrate に委譲する（プロン�
 この後、plan mode内で探索・設計・Test List定義・QAチェック・Step 8（承認前レビュー）を続行する。
 
 厳密形式: review_attempts は入れ子 `- {started: ...}` を先頭キーとする（date は started 値に内包）。この書式は scripts/gates/pre-red-gate.sh の grep 契約であり書式の自由度を持たない。override は verdict が BLOCK-overridden の場合のみ必須で、テンプレートでは値なしの空欄のままとし、記入時に人間の明示承認の実証跡（ExitPlanMode 承認等）を引用する。テンプレートの空欄をそのままコピーしても pre-red-gate の `^- override: [^ ]` を満たさない（プレースホルダ値による偽の実証跡通過を防ぐため、fence 内は空欄・説明は fence 外の本注記に置く）。
+
+## 受け入れ条件と確かめ方 {#acceptance-criteria}
+
+plan の `## 受け入れ条件` に、条件ごとに確かめ方を書く。決まらない条件を、AI が仮定を置いて進めるのでなく、承認の前に人へ問いとして返すための節。
+
+書式: 条件 1 つにつき 2 行。`- AC-N: <満たすべき条件>` の次の行に、空白 2 つ以上で字下げした `- 確かめ方: <種類>` を 1 行だけ書く。AC-ID は重複させない。節の中で `AC-` から始まるのに上の書式でない行（全角コロン・`*` の箇条書き・字下げ）は BLOCK する。節には AC の行と確かめ方の行だけを書く。`AC-` を持たない文は plan-lint が読まないので、条件にしたいものは必ず `- AC-N:` の形にする。`## Test List` の見出しは `## Test List（注記）` のように後ろに注記があってよく、TC 行は `- [ ] TC-01: …`・`- [X] TC-01: …`・`- [ ] TC-01 (RED): …` のどれでもよい（ID は `TC-` に続く英数字・`_`・間の `-` `.` まで）。
+
+確かめ方の種類は次の 4 つ。
+
+- `テスト TC-01, TC-02`: ID は同じ plan の `## Test List` に `TC-ID:` として実在すること。範囲（`TC-01〜TC-05`）で書かず、1 つずつ並べる
+- `` コマンド `<コマンド>` ``: バッククォートで囲んだ空でないコマンド（plan mode では実行しない）
+- `人が確認（<何を見るか>）`: 括弧の中が空白だけでないこと
+- `未定（問い: <人に聞くこと>）`: 書いてよいが plan-lint は BLOCK し、問いを 1 件 1 行で出す
+
+流す時点: Step 7 の終わり、Codex plan review（Step 8）の前に `bash "<spec の Base directory>/../../scripts/gates/plan-lint.sh" <plan path>` を流す。ここで直せば reviewed_plan_hash がずれない。pre-approve-gate も最後に同じ検査を呼ぶので、飛ばしても承認前に止まる（その時点で直すと hash が変わるため、Step 8 の hash 不一致と同じ手順で戻る）。
+
+未定のとき: BLOCK の `未定の問い` を AskUserQuestion で人に聞き、答えで確かめ方を書き直して plan-lint を流し直す。コードブロックの中の記述と `## Plan Review Record` より後ろは読まれない。
 
 ## Forced Recall {#forced-recall}
 

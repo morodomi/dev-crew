@@ -42,6 +42,9 @@ skills/orchestrate/SKILL.md|orchestrate|/../../scripts/gates/pre-red-gate.sh
 skills/spec/SKILL.md|spec|/../../scripts/recall-candidates.sh
 skills/spec/reference.md|spec|/../../scripts/recall-candidates.sh
 skills/spec/reference.ja.md|spec|/../../scripts/recall-candidates.sh
+skills/spec/SKILL.md|spec|/../../scripts/gates/plan-lint.sh
+skills/spec/reference.md|spec|/../../scripts/gates/plan-lint.sh
+skills/spec/reference.ja.md|spec|/../../scripts/gates/plan-lint.sh
 skills/red/SKILL.md|red|/../../scripts/gates/exspec-check.sh
 skills/red/reference.md|red|/../../scripts/gates/exspec-check.sh
 skills/learn/SKILL.md|learn|/../../scripts/tfidf-summary.sh

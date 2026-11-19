@@ -39,6 +39,27 @@ canon_hash() {
   awk '$0=="## Plan Review Record"{exit}{print}' "$1" | shasum -a 256 | awk '{print $1}'
 }
 
+# plan_body [extra_line]: the plan above the Record heading. It carries a valid
+# acceptance-criteria section and Test List so that plan-lint passes and the
+# hash / plan_presented checks are the only reason a fixture can BLOCK.
+plan_body() {
+  echo "# Sample plan"
+  echo ""
+  echo "## Context"
+  echo "Body text of the plan."
+  [ -n "${1:-}" ] && echo "$1"
+  echo ""
+  echo "## 受け入れ条件"
+  echo ""
+  echo "- AC-1: the sample behaves as described"
+  echo "  - 確かめ方: テスト TC-01"
+  echo ""
+  echo "## Test List"
+  echo ""
+  echo "- [ ] TC-01: sample case"
+  echo ""
+}
+
 # mk_plan <path> <body_extra_line> <hash_mode> <presented_mode>
 #   hash_mode: auto | empty | none | <64-hex literal>
 #   presented_mode: ok | empty | template | none
@@ -46,12 +67,7 @@ canon_hash() {
 mk_plan() {
   local path="$1" extra="$2" hmode="$3" pmode="$4" h
   {
-    echo "# Sample plan"
-    echo ""
-    echo "## Context"
-    echo "Body text of the plan."
-    [ -n "$extra" ] && echo "$extra"
-    echo ""
+    plan_body "$extra"
     echo "## Plan Review Record"
   } > "$path"
   case "$hmode" in
@@ -276,11 +292,7 @@ echo ""
 echo "TC-12: BLOCK when values exist only in a later section"
 # Given (hash): Record lacks the hash; a later section holds the correct one
 {
-  echo "# Sample plan"
-  echo ""
-  echo "## Context"
-  echo "Body text of the plan."
-  echo ""
+  plan_body
   echo "## Plan Review Record"
 } > "$TMPDIR/tc12a.md"
 h12=$(canon_hash "$TMPDIR/tc12a.md")
@@ -298,11 +310,7 @@ else
 fi
 # Given (plan_presented): Record lacks it; a later section holds a valid one
 {
-  echo "# Sample plan"
-  echo ""
-  echo "## Context"
-  echo "Body text of the plan."
-  echo ""
+  plan_body
   echo "## Plan Review Record"
   echo "- reviewed_plan_hash: $h12"
   echo ""
@@ -352,7 +360,7 @@ zero_hash=$(printf '0%.0s' $(seq 1 64))
 mk_plan "$TMPDIR/tc15a.md" "" auto ok
 good15=$(canon_hash "$TMPDIR/tc15a.md")
 {
-  echo "# Sample plan"; echo ""; echo "## Context"; echo "Body text of the plan."; echo ""
+  plan_body
   echo "## Plan Review Record"
   echo "- reviewed_plan_hash: $good15"
   echo "- reviewed_plan_hash: $zero_hash"
@@ -368,7 +376,7 @@ else
 fi
 # Given: wrong hash first, correct hash last
 {
-  echo "# Sample plan"; echo ""; echo "## Context"; echo "Body text of the plan."; echo ""
+  plan_body
   echo "## Plan Review Record"
   echo "- reviewed_plan_hash: $zero_hash"
   echo "- reviewed_plan_hash: $good15"
