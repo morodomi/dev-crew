@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [2.25.0] - 2026-11-19
+
 ### Added
 
 - **plan の受け入れ条件ごとに「確かめ方」を求める `scripts/gates/plan-lint.sh` を追加した。** plan の `## 受け入れ条件` に `- AC-N: <条件>` と、その下の `- 確かめ方:` を 1 行ずつ書く。確かめ方は テスト（Test List の TC-ID）・コマンド・人が確認・未定の 4 種類。節が無い、確かめ方が無い・不正、TC-ID が Test List に無い、「未定」の条件があると BLOCK し、未定の問いは 1 件 1 行で出す。spec の Step 7 の終わり（Codex の plan review の前）で流す。Plan File Template、Cycle doc のテンプレート、sync-plan の転記表に `## 受け入れ条件` を足した
