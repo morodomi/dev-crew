@@ -9,6 +9,7 @@
 
 ### Changed
 
+- **pre-commit-gate が pre-red-gate の実行記録を要求するようにし、orchestrate の `SKILL.md` の Block 2a に gate の呼び出しを書いた (#295)。** Progress Log の最後の `### ... - PRE-RED GATE` entry に `- pre-red-gate: PASS`（または人間の承認を書いた `OVERRIDE（<承認内容>）`）が無ければ COMMIT 前に BLOCK する。導入先で進行中の cycle は、BLOCK の出力の `Run:` のコマンドを流し、結果の entry を Progress Log に足せば回復できる。plan ファイルの上書きなどで pre-red-gate が BLOCK して直せないときは、人間に確かめ、承認の後に OVERRIDE を書く
 - **反映待ちだった codified の insight 66 件を rules に着地させた。** 同じ教訓は 1 条にまとめて出典を並べ、65 件を書き、消えた仕組みに依存する 1 件を取り下げた。rules は 657 行から 735 行になった。codify-insight の reference に、反映するときの出典の書き方を足した
 
 ## [2.24.0] - 2026-11-12

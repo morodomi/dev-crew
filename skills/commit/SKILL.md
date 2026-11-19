@@ -22,6 +22,7 @@ Cycle doc の Progress Log を確認し、以下が全て満たされなけれ�
 1. **REVIEW完了**: Progress Log に `### ... - REVIEW` セクションがあり、`Phase completed` 記録がある
 2. **Codex review記録** (`which codex` 成功時のみ): 最後の REVIEW 節に件数の行 `- Codex review: 直す N / 人間に戻す M / 記録のみ K`（または Codex 失敗時の代行の形）がある
 3. **retro_status check**: retro_status: captured / resolved で PASS。none で BLOCK (cycle-retrospective 実行)、field 不在も BLOCK（frontmatter に `retro_status: none` を足して cycle-retrospective を実行）
+4. **pre-red-gate 記録**: Progress Log の最後の `### ... - PRE-RED GATE` entry に `- pre-red-gate: PASS`（または理由付き `OVERRIDE（...）`）がある
 
 ```bash
 # 最後の `### ... - REVIEW` 見出しから次の `### ` 見出しの手前まで
@@ -30,6 +31,10 @@ SEC=$(awk '/^```/{fence=!fence} !fence&&/^### /{on=($0 ~ /^### .* - REVIEW/); if
 grep -qi 'Phase completed' <<<"$SEC"
 # 2. Codex review チェック（codex利用可能時のみ）
 which codex && grep -qE '^- Codex review: (失敗（[^）]*）。adversarial-reviewer で代行: )?直す [0-9]+ / 人間に戻す [0-9]+ / 記録のみ [0-9]+' <<<"$SEC"
+# 4. pre-red-gate の記録チェック
+REC=$(awk '/^(```|~~~)/{c=substr($0,1,1);if(f==""){f=c}else if(f==c){f=""};next} f!=""{next} /^## /{inlog=($0 ~ /^## Progress Log[[:space:]]*$/);on=0;next} !inlog{next} /^### /{on=($0 ~ /^### .* - PRE-RED GATE[[:space:]]*$/);if(on)buf="";next} on{buf=buf $0 "\n"} END{printf "%s",buf}' "$CYCLE_DOC")
+ok=0; while IFS= read -r l; do case "$l" in "- pre-red-gate: OVERRIDE（"*) r="${l#- pre-red-gate: OVERRIDE（}"; r="${r%%）*}"; r="${r//　/}"; [ -n "${r//[[:space:]]/}" ] && ok=1 ;; ?*) ok=1 ;; esac; done < <(grep -E '^- pre-red-gate: (PASS([[:space:]].*|（.*|\(.*)?|OVERRIDE（.+）.*)$' <<<"$REC")
+[ "$ok" = 1 ]
 ```
 
 いずれか失敗 → BLOCK（不足ステップを案内）

@@ -75,6 +75,7 @@ new_fixture() {
 write_doc() {
   {
     printf -- '---\nphase: COMMIT\nretro_status: captured\n---\n# fixture\n\n## Progress Log\n\n'
+    printf -- '### 2026-03-15 10:00 - PRE-RED GATE\n- pre-red-gate: PASS\n\n'
     cat
   } > "$1"
 }

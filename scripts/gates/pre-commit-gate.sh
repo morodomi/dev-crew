@@ -21,6 +21,8 @@
 #   3. Retrospective status (retro_status: captured/resolved required;
 #      none/empty/invalid/absent all BLOCK — absent is a bypass risk since
 #      cycle-retrospective idempotency also treats absent as skip)
+#   4. pre-red-gate record: the last `### ... - PRE-RED GATE` entry in the Progress Log
+#      has `- pre-red-gate: PASS` (or OVERRIDE with a non-blank reason)
 
 set -euo pipefail
 
@@ -126,6 +128,37 @@ case "$retro_status" in
     echo "BLOCK: invalid retro_status value: '$retro_status' (expected: none | captured | resolved)."
     exit 1 ;;
 esac
+
+# 4. pre-red-gate の実行記録。Progress Log の最後の `### ... - PRE-RED GATE` entry だけを見る。
+#    REVIEW_SECTION の awk と違い、本文の収集でも fence の中を飛ばす（コード例の PASS で通さない）。
+#    OVERRIDE は全角括弧の中が空白だけなら認めない。全角括弧を括弧式に入れると C ロケールで
+#    バイト単位になるので、理由の取り出しは文字列の前方・後方除去で行う。
+PRG_REC=$(awk '/^(```|~~~)/{c=substr($0,1,1);if(f==""){f=c}else if(f==c){f=""};next} f!=""{next} /^## /{inlog=($0 ~ /^## Progress Log[[:space:]]*$/);on=0;next} !inlog{next} /^### /{on=($0 ~ /^### .* - PRE-RED GATE[[:space:]]*$/);if(on)buf="";next} on{buf=buf $0 "\n"} END{printf "%s",buf}' "$ACTIVE_CYCLE")
+PRG_LINES=$(grep -E '^- pre-red-gate: (PASS([[:space:]].*|（.*|\(.*)?|OVERRIDE（.+）.*)$' <<<"$PRG_REC" || true)
+prg_ok=0
+while IFS= read -r prg_line; do
+  case "$prg_line" in
+    "- pre-red-gate: OVERRIDE（"*)
+      prg_reason="${prg_line#- pre-red-gate: OVERRIDE（}"
+      prg_reason="${prg_reason%%）*}"
+      prg_reason="${prg_reason//　/}"
+      prg_reason="${prg_reason//[[:space:]]/}"
+      [ -n "$prg_reason" ] && prg_ok=1 ;;
+    ?*) prg_ok=1 ;;
+  esac
+done <<<"$PRG_LINES"
+if [ "$prg_ok" -ne 1 ]; then
+  # 実行コマンドを BLOCK の出力からそのまま流せるよう、gate 自身の絶対パスから組み立てる
+  GATE_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+  echo "BLOCK: pre-red-gate result not recorded."
+  # %q で出すので、パスに $() や引用符があっても bash -c で再評価されない
+  printf 'Run: bash %q %q\n' "$GATE_DIR/pre-red-gate.sh" "$ACTIVE_CYCLE"
+  echo "Then append to the Progress Log:"
+  echo "### YYYY-MM-DD HH:MM - PRE-RED GATE"
+  echo "- pre-red-gate: PASS"
+  echo "If pre-red-gate keeps BLOCKing and cannot be fixed, ask the human. Only after approval write: - pre-red-gate: OVERRIDE（<approval>）"
+  exit 1
+fi
 
 echo "PASS: All pre-COMMIT gate checks passed."
 exit 0
