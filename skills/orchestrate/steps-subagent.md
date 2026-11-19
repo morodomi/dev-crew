@@ -121,7 +121,16 @@ PdM が Cycle doc に Phase Summary を追記:
 bash "<orchestrate の Base directory>/../../scripts/gates/pre-red-gate.sh" "$CYCLE_DOC"
 ```
 
-exit 0 → RED へ。exit 1 → BLOCK（gate の出力メッセージで不足ステップを案内。sync-plan 未完了 / Plan Review (pre-approval) の strict 契約違反等）。
+exit 0 → 結果を Progress Log に entry で書いてから RED へ。exit 1 → BLOCK（gate の出力メッセージで不足ステップを案内。sync-plan 未完了 / Plan Review (pre-approval) の strict 契約違反等）。
+
+結果は次の形で Progress Log に追記する（pre-commit-gate が最後の PRE-RED GATE entry を見る）。時刻は `date '+%Y-%m-%d %H:%M'` の実測値。
+
+```
+### YYYY-MM-DD HH:MM - PRE-RED GATE
+- pre-red-gate: PASS
+```
+
+BLOCK のときは `- pre-red-gate: BLOCK（<gate の出力のうち BLOCK: で始まる行>）` で entry を書き、直して流し直したら新しい entry を足す。plan ファイルの上書きなどで直せず BLOCK が続くときは、AskUserQuestion で人間に確かめ、承認された場合だけ `- pre-red-gate: OVERRIDE（<承認内容>）` を書く。
 
 > **MUST**: inline の awk/grep による弱チェックを直書きしない。強化された gate script が唯一の判定源（deterministic gate の単独完結原則、rules/multi-file-consistency.md 準拠）。
 

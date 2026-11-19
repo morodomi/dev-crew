@@ -90,7 +90,7 @@ sync-plan → RED → GREEN → ... → COMMIT → DONE (cycle N+1 本体フロ�
 LLMの手順スキップを機械的に防止するゲートは2箇所:
 
 1. **pre-red-gate.sh**: RED開始前。Cycle doc存在・sync-plan完了・Plan Review (pre-approval) 記録（verdict enumerate・reviewed_plan_hash実照合含む）を検証
-2. **pre-commit-gate.sh**: COMMIT開始前。REVIEW完了・Codex review記録・retro_status を検証
+2. **pre-commit-gate.sh**: COMMIT開始前。REVIEW完了・Codex review記録・retro_status・pre-red-gate の記録を検証
 
 承認ゲートは「人間が判断する」場所。決定論的ゲートは「LLMが忘れる」場所。両者は補完関係にある。
 
@@ -117,4 +117,4 @@ LLMがPdMとしてフローを制御する以上、手順スキップは避け�
 | ゲート | チェック内容 | 防ぐ問題 |
 |--------|-------------|---------|
 | pre-red-gate.sh | Cycle doc, sync-plan, Plan Review | sync-plan飛ばし、レビューなし開発 |
-| pre-commit-gate.sh | REVIEW, Codex review, retro_status | レビューなしコミット、retrospective スキップ |
+| pre-commit-gate.sh | REVIEW, Codex review, retro_status, pre-red-gate の記録 | レビューなしコミット、retrospective スキップ、pre-red-gate の実行漏れ |

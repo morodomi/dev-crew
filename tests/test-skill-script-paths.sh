@@ -38,6 +38,7 @@ skills/orchestrate/steps-teams.md|orchestrate|/../../scripts/gates/pre-red-gate.
 skills/orchestrate/steps-teams.md|orchestrate|/../../scripts/gates/worktree-fingerprint.sh
 skills/orchestrate/steps-teams.md|orchestrate|/../../scripts/gates/finding-in-diff.sh
 skills/orchestrate/SKILL.md|orchestrate|/../../scripts/gates/pre-commit-gate.sh
+skills/orchestrate/SKILL.md|orchestrate|/../../scripts/gates/pre-red-gate.sh
 skills/spec/SKILL.md|spec|/../../scripts/recall-candidates.sh
 skills/spec/reference.md|spec|/../../scripts/recall-candidates.sh
 skills/spec/reference.ja.md|spec|/../../scripts/recall-candidates.sh

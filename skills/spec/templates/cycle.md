@@ -4,7 +4,7 @@ Copy and create `docs/cycles/YYYYMMDD_HHMM_<feature-name>.md`.
 
 ---
 
-```markdown
+~~~markdown
 ---
 feature: [feature-area]
 cycle: [cycle-identifier]
@@ -133,6 +133,13 @@ Format for each phase entry (**strict, required by pre-commit-gate.sh**):
 ```
 
 Phase-specific content:
+- pre-red-gate (RED の前。pre-commit-gate が最後の entry を見る):
+
+```
+### YYYY-MM-DD HH:MM - PRE-RED GATE
+- pre-red-gate: PASS
+```
+
 - RED: `Test code created, N tests failing`
 - GREEN: `Implementation complete, all tests passing`
 - REFACTOR: `refactor (checklist) + Verification Gate passed`
@@ -154,4 +161,4 @@ Phase-specific content:
 5. [ ] REVIEW
 6. [ ] COMMIT
 7. [ ] DONE
-```
+~~~

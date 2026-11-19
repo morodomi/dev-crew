@@ -52,6 +52,9 @@ make_gate_fixture() {
     echo "## Progress Log"
     echo ""
     if [ "$include_review" = "yes" ]; then
+      echo "### 2026-01-01 00:00 - PRE-RED GATE"
+      echo "- pre-red-gate: PASS"
+      echo ""
       echo "### 2026-01-01 00:00 - REVIEW"
       echo ""
       echo "- Codex review: 直す 0 / 人間に戻す 0 / 記録のみ 0"

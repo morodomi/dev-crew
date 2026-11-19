@@ -70,6 +70,7 @@ Codex plan review は承認前（spec Step 8）に完了済みの前提で進行
 **MUST**: 次のフェーズに進む前に、現フェーズの完了条件を確認せよ。詳細手順はモードに応じて参照（AGENT_TEAMS=1 → [steps-teams.md](steps-teams.md)、それ以外 → [steps-subagent.md](steps-subagent.md)）
 
 #### Block 2a: RED
+先に `bash "<orchestrate の Base directory>/../../scripts/gates/pre-red-gate.sh" <cycle doc>` を流し、結果（BLOCK も）を Progress Log の `### <時刻> - PRE-RED GATE` entry に `- pre-red-gate: PASS` の形で記録する（pre-commit-gate が見る。書式: steps-*.md の Pre-RED Gate）。
 Task(red-worker, sonnet): Cycle doc + TC → テスト作成・失敗確認
 
 #### Block 2b: GREEN
