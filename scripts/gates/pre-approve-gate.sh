@@ -69,5 +69,16 @@ if ! grep -qE '^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}' <<< "$presented_va
   exit 1
 fi
 
+# Acceptance criteria last, so a hash mismatch is reported before a lint finding.
+# plan-lint's stdout is passed through as is.
+linter="$(CDPATH= cd "$(dirname "$0")" && pwd)/plan-lint.sh"
+lint_rc=0
+lint_out=$(bash "$linter" "$plan" 2>&1) || lint_rc=$?
+if [ "$lint_rc" -ne 0 ]; then
+  echo "$lint_out"
+  exit 1
+fi
+
 echo "PASS: reviewed_plan_hash matches and plan_presented is filled."
+echo "$lint_out"
 exit 0

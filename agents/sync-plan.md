@@ -63,6 +63,7 @@ planファイルから以下をCycle docに転記:
 | Context & Dependencies | 依存関係・参照ドキュメント |
 | Implementation Notes | Goal, Background, Design Approach |
 | Recall | ## Recall（関連過去サイクル・助言者形式） |
+| 受け入れ条件 | ## 受け入れ条件（原文のまま） |
 
 ### Step 3: Transfer Test List
 
